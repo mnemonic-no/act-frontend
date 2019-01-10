@@ -1,0 +1,21 @@
+{
+  "apiUrl": "http://osl-act-dev-trunk1.mnemonic.no",
+  "actUserId": 3,
+
+  "objectColors": {
+    "email": "#808",
+    "fqdn": "#c00",
+    "threatActor": "#606",
+    "tool": "#b60",
+    "vulnerability": "#06b",
+    "ipv4": "#00c",
+    "hash": "#0a8",
+    "report": "#0a0",
+    "location": "#d2d"
+  },
+
+  "autoResolveFacts": {
+    "report": ["hasTitle"],
+    "ipv4": ["isSinkhole"]
+  }
+}

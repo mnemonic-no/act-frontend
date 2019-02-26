@@ -9,7 +9,7 @@ import withDataLoader from '../util/withDataLoader';
 import memoizeDataLoader from '../util/memoizeDataLoader';
 import actWretch from '../util/actWretch';
 import CenteredCircularProgress from './CenteredCircularProgress';
-import { objectTypeToColor } from '../util/utils';
+import { objectTypeToColor, objectValue } from '../util/utils';
 import config from '../config.json';
 import CreateFactDialog, { createFact } from './CreateFact/Dialog';
 
@@ -69,7 +69,7 @@ const ObjectInformationComp = ({
           variant='headline'
           className={`${classes.link} ${classes[data.type.name]}`}
         >
-          <span>{data.value}</span>
+          <span>{objectValue(data)}</span>
         </Typography>
       </a>
       <Typography variant='subheading' gutterBottom>

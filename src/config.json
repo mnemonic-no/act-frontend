@@ -3,19 +3,22 @@
   "actUserId": 3,
 
   "objectColors": {
-    "email": "#808",
+    "country": "#c08",
     "fqdn": "#c00",
+    "hash": "#0a8",
+    "incident": "#06b",
+    "ipv4": "#00c",
+    "location": "#d2d",
+    "report": "#0a0",
+    "technique": "#d04",
     "threatActor": "#606",
     "tool": "#b60",
-    "vulnerability": "#06b",
-    "ipv4": "#00c",
-    "hash": "#0a8",
-    "report": "#0a0",
-    "location": "#d2d"
+    "uri": "#0c0"
   },
 
   "autoResolveFacts": {
-    "report": ["hasTitle"],
-    "ipv4": ["isSinkhole"]
+    "asn": ["name"],
+    "report": ["name"],
+    "uri": ["port", "scheme"]
   }
 }

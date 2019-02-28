@@ -1,6 +1,6 @@
 {
-  "apiUrl": "http://osl-act-dev-trunk1.mnemonic.no",
-  "actUserId": 3,
+  "apiUrl": "",
+  "actUserId": 1,
 
   "objectColors": {
     "country": "#c08",

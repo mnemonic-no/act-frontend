@@ -1,4 +1,4 @@
-import { truncateText, objectValue } from '../util/utils';
+import { truncateText, renderObjectValue } from '../util/utils';
 /*
  * Convert ACT object and fact structures to cytoscape structures
  */
@@ -9,7 +9,7 @@ export const objectToCytoscapeNode = object => ({
     id: object.id,
     // label: `${object.type.name}: ${truncateText(object.value, 16)}`,
     // TODO: Make option to show
-    label: objectValue(object),
+    label: renderObjectValue(object),
     type: object.type.name,
     value: object.value,
     isFact: false

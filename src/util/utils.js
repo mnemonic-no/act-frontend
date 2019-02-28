@@ -38,7 +38,7 @@ export const truncateText = (text, maxLength = 16) => {
 };
 
 // If object.value is <sha256sum> (placeholder), show <object type>
-export const objectValue = (object, maxLength = 16) => {
+export const renderObjectValue = (object, maxLength = 16) => {
   if (object.value.match(/^\[placeholder\[[a-z0-9]{64}\]\]$/)) {
     return `<${object.type.name}>`;
   }

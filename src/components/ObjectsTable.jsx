@@ -10,7 +10,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { withStyles } from '@material-ui/core/styles';
 
 import graphInformation from '../state/graphInformation';
-import { objectTypeToColor } from '../util/utils';
+import { objectTypeToColor, renderObjectValue } from '../util/utils';
 
 const styles = theme => ({
   cell: {
@@ -36,7 +36,7 @@ const ObjectRowComp = ({ onRowClick, classes, object }) => (
       </span>
     </TableCell>
     <TableCell classes={{ root: classes.cell }} padding='dense'>
-      {object.value}
+      {renderObjectValue(object)}
     </TableCell>
   </TableRow>
 );

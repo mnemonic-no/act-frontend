@@ -37,6 +37,14 @@ export const truncateText = (text, maxLength = 16) => {
   return text;
 };
 
+// If object.value is <sha256sum> (placeholder), show <object type>
+export const renderObjectValue = (object, maxLength = 16) => {
+  if (object.value.match(/^\[placeholder\[[a-z0-9]{64}\]\]$/)) {
+    return `<${object.type.name}>`;
+  }
+  return truncateText(object.value, maxLength);
+};
+
 // https://github.com/facebook/react/issues/5465#issuecomment-157888325
 export const makeCancelable = promise => {
   let hasCanceled_ = false;

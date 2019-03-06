@@ -36,7 +36,7 @@ const ObjectRowComp = ({ onRowClick, classes, object }) => (
       </span>
     </TableCell>
     <TableCell classes={{ root: classes.cell }} padding='dense'>
-      {renderObjectValue(object)}
+      {renderObjectValue(object, 256)}
     </TableCell>
   </TableRow>
 );

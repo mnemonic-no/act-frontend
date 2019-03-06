@@ -69,7 +69,7 @@ const ObjectInformationComp = ({
           variant='headline'
           className={`${classes.link} ${classes[data.type.name]}`}
         >
-          <span>{renderObjectValue(data)}</span>
+          <span>{renderObjectValue(data, 256)}</span>
         </Typography>
       </a>
       <Typography variant='subheading' gutterBottom>

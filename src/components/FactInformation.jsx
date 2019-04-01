@@ -21,8 +21,8 @@ import { FactRow } from './FactsTable';
 const styles = theme => ({
   root: {
     padding: theme.spacing.unit * 2,
-
-    height: `calc(100% - ${theme.spacing.unit * 2}px)`,
+    paddingBottom: 0,
+    height: `calc(100% - ${theme.spacing.unit * 3}px)`,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',

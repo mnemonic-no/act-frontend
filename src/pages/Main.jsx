@@ -268,7 +268,7 @@ export default compose(
       if (objectType && objectValue && query) {
         setSearchCriteria({ objectType, objectValue, query });
         history.push(
-          `/gremlin/${encodeURIComponent(objectType)}/${encodeURIComponent(
+          `/graph-query/${encodeURIComponent(objectType)}/${encodeURIComponent(
             objectValue
           )}/${encodeURIComponent(query)}`
         );
@@ -332,7 +332,7 @@ export default compose(
         search: nextProps.searchCriteria
       });
 
-      // Select the searched object (can't do that on gremlin queries)
+      // Select the searched object (can't do that on graph queries)
       if (!nextProps.searchCriteria.query) {
         const searchedNode = data.objectsData.find(
           object =>

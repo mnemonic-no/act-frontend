@@ -23,5 +23,15 @@
     "path": ["basename"],
     "report": ["name"],
     "uri": ["port", "scheme"]
-  }
+  },
+
+  "predefinedObjectQueries": [
+    {
+      "name": "report",
+      "description": "Related reports",
+      "query":
+        "g.as('startNode').outE('mentions').otherV().hasLabel(within('ipv4','hash','email','uri')).where(inE('mentions').count().is(lt(20L))).inE('mentions').otherV().hasLabel('report').where(neq('startNode')).path().unfold()",
+      "objects": ["report"]
+    }
+  ]
 }

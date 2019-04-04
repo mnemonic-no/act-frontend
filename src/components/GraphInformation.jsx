@@ -12,7 +12,7 @@ import FactInformation from './FactInformation';
 import ObjectsTable from './ObjectsTable';
 import FactsTable from './FactsTable';
 
-const nodeInformationHeight = 360;
+const nodeInformationHeight = 480;
 const styles = theme => ({
   root: {
     height: '100%',

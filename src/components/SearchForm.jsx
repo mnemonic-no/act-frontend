@@ -47,8 +47,8 @@ const SearchFormComp = ({ fields, onSubmit, onChange, onClearData }) => (
             spellCheck: false
           }}
           fullWidth
-          label={'Gremlin query'}
-          helperText={'A Gremlin query, like g.outE()'}
+          label={'Graph query'}
+          helperText={'A Graph query, like g.outE()'}
           value={fields.query}
           onChange={e => onChange('query', e.target.value)}
         />

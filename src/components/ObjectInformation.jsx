@@ -12,12 +12,13 @@ import CenteredCircularProgress from './CenteredCircularProgress';
 import { objectTypeToColor, renderObjectValue } from '../util/utils';
 import config from '../config.json';
 import CreateFactDialog, { createFact } from './CreateFact/Dialog';
+import PredefinedObjectQueries from './InformationPanel/PredefinedObjectQueries';
 
 const styles = theme => ({
   root: {
     padding: theme.spacing.unit * 2,
-
-    height: `calc(100% - ${theme.spacing.unit * 2}px)`,
+    paddingBottom: 0,
+    height: `calc(100% - ${theme.spacing.unit * 3}px)`,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
@@ -28,7 +29,7 @@ const styles = theme => ({
     flex: 1
   },
   actions: {
-    paddingTop: theme.spacing.unit,
+    paddingTop: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit
   },
   link: {
@@ -57,6 +58,7 @@ const styles = theme => ({
 const ObjectInformationComp = ({
   classes,
   data,
+  onSearchSubmit,
   onSearchClick,
   onCreateFactClick
 }) => {
@@ -86,6 +88,8 @@ const ObjectInformationComp = ({
           </Typography>
         ))}
       </div>
+
+      <PredefinedObjectQueries {...{ data, onSearchSubmit }} />
 
       <div className={classes.actions}>
         <Button onClick={onCreateFactClick}>Create fact</Button>

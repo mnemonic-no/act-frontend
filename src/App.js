@@ -67,6 +67,11 @@ const App = () => (
           path='/gremlin/:objectType/:objectValue/:query/'
           component={Main}
         />
+        <Route
+          exact
+          path='/graph-query/:objectType/:objectValue/:query/'
+          component={Main}
+        />
         <Route component={PageNotFound} />
       </Switch>
     </MuiThemeProvider>

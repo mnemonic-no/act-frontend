@@ -32,6 +32,13 @@
       "query":
         "g.as('startNode').outE('mentions').otherV().hasLabel(within('ipv4','hash','email','uri')).where(inE('mentions').count().is(lt(20L))).inE('mentions').otherV().hasLabel('report').where(neq('startNode')).path().unfold()",
       "objects": ["report"]
+    },
+    {
+      "name": "report-context",
+      "description": "Report context",
+      "query":
+        "g.outE('mentions').union(otherV(),otherV().hasLabel(within('ipv4','hash','fqdn')).where(bothE().count().is(lte(50L))).bothE().otherV(),union(otherV().hasLabel(within('ipv4','fqdn')).where(outE('componentOf').count().is(lte(50L))).outE('componentOf').otherV().where(inE('componentOf').count().is(lte(50L))).inE('componentOf').otherV(),otherV().hasLabel('ipv4').outE('memberOf').otherV().outE('memberOf').union(otherV(),otherV().inE('owns').otherV().outE('locatedIn').otherV())),otherV().hasLabel('hash').outE('represents').otherV().bothE().otherV()).path().unfold()",
+      "objects": ["report"]
     }
   ]
 }

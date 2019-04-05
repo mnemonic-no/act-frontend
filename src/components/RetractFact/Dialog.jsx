@@ -1,6 +1,6 @@
 import React from 'react';
 import { compose, withProps } from 'recompose';
-import { observable, action } from 'mobx';
+import { observable, action, decorate } from 'mobx';
 import { observer } from 'mobx-react';
 import Dialog from '@material-ui/core/Dialog';
 // import DialogTitle from '@material-ui/core/DialogTitle';
@@ -27,22 +27,28 @@ const RetractFactDialog = ({ state: { open, close, fact, onSuccess } }) => (
 
 // State
 class RetractFactStore {
-  @observable open = false;
-  @observable fact = null;
+  open = false;
+  fact = null;
 
-  @action
   retractFact = (fact, onSuccess = () => {}) => {
     this.open = true;
     this.fact = fact;
     this.onSuccess = onSuccess;
   };
 
-  @action
   close = () => {
     this.open = false;
     // this.fact = null; // Keep to avoid flicker when closing the modal
   };
 }
+
+decorate(RetractFactStore, {
+  open: observable,
+  fact: observable,
+  retractFact: action,
+  close: action
+});
+
 const Singleton = new RetractFactStore();
 
 export const { retractFact } = Singleton;

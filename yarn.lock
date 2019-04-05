@@ -3347,50 +3347,48 @@ cyclist@~0.2.2:
   resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/cyclist/-/cyclist-0.2.2.tgz#1b33792e11e914a2fd6d6ed6447464444e5fa640"
   integrity sha1-GzN5LhHpFKL9bW7WRHRkRE5fpkA=
 
-cytoscape-cola@^2.0.0:
-  version "2.2.3"
-  resolved "https://registry.npmjs.org/cytoscape-cola/-/cytoscape-cola-2.2.3.tgz#96c50e7230f0056324089bdae3996a17d82f7dd9"
-  integrity sha1-lsUOcjDwBWMkCJva45lqF9gvfdk=
+cytoscape-cola@2.3.0:
+  version "2.3.0"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/cytoscape-cola/-/cytoscape-cola-2.3.0.tgz#24104eaab46e0a88dfeedb02199610450525208d"
+  integrity sha1-JBBOqrRuCojf7tsCGZYQRQUlII0=
   dependencies:
     webcola "^3.3.6"
 
-cytoscape-cose-bilkent@^3.0.1:
-  version "3.0.4"
-  resolved "https://registry.npmjs.org/cytoscape-cose-bilkent/-/cytoscape-cose-bilkent-3.0.4.tgz#ec9ce0ad2f7f74775ae50cab5095b68b7d5810d2"
-  integrity sha1-7JzgrS9/dHda5QyrUJW2i31YENI=
-  dependencies:
-    linkedlist-js "1.3.0"
+cytoscape-cose-bilkent@4.0.0:
+  version "4.0.0"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/cytoscape-cose-bilkent/-/cytoscape-cose-bilkent-4.0.0.tgz#5f0afbe5c55a7a026442b756ca388ce77c262967"
+  integrity sha1-Xwr75cVaegJkQrdWyjiM53wmKWc=
 
-cytoscape-dagre@^2.1.0:
-  version "2.2.1"
-  resolved "https://registry.npmjs.org/cytoscape-dagre/-/cytoscape-dagre-2.2.1.tgz#22d59b1127b3a65e129c4a9c0b2934d2f54f644d"
-  integrity sha1-ItWbESezpl4SnEqcCyk00vVPZE0=
+cytoscape-dagre@2.2.2:
+  version "2.2.2"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/cytoscape-dagre/-/cytoscape-dagre-2.2.2.tgz#5f32a85c0ba835f167efee531df9e89ac58ff411"
+  integrity sha1-XzKoXAuoNfFn7+5THfnomsWP9BE=
   dependencies:
-    dagre "^0.7.4"
+    dagre "^0.8.2"
 
 cytoscape-euler@1.0.0:
   version "1.0.0"
-  resolved "https://registry.npmjs.org/cytoscape-euler/-/cytoscape-euler-1.0.0.tgz#4b4e24ea0df260c8204fe1f179cf57c65d966f13"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/cytoscape-euler/-/cytoscape-euler-1.0.0.tgz#4b4e24ea0df260c8204fe1f179cf57c65d966f13"
   integrity sha1-S04k6g3yYMggT+Hxec9Xxl2WbxM=
 
-cytoscape-klay@^3.0.0:
-  version "3.1.1"
-  resolved "https://registry.npmjs.org/cytoscape-klay/-/cytoscape-klay-3.1.1.tgz#d39c0b838ac5e162acc2ddd0f669804ed6c00284"
-  integrity sha1-05wLg4rF4WKswt3Q9mmATtbAAoQ=
+cytoscape-klay@3.1.2:
+  version "3.1.2"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/cytoscape-klay/-/cytoscape-klay-3.1.2.tgz#02d1c699d03ee23ae7f57c1b9c2358cf1f847b0b"
+  integrity sha1-AtHGmdA+4jrn9XwbnCNYzx+Eews=
   dependencies:
     klayjs "^0.4.1"
 
-cytoscape-spread@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.npmjs.org/cytoscape-spread/-/cytoscape-spread-1.3.1.tgz#ddb767f7828a954c37b54fa7e5d504c585b0fedf"
-  integrity sha1-3bdn94KKlUw3tU+n5dUExYWw/t8=
+cytoscape-spread@3.0.0:
+  version "3.0.0"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/cytoscape-spread/-/cytoscape-spread-3.0.0.tgz#9d2cf43eee9a3b92dd518a4a2db8567584a1dd2e"
+  integrity sha1-nSz0Pu6aO5LdUYpKLbhWdYSh3S4=
   dependencies:
     weaverjs "^1.2.0"
 
-cytoscape@3.2.5:
-  version "3.2.5"
-  resolved "https://registry.npmjs.org/cytoscape/-/cytoscape-3.2.5.tgz#cd50ab9fcd6a12e51d2e8e5a13f1e5aeb2cd84c8"
-  integrity sha1-zVCrn81qEuUdLo5aE/HlrrLNhMg=
+cytoscape@3.5.2:
+  version "3.5.2"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/cytoscape/-/cytoscape-3.5.2.tgz#5955cc76a5a7d57192b4f3835c13eda9771e9bce"
+  integrity sha1-WVXMdqWn1XGStPODXBPtqXcem84=
   dependencies:
     heap "^0.2.6"
     lodash.debounce "^4.0.8"
@@ -3418,13 +3416,13 @@ d3-timer@^1.0.5:
   resolved "https://registry.npmjs.org/d3-timer/-/d3-timer-1.0.7.tgz#df9650ca587f6c96607ff4e60cc38229e8dd8531"
   integrity sha1-35ZQylh/bJZgf/TmDMOCKejdhTE=
 
-dagre@^0.7.4:
-  version "0.7.4"
-  resolved "https://registry.npmjs.org/dagre/-/dagre-0.7.4.tgz#de72f0e74a550ce11ce638f0a136fed712398022"
-  integrity sha1-3nLw50pVDOEc5jjwoTb+1xI5gCI=
+dagre@0.8.4, dagre@^0.8.2:
+  version "0.8.4"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/dagre/-/dagre-0.8.4.tgz#26b9fb8f7bdc60c6110a0458c375261836786061"
+  integrity sha1-Jrn7j3vcYMYRCgRYw3UmGDZ4YGE=
   dependencies:
-    graphlib "^1.0.5"
-    lodash "^3.10.0"
+    graphlib "^2.1.7"
+    lodash "^4.17.4"
 
 damerau-levenshtein@^1.0.4:
   version "1.0.4"
@@ -5097,12 +5095,12 @@ graceful-fs@^4.1.15:
   resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/graceful-fs/-/graceful-fs-4.1.15.tgz#ffb703e1066e8a0eeaa4c8b80ba9253eeefbfb00"
   integrity sha1-/7cD4QZuig7qpMi4C6klPu77+wA=
 
-graphlib@^1.0.5:
-  version "1.0.7"
-  resolved "https://registry.npmjs.org/graphlib/-/graphlib-1.0.7.tgz#0cab2df0ffe6abe070b2625bfa1edb6ec967b8b1"
-  integrity sha1-DKst8P/mq+BwsmJb+h7bbslnuLE=
+graphlib@^2.1.7:
+  version "2.1.7"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/graphlib/-/graphlib-2.1.7.tgz#b6a69f9f44bd9de3963ce6804a2fc9e73d86aecc"
+  integrity sha1-tqafn0S9neOWPOaASi/J5z2Grsw=
   dependencies:
-    lodash "^3.10.0"
+    lodash "^4.17.5"
 
 growly@^1.3.0:
   version "1.3.0"
@@ -6999,11 +6997,6 @@ linked-list@0.1.0:
   resolved "https://registry.npmjs.org/linked-list/-/linked-list-0.1.0.tgz#798b0ff97d1b92a4fd08480f55aea4e9d49d37bf"
   integrity sha1-eYsP+X0bkqT9CEgPVa6k6dSdN78=
 
-linkedlist-js@1.3.0:
-  version "1.3.0"
-  resolved "https://registry.npmjs.org/linkedlist-js/-/linkedlist-js-1.3.0.tgz#2b41f93338c538683f5940a0c87851388bf5de78"
-  integrity sha1-K0H5MzjFOGg/WUCgyHhROIv13ng=
-
 lint-staged@^7.2.0:
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-7.2.0.tgz#bdf4bb7f2f37fe689acfaec9999db288a5b26888"
@@ -7216,11 +7209,6 @@ lodash.uniq@^4.5.0:
   version "4.17.10"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
   integrity sha1-G3eTz3JZ6jj7NmHU04syYK+K5Oc=
-
-lodash@^3.10.0:
-  version "3.10.1"
-  resolved "https://registry.npmjs.org/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
-  integrity sha1-W/Rejkm6QYnhfUgnid/RW9FAt7Y=
 
 lodash@^4.17.10, lodash@^4.17.11:
   version "4.17.11"
@@ -7638,7 +7626,7 @@ mkdirp@0.5.1, mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0, mkdirp@
   dependencies:
     minimist "0.0.8"
 
-mobx-react-devtools@^6.1.1:
+mobx-react-devtools@6.1.1:
   version "6.1.1"
   resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/mobx-react-devtools/-/mobx-react-devtools-6.1.1.tgz#a462b944085cf11ff96fc937d12bf31dab4c8984"
   integrity sha1-pGK5RAhc8R/5b8k30SvzHatMiYQ=
@@ -7651,16 +7639,16 @@ mobx-react@5.4.3:
     hoist-non-react-statics "^3.0.0"
     react-lifecycles-compat "^3.0.2"
 
-mobx-remotedev@^0.2.8:
-  version "0.2.8"
-  resolved "https://registry.npmjs.org/mobx-remotedev/-/mobx-remotedev-0.2.8.tgz#6146abcd65a9ce41f09e872ed038fc3892f99c48"
-  integrity sha1-YUarzWWpzkHwnocu0Dj8OJL5nEg=
+mobx-remotedev@^0.3.6:
+  version "0.3.6"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/mobx-remotedev/-/mobx-remotedev-0.3.6.tgz#d61cd4f197604af321ce81fdbd47c8195393798b"
+  integrity sha1-1hzU8ZdgSvMhzoH9vUfIGVOTeYs=
   dependencies:
     jsan "^3.1.9"
     remotedev "^0.2.7"
     remotedev-utils "^0.1.4"
 
-mobx@^5.9.4:
+mobx@5.9.4:
   version "5.9.4"
   resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/mobx/-/mobx-5.9.4.tgz#1dee92aba33f67b7baeeb679e3bd376a12e55812"
   integrity sha1-He6Sq6M/Z7e67rZ54703ahLlWBI=
@@ -9354,6 +9342,15 @@ prompts@^0.1.9:
     kleur "^2.0.1"
     sisteransi "^0.1.1"
 
+prop-types@15.7.2, prop-types@^15.6.2:
+  version "15.7.2"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
+  integrity sha1-UsQedbjIfnK52TYOAga5ncv/psU=
+  dependencies:
+    loose-envify "^1.4.0"
+    object-assign "^4.1.1"
+    react-is "^16.8.1"
+
 prop-types@^15.5.10, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1:
   version "15.6.1"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.6.1.tgz#36644453564255ddda391191fb3a125cbdf654ca"
@@ -9362,15 +9359,6 @@ prop-types@^15.5.10, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1:
     fbjs "^0.8.16"
     loose-envify "^1.3.1"
     object-assign "^4.1.1"
-
-prop-types@^15.6.2, prop-types@^15.7.2:
-  version "15.7.2"
-  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
-  integrity sha1-UsQedbjIfnK52TYOAga5ncv/psU=
-  dependencies:
-    loose-envify "^1.4.0"
-    object-assign "^4.1.1"
-    react-is "^16.8.1"
 
 property-information@^5.0.0, property-information@^5.0.1:
   version "5.0.1"

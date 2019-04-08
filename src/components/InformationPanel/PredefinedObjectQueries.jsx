@@ -1,7 +1,7 @@
-import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import config from '../../config.json';
-import { Grid, Button, Typography, Tooltip } from '@material-ui/core';
+import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
+import config from '../../config.json'
+import { Grid, Button, Typography, Tooltip } from '@material-ui/core'
 
 const styles = theme => ({
   root: {},
@@ -10,7 +10,7 @@ const styles = theme => ({
     overflow: 'scroll',
     padding: theme.spacing.unit
   }
-});
+})
 
 const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
   const onSearchClick = x => {
@@ -18,17 +18,17 @@ const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
       objectType: data.type.name,
       objectValue: data.value,
       query: x.query
-    });
-  };
+    })
+  }
 
   const queries = config.predefinedObjectQueries.filter(x =>
     x.objects.find(objectType => objectType === data.type.name)
-  );
-  if (queries.length === 0) return null;
+  )
+  if (queries.length === 0) return null
 
   return (
     <React.Fragment>
-      <Typography variant='body2' gutterBottom>
+      <Typography variant='body1' gutterBottom>
         Predefined graph queries
       </Typography>
       <Grid container spacing={8} className={classes.items}>
@@ -47,13 +47,13 @@ const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
                 </Tooltip>
               </Grid>
             </React.Fragment>
-          );
+          )
         })}
       </Grid>
     </React.Fragment>
-  );
-};
+  )
+}
 
-const PredefinedObjectQueries = withStyles(styles)(PredefinedObjectQueriesComp);
+const PredefinedObjectQueries = withStyles(styles)(PredefinedObjectQueriesComp)
 
-export default PredefinedObjectQueries;
+export default PredefinedObjectQueries

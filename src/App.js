@@ -1,11 +1,11 @@
-import React from 'react';
-import { compose, lifecycle } from 'recompose';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import React from 'react'
+import { compose, lifecycle } from 'recompose'
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
 
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import SnackbarProvider from './util/SnackbarProvider';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import SnackbarProvider from './util/SnackbarProvider'
 
-import Main from './pages/Main';
+import Main from './pages/Main'
 
 const Black = {
   50: '#9e9e9e',
@@ -22,7 +22,7 @@ const Black = {
   A200: '#AAAAAA',
   A400: '#616161',
   A700: '#000000'
-};
+}
 
 const Orange = {
   50: '#fdefe0',
@@ -39,17 +39,20 @@ const Orange = {
   A200: '#f4a34d', // light
   A400: '#ef7b00', // main
   A700: '#eb6800' // dark
-};
+}
 
 const theme = createMuiTheme({
+  typography: {
+    useNextVariants: true
+  },
   palette: {
     primary: Black,
     secondary: Orange
   }
-});
+})
 
 // TODO
-const PageNotFound = () => <div>404</div>;
+const PageNotFound = () => <div>404</div>
 
 const App = () => (
   <BrowserRouter>
@@ -76,11 +79,11 @@ const App = () => (
       </Switch>
     </MuiThemeProvider>
   </BrowserRouter>
-);
+)
 
 export default compose(
   lifecycle({
     // componentDidCatch (error, info) {
     // }
   })
-)(App);
+)(App)

@@ -1,15 +1,15 @@
-import React from 'react';
-import { compose } from 'recompose';
-import { Typography } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import AddIcon from '@material-ui/icons/Add';
-import TextField from '@material-ui/core/TextField';
+import React from 'react'
+import { compose } from 'recompose'
+import { Typography } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
+import AddIcon from '@material-ui/icons/Add'
+import TextField from '@material-ui/core/TextField'
 
-import AccessModeSelector from '../AccessModeSelector';
-import ObjectFactDirection from './ObjectFactDirection';
-import DialogError from '../DialogError';
-import DialogLoadingOverlay from '../DialogLoadingOverlay';
+import AccessModeSelector from '../AccessModeSelector'
+import ObjectFactDirection from './ObjectFactDirection'
+import DialogError from '../DialogError'
+import DialogLoadingOverlay from '../DialogLoadingOverlay'
 
 const CreateFactFormComp = ({
   fields,
@@ -25,8 +25,8 @@ const CreateFactFormComp = ({
 }) => (
   <form
     onSubmit={e => {
-      e.preventDefault();
-      onSubmit();
+      e.preventDefault()
+      onSubmit()
     }}
   >
     <ContentComp>
@@ -36,7 +36,7 @@ const CreateFactFormComp = ({
       {/* Error state */}
       {error && <DialogError error={error} />}
 
-      <Typography color='primary' variant='subheading'>
+      <Typography color='primary' variant='subtitle1'>
         Fact
       </Typography>
       <br />
@@ -69,7 +69,7 @@ const CreateFactFormComp = ({
         </Grid>
       </Grid>
       <br />
-      <Typography color='primary' variant='subheading'>
+      <Typography color='primary' variant='subtitle1'>
         Objects
       </Typography>
       <br />
@@ -83,9 +83,9 @@ const CreateFactFormComp = ({
                 ...fields.bindings.slice(0, index),
                 v,
                 ...fields.bindings.slice(index + 1)
-              ];
-              newBidings[index] = v;
-              onChange('bindings', newBidings);
+              ]
+              newBidings[index] = v
+              onChange('bindings', newBidings)
             }}
           />
           {/* {index > 0 && (
@@ -110,14 +110,14 @@ const CreateFactFormComp = ({
               objectValue: '',
               direction: objectTypes[0].directions[0]
             })
-          );
+          )
         }}
       >
         <AddIcon />
       </Button>
       <br />
       <br />
-      <Typography color='primary' variant='subheading'>
+      <Typography color='primary' variant='subtitle1'>
         Options
       </Typography>
       <br />
@@ -149,6 +149,6 @@ const CreateFactFormComp = ({
       </Button>
     </ActionsComp>
   </form>
-);
+)
 
-export default compose()(CreateFactFormComp);
+export default compose()(CreateFactFormComp)

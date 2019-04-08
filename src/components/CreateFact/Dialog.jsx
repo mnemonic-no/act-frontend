@@ -1,6 +1,6 @@
 import React from 'react';
 import { compose, withProps } from 'recompose';
-import { observable, action } from 'mobx';
+import { observable, action, decorate } from 'mobx';
 import { observer } from 'mobx-react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -27,21 +27,27 @@ const CreateFactDialog = ({ state: { open, close, initialObject } }) => (
 
 // State
 class CreateFactStore {
-  @observable open = false;
-  @observable initialObject = null;
+  open = false;
+  initialObject = null;
 
-  @action
   createFact = initialObject => {
     this.open = true;
     this.initialObject = initialObject;
   };
 
-  @action
   close = () => {
     this.open = false;
     this.initialObject = null;
   };
 }
+
+decorate(CreateFactStore, {
+  open: observable,
+  initialObject: observable,
+  createFact: action,
+  close: action
+});
+
 const Singleton = new CreateFactStore();
 
 export const { createFact } = Singleton;

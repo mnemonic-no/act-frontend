@@ -1,22 +1,22 @@
-import React from 'react';
-import { compose, withHandlers } from 'recompose';
-import Typography from '@material-ui/core/Typography';
-import format from 'date-fns/format';
-import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
+import React from 'react'
+import { compose, withHandlers } from 'recompose'
+import Typography from '@material-ui/core/Typography'
+import format from 'date-fns/format'
+import { withStyles } from '@material-ui/core/styles'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import Grid from '@material-ui/core/Grid'
+import Button from '@material-ui/core/Button'
 
-import filteringOptions from '../state/filteringOptions';
-import { relativeStringToDate } from '../components/RelativeDateSelector';
-import withDataLoader, { combineDataLoaders } from '../util/withDataLoader';
-import memoizeDataLoader from '../util/memoizeDataLoader';
-import actWretch from '../util/actWretch';
-import CenteredCircularProgress from './CenteredCircularProgress';
-import { ObjectRow } from './ObjectsTable';
-import RetractFactDialog, { retractFact } from './RetractFact/Dialog';
-import { FactRow } from './FactsTable';
+import filteringOptions from '../state/filteringOptions'
+import { relativeStringToDate } from '../components/RelativeDateSelector'
+import withDataLoader, { combineDataLoaders } from '../util/withDataLoader'
+import memoizeDataLoader from '../util/memoizeDataLoader'
+import actWretch from '../util/actWretch'
+import CenteredCircularProgress from './CenteredCircularProgress'
+import { ObjectRow } from './ObjectsTable'
+import RetractFactDialog, { retractFact } from './RetractFact/Dialog'
+import { FactRow } from './FactsTable'
 
 const styles = theme => ({
   root: {
@@ -52,7 +52,7 @@ const styles = theme => ({
   right: {
     flex: '1 1 auto'
   }
-});
+})
 
 const FactInformationComp = ({
   classes,
@@ -64,13 +64,13 @@ const FactInformationComp = ({
   onRetractFactClick
 }) => (
   <div className={classes.root}>
-    <Typography variant='headline'>
+    <Typography variant='h5'>
       <span style={{ color: '#F84' }}>{fact.type.name}</span>
       {retractions.length > 0 && (
         <span style={{ color: '#FF4F4F' }}> RETRACTED</span>
       )}
     </Typography>
-    <Typography variant='subheading' gutterBottom>
+    <Typography variant='subtitle1' gutterBottom>
       {fact.value.startsWith('-') ? '' : fact.value}
     </Typography>
     <div className={classes.info}>
@@ -101,7 +101,7 @@ const FactInformationComp = ({
         </Grid>
       </Grid>
 
-      <Typography variant='body2' gutterBottom>
+      <Typography variant='body1' gutterBottom>
         {fact.sourceObject && fact.destinationObject ? 2 : 1} objects
       </Typography>
       <Table classes={{ root: classes.objectsTable }}>
@@ -147,7 +147,7 @@ const FactInformationComp = ({
       <RetractFactDialog />
     </div>
   </div>
-);
+)
 
 const factDataLoader = ({ id }) =>
   actWretch
@@ -155,19 +155,19 @@ const factDataLoader = ({ id }) =>
     .get()
     .json(({ data }) => ({
       fact: data
-    }));
+    }))
 
 const commentsDataLoader = ({ id }) =>
   actWretch
     .url(`/v1/fact/uuid/${id}/comments`)
     .get()
-    .json(({ data }) => ({ comments: data }));
+    .json(({ data }) => ({ comments: data }))
 
 const accessDataLoader = ({ id }) =>
   actWretch
     .url(`/v1/fact/uuid/${id}/access`)
     .get()
-    .json(({ data }) => ({ access: data }));
+    .json(({ data }) => ({ access: data }))
 
 const retractionsDataLoader = ({ id }) =>
   actWretch
@@ -182,9 +182,9 @@ const retractionsDataLoader = ({ id }) =>
       limit: 0
     })
     .post()
-    .json(({ data }) => ({ retractions: data }));
+    .json(({ data }) => ({ retractions: data }))
 
-const memoizedFactDataLoader = memoizeDataLoader(factDataLoader, ['id']);
+const memoizedFactDataLoader = memoizeDataLoader(factDataLoader, ['id'])
 
 export default compose(
   withDataLoader(
@@ -205,8 +205,8 @@ export default compose(
         fact,
         // Wait 1 second before updating the data, allowing the api to reindex
         () => setTimeout(forceFetch, 1000)
-      );
+      )
     }
   }),
   withStyles(styles)
-)(FactInformationComp);
+)(FactInformationComp)

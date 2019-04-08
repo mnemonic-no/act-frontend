@@ -1,22 +1,22 @@
-import React from 'react';
-import { compose, withState, withProps, branch } from 'recompose';
-import Typography from '@material-ui/core/Typography';
-import Popover from '@material-ui/core/Popover';
-import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import CheckIcon from '@material-ui/icons/Check';
-import Divider from '@material-ui/core/Divider';
-import Dialog from '@material-ui/core/Dialog';
-import { withStyles } from '@material-ui/core/styles';
-import subHours from 'date-fns/subHours';
-import subWeeks from 'date-fns/subWeeks';
-import subMonths from 'date-fns/subMonths';
-import formatDate from 'date-fns/format';
-import DayPicker from 'react-day-picker';
-import 'react-day-picker/lib/style.css';
+import React from 'react'
+import { compose, withState, withProps, branch } from 'recompose'
+import Typography from '@material-ui/core/Typography'
+import Popover from '@material-ui/core/Popover'
+import ArrowDropDown from '@material-ui/icons/ArrowDropDown'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import CheckIcon from '@material-ui/icons/Check'
+import Divider from '@material-ui/core/Divider'
+import Dialog from '@material-ui/core/Dialog'
+import { withStyles } from '@material-ui/core/styles'
+import subHours from 'date-fns/subHours'
+import subWeeks from 'date-fns/subWeeks'
+import subMonths from 'date-fns/subMonths'
+import formatDate from 'date-fns/format'
+import DayPicker from 'react-day-picker'
+import 'react-day-picker/lib/style.css'
 
 const RELATIVE_OPTIONS = [
   'Any time',
@@ -24,27 +24,27 @@ const RELATIVE_OPTIONS = [
   '24 hours ago',
   'Week ago',
   'Month ago'
-];
+]
 
 export const relativeStringToDate = x => {
   if (x instanceof Date) {
-    return x;
+    return x
   }
   switch (x) {
     case 'Any time':
-      return new Date();
+      return new Date()
     case 'Hour ago':
-      return subHours(new Date(), 1);
+      return subHours(new Date(), 1)
     case '24 hours ago':
-      return subHours(new Date(), 24);
+      return subHours(new Date(), 24)
     case 'Week ago':
-      return subWeeks(new Date(), 1);
+      return subWeeks(new Date(), 1)
     case 'Month ago':
-      return subMonths(new Date(), 1);
+      return subMonths(new Date(), 1)
     default:
-      throw new Error(`Cannot convert relativeDateString: ${x}`);
+      throw new Error(`Cannot convert relativeDateString: ${x}`)
   }
-};
+}
 
 const styles = theme => ({
   root: {
@@ -75,11 +75,11 @@ const styles = theme => ({
   datePicker: {
     fontFamily: theme.typography.fontFamily
   }
-});
+})
 
 class RelativeDateSelectorComp extends React.Component {
   render () {
-    const anchorEl = this.anchorEl;
+    const anchorEl = this.anchorEl
     const {
       open,
       setOpen,
@@ -89,17 +89,17 @@ class RelativeDateSelectorComp extends React.Component {
       classes,
       datePickerOpen,
       setDatePickerOpen
-    } = this.props;
+    } = this.props
     return (
       <div className={classes.root}>
         <div
           onClick={() => setOpen(true)}
           ref={node => {
-            this.anchorEl = node;
+            this.anchorEl = node
           }}
           className={classes.selector}
         >
-          <Typography variant={value === defaultValue ? 'body1' : 'body2'}>
+          <Typography variant={value === defaultValue ? 'body2' : 'body1'}>
             {value instanceof Date ? formatDate(value, 'MMM D, YYYY') : value}
             <ArrowDropDown className={classes.arrowDown} />
           </Typography>
@@ -107,8 +107,8 @@ class RelativeDateSelectorComp extends React.Component {
 
         <Popover
           {...{ open, anchorEl }}
-          anchorOrigin={{ vertical: 'bottom' }}
-          transformOrigin={{ vertical: 'top' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
           onClose={() => setOpen(false)}
         >
           <List>
@@ -119,7 +119,7 @@ class RelativeDateSelectorComp extends React.Component {
                 dense
                 button
                 onClick={() => {
-                  setOpen(false, () => onChange(option));
+                  setOpen(false, () => onChange(option))
                 }}
               >
                 {option === value && (
@@ -164,23 +164,23 @@ class RelativeDateSelectorComp extends React.Component {
         <Dialog
           open={datePickerOpen}
           onClose={() => {
-            setDatePickerOpen(false);
-            setOpen(false);
+            setDatePickerOpen(false)
+            setOpen(false)
           }}
         >
           <DayPicker
             className={classes.datePicker}
             firstDayOfWeek={1}
             onDayClick={date => {
-              setDatePickerOpen(false);
-              setOpen(false);
-              onChange(date);
+              setDatePickerOpen(false)
+              setOpen(false)
+              onChange(date)
             }}
             selectedDays={value instanceof Date ? value : undefined}
           />
         </Dialog>
       </div>
-    );
+    )
   }
 }
 
@@ -193,4 +193,4 @@ export default compose(
   withState('open', 'setOpen', false),
   withState('datePickerOpen', 'setDatePickerOpen', false),
   withStyles(styles)
-)(RelativeDateSelectorComp);
+)(RelativeDateSelectorComp)

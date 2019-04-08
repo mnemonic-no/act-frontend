@@ -1,18 +1,18 @@
-import React from 'react';
-import { compose, withHandlers } from 'recompose';
-import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
-import { darken, lighten } from '@material-ui/core/styles/colorManipulator';
-import Button from '@material-ui/core/Button';
+import React from 'react'
+import { compose, withHandlers } from 'recompose'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
+import { darken, lighten } from '@material-ui/core/styles/colorManipulator'
+import Button from '@material-ui/core/Button'
 
-import withDataLoader from '../util/withDataLoader';
-import memoizeDataLoader from '../util/memoizeDataLoader';
-import actWretch from '../util/actWretch';
-import CenteredCircularProgress from './CenteredCircularProgress';
-import { objectTypeToColor, renderObjectValue } from '../util/utils';
-import config from '../config.json';
-import CreateFactDialog, { createFact } from './CreateFact/Dialog';
-import PredefinedObjectQueries from './InformationPanel/PredefinedObjectQueries';
+import withDataLoader from '../util/withDataLoader'
+import memoizeDataLoader from '../util/memoizeDataLoader'
+import actWretch from '../util/actWretch'
+import CenteredCircularProgress from './CenteredCircularProgress'
+import { objectTypeToColor, renderObjectValue } from '../util/utils'
+import config from '../config.json'
+import CreateFactDialog, { createFact } from './CreateFact/Dialog'
+import PredefinedObjectQueries from './InformationPanel/PredefinedObjectQueries'
 
 const styles = theme => ({
   root: {
@@ -53,7 +53,7 @@ const styles = theme => ({
       }
     }))
     .reduce((acc, x) => Object.assign({}, acc, x), {})
-});
+})
 
 const ObjectInformationComp = ({
   classes,
@@ -62,24 +62,24 @@ const ObjectInformationComp = ({
   onSearchClick,
   onCreateFactClick
 }) => {
-  const totalFacts = data.statistics.reduce((acc, x) => x.count + acc, 0);
-  const objectColor = objectTypeToColor(data.type.name);
+  const totalFacts = data.statistics.reduce((acc, x) => x.count + acc, 0)
+  const objectColor = objectTypeToColor(data.type.name)
   return (
     <div className={classes.root}>
-      <a onClick={onSearchClick}>
+      <div onClick={onSearchClick}>
         <Typography
-          variant='headline'
+          variant='h5'
           className={`${classes.link} ${classes[data.type.name]}`}
         >
           <span>{renderObjectValue(data, 256)}</span>
         </Typography>
-      </a>
-      <Typography variant='subheading' gutterBottom>
+      </div>
+      <Typography variant='subtitle1' gutterBottom>
         <span style={{ color: objectColor }}>{data.type.name}</span>
       </Typography>
 
       <div className={classes.info}>
-        <Typography variant='body2' gutterBottom>
+        <Typography variant='body1' gutterBottom>
           {totalFacts} facts
         </Typography>
         {data.statistics.map(x => (
@@ -96,8 +96,8 @@ const ObjectInformationComp = ({
         <CreateFactDialog />
       </div>
     </div>
-  );
-};
+  )
+}
 
 const dataLoader = ({ id }) =>
   actWretch
@@ -105,9 +105,9 @@ const dataLoader = ({ id }) =>
     .get()
     .json(({ data }) => ({
       data
-    }));
+    }))
 
-const memoizedDataLoader = memoizeDataLoader(dataLoader, ['id']);
+const memoizedDataLoader = memoizeDataLoader(dataLoader, ['id'])
 
 export default compose(
   withDataLoader(memoizedDataLoader, {
@@ -120,11 +120,11 @@ export default compose(
       onSearchSubmit({
         objectType: data.type.name,
         objectValue: data.value
-      });
+      })
     },
     onCreateFactClick: ({ data }) => () => {
-      console.log('create fact', data);
-      createFact(data);
+      console.log('create fact', data)
+      createFact(data)
     }
   })
-)(ObjectInformationComp);
+)(ObjectInformationComp)

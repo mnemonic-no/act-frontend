@@ -1,13 +1,13 @@
-import React from 'react';
-import { compose } from 'recompose';
-import { Typography } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
+import React from 'react'
+import { compose } from 'recompose'
+import { Typography } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
+import TextField from '@material-ui/core/TextField'
 
-import AccessModeSelector from '../AccessModeSelector';
-import DialogError from '../DialogError';
-import DialogLoadingOverlay from '../DialogLoadingOverlay';
+import AccessModeSelector from '../AccessModeSelector'
+import DialogError from '../DialogError'
+import DialogLoadingOverlay from '../DialogLoadingOverlay'
 
 const RetractFactFormComp = ({
   fields,
@@ -24,8 +24,8 @@ const RetractFactFormComp = ({
 }) => (
   <form
     onSubmit={e => {
-      e.preventDefault();
-      onSubmit();
+      e.preventDefault()
+      onSubmit()
     }}
   >
     <ContentComp>
@@ -36,10 +36,10 @@ const RetractFactFormComp = ({
       {error && <DialogError error={error} />}
 
       {/* Title */}
-      <Typography variant='title' gutterBottom>
+      <Typography variant='h6' gutterBottom>
         Retract fact
       </Typography>
-      <Typography variant='subheading' gutterBottom>
+      <Typography variant='subtitle1' gutterBottom>
         {fact && fact.id}
       </Typography>
 
@@ -73,6 +73,6 @@ const RetractFactFormComp = ({
       </Button>
     </ActionsComp>
   </form>
-);
+)
 
-export default compose()(RetractFactFormComp);
+export default compose()(RetractFactFormComp)

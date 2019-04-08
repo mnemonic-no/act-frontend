@@ -46,10 +46,15 @@ export default ({ showEdgeLabels } = {}) => [
       'target-arrow-color': '#AAA',
 
       'font-family': 'Roboto, sans-serif',
-      content: showEdgeLabels ? 'data(label)' : '',
       color: '#AAA',
       'text-outline-color': 'white',
       'text-outline-width': 2
+    }
+  },
+  {
+    selector: 'edge[label]',
+    style: {
+      content: showEdgeLabels ? 'data(label)' : ''
     }
   },
   {

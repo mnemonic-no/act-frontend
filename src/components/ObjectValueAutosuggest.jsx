@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 import {
   compose,
   withHandlers,
@@ -7,21 +7,21 @@ import {
   withState,
   lifecycle,
   branch
-} from 'recompose';
-import Autosuggest from 'react-autosuggest';
-import match from 'autosuggest-highlight/match';
-import parse from 'autosuggest-highlight/parse';
-import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper';
-import MenuItem from '@material-ui/core/MenuItem';
-import { withStyles } from '@material-ui/core/styles';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import CircularProgress from '@material-ui/core/CircularProgress';
+} from 'recompose'
+import Autosuggest from 'react-autosuggest'
+import match from 'autosuggest-highlight/match'
+import parse from 'autosuggest-highlight/parse'
+import TextField from '@material-ui/core/TextField'
+import Paper from '@material-ui/core/Paper'
+import MenuItem from '@material-ui/core/MenuItem'
+import { withStyles } from '@material-ui/core/styles'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 // import config from '../config.json';
-import actWretch from '../util/actWretch';
-import withDataLoader from '../util/withDataLoader';
-import memoizeDataLoader from '../util/memoizeDataLoader';
+import actWretch from '../util/actWretch'
+import withDataLoader from '../util/withDataLoader'
+import memoizeDataLoader from '../util/memoizeDataLoader'
 
 const renderInput = ({
   classes,
@@ -43,11 +43,11 @@ const renderInput = ({
       ...other
     }}
   />
-);
+)
 
 const renderSuggestion = (suggestion, { query, isHighlighted }) => {
-  const matches = match(suggestion.value, query);
-  const parts = parse(suggestion.value, matches);
+  const matches = match(suggestion.value, query)
+  const parts = parse(suggestion.value, matches)
 
   return (
     <MenuItem selected={isHighlighted} component='div'>
@@ -61,18 +61,18 @@ const renderSuggestion = (suggestion, { query, isHighlighted }) => {
             <strong key={index} style={{ fontWeight: 500 }}>
               {part.text}
             </strong>
-          );
+          )
         })}
       </div>
     </MenuItem>
-  );
-};
+  )
+}
 
 const renderSuggestionsContainer = ({ containerProps, children }) => (
   <Paper {...containerProps} square>
     {children}
   </Paper>
-);
+)
 
 const styles = theme => ({
   container: {
@@ -95,11 +95,11 @@ const styles = theme => ({
   progress: {
     color: theme.palette.common.minBlack
   }
-});
+})
 
 const getSuggestionValue = suggestion => {
-  return suggestion.value;
-};
+  return suggestion.value
+}
 
 const ObjectValueAutosuggestComp = ({
   classes,
@@ -137,11 +137,16 @@ const ObjectValueAutosuggestComp = ({
       value,
       onChange,
       endAdornment: (
-        <InputAdornment position='end'>
+        <>
           {isLoading && (
-            <CircularProgress classes={{ root: classes.progress }} size={20} />
+            <InputAdornment position='end'>
+              <CircularProgress
+                classes={{ root: classes.progress }}
+                size={20}
+              />
+            </InputAdornment>
           )}
-        </InputAdornment>
+        </>
       )
     }}
     suggestions={suggestions}
@@ -149,7 +154,7 @@ const ObjectValueAutosuggestComp = ({
     onSuggestionsClearRequested={onClearSuggestions}
     getSuggestionValue={getSuggestionValue}
   />
-);
+)
 
 const objectValuesDataLoader = ({ objectType }) =>
   actWretch
@@ -159,12 +164,12 @@ const objectValuesDataLoader = ({ objectType }) =>
       limit: 20000
     })
     .post()
-    .json(({ data }) => ({ objectValues: data }));
+    .json(({ data }) => ({ objectValues: data }))
 
 const memoizedObjectValuesDataLoader = memoizeDataLoader(
   objectValuesDataLoader,
   ['objectType']
-);
+)
 
 export default compose(
   setPropTypes({
@@ -193,24 +198,24 @@ export default compose(
     onSuggestionsFetchRequested: ({ setSuggestions, objectValues }) => ({
       value
     }) => {
-      const inputValue = value.trim().toLowerCase();
-      const inputLength = inputValue.length;
+      const inputValue = value.trim().toLowerCase()
+      const inputLength = inputValue.length
 
       if (!objectValues || objectValues.length === 0 || inputLength === 0) {
-        return [];
+        return []
       }
-      let count = 0;
+      let count = 0
       const suggestions = objectValues.filter(x => {
         const keep =
           count < 5 &&
-          x.value.toLowerCase().slice(0, inputLength) === inputValue;
+          x.value.toLowerCase().slice(0, inputLength) === inputValue
         if (keep) {
-          count += 1;
+          count += 1
         }
-        return keep;
-      });
+        return keep
+      })
 
-      setSuggestions(suggestions);
+      setSuggestions(suggestions)
     }
   }),
   lifecycle({
@@ -220,10 +225,10 @@ export default compose(
         nextProps.objectType !== this.props.objectType
       ) {
         // ObjectType has been changed, refetch suggestions
-        this.props.onClearSuggestions();
+        this.props.onClearSuggestions()
         if (this.props.onClear && this.props.forceFetch) {
-          this.props.onClear();
-          this.props.forceFetch();
+          this.props.onClear()
+          this.props.forceFetch()
         }
       } else if (nextProps.objectValues !== this.props.objectValues) {
         // Suggestions has been refetched, update suggestions
@@ -232,4 +237,4 @@ export default compose(
     }
   }),
   withStyles(styles)
-)(ObjectValueAutosuggestComp);
+)(ObjectValueAutosuggestComp)

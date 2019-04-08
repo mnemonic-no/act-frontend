@@ -107,8 +107,8 @@ class RelativeDateSelectorComp extends React.Component {
 
         <Popover
           {...{ open, anchorEl }}
-          anchorOrigin={{ vertical: 'bottom' }}
-          transformOrigin={{ vertical: 'top' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
           onClose={() => setOpen(false)}
         >
           <List>

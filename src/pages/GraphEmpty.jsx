@@ -1,7 +1,7 @@
-import React from 'react';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core/styles';
+import React from 'react'
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({
   root: {
@@ -40,7 +40,7 @@ const styles = theme => ({
       color: theme.palette.secondary.light
     }
   }
-});
+})
 const GraphEmptyComp = ({ classes }) => (
   <div className={classes.root}>
     <div className={classes.inner}>
@@ -53,51 +53,51 @@ const GraphEmptyComp = ({ classes }) => (
         Use the left menu to search for objects.
         <br />
         To get started try out one of these examples
-        <ul className={classes.list}>
-          <li>
-            <a
-              className={classes.link}
-              href='/object-fact-query/ipv4/153.148.23.118'
-            >
-              /object-fact-query/ipv4/153.148.23.118
-            </a>
-          </li>
-          <li>
-            <a
-              className={classes.link}
-              href='/object-fact-query/threatActor/Sofacy'
-            >
-              /object-fact-query/threatActor/Sofacy
-            </a>
-          </li>
-          <li>
-            <a
-              className={classes.link}
-              href='/object-fact-query/technique/Credential%20Dumping'
-            >
-              /object-fact-query/technique/Credential%20Dumping
-            </a>
-          </li>
-          <li>
-            <a className={classes.link} href='/object-fact-query/tool/foosace'>
-              /object-fact-query/tool/foosace
-            </a>
-          </li>
-          <li>
-            <a
-              className={classes.link}
-              href='/object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad'
-            >
-              /object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad
-            </a>
-          </li>
-        </ul>
-        <Button variant='outlined' component='a' href='/examples'>
-          Click here for a full list of examples
-        </Button>
       </Typography>
+      <Typography component='ul' className={classes.list}>
+        <li>
+          <a
+            className={classes.link}
+            href='/object-fact-query/ipv4/153.148.23.118'
+          >
+            /object-fact-query/ipv4/153.148.23.118
+          </a>
+        </li>
+        <li>
+          <a
+            className={classes.link}
+            href='/object-fact-query/threatActor/Sofacy'
+          >
+            /object-fact-query/threatActor/Sofacy
+          </a>
+        </li>
+        <li>
+          <a
+            className={classes.link}
+            href='/object-fact-query/technique/Credential%20Dumping'
+          >
+            /object-fact-query/technique/Credential%20Dumping
+          </a>
+        </li>
+        <li>
+          <a className={classes.link} href='/object-fact-query/tool/foosace'>
+            /object-fact-query/tool/foosace
+          </a>
+        </li>
+        <li>
+          <a
+            className={classes.link}
+            href='/object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad'
+          >
+            /object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad
+          </a>
+        </li>
+      </Typography>
+      <Button variant='outlined' component='a' href='/examples'>
+        Click here for a full list of examples
+      </Button>
     </div>
   </div>
-);
+)
 
-export default withStyles(styles)(GraphEmptyComp);
+export default withStyles(styles)(GraphEmptyComp)

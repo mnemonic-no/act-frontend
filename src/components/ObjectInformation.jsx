@@ -66,14 +66,14 @@ const ObjectInformationComp = ({
   const objectColor = objectTypeToColor(data.type.name)
   return (
     <div className={classes.root}>
-      <a onClick={onSearchClick}>
+      <div onClick={onSearchClick}>
         <Typography
           variant='h5'
           className={`${classes.link} ${classes[data.type.name]}`}
         >
           <span>{renderObjectValue(data, 256)}</span>
         </Typography>
-      </a>
+      </div>
       <Typography variant='subtitle1' gutterBottom>
         <span style={{ color: objectColor }}>{data.type.name}</span>
       </Typography>

@@ -2803,10 +2803,10 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-combokeys@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/combokeys/-/combokeys-3.0.0.tgz#955c59a3959af40d26846ab6fc3c682448e7572e"
-  integrity sha1-lVxZo5Wa9A0mhGq2/DxoJEjnVy4=
+combokeys@^3.0.1:
+  version "3.0.1"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/combokeys/-/combokeys-3.0.1.tgz#fc8ca5c3f5f2d2b03a458544cb88b14ab5f53f86"
+  integrity sha1-/Iylw/Xy0rA6RYVEy4ixSrX1P4Y=
 
 comma-separated-tokens@^1.0.0:
   version "1.0.5"
@@ -9545,30 +9545,30 @@ react-app-polyfill@^0.2.2:
     raf "3.4.1"
     whatwg-fetch "3.0.0"
 
-react-autosuggest@^9.3.4:
-  version "9.3.4"
-  resolved "https://registry.npmjs.org/react-autosuggest/-/react-autosuggest-9.3.4.tgz#e47ff800081b2f7c678165bfb7cc84b07f462336"
-  integrity sha1-5H/4AAgbL3xngWW/t8yEsH9GIzY=
+react-autosuggest@^9.4.3:
+  version "9.4.3"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/react-autosuggest/-/react-autosuggest-9.4.3.tgz#eb46852422a48144ab9f39fb5470319222f26c7c"
+  integrity sha1-60aFJCKkgUSrnzn7VHAxkiLybHw=
   dependencies:
     prop-types "^15.5.10"
-    react-autowhatever "^10.1.0"
+    react-autowhatever "^10.1.2"
     shallow-equal "^1.0.0"
 
-react-autowhatever@^10.1.0:
-  version "10.1.1"
-  resolved "https://registry.npmjs.org/react-autowhatever/-/react-autowhatever-10.1.1.tgz#ee938c068d38fc2b7781755e663032a30ed53656"
-  integrity sha1-7pOMBo04/Ct3gXVeZjAyow7VNlY=
+react-autowhatever@^10.1.2:
+  version "10.2.0"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/react-autowhatever/-/react-autowhatever-10.2.0.tgz#bdd07bf19ddf78acdb8ce7ae162ac13b646874ab"
+  integrity sha1-vdB78Z3feKzbjOeuFirBO2RodKs=
   dependencies:
     prop-types "^15.5.8"
     react-themeable "^1.1.0"
     section-iterator "^2.0.0"
 
-react-day-picker@^7.1.7:
-  version "7.1.9"
-  resolved "https://registry.npmjs.org/react-day-picker/-/react-day-picker-7.1.9.tgz#04b0d956faf1bf85bb6ec6f9ca7966433be13f36"
-  integrity sha1-BLDZVvrxv4W7bsb5ynlmQzvhPzY=
+react-day-picker@^7.3.0:
+  version "7.3.0"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/react-day-picker/-/react-day-picker-7.3.0.tgz#59b6d4e19d274650c79dcf49fbcce2637313467d"
+  integrity sha1-WbbU4Z0nRlDHnc9J+8ziY3MTRn0=
   dependencies:
-    prop-types "^15.6.1"
+    prop-types "^15.6.2"
 
 react-dev-utils@^8.0.0:
   version "8.0.0"
@@ -9733,12 +9733,12 @@ react-scripts@2.1.8:
   optionalDependencies:
     fsevents "1.2.4"
 
-react-shortcuts@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/react-shortcuts/-/react-shortcuts-2.0.0.tgz#871b033a071a8537422b1529d691c38432823bae"
-  integrity sha1-hxsDOgcahTdCKxUp1pHDhDKCO64=
+react-shortcuts@^2.0.1:
+  version "2.0.1"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/react-shortcuts/-/react-shortcuts-2.0.1.tgz#6de302244ce33ac9f9273dbeec540a8f81808f91"
+  integrity sha1-beMCJEzjOsn5Jz2+7FQKj4GAj5E=
   dependencies:
-    combokeys "^3.0.0"
+    combokeys "^3.0.1"
     events "^1.0.2"
     invariant "^2.1.0"
     just-reduce-object "^1.0.3"
@@ -12235,10 +12235,10 @@ wrappy@1:
   resolved "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-wretch@1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/wretch/-/wretch-1.3.1.tgz#c4efa11d6e4e93d4aabc21126998d03f0578708a"
-  integrity sha1-xO+hHW5Ok9SqvCESaZjQPwV4cIo=
+wretch@1.5.1:
+  version "1.5.1"
+  resolved "https://artifactory.mnemonic.no:443/artifactory/api/npm/npm-all/wretch/-/wretch-1.5.1.tgz#6422390316f88cc9fb28e7e4b4f8f68ed3747738"
+  integrity sha1-ZCI5Axb4jMn7KOfktPj2jtN0dzg=
 
 write-file-atomic@^2.1.0:
   version "2.4.2"

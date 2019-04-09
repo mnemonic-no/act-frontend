@@ -29,16 +29,52 @@
     {
       "name": "related",
       "description": "Related reports",
-      "query":
-        "g.as('startNode').outE('mentions').otherV().hasLabel(within('ipv4','hash','email','uri')).where(inE('mentions').count().is(lt(20L))).inE('mentions').otherV().hasLabel('report').where(neq('startNode')).path().unfold()",
+      "query": "g.as('startNode').outE('mentions').otherV().hasLabel(within('ipv4','hash','email','uri')).where(inE('mentions').count().is(lt(20L))).inE('mentions').otherV().hasLabel('report').where(neq('startNode')).path().unfold()",
       "objects": ["report"]
     },
     {
       "name": "context",
       "description": "Report context",
-      "query":
-        "g.outE('mentions').union(otherV(),otherV().hasLabel(within('ipv4','hash','fqdn')).where(bothE().count().is(lte(50L))).bothE().otherV(),union(otherV().hasLabel(within('ipv4','fqdn')).where(outE('componentOf').count().is(lte(50L))).outE('componentOf').otherV().where(inE('componentOf').count().is(lte(50L))).inE('componentOf').otherV(),otherV().hasLabel('ipv4').outE('memberOf').otherV().outE('memberOf').union(otherV(),otherV().inE('owns').otherV().outE('locatedIn').otherV())),otherV().hasLabel('hash').outE('represents').otherV().bothE().otherV()).path().unfold()",
+      "query": "g.outE('mentions').union(otherV(),otherV().hasLabel(within('ipv4','hash','fqdn')).where(bothE().count().is(lte(50L))).bothE().otherV(),union(otherV().hasLabel(within('ipv4','fqdn')).where(outE('componentOf').count().is(lte(50L))).outE('componentOf').otherV().where(inE('componentOf').count().is(lte(50L))).inE('componentOf').otherV(),otherV().hasLabel('ipv4').outE('memberOf').otherV().outE('memberOf').union(otherV(),otherV().inE('owns').otherV().outE('locatedIn').otherV())),otherV().hasLabel('hash').outE('represents').otherV().bothE().otherV()).path().unfold()",
       "objects": ["report"]
+    },
+    {
+      "name": "mentions",
+      "description": "Mentioned in report",
+      "query": "g.inE('mentions').otherV().hasLabel('report').path().unfold()",
+      "objects": [
+        "campaign",
+        "certificate",
+        "email",
+        "fqdn",
+        "hash",
+        "ipv4",
+        "ipv6",
+        "country",
+        "region",
+        "subRegion",
+        "mutex",
+        "organization",
+        "person",
+        "sector",
+        "threatActor",
+        "tool",
+        "uri",
+        "userAgent",
+        "vulnerability"
+      ]
+    },
+    {
+      "name": "tools",
+      "description": "Tools used by this threat actor",
+      "query": "g.union(repeat(inE('alias').otherV()).until(cyclicPath()).inE('attributedTo').otherV().inE('observedIn').otherV().outE('classifiedAs').otherV(),inE('attributedTo').otherV().inE('observedIn').otherV().outE('classifiedAs').otherV()).repeat(inE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "objects": ["threatActor"]
+    },
+    {
+      "name": "techniques",
+      "description": "Techniques used by this threat actor",
+      "query": "g.union(repeat(inE('alias').otherV()).until(cyclicPath()).inE('attributedTo').otherV().inE('observedIn').otherV().hasLabel('technique'),inE('attributedTo').otherV().inE('observedIn').otherV().hasLabel('technique')).path().unfold()",
+      "objects": ["threatActor"]
     }
   ]
 }

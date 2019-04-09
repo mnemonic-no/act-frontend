@@ -1,7 +1,6 @@
 {
   "apiUrl": "",
   "actUserId": 1,
-
   "objectColors": {
     "country": "#c08",
     "fqdn": "#c00",
@@ -15,7 +14,6 @@
     "tool": "#b60",
     "uri": "#0c0"
   },
-
   "autoResolveFacts": {
     "asn": ["name"],
     "ipv4": ["sinkhole"],
@@ -24,7 +22,6 @@
     "report": ["name"],
     "uri": ["port", "scheme"]
   },
-
   "predefinedObjectQueries": [
     {
       "name": "related",

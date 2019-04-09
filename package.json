@@ -36,14 +36,7 @@
     "typeface-roboto": "^0.0.54",
     "wretch": "1.5.1"
   },
-  "lint-staged": {
-    "src/**/*.{js,jsx,json,css}": [
-      "prettier-standard",
-      "git add"
-    ]
-  },
   "scripts": {
-    "precommit": "lint-staged",
     "analyze": "source-map-explorer build/static/js/main.*",
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -56,9 +49,6 @@
     "mobx-remotedev": "^0.3.6",
     "prettier-standard": "9.1.1",
     "source-map-explorer": "1.8.0"
-  },
-  "semistandard": {
-    "parser": "babel-eslint"
   },
   "browserslist": [
     ">0.2%",

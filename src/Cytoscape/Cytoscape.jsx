@@ -1,5 +1,5 @@
 import React from 'react';
-import { compose, onlyUpdateForPropTypes, shallowEqual } from 'recompose';
+import { shallowEqual } from 'recompose';
 import PropTypes from 'prop-types';
 import Cytoscape from 'cytoscape';
 import Klay from 'klayjs';
@@ -49,7 +49,7 @@ class CytoscapeContainer extends React.Component {
         ready: ({ cy }) => {
           // Selected
           if (this.props.selectedNode) {
-            const node = cy.nodes().getElementById(this.props.selectedNode);
+            const node = cy.nodes().getElementById(this.props.selectedNode)
             node.select();
           }
 
@@ -60,7 +60,7 @@ class CytoscapeContainer extends React.Component {
               if (node.data('isFact')) {
                 return;
               }
-              this.props.onNodeClick(node);
+              this.props.onNodeClick(node)
             });
           }
           if (this.props.onNodeCtxClick) {
@@ -73,12 +73,12 @@ class CytoscapeContainer extends React.Component {
               if (edge.data('isFact')) {
                 this.props.onNodeCtxClick(edge);
               }
-            });
+            })
           }
         }
       })
     );
-    this.runLayout(this.props.layout);
+    this.runLayout(this.props.layout)
   }
 
   componentDidUpdate (prevProps) {
@@ -87,9 +87,9 @@ class CytoscapeContainer extends React.Component {
       // this.cy.remove('*');
       // this.cy.add(this.props.elements);
       this.cy.json({ elements: this.props.elements });
-      this.runLayout(this.props.layout);
+      this.runLayout(this.props.layout)
     } else if (prevProps.layout !== this.props.layout) {
-      this.runLayout(this.props.layout);
+      this.runLayout(this.props.layout)
     } else if (prevProps.lockNodes !== this.props.lockNodes) {
       if (this.props.lockNodes) {
         // Lock all nodes
@@ -117,7 +117,7 @@ class CytoscapeContainer extends React.Component {
       this.cy
         .style()
         .fromJson(this.props.style)
-        .update();
+        .update()
     }
   }
 
@@ -136,7 +136,7 @@ class CytoscapeContainer extends React.Component {
       this.layout.stop();
     }
     this.layout = this.cy.layout(layout);
-    this.layout.run();
+    this.layout.run()
   }
 
   // Actions
@@ -162,7 +162,7 @@ class CytoscapeContainer extends React.Component {
     };
     if (zoom.level < this.cy.minZoom()) return;
     // this.cy.zoom(zoom);
-    this.cy.animate({ zoom, duration: 150 });
+    this.cy.animate({ zoom, duration: 150 })
   }
 
   render () {
@@ -172,7 +172,7 @@ class CytoscapeContainer extends React.Component {
           id='cytoscape-container'
           style={{ height: '99%', width: '98%', marginLeft: '1%' }}
           ref={el => {
-            this.containerDOM = el;
+            this.containerDOM = el
           }}
         />
         {/* Toolbar */}
@@ -198,4 +198,4 @@ CytoscapeContainer.defaultProps = {
   style: []
 };
 
-export default compose(onlyUpdateForPropTypes)(CytoscapeContainer);
+export default CytoscapeContainer;

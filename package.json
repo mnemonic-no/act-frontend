@@ -41,10 +41,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "ci:test": "react-scripts test --all --watchAll=false --reporters=default --reporters=jest-junit"
   },
   "devDependencies": {
     "husky": "^0.14.3",
+    "jest-junit": "6.3.0",
     "lint-staged": "8.1.5",
     "mobx-remotedev": "^0.3.6",
     "prettier-standard": "9.1.1",

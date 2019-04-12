@@ -1,18 +1,18 @@
 import React from 'react'
 import { compose, withHandlers } from 'recompose'
-import Typography from '@material-ui/core/Typography'
-import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography/index'
+import { withStyles } from '@material-ui/core/styles/index'
 import { darken, lighten } from '@material-ui/core/styles/colorManipulator'
-import Button from '@material-ui/core/Button'
+import Button from '@material-ui/core/Button/index'
 
-import withDataLoader from '../util/withDataLoader'
-import memoizeDataLoader from '../util/memoizeDataLoader'
-import actWretch from '../util/actWretch'
-import CenteredCircularProgress from './CenteredCircularProgress'
-import { objectTypeToColor, renderObjectValue } from '../util/utils'
-import config from '../config'
-import CreateFactDialog, { createFact } from './CreateFact/Dialog'
-import PredefinedObjectQueries from './InformationPanel/PredefinedObjectQueries'
+import config from '../../config'
+import withDataLoader from '../../util/withDataLoader'
+import memoizeDataLoader from '../../util/memoizeDataLoader'
+import actWretch from '../../util/actWretch'
+import CenteredCircularProgress from '../CenteredCircularProgress'
+import CreateFactDialog, { createFact } from '../CreateFact/Dialog'
+import PredefinedObjectQueries from './PredefinedObjectQueries'
+import { objectTypeToColor, renderObjectValue } from '../../util/utils'
 
 const styles = theme => ({
   root: {
@@ -69,8 +69,7 @@ const ObjectInformationComp = ({
       <div onClick={onSearchClick}>
         <Typography
           variant='h5'
-          className={`${classes.link} ${classes[data.type.name]}`}
-        >
+          className={`${classes.link} ${classes[data.type.name]}`}>
           <span>{renderObjectValue(data, 256)}</span>
         </Typography>
       </div>
@@ -97,7 +96,7 @@ const ObjectInformationComp = ({
       </div>
     </div>
   )
-}
+};
 
 const dataLoader = ({ id }) =>
   actWretch
@@ -105,7 +104,7 @@ const dataLoader = ({ id }) =>
     .get()
     .json(({ data }) => ({
       data
-    }))
+    }));
 
 const memoizedDataLoader = memoizeDataLoader(dataLoader, ['id'])
 

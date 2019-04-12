@@ -19,15 +19,6 @@ export const factsToObjects = data => {
   return result;
 };
 
-export const objectTypesFromObjects = objects => {
-  const uniqueTypes = new Set();
-  return objects.map(object => object.type).filter(({ id }) => {
-    if (uniqueTypes.has(id)) return false;
-    uniqueTypes.add(id);
-    return true;
-  });
-};
-
 export const objectFactsToElements = ({ facts, objects, factsAsNodes }) => {
   let elements;
   if (factsAsNodes) {

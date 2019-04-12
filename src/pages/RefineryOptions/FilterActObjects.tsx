@@ -1,5 +1,5 @@
 import React from 'react';
-import { compose, withHandlers, mapProps } from 'recompose';
+import { compose } from 'recompose';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -7,8 +7,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import { observer } from 'mobx-react';
 
-import config from '../config';
+import config from '../../config';
+import {ObjectTypeFilter} from "../RefineryStore";
 
+// @ts-ignore
 const styles = theme => ({
   checkbox: {
     height: '36px',
@@ -16,21 +18,20 @@ const styles = theme => ({
   },
   ...Object.keys(config.objectColors)
     .map(name => ({
-      [name]: {
-        color: config.objectColors[name]
-      }
+        // @ts-ignore
+      [name]: {color: config.objectColors[name]}
     }))
     .reduce((acc, x) => Object.assign({}, acc, x), {})
 });
 
-const FilterObjectsComp = ({ objectTypes, onChange, classes }) => (
+const FilterObjectsComp = ({ objectTypeFilters, onChange, classes } : {objectTypeFilters: Array<ObjectTypeFilter>, onChange: Function, classes: any}) => (
   <FormGroup>
     <FormLabel>Filter objects</FormLabel>
-    {objectTypes.map(({ name, id, checked }) => (
+    {objectTypeFilters.map((objectTypeFilter) => (
       <FormControlLabel
-        key={id}
+        key={objectTypeFilter.id}
         classes={{
-          label: classes[name]
+          label: classes[objectTypeFilter.name]
         }}
         control={
           <Checkbox
@@ -38,34 +39,18 @@ const FilterObjectsComp = ({ objectTypes, onChange, classes }) => (
               root: classes.checkbox
             }}
             disableRipple
-            checked={checked}
-            onChange={e => onChange(id, e.target.checked)}
+            checked={objectTypeFilter.checked}
+            onChange={e => onChange(objectTypeFilter, e.target.checked)}
           />
         }
-        label={name}
+        label={objectTypeFilter.name}
       />
     ))}
   </FormGroup>
 );
 
 export default compose(
-  mapProps(({ value, onChange }) => ({
-    onChange,
-    objectTypes: value
-  })),
-  withHandlers({
-    onChange: ({ objectTypes, onChange }) => (id, value) => {
-      const newCheckedObjectTypes = objectTypes.map(objectType => {
-        if (objectType.id === id) {
-          return Object.assign({}, objectType, {
-            checked: value
-          });
-        }
-        return objectType;
-      });
-      onChange(newCheckedObjectTypes);
-    }
-  }),
   withStyles(styles),
   observer
+    // @ts-ignore
 )(FilterObjectsComp);

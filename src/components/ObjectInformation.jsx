@@ -10,7 +10,7 @@ import memoizeDataLoader from '../util/memoizeDataLoader'
 import actWretch from '../util/actWretch'
 import CenteredCircularProgress from './CenteredCircularProgress'
 import { objectTypeToColor, renderObjectValue } from '../util/utils'
-import config from '../config.json'
+import config from '../config'
 import CreateFactDialog, { createFact } from './CreateFact/Dialog'
 import PredefinedObjectQueries from './InformationPanel/PredefinedObjectQueries'
 

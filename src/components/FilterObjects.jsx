@@ -7,7 +7,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import { observer } from 'mobx-react';
 
-import config from '../config.json';
+import config from '../config';
 
 const styles = theme => ({
   checkbox: {

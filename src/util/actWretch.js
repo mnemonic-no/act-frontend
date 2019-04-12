@@ -1,5 +1,5 @@
 import wretch from 'wretch';
-import config from '../config.json';
+import config from '../config';
 
 const w = wretch()
   .url(config.apiUrl)

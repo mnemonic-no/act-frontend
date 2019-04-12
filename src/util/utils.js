@@ -67,7 +67,7 @@ export const makeCancelable = promise => {
 };
 
 // https://github.com/acdlite/recompose/blob/master/src/packages/recompose/utils/pick.js
-export const pick = (obj: { [key: string]: any }, keys: Array<string>) => {
+export const pick = (obj, keys) => {
   const result = {};
   for (let i = 0; i < keys.length; i += 1) {
     const key = keys[i];
@@ -79,7 +79,7 @@ export const pick = (obj: { [key: string]: any }, keys: Array<string>) => {
 };
 
 // https://github.com/acdlite/recompose/blob/master/src/packages/recompose/utils/omit.js
-export const omit = (obj: { [key: string]: any }, keys: Array<string>) => {
+export const omit = (obj, keys) => {
   const rest = Object.assign({}, obj);
   for (let i = 0; i < keys.length; i += 1) {
     const key = keys[i];
@@ -94,7 +94,7 @@ export const omit = (obj: { [key: string]: any }, keys: Array<string>) => {
  * assertUniqueKeys asserts that the passed objects only contain unique keys, throws an error if they do
  * @param objects
  */
-export function assertUniqueKeys (objects: Array<{ [key: string]: any }>) {
+export function assertUniqueKeys (objects) {
   const uniqueKeys = new Set();
   objects.forEach(o => {
     Object.keys(o).forEach(key => {

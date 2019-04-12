@@ -1,4 +1,3 @@
-// @flow
 import * as React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 
@@ -12,42 +11,16 @@ const DEFAULT_OPTIONS = {
   removePrevious: false
 };
 
-type Options = {
-  action?: ({ onClose: () => void }) => React.Node | React.Node,
-  closeOnClickaway?: boolean,
-  removePrevious?: boolean,
-  ...*
-};
 
-type Props = Options & {
-  children?: React.Node
-};
-
-type MessageStructure = {
-  message: React.Node,
-  options: Options,
-  closeFunc: () => void
-};
-
-type State = {
-  open: boolean,
-  inTransition: boolean,
-  messages: Array<MessageStructure>
-};
-
-type AddMessage = (message: React.Node, options: Options) => () => void;
 export class EventEmitter {
-  registerAddMessage = (addMessagefunc: AddMessage) => {
+  registerAddMessage = (addMessagefunc) => {
     this.addMessageFunc = addMessagefunc;
   };
   addMessage = (message, options) => this.addMessageFunc(message, options);
-
-  addMessage: AddMessage;
-  addMessageFunc: AddMessage;
 }
 
-export const createSnackbarProvider = (eventEmitter: EventEmitter) =>
-  class SnackbarProvider extends React.Component<Props, State> {
+export const createSnackbarProvider = (eventEmitter) =>
+  class SnackbarProvider extends React.Component {
     constructor () {
       super();
       eventEmitter.registerAddMessage(this.addMessage);
@@ -80,7 +53,7 @@ export const createSnackbarProvider = (eventEmitter: EventEmitter) =>
       }));
     };
 
-    addMessage = (message: React.Node, options: Options = {}) => {
+    addMessage = (message, options = {}) => {
       // Close callback
       this.messageCount += 1;
       const key = this.messageCount;
@@ -120,7 +93,6 @@ export const createSnackbarProvider = (eventEmitter: EventEmitter) =>
       return closeFunc;
     };
 
-    messageCount: number;
 
     render () {
       const { children, ...props } = this.props;

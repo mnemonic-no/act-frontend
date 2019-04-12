@@ -5,6 +5,10 @@
   "dependencies": {
     "@material-ui/core": "3.9.3",
     "@material-ui/icons": "3.0.2",
+    "@types/jest": "24.0.11",
+    "@types/node": "11.13.4",
+    "@types/react": "16.8.13",
+    "@types/react-dom": "16.8.4",
     "autosuggest-highlight": "^3.1.1",
     "classnames": "^2.2.6",
     "cytoscape": "3.5.2",
@@ -34,6 +38,7 @@
     "recompose": "^0.30.0",
     "seamless-immutable": "7.1.4",
     "typeface-roboto": "^0.0.54",
+    "typescript": "3.4.3",
     "wretch": "1.5.1"
   },
   "scripts": {

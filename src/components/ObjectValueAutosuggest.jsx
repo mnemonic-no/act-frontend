@@ -18,7 +18,6 @@ import { withStyles } from '@material-ui/core/styles'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
-// import config from '../config.json';
 import actWretch from '../util/actWretch'
 import withDataLoader from '../util/withDataLoader'
 import memoizeDataLoader from '../util/memoizeDataLoader'
@@ -43,11 +42,11 @@ const renderInput = ({
       ...other
     }}
   />
-)
+);
 
 const renderSuggestion = (suggestion, { query, isHighlighted }) => {
-  const matches = match(suggestion.value, query)
-  const parts = parse(suggestion.value, matches)
+  const matches = match(suggestion.value, query);
+  const parts = parse(suggestion.value, matches);
 
   return (
     <MenuItem selected={isHighlighted} component='div'>
@@ -66,13 +65,13 @@ const renderSuggestion = (suggestion, { query, isHighlighted }) => {
       </div>
     </MenuItem>
   )
-}
+};
 
 const renderSuggestionsContainer = ({ containerProps, children }) => (
   <Paper {...containerProps} square>
     {children}
   </Paper>
-)
+);
 
 const styles = theme => ({
   container: {
@@ -95,11 +94,11 @@ const styles = theme => ({
   progress: {
     color: theme.palette.common.minBlack
   }
-})
+});
 
 const getSuggestionValue = suggestion => {
   return suggestion.value
-}
+};
 
 const ObjectValueAutosuggestComp = ({
   classes,
@@ -198,13 +197,13 @@ export default compose(
     onSuggestionsFetchRequested: ({ setSuggestions, objectValues }) => ({
       value
     }) => {
-      const inputValue = value.trim().toLowerCase()
-      const inputLength = inputValue.length
+      const inputValue = value.trim().toLowerCase();
+      const inputLength = inputValue.length;
 
       if (!objectValues || objectValues.length === 0 || inputLength === 0) {
         return []
       }
-      let count = 0
+      let count = 0;
       const suggestions = objectValues.filter(x => {
         const keep =
           count < 5 &&
@@ -213,7 +212,7 @@ export default compose(
           count += 1
         }
         return keep
-      })
+      });
 
       setSuggestions(suggestions)
     }

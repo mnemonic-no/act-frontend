@@ -22,3 +22,5 @@ yarn-error.log*
 
 .vscode/chrome
 junit.xml
+
+src/config.override.json

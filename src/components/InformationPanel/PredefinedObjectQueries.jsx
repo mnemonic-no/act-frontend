@@ -1,7 +1,7 @@
-import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import config from '../../config.json'
-import { Grid, Button, Typography, Tooltip } from '@material-ui/core'
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import config from '../../config';
+import { Grid, Button, Typography, Tooltip } from '@material-ui/core';
 
 const styles = theme => ({
   root: {},
@@ -10,7 +10,7 @@ const styles = theme => ({
     overflow: 'scroll',
     padding: theme.spacing.unit
   }
-})
+});
 
 const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
   const onSearchClick = x => {
@@ -19,11 +19,11 @@ const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
       objectValue: data.value,
       query: x.query
     })
-  }
+  };
 
   const queries = config.predefinedObjectQueries.filter(x =>
     x.objects.find(objectType => objectType === data.type.name)
-  )
+  );
   if (queries.length === 0) return null
 
   return (
@@ -52,7 +52,7 @@ const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
       </Grid>
     </React.Fragment>
   )
-}
+};
 
 const PredefinedObjectQueries = withStyles(styles)(PredefinedObjectQueriesComp)
 

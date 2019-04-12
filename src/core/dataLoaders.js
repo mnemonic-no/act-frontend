@@ -1,4 +1,4 @@
-import config from '../config.json';
+import config from '../config';
 import actWretch from '../util/actWretch';
 import { factsToObjects } from './transformers';
 

@@ -48,7 +48,15 @@ const theme = createMuiTheme({
   palette: {
     primary: Black,
     secondary: Orange
-  }
+  },
+  overrides: {
+    MuiTooltip: {
+      tooltip: {
+        padding: "8px 16px",
+        fontSize: 14,
+      },
+    },
+  },
 })
 
 // TODO

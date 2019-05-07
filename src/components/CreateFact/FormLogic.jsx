@@ -14,8 +14,6 @@ import actWretch from '../../util/actWretch';
 
 import deformed from '../../util/deformed';
 import CreateFactFormComp from './Form';
-import dataState, { Data } from '../../state/data';
-import graphInformation from '../../state/graphInformation';
 
 const Fields = {
   factType: null,
@@ -83,16 +81,9 @@ const onSubmit = ({ setSubmitting, setError, close }) => fields => {
       setSubmitting(false);
       setError(null);
 
-      // Add node
-      dataState.addNode({
-        data: new Data({ factsData: [data] }),
-        search: { createFact: true, factType: data.type.name }
-      });
-      // Select it
-      graphInformation.setSelectedNode({
-        id: data.id,
-        type: 'fact'
-      });
+      // Add node to local state
+
+      // Select the node
 
       addMessage('Fact created');
       close();

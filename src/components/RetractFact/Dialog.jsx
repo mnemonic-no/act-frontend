@@ -3,7 +3,6 @@ import { compose, withProps } from 'recompose';
 import { observable, action, decorate } from 'mobx';
 import { observer } from 'mobx-react';
 import Dialog from '@material-ui/core/Dialog';
-// import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import RetractFactForm from './FormLogic';
@@ -14,9 +13,7 @@ const RetractFactDialog = ({ state: { open, close, fact, onSuccess } }) => (
     onClose={close}
     disableBackdropClick
     disableEscapeKeyDown
-    maxWidth='sm'
-  >
-    {/* <DialogTitle>Retract Fact</DialogTitle> */}
+    maxWidth='sm'>
     <RetractFactForm
       {...{ close, fact, onSuccess }}
       ContentComp={DialogContent}

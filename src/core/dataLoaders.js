@@ -45,11 +45,6 @@ const handleForbiddenQueryResults = error => {
 const DEFAULT_LIMIT = 10000;
 
 /**
- * Fetch facts from an object uuid
- */
-const objectFactsUuidDataLoader = ({ uuid }) => new Error('NOT IMPLEMENTED');
-
-/**
  * Fetch facts from an object specifed by type and value
  */
 export const objectFactsDataLoader = ({ objectType, objectValue }) =>
@@ -136,10 +131,9 @@ export const objectFactsTraverseDataLoader = ({
     .catch(handleError);
 
 export const searchCriteriadataLoader = ({
-  searchCriteria: { uuid, objectType, objectValue, query }
+  searchCriteria: { objectType, objectValue, query }
 }) => {
-  if (uuid) return objectFactsUuidDataLoader({ uuid });
-  else if (objectType && objectValue && query) {
+  if (objectType && objectValue && query) {
     return objectFactsTraverseDataLoader({ objectType, objectValue, query });
   } else if (objectType && objectValue) {
     return objectFactsDataLoader({ objectType, objectValue });

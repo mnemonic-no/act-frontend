@@ -3,7 +3,6 @@ import { addMessage } from '../../util/SnackbarProvider';
 
 import actWretch from '../../util/actWretch';
 import deformed from '../../util/deformed';
-import dataState, { Data } from '../../state/data';
 import CreateFactFormComp from './Form';
 
 const Fields = {
@@ -31,10 +30,6 @@ const onSubmit = ({
       setError(null);
 
       // Add node
-      dataState.addNode({
-        data: new Data({ factsData: [data] }),
-        search: { createFact: true, factType: data.type.name }
-      });
 
       onSuccess();
 

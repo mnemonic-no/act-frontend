@@ -14,8 +14,7 @@ const CreateFactDialog = ({ state: { open, close, initialObject } }) => (
     disableBackdropClick
     disableEscapeKeyDown
     maxWidth='sm'
-    fullWidth
-  >
+    fullWidth>
     {/* <DialogTitle>Create Fact</DialogTitle> */}
     <CreateFactForm
       {...{ close, initialObject }}

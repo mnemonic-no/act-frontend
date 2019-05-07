@@ -24,7 +24,7 @@ const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
   const queries = config.predefinedObjectQueries.filter(x =>
     x.objects.find(objectType => objectType === data.type.name)
   );
-  if (queries.length === 0) return null
+  if (queries.length === 0) return null;
 
   return (
     <React.Fragment>
@@ -54,6 +54,4 @@ const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
   )
 };
 
-const PredefinedObjectQueries = withStyles(styles)(PredefinedObjectQueriesComp)
-
-export default PredefinedObjectQueries
+export default withStyles(styles)(PredefinedObjectQueriesComp);

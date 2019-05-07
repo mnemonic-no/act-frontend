@@ -7,7 +7,6 @@ import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import Paper from '@material-ui/core/Paper';
-// import Divider from '@material-ui/core/Divider';
 
 const styles = theme => ({
   toolbar: {
@@ -44,8 +43,7 @@ const ToolbarComp = ({ classes, onZoomIn, onZoomOut, onFit }) => (
   <Toolbar
     disableGutters
     classes={{ root: classes.toolbar }}
-    className={classes.toolbarPosition}
-  >
+    className={classes.toolbarPosition}>
     <Tooltip title='Fit' placement='top'>
       <Paper className={classes.toolbarButtonPaper}>
         <IconButton onClick={onFit}>
@@ -67,28 +65,5 @@ const ToolbarComp = ({ classes, onZoomIn, onZoomOut, onFit }) => (
     </Paper>
   </Toolbar>
 );
-
-/* Google Maps mini size alterantive */
-// const ToolbarGmComp = ({ classes, onZoomIn, onZoomOut, onFit }) => (
-//   <Toolbar disableGutters classes={{ root: classes.toolbar }} className={classes.gmToolbarPosition}>
-//     <Tooltip title='Fit' placement='top'>
-//       <Paper className={classes.toolbarButtonPaper}>
-//         <IconButton onClick={onFit} className={classes.gmPaperSize}>
-//           <ZoomOutMapIcon className={classes.gmIconSize} />
-//         </IconButton>
-//       </Paper>
-//     </Tooltip>
-
-//     <Paper className={classes.gmPaperMargin}>
-//       <IconButton onClick={onZoomIn} className={classes.gmPaperSize}>
-//         <AddIcon className={classes.gmIconSize} />
-//       </IconButton>
-//       <Divider />
-//       <IconButton onClick={onZoomOut} className={classes.gmPaperSize}>
-//         <RemoveIcon className={classes.gmIconSize} />
-//       </IconButton>
-//     </Paper>
-//   </Toolbar>
-// );
 
 export default withStyles(styles)(ToolbarComp);

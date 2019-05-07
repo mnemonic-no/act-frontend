@@ -1,8 +1,9 @@
 import React from 'react'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography/index'
+import Button from '@material-ui/core/Button/index'
+import { withStyles } from '@material-ui/core/styles/index'
 
+// @ts-ignore
 const styles = theme => ({
   root: {
     width: '100%',
@@ -40,8 +41,9 @@ const styles = theme => ({
       color: theme.palette.secondary.light
     }
   }
-})
-const GraphEmptyComp = ({ classes }) => (
+});
+
+const GraphEmptyComp = ({ classes } : {classes: any}) => (
   <div className={classes.root}>
     <div className={classes.inner}>
       <img
@@ -58,24 +60,21 @@ const GraphEmptyComp = ({ classes }) => (
         <li>
           <a
             className={classes.link}
-            href='/object-fact-query/ipv4/153.148.23.118'
-          >
+            href='/object-fact-query/ipv4/153.148.23.118'>
             /object-fact-query/ipv4/153.148.23.118
           </a>
         </li>
         <li>
           <a
             className={classes.link}
-            href='/object-fact-query/threatActor/Sofacy'
-          >
+            href='/object-fact-query/threatActor/Sofacy'>
             /object-fact-query/threatActor/Sofacy
           </a>
         </li>
         <li>
           <a
             className={classes.link}
-            href='/object-fact-query/technique/Credential%20Dumping'
-          >
+            href='/object-fact-query/technique/Credential%20Dumping'>
             /object-fact-query/technique/Credential%20Dumping
           </a>
         </li>
@@ -87,8 +86,7 @@ const GraphEmptyComp = ({ classes }) => (
         <li>
           <a
             className={classes.link}
-            href='/object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad'
-          >
+            href='/object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad'>
             /object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad
           </a>
         </li>
@@ -98,6 +96,7 @@ const GraphEmptyComp = ({ classes }) => (
       </Button>
     </div>
   </div>
-)
+);
 
+// @ts-ignore
 export default withStyles(styles)(GraphEmptyComp)

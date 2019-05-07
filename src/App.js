@@ -1,11 +1,11 @@
 import React from 'react'
 import { compose, lifecycle } from 'recompose'
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import DevTools from 'mobx-react-devtools';
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import SnackbarProvider from './util/SnackbarProvider'
 
-import Main from './pages/Main'
+import MainPage from './pages/MainPage'
 
 const Black = {
   50: '#9e9e9e',
@@ -22,7 +22,7 @@ const Black = {
   A200: '#AAAAAA',
   A400: '#616161',
   A700: '#000000'
-}
+};
 
 const Orange = {
   50: '#fdefe0',
@@ -39,7 +39,7 @@ const Orange = {
   A200: '#f4a34d', // light
   A400: '#ef7b00', // main
   A700: '#eb6800' // dark
-}
+};
 
 const theme = createMuiTheme({
   typography: {
@@ -57,37 +57,17 @@ const theme = createMuiTheme({
       },
     },
   },
-})
-
-// TODO
-const PageNotFound = () => <div>404</div>
+});
 
 const App = () => (
-  <BrowserRouter>
-    <MuiThemeProvider theme={theme}>
-      <SnackbarProvider />
-      <Switch>
-        <Route exact path='/' component={Main} />
-        <Route
-          exact
-          path='/object-fact-query/:objectType/:objectValue/'
-          component={Main}
-        />
-        <Route
-          exact
-          path='/gremlin/:objectType/:objectValue/:query/'
-          component={Main}
-        />
-        <Route
-          exact
-          path='/graph-query/:objectType/:objectValue/:query/'
-          component={Main}
-        />
-        <Route component={PageNotFound} />
-      </Switch>
-    </MuiThemeProvider>
-  </BrowserRouter>
-)
+    <>
+      <MuiThemeProvider theme={theme}>
+        <SnackbarProvider/>
+        <MainPage/>
+      </MuiThemeProvider>
+      {process.env.NODE_ENV !== 'production' && <DevTools position="topRight"/>}
+    </>
+);
 
 export default compose(
   lifecycle({

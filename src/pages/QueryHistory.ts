@@ -4,10 +4,11 @@ import MainPageStore from "./MainPageStore";
 export type Search = {
     objectType: string,
     objectValue: string,
-    query?: string
+    query?: string,
+    factTypes?: Array<string>
 }
 
-type NamedId = {
+export type NamedId = {
     id: string,
     name: string
 }

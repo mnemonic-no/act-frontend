@@ -1,8 +1,9 @@
 import config from '../config';
 import actWretch from '../util/actWretch';
 import { factsToObjects } from './transformers';
+import {ActObject, NamedId, Search} from "../pages/QueryHistory";
 
-const handleError = error => {
+const handleError = (error : any) => {
   if (error instanceof TypeError) {
     console.error(error);
   }
@@ -23,12 +24,13 @@ const handleError = error => {
   }
 
   const newError = new Error(message);
+  // @ts-ignore
   newError.title = title;
   newError.message = message;
   throw newError;
 };
 
-const handleForbiddenQueryResults = error => {
+const handleForbiddenQueryResults = (error : any) => {
   const originalMessage = error.json.messages && error.json.messages[0].message;
 
   // TODO: Better error text
@@ -36,6 +38,7 @@ const handleForbiddenQueryResults = error => {
   const message = `You either don't have access to any facts relating to the requested object, or it does not exist in the database`;
 
   const newError = new Error(message);
+  // @ts-ignore
   newError.title = title;
   newError.message = message;
 
@@ -47,32 +50,37 @@ const DEFAULT_LIMIT = 10000;
 /**
  * Fetch facts from an object specifed by type and value
  */
-export const objectFactsDataLoader = ({ objectType, objectValue }) =>
-  actWretch
-    .url(
-      `/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(
-        objectValue
-      )}/facts`
-    )
-    .json({
-      limit: DEFAULT_LIMIT,
-      includeRetracted: true
-    })
-    .post()
-    .forbidden(handleForbiddenQueryResults)
-    .json(({ data }) => {
-      const factsData = data;
-      const objectsData = factsToObjects(data);
-      return {
-        data: {
-          factsData,
-          objectsData,
-          factsSet: new Set(factsData.map(fact => fact.id)),
-          objectsSet: new Set(objectsData.map(fact => fact.id))
-        }
-      };
-    })
-    .catch(handleError);
+export const objectFactsDataLoader = ({objectType, objectValue, factTypes}: Search) => {
+
+    const requestBody = {
+        ...(factTypes && factTypes.length > 0 && {factType: factTypes}),
+        limit: DEFAULT_LIMIT,
+        includeRetracted: true
+    };
+
+    return actWretch
+        .url(
+            `/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(
+                objectValue
+            )}/facts`
+        )
+        .json(requestBody)
+        .post()
+        .forbidden(handleForbiddenQueryResults)
+        .json(({data}: any) => {
+            const factsData = data;
+            const objectsData = factsToObjects(data);
+            return {
+                data: {
+                    factsData,
+                    objectsData,
+                    factsSet: new Set(factsData.map((fact: any) => fact.id)),
+                    objectsSet: new Set(objectsData.map((fact: any) => fact.id))
+                }
+            };
+        })
+        .catch(handleError);
+};
 
 /**
  * Fetch facts and objects from a traversal query from a specifed object
@@ -81,7 +89,7 @@ export const objectFactsTraverseDataLoader = ({
   objectType,
   objectValue,
   query
-}) =>
+} : Search) =>
   actWretch
     .url(
       `/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(
@@ -93,16 +101,16 @@ export const objectFactsTraverseDataLoader = ({
     })
     .post()
     .forbidden(handleForbiddenQueryResults)
-    .json(({ data }) => {
-      const isFact = maybeFact =>
+    .json(({ data  } : any) => {
+      const isFact = (maybeFact:any) =>
         maybeFact.hasOwnProperty('bidirectionalBinding');
 
       const factsSet = new Set();
       const objectsSet = new Set();
-      const factsData = [];
-      const objectsData = [];
+      const factsData : Array<any> = [];
+      const objectsData : Array<any> = [];
 
-      data.forEach(x => {
+      data.forEach((x : any) => {
         if (isFact(x) && !factsSet.has(x.id)) {
           factsSet.add(x.id);
           factsData.push(x);
@@ -113,7 +121,7 @@ export const objectFactsTraverseDataLoader = ({
       });
 
       // Add objects from facts
-      factsToObjects(factsData).forEach(x => {
+      factsToObjects(factsData).forEach((x:any) => {
         if (objectsSet.has(x.id)) return false;
         objectsSet.add(x.id);
         objectsData.push(x);
@@ -131,12 +139,14 @@ export const objectFactsTraverseDataLoader = ({
     .catch(handleError);
 
 export const searchCriteriadataLoader = ({
-  searchCriteria: { objectType, objectValue, query }
+  searchCriteria: { objectType, objectValue, query, factTypes }
+} : {
+    searchCriteria: Search
 }) => {
   if (objectType && objectValue && query) {
     return objectFactsTraverseDataLoader({ objectType, objectValue, query });
   } else if (objectType && objectValue) {
-    return objectFactsDataLoader({ objectType, objectValue });
+    return objectFactsDataLoader({ objectType, objectValue, factTypes });
   } else {
     throw new Error('TODO');
   }
@@ -145,28 +155,32 @@ export const searchCriteriadataLoader = ({
 /**
  * Resolve preconfigured facts for objects based on list of facts (with connected objects)
  */
-export const autoResolveDataLoader = ({ data }) => {
+export const autoResolveDataLoader = ({ data } : any) => {
   const { factsData, objectsData = [], factsSet, objectsSet } = data;
 
   const autoResolveFactsKeys = Object.keys(config.autoResolveFacts);
-  const promises = objectsData
-    .filter(object => autoResolveFactsKeys.includes(object.type.name))
-    .map(object =>
+
+    const promises = objectsData
+    .filter((object : any) => autoResolveFactsKeys.includes(object.type.name))
+    .map((object : any) =>
       actWretch
         .url(`/v1/object/uuid/${object.id}/facts`)
         .json({
+          // @ts-ignore
           factType: config.autoResolveFacts[object.type.name],
           includeRetracted: true
         })
         .post()
-        .json(({ data }) => data)
+        .json(({ data } : any) => data)
     );
 
   if (promises.length === 0) {
     return Promise.resolve({ data });
   }
-  return (
+
+    return (
     Promise.all(promises)
+      // @ts-ignore
       .then(data => data.reduce((acc, x) => acc.concat(x), [])) // flatten
       .then(data => ({
         resolvedFacts: data,
@@ -179,14 +193,15 @@ export const autoResolveDataLoader = ({ data }) => {
 
         // Distinct and poplate sets
         const mergedFacts = factsData.concat(
-          resolvedFacts.filter(fact => {
+          // @ts-ignore
+          resolvedFacts.filter((fact : any) => {
             if (newFactsSet.has(fact.id)) return false;
             newFactsSet.add(fact.id);
             return true;
           })
         );
         const mergedObjects = objectsData.concat(
-          resolvedObjects.filter(object => {
+          resolvedObjects.filter((object : any) => {
             if (newObjectsSet.has(object.id)) return false;
             newObjectsSet.add(object.id);
             return true;
@@ -207,17 +222,20 @@ export const autoResolveDataLoader = ({ data }) => {
 
 // Resolve facts between a list of objects
 // TODO: Should fetch retractions for facts, as they might not be part of the result by default
-export const resolveFactsDataLoader = ({ objectTypes, objectValues }) =>
+export const resolveFactsDataLoader = ({ objectTypes, objectValues } : {
+    objectTypes: Array<NamedId>,
+    objectValues: Array<ActObject>
+}) =>
   actWretch
     .url(`/v1/object/traverse`)
     .json({
-      objectType: objectTypes.map(x => x.name),
-      objectValue: objectValues.map(x => x.value),
+      objectType: objectTypes.map((x : NamedId) => x.name),
+      objectValue: objectValues.map((x : ActObject) => x.value),
       query: `g.outE().dedup()`
     })
     .post()
-    .json(({ data }) => data)
-    .then(data => {
-      const ids = new Set(objectValues.map(x => x.id));
-      return data.filter(x => x.objects.every(y => ids.has(y.object.id)));
+    .json(({ data } : any) => data)
+    .then((data : any) => {
+      const ids = new Set(objectValues.map((x:any) => x.id));
+      return data.filter((x:any) => x.objects.every((y:any) => ids.has(y.object.id)));
     });

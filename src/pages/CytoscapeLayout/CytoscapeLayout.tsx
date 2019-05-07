@@ -13,7 +13,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Collapse from "@material-ui/core/Collapse";
 import Divider from "@material-ui/core/Divider";
 import Typography from "@material-ui/core/Typography";
-import withStyles from "@material-ui/core/styles/withStyles";
+import {withStyles, createStyles, Theme} from "@material-ui/core";
 import Switch from "@material-ui/core/Switch";
 import Tooltip from "@material-ui/core/Tooltip";
 import Input from "@material-ui/core/Input";
@@ -26,7 +26,7 @@ import LAYOUTS, {types} from "../../Cytoscape/layouts";
 import ListItemControl from "../../components/ListItemControl";
 import CytoscapeLayoutStore from "./CytoscapeLayoutStore";
 
-const styles = (theme : any) => ({
+const styles = (theme : Theme) => createStyles({
     expand: {
         transform: 'rotate(0deg)',
         transition: theme.transitions.create('transform', {
@@ -38,8 +38,7 @@ const styles = (theme : any) => ({
     }
 });
 
-// @ts-ignore
-const LayoutOptionControl = ({ onChange, value, type, min, max }) => {
+const LayoutOptionControl = ({ onChange, value, type, min, max } : any ) => {
     switch (type) {
         case types.boolean:
             return <Switch checked={value} onClick={() => onChange(!value)} />;
@@ -98,7 +97,6 @@ const LayoutOptionControl = ({ onChange, value, type, min, max }) => {
 };
 
 
-// @ts-ignore
 const LayoutOptionsList = ({layoutConfig,
                             layoutName,
                             onChange}: any) => {
@@ -144,7 +142,7 @@ const LayoutOptionsList = ({layoutConfig,
 };
 
 
-const CytoscapeLayout = ({classes, store} : {classes: any, store: CytoscapeLayoutStore}) => (
+const CytoscapeLayout = ({store, classes} : {store: CytoscapeLayoutStore, classes: any}) => (
 
     <Grid container spacing={16}>
         <Grid item xs={12}>
@@ -212,4 +210,5 @@ const CytoscapeLayout = ({classes, store} : {classes: any, store: CytoscapeLayou
 export default compose(
     withStyles(styles),
     observer
-)(CytoscapeLayout as any);
+    // @ts-ignore
+)(CytoscapeLayout);

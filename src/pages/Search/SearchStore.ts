@@ -21,6 +21,11 @@ class SearchStore {
         this.root.backendStore.executeQuery({objectType, objectValue, query});
     }
 
+    @action
+    clearGraph() {
+        this.root.queryHistory.removeAllQueries();
+    }
+
     executeSearch(search: Search) {
         this.objectValue = search.objectValue;
         this.objectType = search.objectType;

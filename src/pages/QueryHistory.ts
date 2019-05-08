@@ -118,6 +118,11 @@ class QueryHistory {
         this.queries.remove(query);
     }
 
+    @action
+    removeAllQueries() {
+        // @ts-ignore
+        this.queries.clear();
+    }
 }
 
 

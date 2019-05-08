@@ -8,6 +8,7 @@ import RefineryStore from "./RefineryStore";
 import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
 import TableStore from "./Table/TableStore";
 import BackendStore from "./BackendStore";
+import config from "../config";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {
@@ -51,7 +52,7 @@ class MainPageStore {
             cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
             cytoscapeStore: new GraphViewStore(this),
 
-            detailsStore: new DetailsStore(this),
+            detailsStore: new DetailsStore(this, config),
             refineryOptionsStore: new RefineryOptionsStore(this),
             searchStore: new SearchStore(this),
             queryHistoryStore: new QueryHistoryStore(this),

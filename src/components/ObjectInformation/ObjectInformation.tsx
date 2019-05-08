@@ -14,6 +14,7 @@ import CreateFactDialog, { createFact } from '../CreateFact/Dialog'
 import { objectTypeToColor, renderObjectValue } from '../../util/utils'
 import {ObjectDetails} from "../../pages/Details/DetailsStore";
 import PredefinedObjectQueries from "./PredefinedObjectQueries";
+import ContextActions from "./ContextActions";
 
 const styles = (theme: Theme) => createStyles({
   root: {
@@ -29,11 +30,14 @@ const styles = (theme: Theme) => createStyles({
     flex: "0 1 auto",
     minHeight: "100px"
   },
+  contextActions: {
+    paddingTop: theme.spacing.unit * 2
+  },
   predefinedQueries: {
     flex: "1 1 auto",
     paddingTop: theme.spacing.unit * 2
   },
-  actions: {
+  footer: {
     justifySelf: "end",
     paddingTop: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit
@@ -115,12 +119,16 @@ const ObjectInformationComp = ({
             ))}
       </div>
 
-      <div className={classes.predefinedQueries}>
+        <div className={classes.contextActions}>
+            <ContextActions actions={objectDetails.contextActions}/>
+        </div>
+
+        <div className={classes.predefinedQueries}>
           <PredefinedObjectQueries
               predefinedObjectQueries={objectDetails.predefinedObjectQueries}
               onClick={objectDetails.predefinedObjectQueryOnClick}/>
       </div>
-      <div className={classes.actions}>
+      <div className={classes.footer}>
         <Button onClick={(e) => onCreateFactClick(e)}>Create fact</Button>
         <CreateFactDialog />
       </div>

@@ -4,7 +4,6 @@ import { Grid, Button, Typography, Tooltip } from '@material-ui/core';
 import {PredefinedObjectQuery} from "../../pages/Details/DetailsStore";
 
 const styles = (theme : Theme) => createStyles({
-  root: {},
   items: {
     minHeight: 120,
     overflow: 'scroll',

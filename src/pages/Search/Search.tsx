@@ -42,6 +42,7 @@ const Search = ({store}: { store: SearchStore }) => (
             </Grid>
             <Grid item xs={12}>
                 <Button type='submit'>Search</Button>
+                <Button onClick={e => store.clearGraph()}>Clear graph</Button>
             </Grid>
         </Grid>
     </form>

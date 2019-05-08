@@ -45,10 +45,13 @@ const styles = (theme: any) => ({
     }
 });
 
-const DataListItemText = ({query}: { query: Query }) => {
+const QueryTitle = ({query}: { query: Query }) => {
     return <span>{`${query.search.objectType}: ${query.search.objectValue}`}</span>;
 };
 
+const FactTypeText = ({query}: { query: Query }) => {
+    return <div>{`Fact filter: ${query.search.factTypes}`}</div>;
+};
 
 const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any }) => (
     <Paper>
@@ -65,7 +68,6 @@ const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any
         </List>
         <Divider/>
         <List dense>
-
             {store.queries.map(query => (
                 <ListItem
                     classes={{
@@ -81,8 +83,14 @@ const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any
                     onClick={() => store.setSelectedQuery(query)}>
                     <ListItemText
                         classes={{root: classes.listItemText}}
-                        primary={<DataListItemText query={query}/>}
-                        secondary={query.search.query}/>
+                        secondaryTypographyProps={{component: "div"}}
+                        primary={<QueryTitle query={query}/>}
+                        secondary={
+                            <>
+                                {query.search.factTypes && <FactTypeText query={query}/> }
+                                <div>{query.search.query}</div>
+                            </>
+                        }/>
                     <ListItemSecondaryAction>
                         <IconButton
                             onClick={() => store.removeQuery(query)}

@@ -1,13 +1,14 @@
 import React from 'react';
 import {observer} from "mobx-react";
 import {compose} from "recompose";
-import {withStyles} from '@material-ui/core/styles';
+import {withStyles, createStyles, Theme} from "@material-ui/core"
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import Drawer from "@material-ui/core/Drawer";
 import Toolbar from "@material-ui/core/Toolbar";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Paper from "@material-ui/core/Paper";
+// @ts-ignore
 import classNames from "classnames";
 
 import {AboutButton} from "../components/About";
@@ -20,13 +21,15 @@ import RefineryOptions from "./RefineryOptions/RefineryOptions";
 import MainPageStore from "./MainPageStore";
 import Search from './Search/Search';
 import Table from "./Table/Table";
+import Divider from "@material-ui/core/Divider";
+import Details from "./Details/Details";
 
 const drawerWidth = 360;
 const infoDrawerWidth = 360;
 
-const styles = theme => {
+const styles = (theme: Theme) => {
     const appBarHeight = theme.spacing.unit * 8;
-    return {
+    return createStyles({
         root: {
             height: '100vh',
             zIndex: 1,
@@ -84,6 +87,10 @@ const styles = theme => {
             height: `calc(100% - ${appBarHeight}px)`,
             width: infoDrawerWidth
         },
+        inforDrawerRoot: {
+            height: '100%',
+            position: 'relative'
+        },
 
         //
         paper: {
@@ -97,13 +104,13 @@ const styles = theme => {
             marginRight: theme.spacing.unit * 2,
             marginTop: theme.spacing.unit * 2
         }
-    };
+    });
 };
 
 const store = new MainPageStore();
 store.initByUrl(window.location);
 
-const MainPage = ({classes}) => (
+const MainPage = ({classes} : {classes: any}) => (
 
     <div className={classes.root}>
         <div className={classes.appFrame}>
@@ -112,7 +119,7 @@ const MainPage = ({classes}) => (
                 <AppBar position='static'>
                     <Toolbar>
                         <div className={classes.appBarLeft}>
-                            <a href='/' alt='home'>
+                            <a href='/'>
                                 <img
                                     src='/act-logo-onDark.svg'
                                     alt='ACT'
@@ -126,7 +133,7 @@ const MainPage = ({classes}) => (
                         <AboutButton/>
                     </Toolbar>
                     {(store.backendStore.isLoading) && (
-                        <LinearProgress mode='query' color='secondary'/>
+                        <LinearProgress variant='query' color='secondary'/>
                     )}
                 </AppBar>
             </div>
@@ -175,7 +182,12 @@ const MainPage = ({classes}) => (
                         paper: classes.infoDrawerPaper,
                         docked: classes.infoDrawerDocked
                     }}>
-                    <Table store={store.ui.tableStore} />
+
+                    <div className={classes.inforDrawerRoot}>
+                        <Details store={store.ui.detailsStore} />
+                        <Divider/>
+                        <Table store={store.ui.tableStore} />
+                    </div>
                 </Drawer>
             )}
         </div>
@@ -184,4 +196,8 @@ const MainPage = ({classes}) => (
     </div>
 );
 
-export default compose(withStyles(styles), observer)(MainPage);
+export default compose(
+    withStyles(styles),
+    observer
+    // @ts-ignore
+)(MainPage);

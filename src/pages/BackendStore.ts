@@ -39,7 +39,8 @@ class BackendStore {
             searchCriteria: {
                 objectType: search.objectType,
                 objectValue: search.objectValue,
-                query: (search.query ? search.query : "")
+                query: (search.query ? search.query : ""),
+                factTypes: search.factTypes
             }
         })
             .then(autoResolveDataLoader)

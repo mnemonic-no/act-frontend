@@ -22,6 +22,7 @@ const Details = ({store, classes} : {store: DetailsStore, classes: any}) => {
         (store.selectedNode.type === 'object' ? (
             <ObjectInformation
                 id={store.selectedNode.id}
+                objectDetails={store.selectedObjectDetails}
                 {...{onSearchSubmit: (data : any) => store.onSearchSubmit(data)}}
             />
         ) : (

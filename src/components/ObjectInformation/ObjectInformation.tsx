@@ -11,8 +11,9 @@ import memoizeDataLoader from '../../util/memoizeDataLoader'
 import actWretch from '../../util/actWretch'
 import CenteredCircularProgress from '../CenteredCircularProgress'
 import CreateFactDialog, { createFact } from '../CreateFact/Dialog'
-import PredefinedObjectQueries from './PredefinedObjectQueries'
 import { objectTypeToColor, renderObjectValue } from '../../util/utils'
+import {ObjectDetails} from "../../pages/Details/DetailsStore";
+import PredefinedObjectQueries from "./PredefinedObjectQueries";
 
 const styles = (theme: Theme) => createStyles({
   root: {
@@ -68,12 +69,14 @@ const styles = (theme: Theme) => createStyles({
 const ObjectInformationComp = ({
   classes,
   data,
+  objectDetails,
   onSearchSubmit,
   onSearchClick,
   onCreateFactClick
 }: {
   classes: any,
   data: any,
+  objectDetails: ObjectDetails,
   onSearchSubmit: Function,
   onSearchClick: Function,
   onCreateFactClick: Function
@@ -82,10 +85,10 @@ const ObjectInformationComp = ({
   const objectColor = objectTypeToColor(data.type.name);
   return (
     <div className={classes.root}>
-      <div onClick={(e) => onSearchClick(e) }>
+      <div onClick={(e) => onSearchClick(e)}>
         <Typography
-          variant='h5'
-          className={`${classes.link} ${classes[data.type.name]}`}>
+            variant='h5'
+            className={`${classes.link} ${classes[data.type.name]}`}>
           <span>{renderObjectValue(data, 256)}</span>
         </Typography>
       </div>
@@ -98,8 +101,8 @@ const ObjectInformationComp = ({
           {totalFacts} facts
         </Typography>
         {data.statistics
-            .sort((a: any, b : any) => a.type.name > b.type.name ? 1 : -1)
-            .map((x: any ) => (
+            .sort((a: any, b: any) => a.type.name > b.type.name ? 1 : -1)
+            .map((x: any) => (
                 <div key={x.type.id}>
                   <Button size="small" className={classes.factTypeButton} onClick={() =>
                       onSearchSubmit({
@@ -113,7 +116,9 @@ const ObjectInformationComp = ({
       </div>
 
       <div className={classes.predefinedQueries}>
-        <PredefinedObjectQueries {...{ data, onSearchSubmit }} />
+          <PredefinedObjectQueries
+              predefinedObjectQueries={objectDetails.predefinedObjectQueries}
+              onClick={objectDetails.predefinedObjectQueryOnClick}/>
       </div>
       <div className={classes.actions}>
         <Button onClick={(e) => onCreateFactClick(e)}>Create fact</Button>

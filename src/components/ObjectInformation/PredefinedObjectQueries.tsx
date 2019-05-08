@@ -1,9 +1,9 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import config from '../../config';
+import {withStyles, createStyles, Theme} from "@material-ui/core"
 import { Grid, Button, Typography, Tooltip } from '@material-ui/core';
+import {PredefinedObjectQuery} from "../../pages/Details/DetailsStore";
 
-const styles = theme => ({
+const styles = (theme : Theme) => createStyles({
   root: {},
   items: {
     minHeight: 120,
@@ -12,19 +12,12 @@ const styles = theme => ({
   }
 });
 
-const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
-  const onSearchClick = x => {
-    onSearchSubmit({
-      objectType: data.type.name,
-      objectValue: data.value,
-      query: x.query
-    })
-  };
+const PredefinedObjectQueriesComp = ({ predefinedObjectQueries, onClick, classes } : {
+  predefinedObjectQueries: Array<PredefinedObjectQuery>,
+  onClick: (q: PredefinedObjectQuery) => void,
+  classes: any}) => {
 
-  const queries = config.predefinedObjectQueries.filter(x =>
-    x.objects.find(objectType => objectType === data.type.name)
-  );
-  if (queries.length === 0) return null;
+  if (predefinedObjectQueries.length === 0) return null;
 
   return (
     <React.Fragment>
@@ -32,17 +25,16 @@ const PredefinedObjectQueriesComp = ({ data, onSearchSubmit, classes }) => {
         Predefined graph queries
       </Typography>
       <Grid container spacing={8} className={classes.items}>
-        {queries.map(x => {
+        {predefinedObjectQueries.map(q => {
           return (
-            <React.Fragment key={x.name}>
+            <React.Fragment key={q.name}>
               <Grid item>
-                <Tooltip title={x.description}>
+                <Tooltip title={q.description}>
                   <Button
                     size='small'
                     variant='outlined'
-                    onClick={() => onSearchClick(x)}
-                  >
-                    {x.name}
+                    onClick={() => onClick(q)}>
+                    {q.name}
                   </Button>
                 </Tooltip>
               </Grid>

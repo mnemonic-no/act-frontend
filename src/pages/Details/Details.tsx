@@ -8,12 +8,11 @@ import {compose} from "recompose";
 import {withStyles, createStyles, Theme} from "@material-ui/core"
 
 
-const nodeInformationHeight = 480;
 const styles = (theme : Theme)  => createStyles({
     nodeInformation: {
         position: 'relative',
-        height: nodeInformationHeight,
-        overflowY: 'scroll'
+        overflowY: 'scroll',
+        height: "100%"
     }
 });
 

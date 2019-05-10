@@ -16,19 +16,24 @@ import { objectTypeToColor, renderObjectValue } from '../../util/utils'
 
 const styles = (theme: Theme) => createStyles({
   root: {
+    display: 'flex',
+    flexDirection: 'column',
     padding: theme.spacing.unit * 2,
     paddingBottom: 0,
     height: `calc(100% - ${theme.spacing.unit * 3}px)`,
-    display: 'flex',
-    flexDirection: 'column',
     overflow: 'hidden',
-    flex: 1
   },
   info: {
-    overflow: 'auto',
-    flex: 1
+    overflowY: 'auto',
+    flex: "0 1 auto",
+    minHeight: "100px"
+  },
+  predefinedQueries: {
+    flex: "1 1 auto",
+    paddingTop: theme.spacing.unit * 2
   },
   actions: {
+    justifySelf: "end",
     paddingTop: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit
   },
@@ -107,8 +112,9 @@ const ObjectInformationComp = ({
             ))}
       </div>
 
-      <PredefinedObjectQueries {...{ data, onSearchSubmit }} />
-
+      <div className={classes.predefinedQueries}>
+        <PredefinedObjectQueries {...{ data, onSearchSubmit }} />
+      </div>
       <div className={classes.actions}>
         <Button onClick={(e) => onCreateFactClick(e)}>Create fact</Button>
         <CreateFactDialog />

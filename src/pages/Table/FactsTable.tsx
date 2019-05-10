@@ -7,12 +7,16 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import {withStyles} from '@material-ui/core/styles';
+import {createStyles, Theme, withStyles} from "@material-ui/core"
 
-import {Node} from "../pages/GraphView/GraphViewStore"
-import {ActFact} from "../pages/QueryHistory";
+import {Node} from "../GraphView/GraphViewStore"
+import {ActFact} from "../QueryHistory";
 
-const styles = (theme: any) => ({
+const styles = (theme: Theme) => createStyles({
+    root: {
+        overflowY: 'scroll',
+        height: "100%"
+    },
     cell: {
         paddingLeft: theme.spacing.unit * 2
     },
@@ -22,7 +26,7 @@ const styles = (theme: any) => ({
     }
 });
 
-const ActFactRowComp = ({fact, selectedNode, onRowClick, classes}: {
+const FactRowComp = ({fact, selectedNode, onRowClick, classes}: {
     fact: ActFact,
     selectedNode: Node,
     onRowClick: Function,
@@ -49,9 +53,9 @@ export const ActFactRow = compose(
     withStyles(styles),
     observer
     // @ts-ignore
-)(ActFactRowComp);
+)(FactRowComp);
 
-const ActFactsTableComp = ({facts, selectedNode, orderBy, order, onSortChange, onRowClick, classes}: {
+const FactsTableComp = ({facts, selectedNode, orderBy, order, onSortChange, onRowClick, classes}: {
     facts: Array<ActFact>,
     selectedNode: Node,
     orderBy: string,
@@ -60,36 +64,38 @@ const ActFactsTableComp = ({facts, selectedNode, orderBy, order, onSortChange, o
     onRowClick: Function,
     classes: any
 }) => (
-    <Table>
-        <TableHead>
-            <TableRow classes={{root: classes.row}}>
-                <TableCell classes={{root: classes.cell}} padding='dense'>
-                    <TableSortLabel
-                        onClick={() => onSortChange('factType')}
-                        direction={order}
-                        active={orderBy === 'factType'}>
-                        Type
-                    </TableSortLabel>
-                </TableCell>
-                <TableCell classes={{root: classes.cell}} padding='dense'>
-                    <TableSortLabel
-                        onClick={() => onSortChange('factValue')}
-                        direction={order}
-                        active={orderBy === 'factValue'}>
-                        Value
-                    </TableSortLabel>
-                </TableCell>
-            </TableRow>
-        </TableHead>
-        <TableBody>
-            {facts.map((fact: ActFact) => <ActFactRow key={fact.id}
-                                                      {...{
-                                                          fact: fact,
-                                                          selectedNode: selectedNode,
-                                                          onRowClick: (fact: ActFact) => onRowClick(fact)
-                                                      }} />)}
-        </TableBody>
-    </Table>
+    <div className={classes.root}>
+        <Table>
+            <TableHead>
+                <TableRow classes={{root: classes.row}}>
+                    <TableCell classes={{root: classes.cell}} padding='dense'>
+                        <TableSortLabel
+                            onClick={() => onSortChange('factType')}
+                            direction={order}
+                            active={orderBy === 'factType'}>
+                            Type
+                        </TableSortLabel>
+                    </TableCell>
+                    <TableCell classes={{root: classes.cell}} padding='dense'>
+                        <TableSortLabel
+                            onClick={() => onSortChange('factValue')}
+                            direction={order}
+                            active={orderBy === 'factValue'}>
+                            Value
+                        </TableSortLabel>
+                    </TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {facts.map((fact: ActFact) => <ActFactRow key={fact.id}
+                                                          {...{
+                                                              fact: fact,
+                                                              selectedNode: selectedNode,
+                                                              onRowClick: (fact: ActFact) => onRowClick(fact)
+                                                          }} />)}
+            </TableBody>
+        </Table>
+    </div>
 );
 
 export default compose(
@@ -127,4 +133,4 @@ export default compose(
     }),
     observer
     // @ts-ignore
-)(ActFactsTableComp);
+)(FactsTableComp);

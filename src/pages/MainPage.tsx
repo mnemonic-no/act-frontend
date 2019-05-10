@@ -1,13 +1,15 @@
-import React from 'react';
-import {observer} from "mobx-react";
+import React, {useState} from 'react';
+import {Observer, observer} from "mobx-react";
 import {compose} from "recompose";
 import {withStyles, createStyles, Theme} from "@material-ui/core"
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import Drawer from "@material-ui/core/Drawer";
-import Toolbar from "@material-ui/core/Toolbar";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Paper from "@material-ui/core/Paper";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import Toolbar from "@material-ui/core/Toolbar";
 // @ts-ignore
 import classNames from "classnames";
 
@@ -20,9 +22,11 @@ import QueryHistory from "./QueryHistory/QueryHistory";
 import RefineryOptions from "./RefineryOptions/RefineryOptions";
 import MainPageStore from "./MainPageStore";
 import Search from './Search/Search';
-import Table from "./Table/Table";
-import Divider from "@material-ui/core/Divider";
 import Details from "./Details/Details";
+import {ActFact, ActObject} from "./QueryHistory";
+import ObjectsTable from "./Table/ObjectsTable";
+import FactsTable from "./Table/FactsTable";
+
 
 const drawerWidth = 360;
 const infoDrawerWidth = 360;
@@ -110,6 +114,40 @@ const styles = (theme: Theme) => {
 const store = new MainPageStore();
 store.initByUrl(window.location);
 
+const ContentComp = ({store, classes} : {store: MainPageStore, classes : any}) => {
+
+    const [selectedTab, setSelectedTab] = useState("graph");
+
+    return (
+        <Observer>
+            {() =>
+                <main className={classNames(classes.content)}>
+                    <Tabs value={selectedTab}
+                          onChange={(e: any, value: string) => setSelectedTab(value)}
+                          indicatorColor='primary'>
+                        <Tab label='Graph' value='graph'/>
+                        <Tab label={`Objects (${store.ui.tableStore.objects.length})`} value='tableOfObjects'/>
+                        <Tab label={`Facts (${store.ui.tableStore.facts.length})`} value='tableOfFacts'/>
+                    </Tabs>
+
+                    {selectedTab === 'graph' && <GraphView store={store.ui.cytoscapeStore}/>}
+                    {selectedTab === 'tableOfObjects' && <ObjectsTable objects={store.ui.tableStore.objects}
+                                                                       selectedNode={store.ui.tableStore.selectedNode}
+                                                                       onRowClick={(actObject: ActObject) => {
+                                                                           store.ui.tableStore.setSelectedObject(actObject)
+                                                                       }}/>}
+                    {selectedTab === 'tableOfFacts' && <FactsTable facts={store.ui.tableStore.facts}
+                                                                   selectedNode={store.ui.tableStore.selectedNode}
+                                                                   onRowClick={(fact: ActFact) => {
+                                                                       store.ui.tableStore.setSelectedFact(fact)
+                                                                   }}/>}
+                </main>
+            }
+        </Observer>
+    );
+};
+
+
 const MainPage = ({classes} : {classes: any}) => (
 
     <div className={classes.root}>
@@ -164,14 +202,14 @@ const MainPage = ({classes} : {classes: any}) => (
                 </Paper>
             </Drawer>
 
-            {/* Graph */}
-            <main className={classNames(classes.content)}>
-                {!store.queryHistory.isEmpty ? (
-                    <GraphView store={store.ui.cytoscapeStore}/>
+            {/* Content */}
+            {
+                !store.queryHistory.isEmpty ? (
+                    <ContentComp store={store} classes={classes}/>
                 ) : (
-                    <GraphEmpty/>)
-                }
-            </main>
+                    <GraphEmpty/>
+                )
+            }
 
             {/* Info drawer */}
             {!store.queryHistory.isEmpty && (
@@ -183,11 +221,7 @@ const MainPage = ({classes} : {classes: any}) => (
                         docked: classes.infoDrawerDocked
                     }}>
 
-                    <div className={classes.inforDrawerRoot}>
-                        <Details store={store.ui.detailsStore} />
-                        <Divider/>
-                        <Table store={store.ui.tableStore} />
-                    </div>
+                    <Details store={store.ui.detailsStore} />
                 </Drawer>
             )}
         </div>

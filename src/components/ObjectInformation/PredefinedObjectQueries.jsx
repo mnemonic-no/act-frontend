@@ -6,7 +6,7 @@ import { Grid, Button, Typography, Tooltip } from '@material-ui/core';
 const styles = theme => ({
   root: {},
   items: {
-    height: 120,
+    minHeight: 120,
     overflow: 'scroll',
     padding: theme.spacing.unit
   }

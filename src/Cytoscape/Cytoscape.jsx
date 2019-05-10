@@ -1,9 +1,8 @@
 import React from 'react';
-import { shallowEqual } from 'recompose';
+import {shallowEqual} from 'recompose';
 import PropTypes from 'prop-types';
 import Cytoscape from 'cytoscape';
 import Klay from 'klayjs';
-
 // Layouts
 import CytoscapeCoseBilkent from 'cytoscape-cose-bilkent/cytoscape-cose-bilkent';
 import CytoscapeDagre from 'cytoscape-dagre';
@@ -30,6 +29,28 @@ const DEFAULT_CONF = {
   maxZoom: 1.3
 };
 
+// Handles single and double clicks by introducing a slight delay for single clicks.
+const clickHandlerFn = (singleClickHandler, doubleClickHandler) => {
+  let previousEvent = null;
+  let timer = null;
+
+  return (event) => {
+    if (!previousEvent) {
+      previousEvent = event;
+      timer = setTimeout(() => {
+        if (event === previousEvent) {
+          previousEvent = null;
+          singleClickHandler && singleClickHandler(event.target);
+        }
+      }, 350)
+    } else {
+      timer && clearTimeout(timer);
+      previousEvent = null;
+      doubleClickHandler && doubleClickHandler(event.target);
+    }
+  }
+};
+
 class CytoscapeContainer extends React.Component {
   constructor () {
     super();
@@ -39,7 +60,6 @@ class CytoscapeContainer extends React.Component {
     this.zoomOut = this.zoomOut.bind(this);
     this.layout = null;
   }
-
   componentDidMount () {
     this.cy = Cytoscape(
       Object.assign({}, DEFAULT_CONF, {
@@ -49,30 +69,19 @@ class CytoscapeContainer extends React.Component {
         ready: ({ cy }) => {
           // Selected
           if (this.props.selectedNode) {
-            const node = cy.nodes().getElementById(this.props.selectedNode)
+            const node = cy.nodes().getElementById(this.props.selectedNode);
             node.select();
           }
 
-          // TODO: Generalize
-          if (this.props.onNodeClick) {
-            cy.on('tap', 'node', event => {
-              const node = event.target;
-              if (node.data('isFact')) {
-                return;
-              }
-              this.props.onNodeClick(node)
-            });
-          }
+          cy.on('tap', 'node', clickHandlerFn(this.props.onNodeClick, this.props.onNodeDoubleClick));
+          cy.on('tap', 'edge', clickHandlerFn(this.props.onNodeClick, this.props.onNodeDoubleClick));
+
           if (this.props.onNodeCtxClick) {
             cy.on('cxttap', 'node', event => {
-              const node = event.target;
-              this.props.onNodeCtxClick(node);
+              this.props.onNodeCtxClick(event.target);
             });
             cy.on('cxttap', 'edge', event => {
-              const edge = event.target;
-              if (edge.data('isFact')) {
-                this.props.onNodeCtxClick(edge);
-              }
+              this.props.onNodeCtxClick(event.target);
             })
           }
         }

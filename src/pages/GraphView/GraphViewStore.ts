@@ -19,23 +19,29 @@ class GraphViewStore {
     }
 
     @computed get prepared() {
-
         return {
             selectedNode: this.selectedNode.id,
             elements: this.root.refineryStore.cytoscapeElements,
             layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
             style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels }),
             onNodeClick: (node : any) => {
+                this.setSelectedNode({
+                    id: node.data('isFact') ? node.data('factId') : node.id(),
+                    type: node.data('isFact') ? 'fact' : 'object'});
+            },
+            onNodeCtxClick: (node : any) => {
+                this.setSelectedNode({
+                    id: node.data('isFact') ? node.data('factId') : node.id(),
+                    type: node.data('isFact') ? 'fact' : 'object'})
+            },
+            onNodeDoubleClick: (node : any) => {
+                if (node.data('isFact')) return;
+
                 this.root.backendStore.executeQuery({
                     objectType: node.data('type'),
                     objectValue: node.data('value'),
                     query: ""
                 })
-            },
-            onNodeCtxClick: (node : any) => {
-                const nodeId = node.data('isFact') ? node.data('factId') : node.id();
-                const nodeType = node.data('isFact') ? 'fact' : 'object';
-                this.setSelectedNode({id: nodeId , type: nodeType});
             }
         }
     }

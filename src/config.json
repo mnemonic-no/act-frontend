@@ -55,11 +55,22 @@
         "person",
         "sector",
         "threatActor",
-        "tool",
         "uri",
         "userAgent",
         "vulnerability"
       ]
+    },
+    {
+      "name": "reports",
+      "description": "Find reports that mention IP addresses from this autonomous system.",
+      "query": "g.repeat(inE('memberOf').otherV()).times(2).inE('mentions').otherV().path().unfold()",
+      "objects": ["asn"]
+    },
+    {
+      "name": "reports",
+      "description": "Find reports that mention either the name of this tool or hashes classified as this tool.",
+      "query": "g.union(inE('mentions').otherV(),inE('classifiedAs').otherV().inE('represents').otherV().inE('mentions').otherV()).path().unfold()",
+      "objects": ["tool"]
     },
     {
       "name": "tools",

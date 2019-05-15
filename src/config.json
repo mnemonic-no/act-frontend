@@ -22,6 +22,7 @@
     "report": ["name"],
     "uri": ["port", "scheme"]
   },
+  "contextActions": [],
   "predefinedObjectQueries": [
     {
       "name": "related",

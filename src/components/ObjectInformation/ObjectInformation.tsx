@@ -43,7 +43,8 @@ const styles = (theme: Theme) => createStyles({
     paddingBottom: theme.spacing.unit
   },
   factTypeButton: {
-    textTransform: "none"
+    textTransform: "none",
+    justifyContent: "left"
   },
   link: {
     cursor: 'pointer',
@@ -113,8 +114,9 @@ const ObjectInformationComp = ({
                         objectType: data.type.name,
                         objectValue: data.value,
                         factTypes: [x.type.name]
-                      })}
-                  >{x.type.name}: {x.count}</Button>
+                      })}>
+                    { `${x.type.name}: ${x.count}`}
+                  </Button>
                 </div>
             ))}
       </div>

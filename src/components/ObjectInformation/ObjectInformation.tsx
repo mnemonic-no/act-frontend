@@ -11,8 +11,10 @@ import memoizeDataLoader from '../../util/memoizeDataLoader'
 import actWretch from '../../util/actWretch'
 import CenteredCircularProgress from '../CenteredCircularProgress'
 import CreateFactDialog, { createFact } from '../CreateFact/Dialog'
-import PredefinedObjectQueries from './PredefinedObjectQueries'
 import { objectTypeToColor, renderObjectValue } from '../../util/utils'
+import {ObjectDetails} from "../../pages/Details/DetailsStore";
+import PredefinedObjectQueries from "./PredefinedObjectQueries";
+import ContextActions from "./ContextActions";
 
 const styles = (theme: Theme) => createStyles({
   root: {
@@ -28,11 +30,14 @@ const styles = (theme: Theme) => createStyles({
     flex: "0 1 auto",
     minHeight: "100px"
   },
+  contextActions: {
+    paddingTop: theme.spacing.unit * 2
+  },
   predefinedQueries: {
     flex: "1 1 auto",
     paddingTop: theme.spacing.unit * 2
   },
-  actions: {
+  footer: {
     justifySelf: "end",
     paddingTop: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit
@@ -68,12 +73,14 @@ const styles = (theme: Theme) => createStyles({
 const ObjectInformationComp = ({
   classes,
   data,
+  objectDetails,
   onSearchSubmit,
   onSearchClick,
   onCreateFactClick
 }: {
   classes: any,
   data: any,
+  objectDetails: ObjectDetails,
   onSearchSubmit: Function,
   onSearchClick: Function,
   onCreateFactClick: Function
@@ -82,10 +89,10 @@ const ObjectInformationComp = ({
   const objectColor = objectTypeToColor(data.type.name);
   return (
     <div className={classes.root}>
-      <div onClick={(e) => onSearchClick(e) }>
+      <div onClick={(e) => onSearchClick(e)}>
         <Typography
-          variant='h5'
-          className={`${classes.link} ${classes[data.type.name]}`}>
+            variant='h5'
+            className={`${classes.link} ${classes[data.type.name]}`}>
           <span>{renderObjectValue(data, 256)}</span>
         </Typography>
       </div>
@@ -98,8 +105,8 @@ const ObjectInformationComp = ({
           {totalFacts} facts
         </Typography>
         {data.statistics
-            .sort((a: any, b : any) => a.type.name > b.type.name ? 1 : -1)
-            .map((x: any ) => (
+            .sort((a: any, b: any) => a.type.name > b.type.name ? 1 : -1)
+            .map((x: any) => (
                 <div key={x.type.id}>
                   <Button size="small" className={classes.factTypeButton} onClick={() =>
                       onSearchSubmit({
@@ -112,10 +119,16 @@ const ObjectInformationComp = ({
             ))}
       </div>
 
-      <div className={classes.predefinedQueries}>
-        <PredefinedObjectQueries {...{ data, onSearchSubmit }} />
+        <div className={classes.contextActions}>
+            <ContextActions actions={objectDetails.contextActions}/>
+        </div>
+
+        <div className={classes.predefinedQueries}>
+          <PredefinedObjectQueries
+              predefinedObjectQueries={objectDetails.predefinedObjectQueries}
+              onClick={objectDetails.predefinedObjectQueryOnClick}/>
       </div>
-      <div className={classes.actions}>
+      <div className={classes.footer}>
         <Button onClick={(e) => onCreateFactClick(e)}>Create fact</Button>
         <CreateFactDialog />
       </div>

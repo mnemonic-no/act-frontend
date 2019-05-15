@@ -1,4 +1,14 @@
 {
   "apiUrl": "http://your-act-backend",
-  "actUserId": 1
+  "actUserId": 1,
+  "contextActions": [
+    {
+      "objects": ["content", "hash"],
+      "action": {
+        "name": "Some Service",
+        "description": "Some description",
+        "type": "link",
+        "urlPattern": "https://www.somewhere.com/analyze/:objectValue"
+      }
+    }]
 }

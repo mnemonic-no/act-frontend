@@ -27,7 +27,7 @@ const styles = (theme : Theme)  => createStyles({
 const RenderWarning = ({classes, onClick} : {classes: any, onClick : Function}) => (
     <div className={classes.warning}>
         <WarnIcon color="secondary" style={{fontSize: 90}}/>
-        <Typography variant="h2">Result too large</Typography>
+        <Typography variant="h2">Large result set</Typography>
         <Typography variant="h5">Please adjust your queries to see the graph</Typography>
         <div className={classes.warningButton}>
             <Button variant="outlined"

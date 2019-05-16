@@ -12,7 +12,7 @@ class GraphViewStore {
 
     root: MainPageStore;
 
-    renderThreshold: number = 1000;
+    renderThreshold: number = 2000;
 
     @observable selectedNode: Node = {type: "fact", id: null};
     @observable acceptRenderWarning = false;

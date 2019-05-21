@@ -1,8 +1,14 @@
+import {action, observable, runInAction} from "mobx";
+import {
+    autoResolveDataLoader,
+    checkObjectStats,
+    searchCriteriadataLoader
+} from "../core/dataLoaders";
 import MainPageStore from "./MainPageStore";
-import {action, observable} from "mobx";
-import {autoResolveDataLoader, searchCriteriadataLoader} from "../core/dataLoaders";
 import {Query, Search} from "./QueryHistory";
 
+
+const maxFetchLimit = 2000;
 
 class BackendStore {
 
@@ -24,7 +30,7 @@ class BackendStore {
     }
 
     @action
-    executeQuery(search: Search) {
+    async executeQuery(search: Search) {
 
         const id = JSON.stringify(search);
 
@@ -33,33 +39,32 @@ class BackendStore {
             return;
         }
 
-        this.isLoading = true;
+        try {
+            this.isLoading = true;
+            const approvedAmountOfData = await checkObjectStats(search, maxFetchLimit);
 
-        searchCriteriadataLoader({
-            searchCriteria: {
-                objectType: search.objectType,
-                objectValue: search.objectValue,
-                query: (search.query ? search.query : ""),
-                factTypes: search.factTypes
-            }
-        })
-            .then(autoResolveDataLoader)
-            .then(
-                action((result: any) => {
-                    const q: Query = {
-                        id: id,
-                        search: search,
-                        result: {
-                            facts: this.arrayToObjectWithIds(result.data.factsData),
-                            objects: this.arrayToObjectWithIds(result.data.objectsData)
-                        }
-                    };
-                    this.root.queryHistory.addQuery(q);
-                }),
-                action((err: any) => {
-                    this.error = err;
-                }))
-            .finally(() => this.isLoading = false);
+            if (!approvedAmountOfData) return;
+
+            const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
+            const q: Query = {
+                id: id,
+                search: search,
+                result: {
+                    facts: this.arrayToObjectWithIds(result.data.factsData),
+                    objects: this.arrayToObjectWithIds(result.data.objectsData)
+                }
+            };
+            this.root.queryHistory.addQuery(q);
+
+        } catch (err) {
+            runInAction(() => {
+                this.error = err;
+            });
+        } finally {
+            runInAction(() => {
+                this.isLoading = false
+            })
+        }
     }
 }
 

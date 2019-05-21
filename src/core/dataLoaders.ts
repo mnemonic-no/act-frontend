@@ -1,7 +1,7 @@
 import config from '../config';
 import actWretch from '../util/actWretch';
 import { factsToObjects } from './transformers';
-import {ActObject, NamedId, Search} from "../pages/QueryHistory";
+import {ActObject, NamedId, ObjectStats, Search} from "../pages/QueryHistory";
 
 const handleError = (error : any) => {
   if (error instanceof TypeError) {
@@ -138,11 +138,8 @@ export const objectFactsTraverseDataLoader = ({
     })
     .catch(handleError);
 
-export const searchCriteriadataLoader = ({
-  searchCriteria: { objectType, objectValue, query, factTypes }
-} : {
-    searchCriteria: Search
-}) => {
+export const searchCriteriadataLoader = (
+  { objectType, objectValue, query, factTypes } : Search) => {
   if (objectType && objectValue && query) {
     return objectFactsTraverseDataLoader({ objectType, objectValue, query });
   } else if (objectType && objectValue) {
@@ -150,6 +147,43 @@ export const searchCriteriadataLoader = ({
   } else {
     throw new Error('TODO');
   }
+};
+
+
+export const resultCount = (search : Search, statistics: Array<ObjectStats>) => {
+    // There is no fact type filter
+    if (!search.factTypes || search.factTypes.length === 0) {
+        return statistics.reduce((acc: number, x: any) => (acc + x.count), 0);
+    }
+
+    return statistics.reduce((acc: number, x: ObjectStats) => {
+        if (search.factTypes && search.factTypes.find((y) => y === x.type.name)) {
+            return acc + x.count;
+        }
+        return acc;
+    }, 0);
+};
+
+export const checkObjectStats = async (search : Search, maxCount: number) => {
+    const {objectType, objectValue, query} = search;
+
+    // API does not support stats when there is a query
+    if (query) {
+        return true;
+    }
+
+    const totalCount = await actWretch
+        .url(`/v1/object/${objectType}/${objectValue}`)
+        .get()
+        .forbidden(handleForbiddenQueryResults)
+        .json(({data}: any) => {
+            return resultCount(search, data.statistics);});
+
+    if (totalCount > maxCount) {
+        return window.confirm("WARNING \nLarge result set. \n\n" +
+            "This query will return " + totalCount + " " +
+            "items which may be too much for the browser to handle. \n\n Are you sure you want to continue?");
+    } else return true;
 };
 
 /**

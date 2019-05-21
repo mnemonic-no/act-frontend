@@ -13,11 +13,18 @@ export type NamedId = {
     name: string
 }
 
+export type ObjectStats = {
+    type: NamedId
+    count: number,
+    lastAddedTimestamp: string,
+    lastSeenTimestamp: string,
+}
+
 export type ActObject = {
     id: string,
     type: NamedId,
     value: string,
-    statistics?: any
+    statistics?: Array<ObjectStats>
 }
 
 export type ActFact = {

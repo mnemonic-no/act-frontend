@@ -173,7 +173,7 @@ export const checkObjectStats = async (search : Search, maxCount: number) => {
     }
 
     const totalCount = await actWretch
-        .url(`/v1/object/${objectType}/${objectValue}`)
+        .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}`)
         .get()
         .forbidden(handleForbiddenQueryResults)
         .json(({data}: any) => {

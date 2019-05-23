@@ -3,6 +3,7 @@ import {action, computed, observable, reaction} from "mobx";
 import {factMapToObjectMap, factsToObjects} from "../core/transformers";
 import {relativeStringToDate} from "../components/RelativeDateSelector";
 import {isBefore} from "date-fns";
+import config from '../config';
 
 import * as R from "ramda";
 import {objectFactsToElements} from "../core/cytoscapeTransformers";
@@ -92,8 +93,8 @@ class RefineryStore {
 
 
         const exclude = new Set([
-            ...retractions.map((x:ActFact)=> x.id),
-            ...Object.values(R.map((x:ActFact) => x.id, retractedFacts))
+            ...retractions.map((x: ActFact) => x.id),
+            ...Object.values(R.map((x: ActFact) => x.id, retractedFacts))
         ]);
 
         filteredFacts = {
@@ -121,7 +122,8 @@ class RefineryStore {
         return objectFactsToElements({
             facts: Object.values(res.facts),
             objects: Object.values(res.objects),
-            factsAsNodes: this.root.ui.refineryOptionsStore.graphOptions.showFactsAsNodes
+            factsAsNodes: this.root.ui.refineryOptionsStore.graphOptions.showFactsAsNodes,
+            objectLabelFromFact: config.objectLabelFromFact
         })
     }
 

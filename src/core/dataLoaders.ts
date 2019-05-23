@@ -253,23 +253,3 @@ export const autoResolveDataLoader = ({ data } : any) => {
       .catch(handleError)
   );
 };
-
-// Resolve facts between a list of objects
-// TODO: Should fetch retractions for facts, as they might not be part of the result by default
-export const resolveFactsDataLoader = ({ objectTypes, objectValues } : {
-    objectTypes: Array<NamedId>,
-    objectValues: Array<ActObject>
-}) =>
-  actWretch
-    .url(`/v1/object/traverse`)
-    .json({
-      objectType: objectTypes.map((x : NamedId) => x.name),
-      objectValue: objectValues.map((x : ActObject) => x.value),
-      query: `g.outE().dedup()`
-    })
-    .post()
-    .json(({ data } : any) => data)
-    .then((data : any) => {
-      const ids = new Set(objectValues.map((x:any) => x.id));
-      return data.filter((x:any) => x.objects.every((y:any) => ids.has(y.object.id)));
-    });

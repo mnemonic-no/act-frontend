@@ -106,12 +106,6 @@ const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any
             <Tooltip title='Export the whole search history as JSON'>
                 <Button onClick={() => store.export()}>Export</Button>
             </Tooltip>
-
-            <Tooltip title='Resolve direct facts between the current objects in the graph'>
-                <Button onClick={() => store.resolveCurrentFacts()}>
-                    RESOLVE FACTS
-                </Button>
-            </Tooltip>
             {/* <Button>Import</Button> */}
         </div>
     </Paper>

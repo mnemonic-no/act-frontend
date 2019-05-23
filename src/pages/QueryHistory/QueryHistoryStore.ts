@@ -50,10 +50,6 @@ class QueryHistoryStore {
         );
         saveAs(blob, 'act-search-history.json');
     }
-
-    resolveCurrentFacts() {
-        alert("Not implemented yet!")
-    }
 }
 
 

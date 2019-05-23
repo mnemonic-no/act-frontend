@@ -1,9 +1,12 @@
 import { truncateText, renderObjectValue } from '../util/utils';
+import {factsToObjects} from "./transformers";
+import {ActFact, ActObject} from "../pages/types";
+
 /*
  * Convert ACT object and fact structures to cytoscape structures
  */
 
-export const objectToCytoscapeNode = object => ({
+export const objectToCytoscapeNode = (object : ActObject) => ({
   group: 'nodes',
   data: {
     id: object.id,
@@ -17,11 +20,11 @@ export const objectToCytoscapeNode = object => ({
   classes: object.type.name
 });
 
-export const factToCytoscapeNode = fact => ({
+export const factToCytoscapeNode = (fact : ActFact) => ({
   group: 'nodes',
   data: {
     id: `node-${fact.id}`,
-    label: fact.value.startsWith('-')
+    label: fact.value && fact.value.startsWith('-')
       ? fact.type.name
       : truncateText(fact.value, 30),
     isFact: true,
@@ -32,12 +35,14 @@ export const factToCytoscapeNode = fact => ({
 });
 
 // Treats facts as node, opposed to edge
-export const factToCytoscapeEdges = fact => {
+export const factToCytoscapeEdges = (fact: ActFact)  => {
+  // @ts-ignore
   let edges = [];
   if (fact.sourceObject) {
     const source = fact.sourceObject.id;
     const target = `node-${fact.id}`;
     const id = fact.id + fact.sourceObject.id;
+    // @ts-ignore
     edges = edges.concat({ source, target, id });
   }
   if (fact.destinationObject) {
@@ -67,13 +72,13 @@ export const factToCytoscapeEdges = fact => {
     classes
   }));
 };
-export const factsToCytoscapeEdges = facts =>
-  facts.map(factToCytoscapeEdges).reduce((acc, x) => acc.concat(x), []);
+export const factsToCytoscapeEdges = (facts : any) =>
+  facts.flatMap(factToCytoscapeEdges);
 
 // Treat facts as edges, assumes facts has EXACTLY two connected objects
-export const factToSingleCytoscapeEdge = fact => {
-  const source = fact.sourceObject.id;
-  const target = fact.destinationObject.id;
+export const factToSingleCytoscapeEdge = (fact :  ActFact ) => {
+  const source = fact.sourceObject && fact.sourceObject.id;
+  const target = fact.destinationObject && fact.destinationObject.id;
   const isBiDirectional = fact.bidirectionalBinding;
 
   const classes = isBiDirectional ? 'bidirectional' : '';
@@ -85,7 +90,7 @@ export const factToSingleCytoscapeEdge = fact => {
       isBiDirectional,
       source,
       target,
-      label: fact.value.startsWith('-')
+      label: fact.value && fact.value.startsWith('-')
         ? fact.type.name
         : `${fact.type.name}: ${truncateText(fact.value, 20)}`,
 
@@ -95,4 +100,28 @@ export const factToSingleCytoscapeEdge = fact => {
     },
     classes
   };
+};
+
+export const objectFactsToElements = ({ facts, objects, factsAsNodes } : {
+  facts: Array<ActFact>,
+  objects: Array<ActObject>,
+  factsAsNodes: boolean
+}) => {
+  if (factsAsNodes) {
+    return [
+      ...objects.map(objectToCytoscapeNode),
+      ...facts.map(factToCytoscapeNode),
+      ...factsToCytoscapeEdges(facts)
+    ];
+  } else {
+    const onLeggedFacts = facts.filter((fact : ActFact)  => factsToObjects([fact]).length === 1);
+    const twoLeggedFacts = facts.filter((fact : ActFact) => factsToObjects([fact]).length === 2);
+
+    return [
+      ...objects.map(objectToCytoscapeNode),
+      ...onLeggedFacts.map(factToCytoscapeNode),
+      ...twoLeggedFacts.map(factToSingleCytoscapeEdge),
+      ...factsToCytoscapeEdges(onLeggedFacts)
+    ];
+  }
 };

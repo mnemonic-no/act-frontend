@@ -1,7 +1,6 @@
-import MainPageStore from "../MainPageStore";
 import {action, computed, observable} from "mobx";
-import {ActFact, ActObject, Search} from "../QueryHistory";
-
+import {ActFact, ActObject, Search} from "../types";
+import MainPageStore from "../MainPageStore";
 
 class TableStore {
     root: MainPageStore;

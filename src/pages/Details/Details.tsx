@@ -1,11 +1,12 @@
 import React from "react";
 import {observer} from "mobx-react";
+import {withStyles, createStyles, Theme} from "@material-ui/core"
+import {compose} from "recompose";
+
 import ObjectInformation from "../../components/ObjectInformation/ObjectInformation";
 import FactInformation from "../../components/FactInformation/FactInformation";
-import {ActFact, ActObject} from "../QueryHistory";
 import DetailsStore from "./DetailsStore";
-import {compose} from "recompose";
-import {withStyles, createStyles, Theme} from "@material-ui/core"
+import {ActFact, ActObject} from "../types";
 
 
 const styles = (theme : Theme)  => createStyles({

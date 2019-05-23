@@ -1,7 +1,7 @@
 import {action, computed, observable} from 'mobx';
 import MainPageStore from "../MainPageStore";
 import getStyle from '../../core/cytoscapeStyle';
-import {ActObject, Search} from "../QueryHistory";
+import {ActObject, Search} from "../types";
 
 export type Node = {
     id: string | null

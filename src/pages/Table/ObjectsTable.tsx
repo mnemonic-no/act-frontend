@@ -1,4 +1,3 @@
-import {Node} from "../GraphView/GraphViewStore"
 import React from 'react';
 import {observer} from 'mobx-react';
 import {compose, mapProps, withStateHandlers} from 'recompose';
@@ -11,7 +10,9 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import {createStyles, Theme, withStyles} from "@material-ui/core"
 
 import {objectTypeToColor, renderObjectValue} from '../../util/utils';
-import {ActObject} from "../QueryHistory";
+import {ActObject} from "../types";
+import {Node} from "../GraphView/GraphViewStore"
+
 
 const styles = (theme : Theme) => createStyles({
     root: {

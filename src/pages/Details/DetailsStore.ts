@@ -1,6 +1,6 @@
 import MainPageStore from "../MainPageStore";
 import {action, computed} from "mobx";
-import {ActFact, ActObject, Search} from "../QueryHistory";
+import {ActFact, ActObject, Search} from "../types";
 
 export type PredefinedObjectQuery = {
     name: string,

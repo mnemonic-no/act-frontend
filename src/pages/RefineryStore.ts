@@ -1,11 +1,13 @@
 import MainPageStore from "./MainPageStore";
 import {action, computed, observable, reaction} from "mobx";
-import {ActFact, ActObject, QueryResult} from "./QueryHistory";
-import {factsToObjects, objectFactsToElements} from "../core/transformers";
+import {factMapToObjectMap, factsToObjects} from "../core/transformers";
 import {relativeStringToDate} from "../components/RelativeDateSelector";
 import {isBefore} from "date-fns";
+import config from '../config';
 
 import * as R from "ramda";
+import {objectFactsToElements} from "../core/cytoscapeTransformers";
+import {ActFact, ActObject, QueryResult} from "./types";
 
 export type ObjectTypeFilter = {
     id: string,
@@ -13,16 +15,6 @@ export type ObjectTypeFilter = {
     checked: boolean
 }
 
-export const factsToActObjects = (facts: { [id: string]: ActFact }): { [id: string]: ActObject } => {
-
-    return Object.values(facts)
-        .flatMap((fact: ActFact) => [fact.destinationObject, fact.sourceObject])
-        .filter(x => Boolean(x)) // Remove nils
-        // @ts-ignore
-        .reduce((acc: { [id: string]: ActObject }, curr: ActObject) => {
-            return {...acc, [curr.id]: curr}
-        }, {});
-};
 
 class RefineryStore {
     root: MainPageStore;
@@ -81,7 +73,7 @@ class RefineryStore {
                 return isBefore(new Date(fact.timestamp), factEndTimeDate)
             }, filteredFacts);
 
-            filteredObjects = factsToActObjects(filteredFacts);
+            filteredObjects = factMapToObjectMap(filteredFacts);
         }
 
         // Retractions
@@ -101,8 +93,8 @@ class RefineryStore {
 
 
         const exclude = new Set([
-            ...retractions.map((x:ActFact)=> x.id),
-            ...Object.values(R.map((x:ActFact) => x.id, retractedFacts))
+            ...retractions.map((x: ActFact) => x.id),
+            ...Object.values(R.map((x: ActFact) => x.id, retractedFacts))
         ]);
 
         filteredFacts = {
@@ -130,7 +122,8 @@ class RefineryStore {
         return objectFactsToElements({
             facts: Object.values(res.facts),
             objects: Object.values(res.objects),
-            factsAsNodes: this.root.ui.refineryOptionsStore.graphOptions.showFactsAsNodes
+            factsAsNodes: this.root.ui.refineryOptionsStore.graphOptions.showFactsAsNodes,
+            objectLabelFromFact: config.objectLabelFromFact
         })
     }
 

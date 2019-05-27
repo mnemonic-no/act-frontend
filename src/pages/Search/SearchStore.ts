@@ -1,7 +1,6 @@
 import MainPageStore from "../MainPageStore";
 import {action, observable} from "mobx";
-import {Search} from "../QueryHistory";
-
+import {Search} from "../types";
 
 class SearchStore {
 

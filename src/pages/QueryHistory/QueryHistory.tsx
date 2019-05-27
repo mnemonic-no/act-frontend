@@ -15,8 +15,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
 import {withStyles} from "@material-ui/core";
 import {observer} from "mobx-react";
-import {Query} from "../QueryHistory";
-
+import {Query} from "../types";
 
 const styles = (theme: any) => ({
     listItem: {

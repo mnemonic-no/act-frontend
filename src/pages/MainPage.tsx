@@ -23,9 +23,9 @@ import RefineryOptions from "./RefineryOptions/RefineryOptions";
 import MainPageStore from "./MainPageStore";
 import Search from './Search/Search';
 import Details from "./Details/Details";
-import {ActFact, ActObject} from "./QueryHistory";
 import ObjectsTable from "./Table/ObjectsTable";
 import FactsTable from "./Table/FactsTable";
+import {ActFact, ActObject} from "./types";
 
 
 const drawerWidth = 360;

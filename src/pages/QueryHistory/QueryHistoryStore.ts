@@ -1,9 +1,9 @@
 import {action, computed} from "mobx";
 import MainPageStore from "../MainPageStore";
-import {Query} from "../QueryHistory";
 
 // @ts-ignore
 import { saveAs } from 'file-saver';
+import {Query} from "../types";
 
 class QueryHistoryStore {
     root: MainPageStore;

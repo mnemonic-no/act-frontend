@@ -5,7 +5,7 @@ import {
     searchCriteriadataLoader
 } from "../core/dataLoaders";
 import MainPageStore from "./MainPageStore";
-import {Query, Search} from "./QueryHistory";
+import {Query, Search} from "./types";
 
 
 const maxFetchLimit = 2000;
@@ -45,6 +45,7 @@ class BackendStore {
 
             if (!approvedAmountOfData) return;
 
+            // @ts-ignore
             const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
             const q: Query = {
                 id: id,

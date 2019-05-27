@@ -2,13 +2,14 @@ import GraphViewStore from "./GraphView/GraphViewStore";
 import CytoscapeLayoutStore from "./CytoscapeLayout/CytoscapeLayoutStore";
 import DetailsStore from './Details/DetailsStore';
 import QueryHistoryStore from "./QueryHistory/QueryHistoryStore";
-import QueryHistory, {Search} from './QueryHistory';
+import QueryHistory from './QueryHistory';
 import SearchStore from "./Search/SearchStore";
 import RefineryStore from "./RefineryStore";
 import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
 import TableStore from "./Table/TableStore";
 import BackendStore from "./BackendStore";
 import config from "../config";
+import {Search} from "./types";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {

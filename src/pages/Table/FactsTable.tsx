@@ -10,7 +10,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import {createStyles, Theme, withStyles} from "@material-ui/core"
 
 import {Node} from "../GraphView/GraphViewStore"
-import {ActFact} from "../QueryHistory";
+import {ActFact} from "../types";
 
 const styles = (theme: Theme) => createStyles({
     root: {

@@ -1,7 +1,7 @@
 import config from '../config';
 import actWretch from '../util/actWretch';
 import { factsToObjects } from './transformers';
-import {ActObject, NamedId, ObjectStats, Search} from "../pages/QueryHistory";
+import {ActObject, NamedId, ObjectStats, Search} from "../pages/types";
 
 const handleError = (error : any) => {
   if (error instanceof TypeError) {

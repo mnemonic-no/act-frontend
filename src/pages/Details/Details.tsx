@@ -21,11 +21,7 @@ const Details = ({store, classes} : {store: DetailsStore, classes: any}) => {
     return <div className={classes.nodeInformation}>
         {store.selectedNode.id !== null &&
         (store.selectedNode.type === 'object' ? (
-            <ObjectInformation
-                id={store.selectedNode.id}
-                objectDetails={store.selectedObjectDetails}
-                {...{onSearchSubmit: (data : any) => store.onSearchSubmit(data)}}
-            />
+            <ObjectInformation {...store.selectedObjectDetails}/>
         ) : (
             <FactInformation id={store.selectedNode.id}
                              endTimestamp={store.endTimestamp}

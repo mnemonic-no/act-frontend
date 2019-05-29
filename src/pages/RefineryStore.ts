@@ -123,7 +123,7 @@ class RefineryStore {
             facts: Object.values(res.facts),
             objects: Object.values(res.objects),
             factsAsNodes: this.root.ui.refineryOptionsStore.graphOptions.showFactsAsNodes,
-            objectLabelFromFact: config.objectLabelFromFact
+            objectLabelFromFactType: config.objectLabelFromFactType
         })
     }
 

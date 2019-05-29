@@ -1,7 +1,8 @@
 import config from '../config';
 import actWretch from '../util/actWretch';
 import { factsToObjects } from './transformers';
-import {ActObject, NamedId, ObjectStats, Search} from "../pages/types";
+import {ActFact, FactType, ObjectStats, Search} from "../pages/types";
+import memoizeDataLoader from "../util/memoizeDataLoader";
 
 const handleError = (error : any) => {
   if (error instanceof TypeError) {
@@ -253,3 +254,37 @@ export const autoResolveDataLoader = ({ data } : any) => {
       .catch(handleError)
   );
 };
+
+export const factTypesDataLoader = memoizeDataLoader((): Promise<Array<FactType>> => {
+    return actWretch
+        .url('/v1/factType')
+        .get()
+        .forbidden(handleForbiddenQueryResults)
+        .json(({data}) => data)
+        .catch(handleError);
+});
+
+export const objectStatsDataLoader = (id: string) => {
+    return actWretch
+        .url(`/v1/object/uuid/${id}`)
+        .get()
+        .forbidden(handleForbiddenQueryResults)
+        .json(({data}: any) => data)
+        .catch(handleError)
+};
+
+export const factDataLoader = (objectId: string, factTypes: Array<String>) : Promise<Array<ActFact>> => {
+
+    const requestBody = {
+        ...(factTypes && factTypes.length > 0 && {factType: factTypes}),
+        limit: DEFAULT_LIMIT,
+        includeRetracted: false
+    };
+
+    return actWretch
+        .url(`/v1/object/uuid/${objectId}/facts`)
+        .json(requestBody)
+        .post()
+        .forbidden(handleForbiddenQueryResults)
+        .json(({data}: any) => data)
+        .catch(handleError);};

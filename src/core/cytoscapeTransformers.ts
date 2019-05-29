@@ -1,5 +1,5 @@
-import {truncateText, renderObjectValue} from '../util/utils';
-import {isOneLegged} from "./transformers";
+import {truncateText} from '../util/utils';
+import {isOneLegged, objectLabel} from "./transformers";
 import {ActFact, ActObject} from "../pages/types";
 
 /*
@@ -11,9 +11,7 @@ export const objectToCytoscapeNode = (object: ActObject, label: string) => {
         group: 'nodes',
         data: {
             id: object.id,
-            // label: `${object.type.name}: ${truncateText(object.value, 16)}`,
-            // TODO: Make option to show
-            label: label,
+            label: truncateText(label, 16),
             type: object.type.name,
             value: object.value,
             isFact: false
@@ -105,54 +103,24 @@ export const factToSingleCytoscapeEdge = (fact: ActFact) => {
     };
 };
 
-const objectLabel = (obj: ActObject, objectDisplayName: any, facts: Array<ActFact>) => {
-    // @ts-ignore
-    const labelFromFactOfType = objectDisplayName[obj.type.name];
-
-    if (labelFromFactOfType) {
-        const found = facts.find(f => (f.type.name === labelFromFactOfType && f.sourceObject != undefined && f.sourceObject.id === obj.id));
-        return found ? truncateText(found.value) : renderObjectValue(obj);
-    }
-
-    return renderObjectValue(obj);
-};
-
-const isUsedAsDisplayName = (fact: ActFact, objectDisplayName: { [key: string]: string }) => {
-    // @ts-ignore
-    const labelMapping = objectDisplayName[fact.sourceObject.type.name];
-
-    return isOneLegged(fact) && labelMapping &&
-        fact.sourceObject && fact.sourceObject.type &&
-        fact.type.name === labelMapping;
-};
-
-export const objectFactsToElements = ({facts, objects, factsAsNodes, objectLabelFromFact = {}}: {
+export const objectFactsToElements = ({facts, objects, factsAsNodes, objectLabelFromFactType}: {
     facts: Array<ActFact>,
     objects: Array<ActObject>,
     factsAsNodes: boolean
-    objectLabelFromFact: { [key: string]: string },
+    objectLabelFromFactType: string | null
 }) => {
+    const twoLeggedFacts = facts.filter(f => !isOneLegged(f));
+
     if (factsAsNodes) {
-
-        const filteredFacts = facts.filter(f => !isUsedAsDisplayName(f, objectLabelFromFact));
-
         return [
-            ...objects.map((o) => objectToCytoscapeNode(o, objectLabel(o, objectLabelFromFact, facts))),
-            ...filteredFacts.map(factToCytoscapeNode),
-            ...factsToCytoscapeEdges(filteredFacts)
+            ...objects.map((o) => objectToCytoscapeNode(o, objectLabel(o, objectLabelFromFactType, facts))),
+            ...twoLeggedFacts.map(factToCytoscapeNode),
+            ...factsToCytoscapeEdges(twoLeggedFacts)
         ];
     } else {
-        const oneLeggedFacts = facts
-            .filter(f => !isUsedAsDisplayName(f, objectLabelFromFact))
-            .filter(isOneLegged);
-
-        const twoLeggedFacts = facts.filter((f) => !isOneLegged(f));
-
         return [
-            ...objects.map((o) => objectToCytoscapeNode(o, objectLabel(o, objectLabelFromFact, facts))),
-            ...oneLeggedFacts.map(factToCytoscapeNode),
-            ...twoLeggedFacts.map(factToSingleCytoscapeEdge),
-            ...factsToCytoscapeEdges(oneLeggedFacts)
+            ...objects.map((o) => objectToCytoscapeNode(o, objectLabel(o, objectLabelFromFactType, facts))),
+            ...twoLeggedFacts.map(factToSingleCytoscapeEdge)
         ];
     }
 };

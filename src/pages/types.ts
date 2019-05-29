@@ -42,6 +42,19 @@ export type ActFact = {
     retraction?: ActFact
 }
 
+export type FactType = {
+    id: string,
+    name: string,
+    namespace: NamedId,
+    relevantObjectBindings: Array<{
+        bidirectionalBinding: boolean,
+        sourceObjectType: NamedId,
+        destinationObjectType: NamedId
+    }>,
+    validator: string,
+    validatorParameter: string
+};
+
 export type QueryResult = {
     facts: { [id: string]: ActFact },
     objects: { [id: string]: ActObject }

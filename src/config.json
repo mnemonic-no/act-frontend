@@ -22,7 +22,7 @@
     "report": ["name"],
     "uri": ["port", "scheme"]
   },
-  "objectLabelFromFact": {"report": "name"},
+  "objectLabelFromFactType": "name",
   "contextActions": [],
   "predefinedObjectQueries": [
     {

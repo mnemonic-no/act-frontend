@@ -6,11 +6,9 @@ import {compose} from "recompose";
 import ObjectInformation from "../../components/ObjectInformation/ObjectInformation";
 import FactInformation from "../../components/FactInformation/FactInformation";
 import DetailsStore from "./DetailsStore";
-import {ActFact, ActObject} from "../types";
 
-
-const styles = (theme : Theme)  => createStyles({
-    nodeInformation: {
+const styles = (theme: Theme) => createStyles({
+    root: {
         position: 'relative',
         overflowY: 'scroll',
         height: "100%"
@@ -24,19 +22,12 @@ const Details = ({store, classes} : {store: DetailsStore, classes: any}) => {
 
     const detailsComp = store.selectedObject ?
         <ObjectInformation {...store.selectedObjectDetails}/> :
-        <FactInformation id={store.selectedNode.id}
-                         endTimestamp={store.endTimestamp}
-                         onObjectRowClick={(object: ActObject) => store.setSelectedObject(object)}
-                         onFactRowClick={(fact: ActFact) => store.setSelectedFact(fact)}
-                         selectedNode={store.selectedNode}/>;
+        <FactInformation {...store.selectedFactDetails}/>;
 
-    return (<div className={classes.nodeInformation}>
+    return (<div className={classes.root}>
         {detailsComp}
     </div>);
 };
 
-export default compose(
-    withStyles(styles),
-    observer
-    // @ts-ignore
-)(Details);
+// @ts-ignore
+export default compose(withStyles(styles), observer)(Details);

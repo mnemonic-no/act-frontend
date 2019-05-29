@@ -287,4 +287,16 @@ export const factDataLoader = (objectId: string, factTypes: Array<String>) : Pro
         .post()
         .forbidden(handleForbiddenQueryResults)
         .json(({data}: any) => data)
-        .catch(handleError);};
+        .catch(handleError);
+};
+
+
+export const createFact = (request: any) => {
+
+    return actWretch
+        .url('/v1/fact')
+        .json(request)
+        .post()
+        .forbidden(handleForbiddenQueryResults)
+        .json(({data}: any) => data);
+};

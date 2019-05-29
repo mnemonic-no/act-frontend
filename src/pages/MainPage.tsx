@@ -51,9 +51,9 @@ const styles = (theme: Theme) => {
             width: '100%',
 
             // Make sure appbar is on top
-            // Drawer z-index is 1301
+            // Drawer z-index is 1200
             // Need to change strategy if we want other drawers to come on top
-            zIndex: 1301
+            zIndex: 1201
         },
         appBarLeft: {
             display: 'flex',

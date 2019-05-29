@@ -1,5 +1,5 @@
 import React from 'react'
-import {compose, withHandlers} from 'recompose'
+import {compose} from 'recompose'
 import Typography from '@material-ui/core/Typography/index'
 import {withStyles, createStyles, Theme} from "@material-ui/core"
 import {darken, lighten} from '@material-ui/core/styles/colorManipulator'
@@ -9,7 +9,6 @@ import config from '../../config'
 import withDataLoader from '../../util/withDataLoader'
 import memoizeDataLoader from '../../util/memoizeDataLoader'
 import CenteredCircularProgress from '../CenteredCircularProgress'
-import CreateFactDialog, {createFact} from '../CreateFact/Dialog'
 import {objectTypeToColor} from '../../util/utils'
 import {ObjectDetails, PredefinedObjectQuery} from "../../pages/Details/DetailsStore";
 import PredefinedObjectQueries from "./PredefinedObjectQueries";
@@ -18,6 +17,8 @@ import {factDataLoader, factTypesDataLoader, objectStatsDataLoader} from "../../
 import {getObjectLabelFromFact, isOneLeggedFactType, objectValueText} from "../../core/transformers";
 import {ActFact, ActObject, FactType} from "../../pages/types";
 import FactTypeTable from "./FactTypeTable";
+import CreateFactForObjectDialog from "../CreateFactFor/Dialog";
+import {observer} from "mobx-react";
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -79,6 +80,7 @@ const ObjectInformationComp = ({
                                    id,
                                    oneLeggedFacts,
                                    details,
+                                   createFactDialog,
                                    onSearchSubmit,
                                    onCreateFactClick,
                                    onTitleClick,
@@ -90,6 +92,7 @@ const ObjectInformationComp = ({
     selectedObject: ActObject,
     oneLeggedFacts: Array<ActFact>,
     details: ObjectDetails,
+    createFactDialog: any,
     onSearchSubmit: Function,
     onFactClick: Function,
     onSearchClick: Function,
@@ -147,7 +150,7 @@ const ObjectInformationComp = ({
             </div>
             <div className={classes.footer}>
                 <Button onClick={(e) => onCreateFactClick(e)}>Create fact</Button>
-                <CreateFactDialog/>
+                {createFactDialog && <CreateFactForObjectDialog store={createFactDialog} />}
             </div>
         </div>
     )
@@ -179,11 +182,6 @@ export default compose(
         LoadingComponent: CenteredCircularProgress
     }),
     withStyles(styles),
-    withHandlers({
-        onCreateFactClick: ({data}: any) => () => {
-            console.log('create fact', data);
-            createFact(data)
-        }
-    })
+    observer
     // @ts-ignore
 )(ObjectInformationComp)

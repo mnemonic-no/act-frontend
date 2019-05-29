@@ -1,6 +1,8 @@
 import MainPageStore from "../MainPageStore";
-import {action, computed} from "mobx";
+import {action, computed, observable} from "mobx";
 import {ActFact, ActObject, Search} from "../types";
+import CreateFactForDialog from "../../components/CreateFactFor/DialogStore";
+import {actObject} from "../../core/testHelper";
 
 export type PredefinedObjectQuery = {
     name: string,
@@ -39,6 +41,8 @@ class DetailsStore {
     contextActionTemplates: Array<ContextActionTemplate>;
     predefinedObjectQueries: Array<PredefinedObjectQuery>;
 
+    @observable createFactDialog: CreateFactForDialog | null = null;
+
     constructor(root: MainPageStore, config: any) {
         this.root = root;
         this.contextActionTemplates = config.contextActions || [];
@@ -49,7 +53,7 @@ class DetailsStore {
         return this.root.ui.cytoscapeStore.selectedNode;
     }
 
-    @action
+    @action.bound
     onSearchSubmit(search: Search) {
         this.root.backendStore.executeQuery(search);
     }
@@ -67,7 +71,16 @@ class DetailsStore {
         }
     }
 
-    @action
+    @computed get selectedFact(): ActFact | null {
+        const selected = this.root.ui.cytoscapeStore.selectedNode;
+        if (selected && selected.id && selected.type === 'fact') {
+            return this.root.queryHistory.result.facts[selected.id];
+        } else {
+            return null;
+        }
+    }
+
+    @action.bound
     onPredefinedObjectQueryClick(q: PredefinedObjectQuery): void {
         const obj = this.selectedObject;
         if (obj) {
@@ -121,24 +134,48 @@ class DetailsStore {
                 contextActions: DetailsStore.contextActionsFor(selected, this.contextActionTemplates),
                 predefinedObjectQueries: DetailsStore.predefinedObjectQueriesFor(selected, this.predefinedObjectQueries)
             },
-            onSearchSubmit: (search: any) => this.onSearchSubmit(search),
-            onFactClick: (fact : ActFact) => this.setSelectedFact(fact),
+            createFactDialog: this.createFactDialog,
+            onSearchSubmit: this.onSearchSubmit,
+            onFactClick: this.setSelectedFact,
             onTitleClick: () => this.onSearchSubmit({
                 objectType: selected.type.name,
                 objectValue: selected.value
             }),
-            onPredefinedObjectQueryClick: (q: PredefinedObjectQuery) => {this.onPredefinedObjectQueryClick(q)}
+            onPredefinedObjectQueryClick: this.onPredefinedObjectQueryClick,
+            onCreateFactClick: this.onCreateFactClick
         };
     }
 
-    @action
+    @computed
+    get selectedFactDetails() {
+        const selected = this.selectedFact;
+
+        if (!selected) return {};
+
+        return {
+            id: selected.id,
+            endTimestamp: this.endTimestamp,
+            selectedNode: this.selectedNode,
+            onObjectRowClick: this.setSelectedObject,
+            onFactRowClick: this.setSelectedFact
+        }
+    }
+
+    @action.bound
     setSelectedObject(actObject: ActObject) {
         this.root.ui.cytoscapeStore.setSelectedNode({type: 'object', id: actObject.id})
     }
 
-    @action
+    @action.bound
     setSelectedFact(fact: ActFact) {
         this.root.ui.cytoscapeStore.setSelectedNode({type: 'fact', id: fact.id})
+    }
+
+    @action.bound
+    onCreateFactClick() {
+        if (this.selectedObject) {
+            this.createFactDialog = new CreateFactForDialog(this.selectedObject);
+        }
     }
 }
 

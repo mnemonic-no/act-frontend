@@ -72,9 +72,9 @@ export const factToCytoscapeEdges = (fact: ActFact) => {
         classes
     }));
 };
-export const factsToCytoscapeEdges = (facts: any) =>
+export const factsToCytoscapeEdges = (facts : Array<ActFact>) =>
     facts.map(factToCytoscapeEdges)
-        .reduce((acc: any, x: any) => acc.concat(x), []);
+         .reduce((acc: any, x: any) => acc.concat(x), []);
 
 // Treat facts as edges, assumes facts has EXACTLY two connected objects
 export const factToSingleCytoscapeEdge = (fact: ActFact) => {

@@ -19,8 +19,7 @@ const ObjectTypeComp = ({ classes, data, value, onChange, fullWidth }) => (
     label='Object Type'
     value={value}
     onChange={e => onChange(e.target.value)}
-    select
-  >
+    select>
     {data.map(({ id, name }) => (
       <option key={id} value={name} className={classes.option}>
         {name}

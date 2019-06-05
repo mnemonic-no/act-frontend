@@ -55,7 +55,7 @@ class MainPageStore {
 
             detailsStore: new DetailsStore(this, config),
             refineryOptionsStore: new RefineryOptionsStore(this),
-            searchStore: new SearchStore(this),
+            searchStore: new SearchStore(this, config),
             queryHistoryStore: new QueryHistoryStore(this),
             tableStore: new TableStore(this)
         };

@@ -51,17 +51,9 @@ const renderSuggestion = (suggestion, { query, isHighlighted }) => {
   return (
     <MenuItem selected={isHighlighted} component='div'>
       <div>
-        {parts.map((part, index) => {
-          return part.highlight ? (
-            <span key={index} style={{ fontWeight: 300 }}>
-              {part.text}
-            </span>
-          ) : (
-            <strong key={index} style={{ fontWeight: 500 }}>
-              {part.text}
-            </strong>
-          )
-        })}
+        {parts.map((part, index) => (
+          <span key={index} style={{fontWeight: part.highlight ? 500 : 300}}>{part.text}</span>
+        ))}
       </div>
     </MenuItem>
   )
@@ -153,7 +145,7 @@ const ObjectValueAutosuggestComp = ({
     onSuggestionsClearRequested={onClearSuggestions}
     getSuggestionValue={getSuggestionValue}
   />
-)
+);
 
 const objectValuesDataLoader = ({ objectType }) =>
   actWretch

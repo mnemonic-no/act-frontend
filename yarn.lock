@@ -1142,6 +1142,13 @@
   resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.26.8.tgz#e002612cca52e52f9176d577f4d6229c8c72a10a"
   integrity sha512-PSMkNNhB900U2xcyndlkVjJeCXpVtf1yod0Kdq/ArsLDIE0tW8pLBChmQeJs4o4dfp3AEP+AGm6zIseZPU4ndA==
 
+"@types/react-autosuggest@9.3.8":
+  version "9.3.8"
+  resolved "https://registry.yarnpkg.com/@types/react-autosuggest/-/react-autosuggest-9.3.8.tgz#17b8ef90d050a555870636cdc49534486466589e"
+  integrity sha512-+CYf+90CYzpkZ2ftmDKIm0dqaj+ZdIjJMd6L8gXlk7ZOR40qOZn+PY5hlvaQQh1tpeF52svQ2LlnABgxJPhnjA==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-dom@16.8.4":
   version "16.8.4"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.8.4.tgz#7fb7ba368857c7aa0f4e4511c4710ca2c5a12a88"
@@ -9181,10 +9188,10 @@ react-app-polyfill@^0.2.2:
     raf "3.4.1"
     whatwg-fetch "3.0.0"
 
-react-autosuggest@^9.4.3:
+react-autosuggest@9.4.3:
   version "9.4.3"
-  resolved "https://registry.npmjs.org/react-autosuggest/-/react-autosuggest-9.4.3.tgz#eb46852422a48144ab9f39fb5470319222f26c7c"
-  integrity sha1-60aFJCKkgUSrnzn7VHAxkiLybHw=
+  resolved "https://registry.yarnpkg.com/react-autosuggest/-/react-autosuggest-9.4.3.tgz#eb46852422a48144ab9f39fb5470319222f26c7c"
+  integrity sha512-wFbp5QpgFQRfw9cwKvcgLR8theikOUkv8PFsuLYqI2PUgVlx186Cz8MYt5bLxculi+jxGGUUVt+h0esaBZZouw==
   dependencies:
     prop-types "^15.5.10"
     react-autowhatever "^10.1.2"

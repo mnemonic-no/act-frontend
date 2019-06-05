@@ -96,7 +96,7 @@ class DetailsStore {
             .sort(byName)
     }
 
-    static predefinedObjectQueriesFor(selected: ActObject | null, predefinedObjectQueries: Array<PredefinedObjectQuery>): Array<PredefinedObjectQuery> {
+    static predefinedObjectQueriesFor(selected: ActObject | null, predefinedObjectQueries: Array<PredefinedObjectQuery>) {
         if (!selected) return [];
 
         return predefinedObjectQueries

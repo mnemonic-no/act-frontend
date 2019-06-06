@@ -2,10 +2,10 @@ import React from "react";
 import Grid from "@material-ui/core/Grid";
 import ObjectType from "../../components/ObjectType";
 import ObjectValueAutosuggest from "../../components/ObjectValueAutosuggest";
-import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import {observer} from "mobx-react";
 import SearchStore from "./SearchStore";
+import QueryAutoSuggest from "./QueryAutoSuggest";
 
 const Search = ({store}: { store: SearchStore }) => (
     <form
@@ -32,13 +32,14 @@ const Search = ({store}: { store: SearchStore }) => (
             </Grid>
 
             <Grid item xs={12}>
-                <TextField
-                    inputProps={{spellCheck: false}}
-                    fullWidth
-                    label={'Graph query'}
-                    helperText={'A Graph query, like g.outE()'}
-                    value={store.query}
-                    onChange={e => store.query = e.target.value}/>
+                    <QueryAutoSuggest
+                     required={false}
+                     fullWidth
+                     placeholder='Query'
+                     label='Graph query'
+                     helperText={'A Graph query, like g.outE()'}
+                     {...store.queryInput}/>
+
             </Grid>
             <Grid item xs={12}>
                 <Button type='submit'>Search</Button>

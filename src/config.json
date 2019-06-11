@@ -78,6 +78,16 @@
       ]
     },
     {
+      "name": "threat actors",
+      "description": "Find threat actors related to this indicator.",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').optional(inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().emit().repeat(outE('alias').otherV()).until(cyclicPath()).inE('classifiedAs').otherV()).outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "objects": [
+        "fqdn",
+        "ipv4",
+        "ipv6"
+      ]
+    },
+    {
       "name": "tools",
       "description": "Find tools related to this indicator.",
       "query": "g.outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
@@ -132,6 +142,18 @@
       "description": "Find reports that mention either the name of this tool or hashes classified as this tool.",
       "query": "g.union(inE('mentions').otherV(),inE('classifiedAs').otherV().inE('represents').otherV().inE('mentions').otherV()).path().unfold()",
       "objects": ["tool"]
+    },
+    {
+      "name": "asn",
+      "description": "Find autonomous systems related to malware used exclusively by this threat actor.",
+      "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().where(outE().has('value','malware')).where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).emit().repeat(outE('alias').otherV()).until(cyclicPath()).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).not(where(outE().has('value','sinkhole'))).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
+      "objects": ["threatActor"]
+    },
+    {
+      "name": "network",
+      "description": "Find network indicators related to malware used exclusively by this threat actor.",
+      "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().where(outE().has('value','malware')).where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).emit().repeat(outE('alias').otherV()).until(cyclicPath()).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).not(where(outE().has('value','sinkhole'))).path().unfold()",
+      "objects": ["threatActor"]
     },
     {
       "name": "tools",

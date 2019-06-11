@@ -80,6 +80,12 @@
       ]
     },
     {
+      "name": "network",
+      "description": "Find network indicators related to this tool.",
+      "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).path().unfold()",
+      "objects": ["tool"]
+    },
+    {
       "name": "threat actors",
       "description": "Find threat actors known to use this tool.",
       "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
@@ -102,6 +108,18 @@
       "description": "Find techniques used by this threat actor.",
       "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).repeat(inE('attributedTo').otherV()).times(2).outE('classifiedAs').otherV().path().unfold()",
       "objects": ["threatActor"]
+    },
+    {
+      "name": "threat actors",
+      "description": "Find threat actors that use this technique.",
+      "query": "g.inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "objects": ["technique"]
+    },
+    {
+      "name": "tools",
+      "description": "Find threat actors that use tools that implement this technique.",
+      "query": "g.inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "objects": ["technique"]
     }
   ]
 }

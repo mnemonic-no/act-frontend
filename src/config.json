@@ -16,6 +16,7 @@
   },
   "autoResolveFacts": {
     "asn": ["name"],
+    "incident": ["name"],
     "ipv4": ["sinkhole"],
     "ipv6": ["sinkhole"],
     "path": ["basename"],
@@ -27,46 +28,62 @@
   "predefinedObjectQueries": [
     {
       "name": "related",
-      "description": "Related reports",
-      "query": "g.as('startNode').outE('mentions').otherV().hasLabel(within('ipv4','hash','email','uri')).where(inE('mentions').count().is(lt(20L))).inE('mentions').otherV().hasLabel('report').where(neq('startNode')).path().unfold()",
+      "description": "Find other reports that mention indicators from this report.",
+      "query": "g.as('startNode').outE('mentions').otherV().hasLabel(within('ipv4','ipv6','fqdn','hash','email','uri')).inE('mentions').otherV().hasLabel('report').where(neq('startNode')).path().unfold()",
       "objects": ["report"]
     },
     {
       "name": "context",
-      "description": "Report context",
+      "description": "Find information related to the indicators mentioned in this report.",
       "query": "g.outE('mentions').otherV().choose(label()).option('hash',outE('represents').otherV().optional(bothE().otherV())).option('ipv4',union(outE('componentOf').otherV(),where(inE('resolvesTo').count().is(lte(50L))).inE('resolvesTo').otherV(),repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()))).option('fqdn',where(outE('resolvesTo').count().is(lte(50L))).outE('resolvesTo').otherV()).option('threatActor',emit().repeat(outE('alias').outV()).until(cyclicPath())).option('tool',emit().repeat(outE('alias').outV()).until(cyclicPath())).path().unfold()",
       "objects": ["report"]
     },
     {
-      "name": "mentions",
-      "description": "Mentioned in report",
-      "query": "g.inE('mentions').otherV().hasLabel('report').path().unfold()",
-      "objects": [
-        "campaign",
-        "certificate",
-        "email",
-        "fqdn",
-        "hash",
-        "ipv4",
-        "ipv6",
-        "country",
-        "region",
-        "subRegion",
-        "mutex",
-        "organization",
-        "person",
-        "sector",
-        "threatActor",
-        "uri",
-        "userAgent",
-        "vulnerability"
-      ]
+      "name": "incidents",
+      "description": "Find incidents related to network indicators in this report",
+      "query": "g.outE('mentions').otherV().hasLabel(within('ipv4','ipv6','fqdn')).outE('componentOf').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
+      "objects": ["report"]
     },
     {
       "name": "reports",
       "description": "Find reports that mention IP addresses from this autonomous system.",
       "query": "g.repeat(inE('memberOf').otherV()).times(2).inE('mentions').otherV().path().unfold()",
       "objects": ["asn"]
+    },
+    {
+      "name": "asn",
+      "description": "Find the autonomous system and owner organization of this IP address.",
+      "query": "g.repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
+      "objects": [
+        "ipv4",
+        "ipv6"
+      ]
+    },
+    {
+      "name": "tools",
+      "description": "Find tools related to this indicator.",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "objects": [
+        "fqdn",
+        "ipv4",
+        "ipv6"
+      ]
+    },
+    {
+      "name": "incidents",
+      "description": "Find incidents related to this indicator.",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
+      "objects": [
+        "fqdn",
+        "ipv4",
+        "ipv6"
+      ]
+    },
+    {
+      "name": "threat actors",
+      "description": "Find threat actors known to use this tool.",
+      "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "objects": ["tool"]
     },
     {
       "name": "reports",
@@ -76,14 +93,14 @@
     },
     {
       "name": "tools",
-      "description": "Tools used by this threat actor",
-      "query": "g.union(repeat(inE('alias').otherV()).until(cyclicPath()).inE('attributedTo').otherV().inE('observedIn').otherV().outE('classifiedAs').otherV(),inE('attributedTo').otherV().inE('observedIn').otherV().outE('classifiedAs').otherV()).repeat(inE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "description": "Find tools used by this threat actor.",
+      "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "techniques",
-      "description": "Techniques used by this threat actor",
-      "query": "g.union(repeat(inE('alias').otherV()).until(cyclicPath()).inE('attributedTo').otherV().inE('observedIn').otherV().hasLabel('technique'),inE('attributedTo').otherV().inE('observedIn').otherV().hasLabel('technique')).path().unfold()",
+      "description": "Find techniques used by this threat actor.",
+      "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).repeat(inE('attributedTo').otherV()).times(2).outE('classifiedAs').otherV().path().unfold()",
       "objects": ["threatActor"]
     }
   ]

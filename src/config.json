@@ -27,6 +27,12 @@
   "contextActions": [],
   "predefinedObjectQueries": [
     {
+      "name": "asn",
+      "description": "Find the autonomous systems and owner organizations of IP addresses mentioned in this report.",
+      "query": "g.outE('mentions').otherV().hasLabel(within('ipv4','ipv6')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
+      "objects": ["report"]
+    },
+    {
       "name": "related",
       "description": "Find other reports that mention indicators from this report.",
       "query": "g.as('startNode').outE('mentions').otherV().hasLabel(within('ipv4','ipv6','fqdn','hash','email','uri')).inE('mentions').otherV().hasLabel('report').where(neq('startNode')).path().unfold()",
@@ -45,9 +51,21 @@
       "objects": ["report"]
     },
     {
+      "name": "tools",
+      "description": "Find tools related to the hashes mentioned in this report.",
+      "query": "g.outE('mentions').otherV().hasLabel('hash').outE('represents').otherV().outE('classifiedAs').otherV().emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "objects": ["report"]
+    },
+    {
       "name": "reports",
       "description": "Find reports that mention IP addresses from this autonomous system.",
       "query": "g.repeat(inE('memberOf').otherV()).times(2).inE('mentions').otherV().path().unfold()",
+      "objects": ["asn"]
+    },
+    {
+      "name": "tools",
+      "description": "Find tools with observed network traffic to this autonomous system.",
+      "query": "g.repeat(inE('memberOf').otherV()).times(2).outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
       "objects": ["asn"]
     },
     {

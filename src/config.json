@@ -114,6 +114,12 @@
       "objects": ["tactic"]
     },
     {
+      "name": "aliases",
+      "description": "Find related tool names (potential aliases for this tool).",
+      "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).inE('classifiedAs').otherV().outE('classifiedAs').otherV().emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "objects": ["tool"]
+    },
+    {
       "name": "asn",
       "description": "Find the autonomous system and owner organization of network indicators related to this tool.",
       "query": "g.emit().repeat(outE('alias').otherV()).until(cyclicPath()).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",

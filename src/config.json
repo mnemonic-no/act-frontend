@@ -80,7 +80,7 @@
     {
       "name": "threat actors",
       "description": "Find threat actors related to this indicator.",
-      "query": "g.outE('componentOf').otherV().hasLabel('uri').optional(inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV()).outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').optional(inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV()).outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
       "objects": [
         "fqdn",
         "ipv4",
@@ -116,7 +116,7 @@
     {
       "name": "aliases",
       "description": "Find related tool names (potential aliases for this tool).",
-      "query": "g.optional(emit().repeat(outE('alias').otherV())).until(cyclicPath()).inE('classifiedAs').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
       "objects": ["tool"]
     },
     {
@@ -140,7 +140,7 @@
     {
       "name": "threat actors",
       "description": "Find threat actors known to use this tool.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV())).until(cyclicPath()).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV())).until(cyclicPath()).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
       "objects": ["tool"]
     },
     {

@@ -109,6 +109,30 @@
     },
     {
       "name": "threat actors",
+      "description": "Find threat actors related to this hash.",
+      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "objects": ["hash"]
+    },
+    {
+      "name": "tools",
+      "description": "Find tools related to this hash.",
+      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "objects": ["hash"]
+    },
+    {
+      "name": "network",
+      "description": "Find network indicators related to this hash.",
+      "query": "g.outE('represents').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).path().unfold()",
+      "objects": ["hash"]
+    },
+    {
+      "name": "asn",
+      "description": "Find the autonomous system and owner organization of network indicators related to this hash.",
+      "query": "g.outE('represents').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
+      "objects": ["hash"]
+    },
+    {
+      "name": "threat actors",
       "description": "Find threat actors that use techniques that accomplish this tactic.",
       "query": "g.inE('accomplishes').otherV().inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
       "objects": ["tactic"]

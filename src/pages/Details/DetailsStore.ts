@@ -105,10 +105,15 @@ class DetailsStore {
     }
 
     @computed
+    get hasSelection(): boolean {
+        return Boolean(this.selectedObject) || this.selectedNode.type === 'fact' && Boolean(this.selectedNode.id)
+    }
+
+    @computed
     get selectedObjectDetails() {
         const selected = this.selectedObject;
 
-        if (!selected) return {};
+        if (!selected) return null;
 
         return {
             id: selected.id,

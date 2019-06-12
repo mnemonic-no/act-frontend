@@ -18,18 +18,21 @@ const styles = (theme : Theme)  => createStyles({
 });
 
 const Details = ({store, classes} : {store: DetailsStore, classes: any}) => {
-    return <div className={classes.nodeInformation}>
-        {store.selectedNode.id !== null &&
-        (store.selectedNode.type === 'object' ? (
-            <ObjectInformation {...store.selectedObjectDetails}/>
-        ) : (
-            <FactInformation id={store.selectedNode.id}
-                             endTimestamp={store.endTimestamp}
-                             onObjectRowClick={ (object : ActObject) => store.setSelectedObject(object) }
-                             onFactRowClick={ (fact : ActFact ) => store.setSelectedFact(fact)}
-                             selectedNode={store.selectedNode}/>
-        ))}
-    </div>
+    if (!store.hasSelection) {
+        return null;
+    }
+
+    const detailsComp = store.selectedObject ?
+        <ObjectInformation {...store.selectedObjectDetails}/> :
+        <FactInformation id={store.selectedNode.id}
+                         endTimestamp={store.endTimestamp}
+                         onObjectRowClick={(object: ActObject) => store.setSelectedObject(object)}
+                         onFactRowClick={(fact: ActFact) => store.setSelectedFact(fact)}
+                         selectedNode={store.selectedNode}/>;
+
+    return (<div className={classes.nodeInformation}>
+        {detailsComp}
+    </div>);
 };
 
 export default compose(

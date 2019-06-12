@@ -108,6 +108,26 @@
       ]
     },
     {
+      "name": "pdns2",
+      "description": "2-hop pDNS traversal, threshold 20, does not traverse known sinkholes.",
+      "query": "g.repeat(choose(label()).option('ipv4',where(inE('resolvesTo').count().is(lte(20L))).inE('resolvesTo').dedup().otherV()).option('ipv6',where(inE('resolvesTo').count().is(lte(20L))).inE('resolvesTo').dedup().otherV()).option('fqdn',where(outE('resolvesTo').count().is(lte(20L))).outE('resolvesTo').dedup().otherV().not(has('value','sinkhole')))).times(2).path().unfold()",
+      "objects": [
+        "fqdn",
+        "ipv4",
+        "ipv6"
+      ]
+    },
+    {
+      "name": "pdns3",
+      "description": "3-hop pDNS traversal, threshold 20, does not traverse known sinkholes.",
+      "query": "g.repeat(choose(label()).option('ipv4',where(inE('resolvesTo').count().is(lte(20L))).inE('resolvesTo').dedup().otherV()).option('ipv6',where(inE('resolvesTo').count().is(lte(20L))).inE('resolvesTo').dedup().otherV()).option('fqdn',where(outE('resolvesTo').count().is(lte(20L))).outE('resolvesTo').dedup().otherV().not(has('value','sinkhole')))).times(3).path().unfold()",
+      "objects": [
+        "fqdn",
+        "ipv4",
+        "ipv6"
+      ]
+    },
+    {
       "name": "threat actors",
       "description": "Find threat actors related to this content.",
       "query": "g.outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",

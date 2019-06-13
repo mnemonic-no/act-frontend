@@ -224,7 +224,7 @@ const BiDirectionalFact = observer(({store}: { store: DialogStore }) => {
             <div style={{flex: "1"}}>
                 {store.formBidirectional &&
                 <ObjectSelectionComp selectionObject={store.formBidirectional.otherObject}
-                                     validObjectTypes={store.validOtherObjectTypes}
+                                     validObjectTypes={store.formBidirectional.validOtherObjectTypes}
                                      title='Destination'
                                      onChange={store.onFormBidirectionalChange}/>
                 }

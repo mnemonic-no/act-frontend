@@ -82,7 +82,6 @@ export const isRelevantFactType = (factType : FactType, object : ActObject) => {
     );
 };
 
-// TODO test
 export const validBidirectionalFactTargetObjectTypes = (factType: FactType, object: ActObject) => {
 
     if (!factType.relevantObjectBindings) return [];
@@ -96,7 +95,6 @@ export const validBidirectionalFactTargetObjectTypes = (factType: FactType, obje
     });
 };
 
-// TODO test
 export const validUnidirectionalFactTargetObjectTypes = (factType: FactType, object: ActObject, isSource: boolean) => {
 
     if (!factType.relevantObjectBindings) return [];

@@ -2,8 +2,49 @@ import {action, computed} from "mobx";
 import MainPageStore from "../MainPageStore";
 
 // @ts-ignore
-import { saveAs } from 'file-saver';
-import {Query} from "../types";
+import {saveAs} from 'file-saver';
+import {isObjectSearch, Query, searchId} from "../types";
+
+export type QueryItem = {
+    id: string,
+    title: string,
+    isSelected: boolean,
+    details: Array<string>,
+    onClick: () => void,
+    onRemoveClick: () => void
+}
+
+const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
+
+    const search = q.search;
+    const id = searchId(search);
+
+    const common = {
+        id: id,
+        isSelected: id === store.selectedQueryId,
+        onClick: () => store.setSelectedQuery(q),
+        onRemoveClick: () => store.removeQuery(q)
+    };
+
+    if (isObjectSearch(search)) {
+        const details = [];
+        if (search.factTypes) { details.push("Fact types: " + search.factTypes); }
+        if (search.query) { details.push(search.query) }
+
+        return {
+            ...common,
+            title: search.objectType + ": " + search.objectValue,
+            details: details
+        }
+    } else {
+        return {
+            ...common,
+            title: "Fact: " + search.factTypeName,
+            details: ["Id: " + id]
+        }
+    }
+};
+
 
 class QueryHistoryStore {
     root: MainPageStore;
@@ -12,27 +53,33 @@ class QueryHistoryStore {
         this.root = root;
     }
 
-    @computed get mergePrevious() : boolean {
+    @computed get mergePrevious(): boolean {
         return this.root.queryHistory.mergePrevious;
     }
 
-    @computed get queries() : Array<Query> {
-        return this.root.queryHistory.queries.filter ( (q) => {
+    @computed get queries(): Array<Query> {
+        return this.root.queryHistory.queries.filter((q) => {
             return q.result !== null
         });
     }
 
-    @computed get selectedQueryId() : string {
+    @computed get queryItems(): Array<QueryItem> {
+        return this.root.queryHistory.queries
+            .filter(q => q.result !== null)
+            .map(q => queryItem(q, this))
+    };
+
+    @computed get selectedQueryId(): string {
         return this.root.queryHistory.selectedQueryId;
     }
 
     @action
-    setSelectedQuery (query: Query ) {
+    setSelectedQuery(query : Query) {
         this.root.queryHistory.selectedQueryId = query.id;
     }
 
     @action
-    removeQuery (query: Query) {
+    removeQuery(query : Query) {
         this.root.queryHistory.removeQuery(query);
     }
 

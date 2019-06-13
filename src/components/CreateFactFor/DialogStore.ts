@@ -24,7 +24,8 @@ export type FormUniDirectional = {
 }
 
 export type FormBiDirectional = {
-    otherObject: { type: NamedId, value: string }
+    otherObject: { type: NamedId, value: string },
+    validOtherObjectTypes: Array<NamedId>
 }
 
 /* Can't use id property as some objects may not be exist yet */
@@ -101,9 +102,7 @@ class CreateFactForDialog {
     @observable comment: string = "";
 
     @observable formOneLegged: { value: string } = {value: ""};
-
     @observable formUniDirectional: FormUniDirectional | null = null;
-
     @observable formBidirectional: FormBiDirectional | null = null;
 
     selectedObject: ActObject;
@@ -124,39 +123,47 @@ class CreateFactForDialog {
         })
     }
 
+
     @action.bound
     onSwapClick() {
         if (!this.formUniDirectional) return;
 
         const newIsSource = this.formUniDirectional ? !this.formUniDirectional.isSelectionSource : true;
-        const validOther = this.currentFactType ? validUnidirectionalFactTargetObjectTypes(this.currentFactType, this.selectedObject, newIsSource) : [];
+        const validOtherObjects = this.currentFactType ? validUnidirectionalFactTargetObjectTypes(this.currentFactType, this.selectedObject, newIsSource) : [];
 
-        this.formUniDirectional.isSelectionSource = newIsSource;
-        this.formUniDirectional.validOtherObjectTypes = validOther;
-        this.formUniDirectional.otherObject = {type: validOther[0], value: ""}
+        this.formUniDirectional = {
+            isSelectionSource: newIsSource,
+            validOtherObjectTypes: validOtherObjects,
+            otherObject: {type: validOtherObjects[0], value: ""}
+        };
     }
 
     @action
     onFactTypeChange(newFactTypeName: string) {
         this.selectedFactTypeName = newFactTypeName;
 
+        const factType = this.factTypes.find(ft => ft.name === newFactTypeName);
+        if (!factType) throw Error("Should never happen");
+
         switch (this.selectedFactTypeCategory) {
             case "oneLegged":
                 this.formOneLegged = {value: ""};
                 break;
             case "biDirectional":
-                this.formBidirectional = {otherObject: {type: this.validOtherObjectTypes[0], value: ""}};
+                const validOtherObjectTypes = validBidirectionalFactTargetObjectTypes(factType, this.selectedObject);
+                this.formBidirectional = {
+                    validOtherObjectTypes: validBidirectionalFactTargetObjectTypes(factType, this.selectedObject),
+                    otherObject: {type: validOtherObjectTypes[0], value: ""}};
                 break;
             case "uniDirectional":
-
-                const isSelectionSource: boolean = this.validOtherObjectTypes && this.validOtherObjectTypes.length > 0;
+                const isSelectionSource = validUnidirectionalFactTargetObjectTypes(factType, this.selectedObject, true).length > 0;
 
                 const validOtherObjects = this.currentFactType ? validUnidirectionalFactTargetObjectTypes(this.currentFactType, this.selectedObject, isSelectionSource) : [];
 
                 this.formUniDirectional = {
+                    isSelectionSource: isSelectionSource,
                     validOtherObjectTypes: validOtherObjects,
-                    otherObject: {type: validOtherObjects[0], value: ""},
-                    isSelectionSource: isSelectionSource
+                    otherObject: {type: validOtherObjects[0], value: ""}
                 };
                 break;
             default:
@@ -176,6 +183,8 @@ class CreateFactForDialog {
 
     @action.bound
     onFormBidirectionalChange(otherObject: any) {
+        if (this.formBidirectional === null) throw Error("Should not happen");
+
         this.formBidirectional = {...this.formBidirectional, otherObject: otherObject};
     }
 
@@ -216,16 +225,12 @@ class CreateFactForDialog {
 
             addMessage('Fact created');
 
-            const search = {
-                objectValue: resultFact.sourceObject.value,
-                objectType: resultFact.sourceObject.type.name,
-                factTypes: [resultFact.type.name]
-            };
+            const search = {id: resultFact.id, factTypeName: resultFact.type.name};
 
             const facts = {[resultFact.id]: resultFact};
 
             this.queryHistory.addQuery({
-                id: JSON.stringify(search),
+                id: search.id,
                 search: search,
                 result: {
                     facts: facts,
@@ -267,20 +272,6 @@ class CreateFactForDialog {
     get selectedFactTypeCategory(): FactTypeCategory {
         if (!this.currentFactType) return null;
         return factTypeString(this.currentFactType);
-    }
-
-    @computed
-    get validOtherObjectTypes() {
-
-        if (!this.currentFactType) return [];
-
-        if (this.selectedFactTypeCategory === 'biDirectional') {
-            return validBidirectionalFactTargetObjectTypes(this.currentFactType, this.selectedObject);
-        } else if (this.selectedFactTypeCategory === 'uniDirectional') {
-            return validUnidirectionalFactTargetObjectTypes(this.currentFactType, this.selectedObject, this.formUniDirectional ? this.formUniDirectional.isSelectionSource : true)
-        }
-
-        return [];
     }
 }
 

@@ -19,10 +19,14 @@ it('can make bi-directional fact requests', () => {
         {accessMode: "Public", type: "alias"},
         null,
         null,
-        {otherObject: {value: "BearDestination", type: {id: "x", name: "threatActor"}}});
+        {
+            validOtherObjectTypes: [{id: "x", name: "threatActor"}],
+            otherObject: {value: "BearDestination", type: {id: "x", name: "threatActor"}}
+        });
 
     expect(result).toEqual({
         type: "alias",
+        value: "",
         bidirectionalBinding: true,
         sourceObject: "threatActor/BearSource",
         destinationObject: "threatActor/BearDestination",
@@ -55,6 +59,7 @@ it('can make uni-directional fact requests', () => {
 
     expect(result).toEqual({
         type: "attributedTo",
+        value: "",
         sourceObject: "threatActor/BearSource",
         destinationObject: "person/BadPerson",
         accessMode: "Public"
@@ -85,6 +90,7 @@ it('can make uni-directional fact requests with selection as destination', () =>
 
     expect(result).toEqual({
         type: "attributedTo",
+        value: "",
         sourceObject: "incident/xyz",
         destinationObject: "threatActor/BearDestination",
         accessMode: "Public"

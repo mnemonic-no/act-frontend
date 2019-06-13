@@ -1,6 +1,6 @@
 import MainPageStore from "../MainPageStore";
 import {action, computed, observable} from "mobx";
-import {Search} from "../types";
+import {ObjectFactsSearch} from "../types";
 import {PredefinedObjectQuery} from "../Details/DetailsStore";
 
 
@@ -50,7 +50,7 @@ class SearchStore {
     @action
     submitSearch() {
         const {objectType, objectValue, query} = this;
-        this.root.backendStore.executeQuery({objectType, objectValue, query});
+        this.root.backendStore.executeQuery({objectType: objectType, objectValue: objectValue, query: query});
     }
 
     @action
@@ -58,7 +58,7 @@ class SearchStore {
         this.root.queryHistory.removeAllQueries();
     }
 
-    executeSearch(search: Search) {
+    executeSearch(search: ObjectFactsSearch) {
         this.objectValue = search.objectValue;
         this.objectType = search.objectType;
         if (search.query) {

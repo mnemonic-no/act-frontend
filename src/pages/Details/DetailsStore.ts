@@ -1,6 +1,6 @@
 import MainPageStore from "../MainPageStore";
 import {action, computed, observable} from "mobx";
-import {ActFact, ActObject, Search} from "../types";
+import {ActFact, ActObject, ObjectFactsSearch, Search} from "../types";
 import CreateFactForDialog from "../../components/CreateFactFor/DialogStore";
 
 export type PredefinedObjectQuery = {
@@ -62,7 +62,7 @@ class DetailsStore {
     }
 
     @computed get selectedObject(): ActObject | null {
-        const selected = this.root.ui.cytoscapeStore.selectedNode;
+        const selected = this.selectedNode;
         if (selected && selected.id && selected.type === 'object') {
             return this.root.queryHistory.result.objects[selected.id];
         } else {
@@ -71,7 +71,7 @@ class DetailsStore {
     }
 
     @computed get selectedFact(): ActFact | null {
-        const selected = this.root.ui.cytoscapeStore.selectedNode;
+        const selected = this.selectedNode;
         if (selected && selected.id && selected.type === 'fact') {
             return this.root.queryHistory.result.facts[selected.id];
         } else {
@@ -83,11 +83,7 @@ class DetailsStore {
     onPredefinedObjectQueryClick(q: PredefinedObjectQuery): void {
         const obj = this.selectedObject;
         if (obj) {
-            this.root.backendStore.executeQuery({
-                objectType: obj.type.name,
-                objectValue: obj.value,
-                query: q.query
-            })
+            this.root.backendStore.executeQuery({objectType: obj.type.name, objectValue: obj.value, query: q.query});
         }
     }
 
@@ -118,7 +114,7 @@ class DetailsStore {
 
     @computed
     get hasSelection(): boolean {
-        return Boolean(this.selectedObject) || this.selectedNode.type === 'fact' && Boolean(this.selectedNode.id)
+        return Boolean(this.selectedObject) || Boolean(this.selectedFact)
     }
 
     @computed
@@ -136,10 +132,7 @@ class DetailsStore {
             createFactDialog: this.createFactDialog,
             onSearchSubmit: this.onSearchSubmit,
             onFactClick: this.setSelectedFact,
-            onTitleClick: () => this.onSearchSubmit({
-                objectType: selected.type.name,
-                objectValue: selected.value
-            }),
+            onTitleClick: () => this.onSearchSubmit({objectType: selected.type.name, objectValue: selected.value}),
             onPredefinedObjectQueryClick: this.onPredefinedObjectQueryClick,
             onCreateFactClick: this.onCreateFactClick
         };

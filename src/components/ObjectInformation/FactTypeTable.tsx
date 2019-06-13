@@ -3,7 +3,7 @@ import Table from "@material-ui/core/Table";
 import React from "react";
 import {createStyles, TableRow, Theme, withStyles} from "@material-ui/core";
 import {lighten} from "@material-ui/core/styles/colorManipulator";
-import {ActFact, ActObject} from "../../pages/types";
+import {ActFact, ActObject, ObjectFactsSearch} from "../../pages/types";
 import Tooltip from "@material-ui/core/Tooltip";
 import TableCell from "@material-ui/core/TableCell";
 

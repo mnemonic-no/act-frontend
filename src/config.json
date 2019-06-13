@@ -178,7 +178,7 @@
     {
       "name": "threat actors",
       "description": "Find threat actors that use techniques that accomplish this tactic.",
-      "query": "g.inE('accomplishes').otherV().inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).emit().repeat(outE('alias').otherV()).until(cyclicPath()).path().unfold()",
+      "query": "g.inE('accomplishes').otherV().inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
       "objects": ["tactic"]
     },
     {

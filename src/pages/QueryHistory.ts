@@ -59,7 +59,7 @@ class QueryHistory {
 
     @action
     addQuery(query: Query) {
-        const selectedIndex = this.queries.findIndex( (q : Query) => q.id === this.selectedQueryId)
+        const selectedIndex = this.queries.findIndex( (q : Query) => q.id === this.selectedQueryId);
         this.queries.splice(selectedIndex + 1, 0, query);
         this.selectedQueryId = query.id;
         this.root.ui.cytoscapeStore.setSelectedNodeBasedOnSearch(query.search);

@@ -29,7 +29,7 @@ const ObjectComp = ({title, actObject}: {
 
     return (
         <RoundedBox title={title}
-                    style={{padding: "10px", border: "2px solid orange"}}>
+                    style={{padding: "10px"}}>
             <div>
                 <TextField
                     label='Object Type'
@@ -59,11 +59,11 @@ const ObjectSelectionComp = observer(({title, selectionObject, validObjectTypes,
 }) => {
 
     if (!selectionObject.type) {
-        return (<div>whoops</div>)
+        return (<div>Missing type for selection object</div>)
     }
 
     return (
-        <RoundedBox style={{padding: "10px"}} title={title}>
+        <RoundedBox style={{padding: "10px", border: "2px solid black"}} title={title}>
 
             <TextField
                 label="Object Type"
@@ -73,10 +73,7 @@ const ObjectSelectionComp = observer(({title, selectionObject, validObjectTypes,
                 InputLabelProps={{shrink: true}}
                 SelectProps={{native: true}}
                 value={selectionObject.type.name}
-                onChange={e => {
-                    console.log("TARGET", e);
-                    return onChange({...selectionObject, type: e.target.value});
-                }}>
+                onChange={e => { return onChange({...selectionObject, type: e.target.value});}}>
                 {validObjectTypes.map(({id, name}: any) => (
                     <option key={id} value={name}>
                         {name}
@@ -281,9 +278,11 @@ const UniDirectionalFact = observer(({store, form, onChange, onSwapClick}: {
                 justifyContent: "center"
             }}>
                 {onSwapClick && (
-                    <div style={{position: "absolute", top: 0, left: "50%", right: "50%"}}>
+                    <div style={{position: "absolute", top: "1.5rem", display: "flex", justifyContent: "center", width: "100%"}}>
                         <Fab onClick={() => onSwapClick()} size="small" type="button"
-                             color="secondary"><SwapHorizIcon/></Fab>
+                             color="secondary">
+                            <SwapHorizIcon/>
+                        </Fab>
                     </div>)
                 }
                 <Arrow direction="right" label={store.selectedFactTypeName ? store.selectedFactTypeName : ""}/>

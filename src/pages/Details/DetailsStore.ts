@@ -2,7 +2,6 @@ import MainPageStore from "../MainPageStore";
 import {action, computed, observable} from "mobx";
 import {ActFact, ActObject, Search} from "../types";
 import CreateFactForDialog from "../../components/CreateFactFor/DialogStore";
-import {actObject} from "../../core/testHelper";
 
 export type PredefinedObjectQuery = {
     name: string,
@@ -174,7 +173,7 @@ class DetailsStore {
     @action.bound
     onCreateFactClick() {
         if (this.selectedObject) {
-            this.createFactDialog = new CreateFactForDialog(this.selectedObject);
+            this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.queryHistory);
         }
     }
 }

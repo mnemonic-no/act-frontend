@@ -2,12 +2,14 @@ import {action, computed, observable, runInAction} from "mobx";
 import {ActObject, FactType, NamedId} from "../../pages/types";
 import {createFact, factTypesDataLoader} from "../../core/dataLoaders";
 import {
+    factMapToObjectMap,
     factTypeString,
     isRelevantFactType,
     validBidirectionalFactTargetObjectTypes,
     validUnidirectionalFactTargetObjectTypes
 } from "../../core/transformers";
 import {addMessage} from "../../util/SnackbarProvider";
+import QueryHistory from "../../pages/QueryHistory";
 
 type FactTypeCategory = "oneLegged" | "uniDirectional" | "biDirectional" | null
 
@@ -105,9 +107,11 @@ class CreateFactForDialog {
     @observable formBidirectional: FormBiDirectional | null = null;
 
     selectedObject: ActObject;
+    queryHistory: QueryHistory;
 
-    constructor(selectedObject: ActObject) {
+    constructor(selectedObject: ActObject, queryHistory: QueryHistory) {
         this.selectedObject = selectedObject;
+        this.queryHistory = queryHistory;
 
         factTypesDataLoader().then((factTypes: Array<FactType>) => {
             runInAction(() => {
@@ -206,11 +210,28 @@ class CreateFactForDialog {
                 this.formUniDirectional,
                 this.formBidirectional);
 
-            const result = await createFact(request);
+            const resultFact = await createFact(request);
 
             this.isOpen = false;
 
             addMessage('Fact created');
+
+            const search = {
+                objectValue: resultFact.sourceObject.value,
+                objectType: resultFact.sourceObject.type.name,
+                factTypes: [resultFact.type.name]
+            };
+
+            const facts = {[resultFact.id]: resultFact};
+
+            this.queryHistory.addQuery({
+                id: JSON.stringify(search),
+                search: search,
+                result: {
+                    facts: facts,
+                    objects: factMapToObjectMap(facts)
+                },
+            });
 
         } catch (err) {
             runInAction(() => {

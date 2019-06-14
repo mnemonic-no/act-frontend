@@ -6,8 +6,18 @@ import Button from "@material-ui/core/Button";
 import {observer} from "mobx-react";
 import SearchStore from "./SearchStore";
 import QueryAutoSuggest from "./QueryAutoSuggest";
+import {compose} from "recompose";
+import {createStyles, withStyles} from "@material-ui/core";
 
-const Search = ({store}: { store: SearchStore }) => (
+
+const styles = (theme: any) => createStyles({
+    buttonContainer: {
+        display: "flex",
+        justifyContent: "space-between"
+    }
+});
+
+const Search = ({store, classes}: { store: SearchStore, classes: any }) => (
     <form
         onSubmit={e => {
             e.preventDefault();
@@ -39,15 +49,16 @@ const Search = ({store}: { store: SearchStore }) => (
                      label='Graph query'
                      helperText={'A Graph query, like g.outE()'}
                      {...store.queryInput}/>
-
             </Grid>
             <Grid item xs={12}>
-                <Button type='submit'>Search</Button>
-                <Button onClick={e => store.clearGraph()}>Clear graph</Button>
+                <div className={classes.buttonContainer}>
+                    <Button type='submit'>Search</Button>
+                    <Button onClick={store.onClear}>Clear</Button>
+                </div>
             </Grid>
         </Grid>
     </form>
 );
 
-
-export default observer(Search);
+// @ts-ignore
+export default compose(withStyles(styles), observer)(Search);

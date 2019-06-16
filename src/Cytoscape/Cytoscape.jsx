@@ -176,7 +176,7 @@ class CytoscapeContainer extends React.Component {
 
   render () {
     return (
-      <div style={{ height: '100%', width: '100%', position: 'relative' }}>
+      <div style={{ height: `calc(100% - ${theme.spacing.unit * 8}px)`, width: '100%', position: 'relative' }}>
         <div
           id='cytoscape-container'
           style={{ height: '99%', width: '98%', marginLeft: '1%' }}

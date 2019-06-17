@@ -11,7 +11,6 @@ type Layout = {
 
 type GraphOptions = {
     layout: Layout,
-    showFactsAsNodes: boolean,
     showFactEdgeLabels: boolean,
     showRetractions: boolean
 }
@@ -24,8 +23,6 @@ class CytoscapeLayoutStore {
     constructor(localStorage : {getItem : Function}) {
         this.graphOptions = {
             layout: layouts.euler,
-            showFactsAsNodes: Boolean(JSON.parse(localStorage.getItem('options.showFactsAsNodes'))
-            ),
             showFactEdgeLabels: Boolean(
                 JSON.parse(localStorage.getItem('options.showFactEdgeLabels'))
             ),
@@ -43,12 +40,6 @@ class CytoscapeLayoutStore {
     @action
     toggleShowLayoutOptions() {
         this.showLayoutOptions = !this.showLayoutOptions;
-    }
-
-    @action
-    toggleShowFactsAsNodes() {
-        this.graphOptions.showFactsAsNodes = !this.graphOptions.showFactsAsNodes;
-        window.localStorage.setItem('options.showFactsAsNodes', JSON.stringify(this.graphOptions.showFactsAsNodes))
     }
 
     @action

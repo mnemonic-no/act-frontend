@@ -13,10 +13,8 @@ class RefineryOptionsStore {
 
     @computed get graphOptions() {
         return {
-            showFactsAsNodes: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactsAsNodes,
             showFactEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels,
             showRetractions: this.root.ui.cytoscapeLayoutStore.graphOptions.showRetractions,
-            toggleShowFactsAsNodes: () =>  this.root.ui.cytoscapeLayoutStore.toggleShowFactsAsNodes(),
             toggleShowFactEdgeLabels: () =>  this.root.ui.cytoscapeLayoutStore.toggleShowFactEdgeLabels(),
             toggleShowRetractions: () =>  this.root.ui.cytoscapeLayoutStore.toggleShowRetractions()
         }

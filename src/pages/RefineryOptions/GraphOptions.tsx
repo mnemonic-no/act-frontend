@@ -16,14 +16,6 @@ const GraphOptionsComp = ({ classes, graphOptions } : {classes: any, graphOption
     <Grid item xs={12}>
       <List dense>
         <ListItem disableGutters>
-          <ListItemText primary='Facts' secondary={'Display as nodes'} />
-          <ListItemSecondaryAction>
-            <Switch
-              onClick={() => graphOptions.toggleShowFactsAsNodes()}
-              checked={graphOptions.showFactsAsNodes}/>
-          </ListItemSecondaryAction>
-        </ListItem>
-        <ListItem disableGutters>
           <ListItemText primary='Edges' secondary={'Show labels'} />
           <ListItemSecondaryAction>
             <Switch

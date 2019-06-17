@@ -15,7 +15,6 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
 import {withStyles} from "@material-ui/core";
 import {observer} from "mobx-react";
-import {Query} from "../types";
 
 const styles = (theme: any) => ({
     listItem: {
@@ -40,17 +39,11 @@ const styles = (theme: any) => ({
         paddingBottom: theme.spacing.unit
     },
     listItemText: {
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+        whiteSpace: 'nowrap'
     }
 });
 
-const QueryTitle = ({query}: { query: Query }) => {
-    return <span>{`${query.search.objectType}: ${query.search.objectValue}`}</span>;
-};
-
-const FactTypeText = ({query}: { query: Query }) => {
-    return <div>{`Fact filter: ${query.search.factTypes}`}</div>;
-};
 
 const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any }) => (
     <Paper>
@@ -60,39 +53,35 @@ const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any
                 <ListItemSecondaryAction>
                     <Switch
                         onClick={() => store.flipMergePrevious()}
-                        checked={store.mergePrevious}
-                    />
+                        checked={store.mergePrevious}/>
                 </ListItemSecondaryAction>
             </ListItem>
         </List>
         <Divider/>
         <List dense>
-            {store.queries.map(query => (
+            {store.queryItems.map(item => (
                 <ListItem
                     classes={{
                         root: classes.listItem,
-                        container: `${
-                            query.id === store.selectedQueryId ? classes.activeItem : ''
-                            } ${classes.item}`
+                        container: `${item.isSelected ? classes.activeItem : ''} ${classes.item}`
                     }}
                     button
                     disableGutters
                     dense
-                    key={query.id}
-                    onClick={() => store.setSelectedQuery(query)}>
+                    key={item.id}
+                    onClick={item.onClick}>
                     <ListItemText
                         classes={{root: classes.listItemText}}
                         secondaryTypographyProps={{component: "div"}}
-                        primary={<QueryTitle query={query}/>}
+                        primary={<span>{item.title}</span>}
                         secondary={
                             <>
-                                {query.search.factTypes && <FactTypeText query={query}/> }
-                                <div>{query.search.query}</div>
+                            {item.details.map( (detail, idx) => <div key={idx}>{detail}</div>)}
                             </>
                         }/>
                     <ListItemSecondaryAction>
                         <IconButton
-                            onClick={() => store.removeQuery(query)}
+                            onClick={item.onRemoveClick}
                             classes={{root: classes.removeButton}}>
                             <CloseIcon/>
                         </IconButton>

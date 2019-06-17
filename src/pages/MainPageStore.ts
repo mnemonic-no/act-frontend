@@ -9,7 +9,7 @@ import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
 import TableStore from "./Table/TableStore";
 import BackendStore from "./BackendStore";
 import config from "../config";
-import {Search} from "./types";
+import {ObjectFactsSearch, Search} from "./types";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {
@@ -61,7 +61,7 @@ class MainPageStore {
         };
     }
 
-    executeQuery(search: Search) {
+    executeQuery(search: ObjectFactsSearch) {
         this.ui.searchStore.executeSearch(search);
     }
 

@@ -1,7 +1,11 @@
 import {action, computed, observable} from 'mobx';
 import MainPageStore from "../MainPageStore";
 import getStyle from '../../core/cytoscapeStyle';
-import {ActObject, Search} from "../types";
+import {
+    ActObject,
+    Search,
+    ActFact, isObjectSearch, isFactSearch
+} from "../types";
 
 export type Node = {
     id: string | null
@@ -51,11 +55,7 @@ class GraphViewStore {
             onNodeDoubleClick: (node: any) => {
                 if (node.data('isFact')) return;
 
-                this.root.backendStore.executeQuery({
-                    objectType: node.data('type'),
-                    objectValue: node.data('value'),
-                    query: ""
-                })
+                this.root.backendStore.executeQuery({objectType: node.data('type'), objectValue: node.data('value')})
             }
         }
     }
@@ -67,16 +67,25 @@ class GraphViewStore {
 
     @action
     setSelectedNodeBasedOnSearch(search: Search) {
-        // Select the searched object (can't do that on graph queries)
-        if (!search.query) {
+        if ( isObjectSearch(search)) {
             const searchedNode = Object.values(this.root.refineryStore.refined.objects)
                 .find((object: ActObject) => object.type.name === search.objectType &&
                     object.value === search.objectValue);
-            if (searchedNode) {
+            if (searchedNode && !search.query) {
                 this.root.ui.cytoscapeStore.setSelectedNode({id: searchedNode.id, type: 'object'})
             }
+        } else if (isFactSearch(search)) {
+            const searchedNode = Object.values(this.root.refineryStore.refined.facts)
+                .find((fact: ActFact) => fact.id === search.id);
+            if (searchedNode) {
+                this.root.ui.cytoscapeStore.setSelectedNode({id: searchedNode.id, type: 'fact'})
+            }
+        } else {
+            const _exhaustiveCheck: never = search;
         }
     }
+
+
 }
 
 export default GraphViewStore;

@@ -68,7 +68,7 @@ const RetractFactFormComp = ({
     </ContentComp>
     <ActionsComp>
       <Button onClick={close}>Cancel</Button>
-      <Button type='submit' variant='raised' color='secondary'>
+      <Button type='submit' variant='contained' color='secondary'>
         Retract
       </Button>
     </ActionsComp>

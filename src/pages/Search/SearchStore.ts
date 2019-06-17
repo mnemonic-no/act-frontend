@@ -53,9 +53,10 @@ class SearchStore {
         this.root.backendStore.executeQuery({objectType: objectType, objectValue: objectValue, query: query});
     }
 
-    @action
-    clearGraph() {
-        this.root.queryHistory.removeAllQueries();
+    @action.bound
+    onClear() {
+        this.query = "";
+        this.objectValue = "";
     }
 
     executeSearch(search: ObjectFactsSearch) {

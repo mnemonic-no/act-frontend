@@ -88,6 +88,7 @@ class QueryHistoryStore {
         this.root.queryHistory.mergePrevious = !this.root.queryHistory.mergePrevious;
     }
 
+    @action.bound
     export() {
         const searches = this.root.queryHistory.queries.map((q : any) => ({...q.search}));
 
@@ -96,6 +97,11 @@ class QueryHistoryStore {
             { type: 'application/json' }
         );
         saveAs(blob, 'act-search-history.json');
+    }
+
+    @action.bound
+    clear() {
+        this.root.queryHistory.removeAllQueries();
     }
 }
 

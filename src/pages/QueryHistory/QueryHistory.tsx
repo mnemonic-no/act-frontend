@@ -36,7 +36,9 @@ const styles = (theme: any) => ({
     buttons: {
         padding: theme.spacing.unit * 2,
         paddingTop: theme.spacing.unit,
-        paddingBottom: theme.spacing.unit
+        paddingBottom: theme.spacing.unit,
+        display: "flex",
+        justifyContent: "space-between"
     },
     listItemText: {
         overflowX: 'hidden',
@@ -92,9 +94,11 @@ const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any
         <Divider/>
         <div className={classes.buttons}>
             <Tooltip title='Export the whole search history as JSON'>
-                <Button onClick={() => store.export()}>Export</Button>
+                <Button onClick={store.export}>Export</Button>
             </Tooltip>
-            {/* <Button>Import</Button> */}
+            <Tooltip title='Clear the graph'>
+                <Button onClick={store.clear}>Clear</Button>
+            </Tooltip>
         </div>
     </Paper>
 );

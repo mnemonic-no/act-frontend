@@ -55,9 +55,6 @@ class CytoscapeContainer extends React.Component {
   constructor () {
     super();
     this.runLayout = this.runLayout.bind(this);
-    this.fit = this.fit.bind(this);
-    this.zoomIn = this.zoomIn.bind(this);
-    this.zoomOut = this.zoomOut.bind(this);
     this.layout = null;
   }
   componentDidMount () {
@@ -69,7 +66,7 @@ class CytoscapeContainer extends React.Component {
         ready: ({ cy }) => {
           // Selected
           if (this.props.selectedNode) {
-            const node = cy.nodes().getElementById(this.props.selectedNode);
+            const node = cy.elements().getElementById(this.props.selectedNode);
             node.select();
           }
 
@@ -111,15 +108,12 @@ class CytoscapeContainer extends React.Component {
 
     // Allow one item to be selected
     if (
-      prevProps.selectedNode !== this.props.selectedNode &&
+        prevProps.selectedNode !== this.props.selectedNode &&
       this.props.selectedNode
     ) {
       this.cy.$(':selected').unselect();
-      const node = this.cy.nodes().getElementById(this.props.selectedNode);
+      const node = this.cy.elements().getElementById(this.props.selectedNode);
       node.select();
-
-      // Fit to selected node
-      // this.cy.fit(node);
     }
 
     if (prevProps.style !== this.props.style) {
@@ -149,12 +143,15 @@ class CytoscapeContainer extends React.Component {
   }
 
   // Actions
-  fit () {
-    // this.cy.fit();
+  fit = () => {
     this.cy.animate({ fit: true, duration: 150 });
-  }
+  };
 
-  zoomIn () {
+  focusOnSelection = () => {
+    this.cy.fit(this.cy.$(':selected'), 50);
+  };
+
+  zoomIn = () => {
     const zoom = {
       level: this.cy.zoom() * (1 + 0.25),
       position: { x: this.cy.width() / 2, y: this.cy.height() / 2 }
@@ -162,9 +159,9 @@ class CytoscapeContainer extends React.Component {
     if (zoom.level > this.cy.maxZoom()) return;
     // this.cy.zoom(zoom);
     this.cy.animate({ zoom, duration: 150 });
-  }
+  };
 
-  zoomOut () {
+  zoomOut = () => {
     const zoom = {
       level: this.cy.zoom() * (1 - 0.25),
       position: { x: this.cy.width() / 2, y: this.cy.height() / 2 }
@@ -172,7 +169,7 @@ class CytoscapeContainer extends React.Component {
     if (zoom.level < this.cy.minZoom()) return;
     // this.cy.zoom(zoom);
     this.cy.animate({ zoom, duration: 150 })
-  }
+  };
 
   render () {
     return (
@@ -189,6 +186,7 @@ class CytoscapeContainer extends React.Component {
           onZoomIn={this.zoomIn}
           onZoomOut={this.zoomOut}
           onFit={this.fit}
+          onFocusOnSelection={this.focusOnSelection}
         />
       </div>
     );

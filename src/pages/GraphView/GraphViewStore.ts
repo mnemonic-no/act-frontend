@@ -36,7 +36,7 @@ class GraphViewStore {
 
         return {
             canRender: canRender,
-            selectedNode: this.selectedNode.id,
+            selectedNode: this.selectedNode.type === 'fact' ? "edge-"+this.selectedNode.id : this.selectedNode.id,
             elements: this.root.refineryStore.cytoscapeElements,
             layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
             style: getStyle({showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels}),

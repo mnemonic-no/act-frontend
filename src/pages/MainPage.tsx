@@ -77,6 +77,8 @@ const styles = (theme: Theme) => {
             marginTop: appBarHeight,
             height: `calc(100% - ${appBarHeight}px)`,
             width: '100%',
+	    display: 'flex',
+	    flexDirection: 'column',
 
             transition: theme.transitions.create('margin', {
                 easing: theme.transitions.easing.sharp,
@@ -130,7 +132,7 @@ const ContentComp = ({store, classes} : {store: MainPageStore, classes : any}) =
                         <Tab label={`Facts (${store.ui.tableStore.facts.length})`} value='tableOfFacts'/>
                     </Tabs>
 
-                    {selectedTab === 'graph' && <GraphView store={store.ui.cytoscapeStore}/>}
+                    {selectedTab === 'graph' && <div style={{ flex: "1 0 auto" }}><GraphView store={store.ui.cytoscapeStore} /></div>}
                     {selectedTab === 'tableOfObjects' && <ObjectsTable objects={store.ui.tableStore.objects}
                                                                        selectedNode={store.ui.tableStore.selectedNode}
                                                                        onRowClick={(actObject: ActObject) => {

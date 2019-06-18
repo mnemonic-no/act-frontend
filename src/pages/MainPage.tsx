@@ -26,6 +26,7 @@ import Details from "./Details/Details";
 import ObjectsTable from "./Table/ObjectsTable";
 import FactsTable from "./Table/FactsTable";
 import {ActFact, ActObject} from "./types";
+import ErrorBoundary from '../components/ErrorBoundary';
 
 
 const drawerWidth = 360;
@@ -45,6 +46,12 @@ const styles = (theme: Theme) => {
             width: '100%',
             height: '100%'
         },
+
+        errorBoundary: {
+            marginTop: appBarHeight,
+            width: "100%"
+        },
+
         appBar: {
             position: 'absolute',
             height: appBarHeight,
@@ -178,6 +185,7 @@ const MainPage = ({classes} : {classes: any}) => (
                 </AppBar>
             </div>
 
+            <ErrorBoundary className={classes.errorBoundary}>
             {/* Drawer */}
             <Drawer
                 variant='permanent'
@@ -223,12 +231,13 @@ const MainPage = ({classes} : {classes: any}) => (
                         docked: classes.infoDrawerDocked
                     }}>
 
-                    <Details store={store.ui.detailsStore} />
+                    <Details store={store.ui.detailsStore}/>
                 </Drawer>
             )}
+            </ErrorBoundary>
         </div>
 
-        <ErrorSnackbar error={store.backendStore.error} />
+        <ErrorSnackbar error={store.backendStore.error}/>
     </div>
 );
 

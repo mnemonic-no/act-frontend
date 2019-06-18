@@ -12,7 +12,6 @@ const styles = (theme : Theme)  => createStyles({
         padding: "20px",
         display: "flex",
         height: "100%",
-        outline: "1px solid red",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center"

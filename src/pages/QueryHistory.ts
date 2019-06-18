@@ -17,9 +17,9 @@ class QueryHistory {
         reaction(() => this.result,
             (q) => {
                 if (this.queries.length === 0) {
-                    history.pushState(null, "", "/");
-                } else if (location.pathname === "/")  {
-                    history.pushState(null, "", this.root.ui.searchStore.asPathname());
+                    window.history.pushState(null, "", "/");
+                } else if (window.location.pathname === "/")  {
+                    window.history.pushState(null, "", this.root.ui.searchStore.asPathname());
                 }
             })
     }

@@ -25,8 +25,8 @@ export const factMapToObjectMap = (facts: { [id: string]: ActFact }): { [id: str
 };
 
 export const isOneLegged = (fact: ActFact) =>
-    fact.sourceObject && !fact.destinationObject ||
-    !fact.sourceObject && fact.destinationObject;
+    (fact.sourceObject && !fact.destinationObject) ||
+    (!fact.sourceObject && fact.destinationObject);
 
 
 export const isOneLeggedFactType = (factType: FactType) => {
@@ -34,8 +34,8 @@ export const isOneLeggedFactType = (factType: FactType) => {
 
     const a = factType.relevantObjectBindings[0];
 
-    return a.sourceObjectType && !a.destinationObjectType ||
-        !a.sourceObjectType && a.destinationObjectType;
+    return (a.sourceObjectType && !a.destinationObjectType) ||
+           (!a.sourceObjectType && a.destinationObjectType);
 };
 
 export const isBidirectional = (factType: FactType) => {
@@ -63,7 +63,7 @@ export const objectValueText = (object : ActObject) => {
 
 export const getObjectLabelFromFact = (obj: ActObject, objectLabelFromFactType: string | null, facts: Array<ActFact>) => {
     if (objectLabelFromFactType) {
-        const found = facts.find(f => (f.type.name === objectLabelFromFactType && f.sourceObject != undefined && f.sourceObject.id === obj.id));
+        const found = facts.find(f => (f.type.name === objectLabelFromFactType && f.sourceObject !== undefined && f.sourceObject.id === obj.id));
         return found ? found.value : null;
     }
     return null;
@@ -77,8 +77,8 @@ export const objectLabel = (obj: ActObject, objectLabelFromFactType : string | n
 export const isRelevantFactType = (factType : FactType, object : ActObject) => {
     return factType.relevantObjectBindings && factType.relevantObjectBindings.some(
         y =>
-            y.sourceObjectType && y.sourceObjectType.name == object.type.name ||
-            y.destinationObjectType && y.destinationObjectType.name == object.type.name
+            (y.sourceObjectType && y.sourceObjectType.name === object.type.name) ||
+            (y.destinationObjectType && y.destinationObjectType.name === object.type.name)
     );
 };
 
@@ -101,8 +101,8 @@ export const validUnidirectionalFactTargetObjectTypes = (factType: FactType, obj
 
     return factType.relevantObjectBindings
         .filter(({sourceObjectType, destinationObjectType}) =>
-            isSource && sourceObjectType && sourceObjectType.name === object.type.name ||
-            !isSource && destinationObjectType && destinationObjectType.name === object.type.name)
+            (isSource && sourceObjectType && sourceObjectType.name === object.type.name) ||
+            (!isSource && destinationObjectType && destinationObjectType.name === object.type.name))
         .map(({sourceObjectType, destinationObjectType}) => {
             return sourceObjectType.name === object.type.name ? destinationObjectType : sourceObjectType;
         });

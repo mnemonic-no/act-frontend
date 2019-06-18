@@ -1,13 +1,15 @@
 import React from 'react';
-import { observer } from 'mobx-react/index';
-import { compose} from 'recompose';
-import TableCell from '@material-ui/core/TableCell/index';
-import TableRow from '@material-ui/core/TableRow/index';
-import { withStyles } from '@material-ui/core/styles/index';
+import { observer } from 'mobx-react';
+import { compose } from 'recompose';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
+import {WithStyles, withStyles} from '@material-ui/core/styles';
 
 import { objectTypeToColor, renderObjectValue } from '../../util/utils';
+import {ActObject} from "../../pages/types";
+import {Theme} from "@material-ui/core";
 
-const styles = theme => ({
+const styles = (theme: Theme) => ({
   cell: {
     paddingLeft: theme.spacing.unit * 2
   },
@@ -17,7 +19,7 @@ const styles = theme => ({
   }
 });
 
-const ObjectRowComp = ({ onRowClick, classes, object }) => (
+const ObjectRowComp = ({ onRowClick, object, classes } : IOBjectRowComp)  => (
   <TableRow
     key={object.id}
     hover
@@ -34,7 +36,12 @@ const ObjectRowComp = ({ onRowClick, classes, object }) => (
   </TableRow>
 );
 
-export const ObjectRow = compose(
+interface IOBjectRowComp extends WithStyles<typeof styles> {
+    object: ActObject,
+    onRowClick: (o: ActObject) => void
+}
+
+export const ObjectRow = compose<IOBjectRowComp, Pick<IOBjectRowComp, Exclude<keyof IOBjectRowComp, "classes">>>(
   withStyles(styles),
   observer
 )(ObjectRowComp);

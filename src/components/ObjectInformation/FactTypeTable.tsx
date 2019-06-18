@@ -1,9 +1,9 @@
 import TableBody from "@material-ui/core/TableBody";
 import Table from "@material-ui/core/Table";
 import React from "react";
-import {createStyles, TableRow, Theme, withStyles} from "@material-ui/core";
+import {createStyles, TableRow, Theme, WithStyles, withStyles} from "@material-ui/core";
 import {lighten} from "@material-ui/core/styles/colorManipulator";
-import {ActFact, ActObject, ObjectFactsSearch} from "../../pages/types";
+import {ActFact, ActObject, Search} from "../../pages/types";
 import Tooltip from "@material-ui/core/Tooltip";
 import TableCell from "@material-ui/core/TableCell";
 
@@ -36,13 +36,7 @@ const styles = (theme: Theme) => createStyles({
 });
 
 
-const FactTableRowComp = ({objStats, oneLeggedFacts, classes, onFactTypeClick, onFactClick}: {
-    objStats: any,
-    oneLeggedFacts: Array<ActFact>
-    classes: any,
-    onFactTypeClick: Function,
-    onFactClick: Function,
-}) => {
+const FactTableRowComp = withStyles(styles)(({objStats, oneLeggedFacts, classes, onFactTypeClick, onFactClick}: IFactTableRowComp) => {
     let facts = oneLeggedFacts.filter(oneFact => oneFact.type.name === objStats.type.name);
 
     if (facts.length === 0) {
@@ -85,15 +79,23 @@ const FactTableRowComp = ({objStats, oneLeggedFacts, classes, onFactTypeClick, o
             </TableRow>
         )
     }
-};
+});
 
-const FactTypeTable = ({classes, selectedObject, oneLeggedFacts, onFactClick, onSearchSubmit} : {
-    classes: any,
-    selectedObject: ActObject,
-    oneLeggedFacts: Array<ActFact>,
+interface IFactTableRowComp extends WithStyles<typeof styles> {
+    objStats: any,
+    oneLeggedFacts: Array<ActFact>
+    onFactTypeClick: Function,
     onFactClick: Function,
-    onSearchSubmit: Function
-}) => {
+}
+
+const tableStyles = (theme: Theme) => createStyles({
+    root: {
+        marginLeft: -theme.spacing.unit * 2,
+    }
+});
+
+
+const FactTypeTable = ({classes, selectedObject, oneLeggedFacts, onFactClick, onSearchSubmit} : IFactTypeTable) => {
     return (
         <Table padding="dense" className={classes.root}>
             <TableBody>
@@ -116,5 +118,12 @@ const FactTypeTable = ({classes, selectedObject, oneLeggedFacts, onFactClick, on
         </Table>
     )
 };
+
+interface IFactTypeTable extends WithStyles<typeof tableStyles> {
+    selectedObject: ActObject,
+    oneLeggedFacts: Array<ActFact>,
+    onFactClick: (f: ActFact) => void,
+    onSearchSubmit: (search: Search) => void
+}
 
 export default withStyles(styles)(FactTypeTable);

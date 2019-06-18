@@ -9,7 +9,7 @@ import DialogStore, {FormUniDirectional} from "./DialogStore";
 import Button from "@material-ui/core/Button";
 import DialogLoadingOverlay from "../DialogLoadingOverlay";
 import DialogError from "../DialogError";
-import {createStyles, Theme, Typography, withStyles} from "@material-ui/core";
+import {createStyles, Theme, Typography, WithStyles, withStyles} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import {ActObject, NamedId} from "../../pages/types";
 import {compose} from "recompose";
@@ -317,10 +317,9 @@ const FactComp = observer(({store}: { store: DialogStore }) => {
     }
 });
 
-const DialogComp = ({store, classes}: { store: DialogStore, classes: any }) => {
+const DialogComp = ({store, classes}: IDialogComp) => {
     return (
         <Dialog
-            className={classes.root}
             open={store.isOpen}
             onClose={() => store.onClose()}
             disableBackdropClick
@@ -376,7 +375,7 @@ const DialogComp = ({store, classes}: { store: DialogStore, classes: any }) => {
 
                 </DialogContent>
 
-                <DialogActions classes={{root: classes.dialogActions}}>
+                <DialogActions>
                     <Button onClick={() => store.onClose()}>Cancel</Button>
                     <Button type='submit' variant='contained' color='secondary'>
                         Submit
@@ -387,8 +386,11 @@ const DialogComp = ({store, classes}: { store: DialogStore, classes: any }) => {
     );
 };
 
-export default compose(
+interface IDialogComp extends WithStyles<typeof styles> {
+    store: DialogStore
+}
+
+export default compose<IDialogComp, Pick<IDialogComp, 'store'>>(
     withStyles(styles),
-    observer)
-// @ts-ignore
-(DialogComp);
+    observer
+)(DialogComp);

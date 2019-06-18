@@ -35,10 +35,6 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         error: null, info: null
      };
 
-    constructor(props : ErrorBoundaryProps) {
-        super(props);
-    }
-
     componentDidCatch(error: Error, info: React.ErrorInfo) {
         this.setState({
             error: error,
@@ -47,7 +43,6 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     }
 
     render() {
-        console.log(this.state);
         if (this.state.info) {
 
             return (
@@ -60,7 +55,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                         <div className={this.props.classes.actionButton}>
                             <Button variant="outlined"
                                     size="large"
-                                    onClick={() => location.replace("/")}>
+                                    onClick={() => window.location.replace("/")}>
                                 Go to main page
                             </Button>
                         </div>

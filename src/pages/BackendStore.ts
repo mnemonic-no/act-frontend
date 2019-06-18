@@ -5,8 +5,7 @@ import {
     searchCriteriadataLoader
 } from "../core/dataLoaders";
 import MainPageStore from "./MainPageStore";
-import {isObjectSearch, ObjectFactsSearch, Query, Search, searchId} from "./types";
-
+import {isObjectSearch, Query, Search, searchId} from "./types";
 
 const maxFetchLimit = 2000;
 

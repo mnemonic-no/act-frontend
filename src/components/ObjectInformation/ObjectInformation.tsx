@@ -1,7 +1,7 @@
 import React from 'react'
 import {compose} from 'recompose'
 import Typography from '@material-ui/core/Typography/index'
-import {withStyles, createStyles, Theme} from "@material-ui/core"
+import {withStyles, createStyles, Theme, WithStyles} from "@material-ui/core"
 import {darken, lighten} from '@material-ui/core/styles/colorManipulator'
 import Button from '@material-ui/core/Button/index'
 
@@ -15,7 +15,7 @@ import PredefinedObjectQueries from "./PredefinedObjectQueries";
 import ContextActions from "./ContextActions";
 import {factDataLoader, factTypesDataLoader, objectStatsDataLoader} from "../../core/dataLoaders";
 import {getObjectLabelFromFact, isOneLeggedFactType, objectValueText} from "../../core/transformers";
-import {ActFact, ActObject, FactType} from "../../pages/types";
+import {ActFact, ActObject, FactType, Search} from "../../pages/types";
 import FactTypeTable from "./FactTypeTable";
 import CreateFactForObjectDialog from "../CreateFactFor/Dialog";
 import {observer} from "mobx-react";
@@ -86,30 +86,21 @@ const ObjectInformationComp = ({
                                    onTitleClick,
                                    onFactClick,
                                    onPredefinedObjectQueryClick,
-                               }: {
-    classes: any,
-    id: string,
-    selectedObject: ActObject,
-    oneLeggedFacts: Array<ActFact>,
-    details: ObjectDetails,
-    createFactDialog: any,
-    onSearchSubmit: Function,
-    onFactClick: Function,
-    onSearchClick: Function,
-    onCreateFactClick: Function,
-    onTitleClick: Function,
-    onPredefinedObjectQueryClick: (q: PredefinedObjectQuery) => void
-}) => {
+                               }: IObjectInformationComp) => {
     const labelFromFact = getObjectLabelFromFact(selectedObject, config.objectLabelFromFactType, oneLeggedFacts);
     const totalFacts = selectedObject.statistics ? selectedObject.statistics.reduce((acc: any, x: any) => x.count + acc, 0) : 0;
     const objectColor = objectTypeToColor(selectedObject.type.name);
+
+    // @ts-ignore
+    const selectedObjectClass = classes[selectedObject.type.name];
+
     return (
         <div className={classes.root}>
 
             <div onClick={() => onTitleClick()}>
                 <Typography
                     variant='h6'
-                    className={`${classes.link} ${classes[selectedObject.type.name]}`}>
+                    className={`${classes.link} ${selectedObjectClass}`}>
                     <div>{labelFromFact ? labelFromFact : objectValueText(selectedObject)}</div>
                 </Typography>
             </div>
@@ -155,6 +146,20 @@ const ObjectInformationComp = ({
         </div>
     )
 };
+
+export interface IObjectInformationComp extends WithStyles<typeof styles>{
+    id: string,
+    selectedObject: ActObject,
+    oneLeggedFacts: Array<ActFact>,
+    details: ObjectDetails,
+    createFactDialog: any,
+    onSearchSubmit: (search: Search) => void,
+    onFactClick: (f: ActFact) => void,
+    onSearchClick: Function,
+    onCreateFactClick: Function,
+    onTitleClick: () => void,
+    onPredefinedObjectQueryClick: (q: PredefinedObjectQuery) => void
+}
 
 const dataLoader = async ({id}: { id: string }) => {
 

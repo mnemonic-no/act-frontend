@@ -1,6 +1,5 @@
 import React from 'react'
 import { compose, lifecycle } from 'recompose'
-import DevTools from 'mobx-react-devtools';
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import SnackbarProvider from './util/SnackbarProvider'
@@ -65,7 +64,6 @@ const App = () => (
         <SnackbarProvider/>
         <MainPage/>
       </MuiThemeProvider>
-      {process.env.NODE_ENV !== 'production' && <DevTools position="topRight"/>}
     </>
 );
 

@@ -1,6 +1,6 @@
 import MainPageStore from "../MainPageStore";
 import {action, computed, observable} from "mobx";
-import {ActFact, ActObject, ObjectFactsSearch, Search} from "../types";
+import {ActFact, ActObject, Search} from "../types";
 import CreateFactForDialog from "../../components/CreateFactFor/DialogStore";
 
 export type PredefinedObjectQuery = {

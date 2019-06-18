@@ -9,7 +9,7 @@ import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
 import TableStore from "./Table/TableStore";
 import BackendStore from "./BackendStore";
 import config from "../config";
-import {ObjectFactsSearch, Search} from "./types";
+import {ObjectFactsSearch} from "./types";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {

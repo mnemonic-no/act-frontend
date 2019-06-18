@@ -140,7 +140,7 @@ export const objectFactsTraverseDataLoader = ({
         .catch(handleError);
 
 export const searchCriteriadataLoader = (search: ObjectFactsSearch) => {
-    const {objectType, objectValue, query, factTypes} = search;
+    const {objectType, objectValue, query} = search;
 
     if (objectType && objectValue && query) {
         return objectFactsTraverseDataLoader(search);

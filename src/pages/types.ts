@@ -84,9 +84,9 @@ export const searchId = (search : Search )=> {
 };
 
 export const isObjectSearch = (search : Search) : search is ObjectFactsSearch => {
-    return (<ObjectFactsSearch>search).objectType !== undefined;
+    return (search as ObjectFactsSearch).objectType !== undefined;
 };
 
 export const isFactSearch = (search : Search) : search is SingleFactSearch => {
-    return (<SingleFactSearch>search).factTypeName !== undefined;
+    return (search as SingleFactSearch).factTypeName !== undefined;
 };

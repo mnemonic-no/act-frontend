@@ -6,10 +6,10 @@
     "@material-ui/core": "3.9.3",
     "@material-ui/icons": "3.0.2",
     "@types/jest": "24.0.15",
-    "@types/node": "11.13.4",
+    "@types/node": "12.0.8",
     "@types/ramda": "0.26.8",
     "@types/react": "16.8.20",
-    "@types/react-autosuggest": "9.3.8",
+    "@types/react-autosuggest": "9.3.9",
     "@types/react-dom": "16.8.4",
     "autosuggest-highlight": "^3.1.1",
     "classnames": "^2.2.6",
@@ -26,9 +26,8 @@
     "immutable": "^3.8.2",
     "klayjs": "^0.4.1",
     "mdi-svg": "^2.2.43",
-    "mobx": "5.9.4",
-    "mobx-react": "5.4.3",
-    "mobx-react-devtools": "6.1.1",
+    "mobx": "5.10.1",
+    "mobx-react": "6.0.4",
     "prop-types": "15.7.2",
     "ramda": "0.26.1",
     "react": "16.8.6",
@@ -36,7 +35,7 @@
     "react-day-picker": "^7.3.0",
     "react-dom": "16.8.6",
     "react-router-dom": "5.0.1",
-    "react-scripts": "2.1.8",
+    "react-scripts": "3.0.1",
     "react-shortcuts": "^2.0.1",
     "recompose": "^0.30.0",
     "seamless-immutable": "7.1.4",
@@ -56,14 +55,10 @@
     "@types/recompose": "0.30.6",
     "husky": "^0.14.3",
     "jest-junit": "6.4.0",
-    "lint-staged": "8.1.5",
+    "lint-staged": "8.2.1",
     "prettier-standard": "9.1.1",
-    "source-map-explorer": "1.8.0"
+    "source-map-explorer": "2.0.0"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "comment_browserslist": "Cleared temporarily. See https://github.com/browserslist/browserslist/issues/382",
+  "browserslist": []
 }

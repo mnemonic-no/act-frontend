@@ -81,6 +81,7 @@ class GraphViewStore {
                 this.root.ui.cytoscapeStore.setSelectedNode({id: searchedNode.id, type: 'fact'})
             }
         } else {
+            // eslint-disable-next-line
             const _exhaustiveCheck: never = search;
         }
     }

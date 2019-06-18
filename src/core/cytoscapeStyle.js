@@ -20,12 +20,13 @@ export default ({ showEdgeLabels } = {}) => [
     }
   },
   {
-    selector: ':selected',
+    selector: 'node:selected',
     style: {
       'border-width': 8,
       'border-color': '#AAA' // TODO: Get from config.json theme
     }
   },
+
   {
     selector: 'node.fact',
     style: {
@@ -44,11 +45,16 @@ export default ({ showEdgeLabels } = {}) => [
       'arrow-scale': 1,
       'line-color': '#AAA',
       'target-arrow-color': '#AAA',
-
       'font-family': 'Roboto, sans-serif',
       color: '#AAA',
       'text-outline-color': 'white',
       'text-outline-width': 2
+    }
+  },
+  {
+    selector: 'edge:selected',
+    style: {
+      width: 4,
     }
   },
   {

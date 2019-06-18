@@ -2,7 +2,7 @@ import React from "react";
 import CytoscapeContainer from "../../Cytoscape/Cytoscape";
 import {observer} from "mobx-react";
 import GraphViewStore from "./GraphViewStore";
-import {createStyles, Theme, Typography, withStyles} from "@material-ui/core";
+import {createStyles, Theme, Typography, WithStyles, withStyles} from "@material-ui/core";
 import WarnIcon from '@material-ui/icons/Warning';
 import {compose} from "recompose";
 import Button from "@material-ui/core/Button";
@@ -39,7 +39,7 @@ const RenderWarning = ({classes, onClick} : {classes: any, onClick : Function}) 
     </div>
 );
 
-const GraphView = ({store, classes}: { store: GraphViewStore, classes: any }) => {
+const GraphView = ({store, classes}: IGraphView) => {
 
     if (store.prepared.canRender) {
         return <CytoscapeContainer {...store.prepared}/>;
@@ -48,9 +48,12 @@ const GraphView = ({store, classes}: { store: GraphViewStore, classes: any }) =>
     }
 };
 
-export default compose(
+interface IGraphView extends WithStyles<typeof styles> {
+    store: GraphViewStore
+}
+
+export default compose<IGraphView, any>(
     withStyles(styles),
     observer
-    // @ts-ignore
 )(GraphView);
 

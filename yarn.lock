@@ -3288,7 +3288,7 @@ cytoscape-dagre@2.2.2:
 
 cytoscape-euler@1.0.0:
   version "1.0.0"
-  resolved "https://registry.npmjs.org/cytoscape-euler/-/cytoscape-euler-1.0.0.tgz#4b4e24ea0df260c8204fe1f179cf57c65d966f13"
+  resolved "https://registry.yarnpkg.com/cytoscape-euler/-/cytoscape-euler-1.0.0.tgz#4b4e24ea0df260c8204fe1f179cf57c65d966f13"
   integrity sha1-S04k6g3yYMggT+Hxec9Xxl2WbxM=
 
 cytoscape-klay@3.1.2:
@@ -3305,10 +3305,10 @@ cytoscape-spread@3.0.0:
   dependencies:
     weaverjs "^1.2.0"
 
-cytoscape@3.5.2:
-  version "3.5.2"
-  resolved "https://registry.npmjs.org/cytoscape/-/cytoscape-3.5.2.tgz#5955cc76a5a7d57192b4f3835c13eda9771e9bce"
-  integrity sha1-WVXMdqWn1XGStPODXBPtqXcem84=
+cytoscape@3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/cytoscape/-/cytoscape-3.7.2.tgz#ab9d384648ad5aacaa43df528062c9001924c781"
+  integrity sha512-9d7+Tye6MyALSPqy8bpiG1lkLHwiNi+ITJSaSbCWiP2GYgwknH2EQTwXg7RuyyMsjHekGwPqQhI5s37YJiHuBA==
   dependencies:
     heap "^0.2.6"
     lodash.debounce "^4.0.8"

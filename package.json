@@ -13,7 +13,7 @@
     "@types/react-dom": "16.8.4",
     "autosuggest-highlight": "^3.1.1",
     "classnames": "^2.2.6",
-    "cytoscape": "3.5.2",
+    "cytoscape": "3.7.2",
     "cytoscape-cola": "2.3.0",
     "cytoscape-cose-bilkent": "4.0.0",
     "cytoscape-dagre": "2.2.2",

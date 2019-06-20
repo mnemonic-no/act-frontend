@@ -25,7 +25,6 @@ import Search from './Search/Search';
 import Details from "./Details/Details";
 import ObjectsTable from "./Table/ObjectsTable";
 import FactsTable from "./Table/FactsTable";
-import {ActFact, ActObject} from "./types";
 import ErrorBoundary from '../components/ErrorBoundary';
 
 
@@ -125,7 +124,8 @@ store.initByUrl(window.location);
 
 const ContentComp = ({store, classes} : {store: MainPageStore, classes : any}) => {
 
-    const [selectedTab, setSelectedTab] = useState("graph");
+    // TODO just temporary
+    const [selectedTab, setSelectedTab] = useState("tableOfObjects");
 
     return (
         <Observer>
@@ -135,21 +135,13 @@ const ContentComp = ({store, classes} : {store: MainPageStore, classes : any}) =
                           onChange={(e: any, value: string) => setSelectedTab(value)}
                           indicatorColor='primary'>
                         <Tab label='Graph' value='graph'/>
-                        <Tab label={`Objects (${store.ui.tableStore.objects.length})`} value='tableOfObjects'/>
-                        <Tab label={`Facts (${store.ui.tableStore.facts.length})`} value='tableOfFacts'/>
+                        <Tab label={`Objects (${store.ui.objectsTableStore.objects.length})`} value='tableOfObjects'/>
+                        <Tab label={`Facts (${store.ui.factsTableStore.facts.length})`} value='tableOfFacts'/>
                     </Tabs>
 
-                    {selectedTab === 'graph' && <div style={{ flex: "1 0 auto" }}><GraphView store={store.ui.cytoscapeStore} /></div>}
-                    {selectedTab === 'tableOfObjects' && <ObjectsTable objects={store.ui.tableStore.objects}
-                                                                       selectedNode={store.ui.tableStore.selectedNode}
-                                                                       onRowClick={(actObject: ActObject) => {
-                                                                           store.ui.tableStore.setSelectedObject(actObject)
-                                                                       }}/>}
-                    {selectedTab === 'tableOfFacts' && <FactsTable facts={store.ui.tableStore.facts}
-                                                                   selectedNode={store.ui.tableStore.selectedNode}
-                                                                   onRowClick={(fact: ActFact) => {
-                                                                       store.ui.tableStore.setSelectedFact(fact)
-                                                                   }}/>}
+                    {selectedTab === 'graph' && <div style={{ flex: "1 0 auto" }}><GraphView store={store.ui.cytoscapeStore}/></div>}
+                    {selectedTab === 'tableOfObjects' && <ObjectsTable {...store.ui.objectsTableStore.prepared}/>}
+                    {selectedTab === 'tableOfFacts' && <FactsTable {...store.ui.factsTableStore.prepared}/>}
                 </main>
             }
         </Observer>

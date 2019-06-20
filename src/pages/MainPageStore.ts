@@ -6,10 +6,11 @@ import QueryHistory from './QueryHistory';
 import SearchStore from "./Search/SearchStore";
 import RefineryStore from "./RefineryStore";
 import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
-import TableStore from "./Table/TableStore";
+import FactsTableStore from "./Table/FactsTableStore";
 import BackendStore from "./BackendStore";
 import config from "../config";
 import {ObjectFactsSearch} from "./types";
+import ObjectsTableStore from "./Table/ObjectsTableStore";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {
@@ -38,7 +39,8 @@ class MainPageStore {
         refineryOptionsStore: RefineryOptionsStore,
         searchStore: SearchStore,
         queryHistoryStore: QueryHistoryStore,
-        tableStore: TableStore
+        factsTableStore: FactsTableStore
+        objectsTableStore: ObjectsTableStore
     };
 
     backendStore: BackendStore;
@@ -57,7 +59,8 @@ class MainPageStore {
             refineryOptionsStore: new RefineryOptionsStore(this),
             searchStore: new SearchStore(this, config),
             queryHistoryStore: new QueryHistoryStore(this),
-            tableStore: new TableStore(this)
+            factsTableStore: new FactsTableStore(this),
+            objectsTableStore: new ObjectsTableStore(this)
         };
     }
 

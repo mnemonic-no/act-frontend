@@ -28,7 +28,6 @@ export type SortOrder = {
     orderBy: ColumnKind
 }
 
-
 const styles = (theme: Theme) => createStyles({
     root: {
         display: 'flex',
@@ -53,9 +52,9 @@ const styles = (theme: Theme) => createStyles({
 
 });
 
-const ObjectRowComp = ({actObject, title, properties, isSelected, onRowClick, classes}: IObjectRowComp) => (
+const ObjectRowComp = ({key, actObject, title, properties, isSelected, onRowClick, classes}: IObjectRowComp) => (
     <TableRow
-        key={actObject.id}
+        key={key}
         hover
         selected={isSelected}
         classes={{root: classes.row}}
@@ -68,19 +67,15 @@ const ObjectRowComp = ({actObject, title, properties, isSelected, onRowClick, cl
         </TableCell>
         <TableCell classes={{root: classes.cell}} padding='dense'>
             {
-                properties.map(({k, v}: { k: string, v: string }) => (
-                    <div><span className={classes.factType}>{`${k}: `}</span><span>{v}</span></div>))
+                properties.map(({k, v}: { k: string, v: string }, idx : number) => (
+                    <div key={idx}><span className={classes.factType}>{`${k}: `}</span><span>{v}</span></div>)
+                )
             }
         </TableCell>
     </TableRow>
 );
 
-interface IObjectRowComp extends WithStyles<typeof styles> {
-    title: string,
-    actObject: ActObject,
-    properties: any,
-    isSelected: boolean,
-
+interface IObjectRowComp extends ObjectRow, WithStyles<typeof styles> {
     onRowClick: (o: ActObject) => void,
 }
 
@@ -89,11 +84,11 @@ export const ActObjectRow = compose<IObjectRowComp, Pick<IObjectRowComp, Exclude
     observer
 )(ObjectRowComp);
 
-const ObjectsTableComp = ({rows, columns, classes, sortOrder, onSortChange, onRowClick}: IObjectsTableComp) => (
+const ObjectsTableComp = ({rows, columns, classes, sortOrder, onSortChange, onRowClick, onExportClick}: IObjectsTableComp) => (
     <div className={classes.root}>
 
         <div className={classes.footer}>
-            <Button variant='outlined' size='small'>Export to CSV</Button>
+            <Button variant='outlined' size='small' onClick={onExportClick}>Export to CSV</Button>
         </div>
 
         <div style={{overflowY: "scroll"}}>
@@ -115,15 +110,7 @@ const ObjectsTableComp = ({rows, columns, classes, sortOrder, onSortChange, onRo
                 </TableHead>
                 <TableBody>
                     {
-                        rows.map(row =>
-                            <ActObjectRow key={row.key}
-                                          {...{
-                                              title: row.title,
-                                              actObject: row.actObject,
-                                              properties: row.properties,
-                                              isSelected: row.isSelected,
-                                              onRowClick: (object: any) => onRowClick(object)
-                                          }}/>)
+                        rows.map(row => <ActObjectRow {...row} onRowClick={(object) => onRowClick(object)}/>)
                     }
                 </TableBody>
             </Table>
@@ -136,6 +123,7 @@ interface IObjectsTableComp extends WithStyles<typeof styles> {
     sortOrder: SortOrder,
     onSortChange: (ck: ColumnKind) => void,
     onRowClick: (obj: ActObject) => void,
+    onExportClick: () => void
     columns: Array<{ label: string, kind: ColumnKind }>
 }
 

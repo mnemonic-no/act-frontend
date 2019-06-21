@@ -5,6 +5,7 @@ import {ColumnKind, ObjectRow, SortOrder} from "./ObjectsTable";
 import {Node} from "../GraphView/GraphViewStore";
 import MainPageStore from "../MainPageStore";
 import {oneLeggedFactsFor} from "../../core/transformers";
+import {exportToCsv} from "../../util/util";
 
 const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
 
@@ -15,12 +16,15 @@ const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
             aa = a.actObject.type.name;
             bb = b.actObject.type.name;
         } else if (sortOrder.orderBy === 'properties') {
-            aa = a.properties;
-            bb = b.properties;
+            aa = JSON.stringify(a.properties);
+            bb = JSON.stringify(b.properties);
         } else {
             aa = a.actObject.value;
             bb = b.actObject.value;
         }
+
+        aa = aa.toLowerCase();
+        bb = bb.toLowerCase();
 
         if (sortOrder.order === 'asc') {
             return aa < bb ? -1 : 1;
@@ -67,7 +71,23 @@ class ObjectsTableStore {
 
     @action.bound
     exportToCsv() {
-        // TODO implement
+        const objectRows = Object
+            .values(this.root.refineryStore.refined.objects)
+            .map((o) => toObjectRow(o, this.root.ui.cytoscapeStore.selectedNode, Object.values(this.root.refineryStore.refined.facts)));
+
+        const rows = sortBy(this.sortOrder, objectRows)
+            .map(row => {
+                return [
+                    row.title,
+                    row.actObject.value,
+                    row.properties.map(({k,v}) => `${k}: ${v}`).join(",")
+                ]
+            });
+
+        const headerRow = [this.columns.map(c => c.label)];
+
+        const nowTimeString = new Date().toISOString().replace(/:/g,'-').substr(0, 19);
+        exportToCsv(nowTimeString + "-act-objects.csv", headerRow.concat(rows))
     }
 
     @action.bound
@@ -80,8 +100,8 @@ class ObjectsTableStore {
 
     @computed
     get prepared() {
-        const rows =  Object.values(this.root.refineryStore.refined.objects)
-            .map((o) => toObjectRow(o, this.root.ui.cytoscapeStore.selectedNode, Object.values(this.root.refineryStore.refined.facts)))
+        const rows = Object.values(this.root.refineryStore.refined.objects)
+            .map((o) => toObjectRow(o, this.root.ui.cytoscapeStore.selectedNode, Object.values(this.root.refineryStore.refined.facts)));
 
         return {
             sortOrder: this.sortOrder,
@@ -89,7 +109,7 @@ class ObjectsTableStore {
             columns: this.columns,
             rows: sortBy(this.sortOrder, rows),
             onRowClick: this.setSelectedObject,
-            exportToCsv: this.exportToCsv
+            onExportClick: this.exportToCsv
         }
     }
 }

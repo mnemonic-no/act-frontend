@@ -124,8 +124,7 @@ store.initByUrl(window.location);
 
 const ContentComp = ({store, classes} : {store: MainPageStore, classes : any}) => {
 
-    // TODO just temporary
-    const [selectedTab, setSelectedTab] = useState("tableOfObjects");
+    const [selectedTab, setSelectedTab] = useState("graph");
 
     return (
         <Observer>

@@ -1,24 +1,25 @@
 import {action, computed, observable} from "mobx";
-import {ActObject} from "../types";
+
+import {ActFact, ActObject} from "../types";
+import {ColumnKind, ObjectRow, SortOrder} from "./ObjectsTable";
+import {Node} from "../GraphView/GraphViewStore";
 import MainPageStore from "../MainPageStore";
+import {oneLeggedFactsFor} from "../../core/transformers";
 
-
-export type SortOrder = {
-    order: 'asc' | 'desc'
-    orderBy: 'objectType' | 'objectValue' | 'properties'
-}
-
-const sortBy = (sortOrder : SortOrder, objects: Array<ActObject>) => {
+const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
 
     return objects.slice().sort((a: any, b: any) => {
         let aa;
         let bb;
         if (sortOrder.orderBy === 'objectType') {
-            aa = a.type.name;
-            bb = b.type.name;
+            aa = a.actObject.type.name;
+            bb = b.actObject.type.name;
+        } else if (sortOrder.orderBy === 'properties') {
+            aa = a.properties;
+            bb = b.properties;
         } else {
-            aa = a.value;
-            bb = b.value;
+            aa = a.actObject.value;
+            bb = b.actObject.value;
         }
 
         if (sortOrder.order === 'asc') {
@@ -29,8 +30,24 @@ const sortBy = (sortOrder : SortOrder, objects: Array<ActObject>) => {
     })
 };
 
+const toObjectRow = (object: ActObject, selectedNode: Node, facts: Array<ActFact>) : ObjectRow => {
+    return {
+        key: object.id,
+        title: object.type.name,
+        isSelected: (object.id === selectedNode.id),
+        actObject: object,
+        properties: oneLeggedFactsFor(object, facts).map(f => {return {k: f.type.name, v: f.value || ""}})
+    }
+};
+
 class ObjectsTableStore {
     root: MainPageStore;
+
+    columns : Array<{label: string, kind: ColumnKind}>  = [
+        {label: "Type", kind: "objectType"},
+        {label: "Value", kind: "objectValue"},
+        {label: "Properties", kind: "properties"}
+    ];
 
     @observable
     sortOrder: SortOrder = {order: 'asc', orderBy: 'objectType'};
@@ -54,7 +71,7 @@ class ObjectsTableStore {
     }
 
     @action.bound
-    changeSortOrder(newOrderBy: 'objectType' | 'objectValue' | 'properties') {
+    onSortChange(newOrderBy: ColumnKind) {
         this.sortOrder = {
             orderBy: newOrderBy,
             order: this.sortOrder.orderBy === newOrderBy && this.sortOrder.order === 'asc' ? 'desc' : 'asc'
@@ -63,11 +80,14 @@ class ObjectsTableStore {
 
     @computed
     get prepared() {
+        const rows =  Object.values(this.root.refineryStore.refined.objects)
+            .map((o) => toObjectRow(o, this.root.ui.cytoscapeStore.selectedNode, Object.values(this.root.refineryStore.refined.facts)))
+
         return {
-            selectedNode: this.root.ui.cytoscapeStore.selectedNode,
             sortOrder: this.sortOrder,
-            onSortChange: this.changeSortOrder,
-            objects: sortBy(this.sortOrder, Object.values(this.root.refineryStore.refined.objects)),
+            onSortChange: this.onSortChange,
+            columns: this.columns,
+            rows: sortBy(this.sortOrder, rows),
             onRowClick: this.setSelectedObject,
             exportToCsv: this.exportToCsv
         }

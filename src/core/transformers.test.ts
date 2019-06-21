@@ -2,7 +2,7 @@ import {
     factMapToObjectMap,
     isOneLegged,
     isOneLeggedFactType,
-    objectLabel,
+    objectLabel, oneLeggedFactsFor,
     validBidirectionalFactTargetObjectTypes, validUnidirectionalFactTargetObjectTypes
 } from "./transformers"
 import {actObject, fact, factType} from "./testHelper"
@@ -113,7 +113,6 @@ it('test empty bidirectional fact target object types', () => {
         .toEqual([]);
 });
 
-
 it('test valid unidirectional fact target object types', () => {
 
     const threatActor = {id: "ta", name: "threatActor"};
@@ -141,5 +140,11 @@ it('test valid unidirectional fact target object types', () => {
         true
     ))
         .toEqual([])
+});
 
+it('one legged facts for', () => {
+    const matchingFact = fact({id: 'f1', sourceObject: {id: '1'}, destinationObject: undefined});
+
+    expect(oneLeggedFactsFor(actObject({id: '1'}), [matchingFact, fact({id: 'f2'})]))
+        .toEqual([matchingFact])
 });

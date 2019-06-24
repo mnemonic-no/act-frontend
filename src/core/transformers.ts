@@ -108,3 +108,9 @@ export const validUnidirectionalFactTargetObjectTypes = (factType: FactType, obj
         });
 };
 
+
+export const oneLeggedFactsFor = (object: ActObject, facts: Array<ActFact>) => {
+    return facts
+        .filter(isOneLegged)
+        .filter(f => f.sourceObject && f.sourceObject.id === object.id)
+};

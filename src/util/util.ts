@@ -1,13 +1,24 @@
-import * as R from "ramda";
+// @ts-ignore
+import {saveAs} from 'file-saver';
 
-/**
- * Filter an object's with a function that takes two arguments, (key, value)
- * Example: filterKeyValue((k, v) => k === "a", {a: 1, b: 2})  => {a: 1}
- */
-export const filterKeyValue = (pred: Function, obj: any) =>
-    R.pipe(
-        // @ts-ignore
-        R.toPairs,
-        // @ts-ignore
-        R.filter(R.apply(pred)),
-        R.fromPairs)(obj);
+export const sanitizeCsvValue = (v : any) : string =>  {
+    const input = v === null ? '' : v.toString();
+    let result = input.replace(/"/g, '""');
+    if (result.search(/([,"\n])/g) >= 0) {
+        result = '"' + result + '"'
+    }
+    return result;
+};
+
+export const toCsvString  = (rows: string[][]) => {
+    return rows
+        .map(row => row.map(sanitizeCsvValue))
+        .map(row => row.join(','))
+        .join('\n');
+};
+
+export const exportToCsv = (filename: string, rows: string[][]) => {
+    const CSV = toCsvString(rows);
+    const blob = new window.Blob([CSV], {type: 'text/csv;charset=utf-8'});
+    saveAs(blob, filename);
+};

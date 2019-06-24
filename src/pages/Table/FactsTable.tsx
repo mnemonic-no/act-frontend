@@ -1,16 +1,23 @@
 import React from 'react';
 import {observer} from 'mobx-react';
-import {compose, mapProps, withStateHandlers} from 'recompose';
+import {compose} from 'recompose';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import {createStyles, Theme, withStyles} from "@material-ui/core"
+import {createStyles, Theme, WithStyles, withStyles} from "@material-ui/core"
 
 import {Node} from "../GraphView/GraphViewStore"
 import {ActFact} from "../types";
+
+export type ColumnKind = 'factType' | 'factValue'
+
+export type SortOrder = {
+    order: 'asc' | 'desc'
+    orderBy: ColumnKind
+}
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -55,15 +62,7 @@ export const ActFactRow = compose(
     // @ts-ignore
 )(FactRowComp);
 
-const FactsTableComp = ({facts, selectedNode, orderBy, order, onSortChange, onRowClick, classes}: {
-    facts: Array<ActFact>,
-    selectedNode: Node,
-    orderBy: string,
-    order: any,
-    onSortChange: Function,
-    onRowClick: Function,
-    classes: any
-}) => (
+const FactsTableComp = ({facts, selectedNode, sortOrder, onSortChange, onRowClick, classes}: IFactsTableComp) => (
     <div className={classes.root}>
         <Table>
             <TableHead>
@@ -71,16 +70,16 @@ const FactsTableComp = ({facts, selectedNode, orderBy, order, onSortChange, onRo
                     <TableCell classes={{root: classes.cell}} padding='dense'>
                         <TableSortLabel
                             onClick={() => onSortChange('factType')}
-                            direction={order}
-                            active={orderBy === 'factType'}>
+                            direction={sortOrder.order}
+                            active={sortOrder.orderBy === 'factType'}>
                             Type
                         </TableSortLabel>
                     </TableCell>
                     <TableCell classes={{root: classes.cell}} padding='dense'>
                         <TableSortLabel
                             onClick={() => onSortChange('factValue')}
-                            direction={order}
-                            active={orderBy === 'factValue'}>
+                            direction={sortOrder.order}
+                            active={sortOrder.orderBy === 'factValue'}>
                             Value
                         </TableSortLabel>
                     </TableCell>
@@ -98,39 +97,15 @@ const FactsTableComp = ({facts, selectedNode, orderBy, order, onSortChange, onRo
     </div>
 );
 
-export default compose(
+interface IFactsTableComp extends WithStyles<typeof styles> {
+    facts: Array<ActFact>,
+    selectedNode: Node,
+    sortOrder: SortOrder,
+    onSortChange: (n: ColumnKind) => void,
+    onRowClick: (f : ActFact) => void
+}
+
+export default compose<IFactsTableComp, Pick<IFactsTableComp, Exclude<keyof IFactsTableComp, "classes">>>(
     withStyles(styles),
-    withStateHandlers({
-        order: 'asc', orderBy: 'factType'
-    }, {
-        onSortChange: ({order, orderBy}) => newOrderBy => ({
-            orderBy: newOrderBy,
-            order: orderBy === newOrderBy && order === 'asc' ? 'desc' : 'asc'
-        })
-    }),
-
-    mapProps((props: any) => {
-        return {
-            ...props,
-            facts: props.facts.slice().sort((a: any, b: any) => {
-                let aa;
-                let bb;
-                if (props.orderBy === 'factType') {
-                    aa = a.type.name;
-                    bb = b.type.name;
-                } else {
-                    aa = a.value;
-                    bb = b.value;
-                }
-
-                if (props.order === 'asc') {
-                    return aa < bb ? -1 : 1;
-                } else {
-                    return aa < bb ? 1 : -1;
-                }
-            })
-        }
-    }),
     observer
-    // @ts-ignore
 )(FactsTableComp);

@@ -134,13 +134,13 @@ const ContentComp = ({store, classes} : {store: MainPageStore, classes : any}) =
                           onChange={(e: any, value: string) => setSelectedTab(value)}
                           indicatorColor='primary'>
                         <Tab label='Graph' value='graph'/>
+                        <Tab label={`Table (${store.ui.factsTableStore.facts.length})`} value='tableOfFacts'/>
                         <Tab label={`Objects (${store.ui.objectsTableStore.objects.length})`} value='tableOfObjects'/>
-                        <Tab label={`Facts (${store.ui.factsTableStore.facts.length})`} value='tableOfFacts'/>
                     </Tabs>
 
                     {selectedTab === 'graph' && <div style={{ flex: "1 0 auto" }}><GraphView store={store.ui.cytoscapeStore}/></div>}
-                    {selectedTab === 'tableOfObjects' && <ObjectsTable {...store.ui.objectsTableStore.prepared}/>}
                     {selectedTab === 'tableOfFacts' && <FactsTable {...store.ui.factsTableStore.prepared}/>}
+                    {selectedTab === 'tableOfObjects' && <ObjectsTable {...store.ui.objectsTableStore.prepared}/>}
                 </main>
             }
         </Observer>

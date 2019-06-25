@@ -119,12 +119,12 @@ const ObjectsTableComp = ({rows, columns, classes, sortOrder, onSortChange, onRo
 );
 
 interface IObjectsTableComp extends WithStyles<typeof styles> {
-    rows: Array<{ key: string, title: string, isSelected: boolean, actObject: ActObject, properties: any }>,
+    rows: Array<ObjectRow>,
+    columns: Array<{ label: string, kind: ColumnKind }>,
     sortOrder: SortOrder,
     onSortChange: (ck: ColumnKind) => void,
     onRowClick: (obj: ActObject) => void,
     onExportClick: () => void
-    columns: Array<{ label: string, kind: ColumnKind }>
 }
 
 export default compose<IObjectsTableComp, Pick<IObjectsTableComp, Exclude<keyof IObjectsTableComp, 'classes'>>>(

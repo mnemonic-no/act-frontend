@@ -1,21 +1,17 @@
 import {action, computed, observable} from "mobx";
 import {ActFact} from "../types";
 import MainPageStore from "../MainPageStore";
-import {ColumnKind, SortOrder} from "./FactsTable";
+import {Node} from "../GraphView/GraphViewStore";
+import {ColumnKind, FactRow, SortOrder} from "./FactsTable";
+import {isOneLegged} from "../../core/transformers";
 
+const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string, kind: ColumnKind }>, objects: Array<FactRow>) => {
 
+    const cellIdx = columns.findIndex( ({kind}) => kind === sortOrder.orderBy );
 
-const sortBy = (sortOrder: SortOrder, objects: Array<ActFact>) => {
-    return objects.slice().sort((a: any, b: any) => {
-        let aa;
-        let bb;
-        if (sortOrder.orderBy === 'factType') {
-            aa = a.type.name;
-            bb = b.type.name;
-        } else {
-            aa = a.value;
-            bb = b.value;
-        }
+    return objects.slice().sort((a: FactRow, b: FactRow) => {
+        const aa = a.cells[cellIdx].text;
+        const bb = b.cells[cellIdx].text;
 
         if (sortOrder.order === 'asc') {
             return aa < bb ? -1 : 1;
@@ -25,12 +21,61 @@ const sortBy = (sortOrder: SortOrder, objects: Array<ActFact>) => {
     })
 };
 
+const cellText = (kind : ColumnKind, fact : ActFact) => {
+    switch (kind) {
+        case "sourceType":
+            return fact.sourceObject ? fact.sourceObject.type.name : '';
+        case "sourceValue":
+            return fact.sourceObject ? fact.sourceObject.value : '';
+        case "factType":
+            return fact.type.name;
+        case "factValue":
+            return fact.value ? fact.value : '';
+        case "destinationType":
+            return fact.destinationObject ? fact.destinationObject.type.name : '';
+        case "destinationValue":
+            return fact.destinationObject ? fact.destinationObject.value : '';
+        case "isBidirectional":
+            return fact.bidirectionalBinding ? '✔' : '';
+        case "isOneLegged":
+            return isOneLegged(fact) ? '✔' : '';
+
+        default:
+            return '';
+    }
+};
+
+
+const toFactRow = (fact: ActFact, columns: Array<{ label: string, kind: ColumnKind, wordBreak?: boolean }>, selectedNode: Node): FactRow => {
+
+    return {
+        key: fact.id,
+        fact: fact,
+        isSelected: fact.id === selectedNode.id,
+        cells: columns.map(({kind, wordBreak}) => {
+
+            return {text: cellText(kind, fact),
+                wordBreak: wordBreak
+            }})
+    }
+};
 
 class FactsTableStore {
     root: MainPageStore;
 
     @observable
     sortOrder: SortOrder = {order: 'asc', orderBy: 'factType'};
+
+    columns: Array<{ label: string, kind: ColumnKind, wordBreak?: boolean}> = [
+        {label: "Source Type", kind: "sourceType"},
+        {label: "Source Value", kind: "sourceValue", wordBreak: true},
+        {label: "Fact Type", kind: "factType"},
+        {label: "Fact Value", kind: "factValue"},
+        {label: "Destination Type", kind: "destinationType"},
+        {label: "Destination Value", kind: "destinationValue", wordBreak: true},
+        {label: "Bi-dir.", kind: "isBidirectional"},
+        {label: "One-legged", kind: "isOneLegged"},
+    ];
 
     constructor(root: MainPageStore) {
         this.root = root;
@@ -59,9 +104,12 @@ class FactsTableStore {
 
     @computed
     get prepared() {
+        const rows = Object.values(this.root.refineryStore.refined.facts)
+            .map(f => toFactRow(f, this.columns, this.root.ui.cytoscapeStore.selectedNode));
+
         return {
-            selectedNode: this.root.ui.cytoscapeStore.selectedNode,
-            facts: sortBy(this.sortOrder, Object.values(this.root.refineryStore.refined.facts)),
+            rows: sortBy(this.sortOrder, this.columns, rows),
+            columns: this.columns,
             sortOrder: this.sortOrder,
             onSortChange: this.onSortChange,
             onRowClick: this.setSelectedFact

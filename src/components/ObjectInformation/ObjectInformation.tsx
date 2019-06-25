@@ -35,7 +35,7 @@ const styles = (theme: Theme) => createStyles({
         minHeight: "200px"
     },
     objectValueLabel: {
-        wordBreak: "break-word"
+        wordBreak: "break-all"
     },
     contextActions: {
         paddingTop: theme.spacing.unit * 2

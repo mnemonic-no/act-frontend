@@ -47,8 +47,7 @@ const styles = (theme: Theme) => {
         },
 
         errorBoundary: {
-            marginTop: appBarHeight,
-            width: "100%"
+            marginTop: appBarHeight
         },
 
         appBar: {
@@ -82,9 +81,9 @@ const styles = (theme: Theme) => {
             position: 'relative',
             marginTop: appBarHeight,
             height: `calc(100% - ${appBarHeight}px)`,
-            width: '100%',
-	    display: 'flex',
-	    flexDirection: 'column',
+            width: `calc(100% - ${drawerWidth}px - ${infoDrawerWidth}px)`,
+            display: 'flex',
+            flexDirection: 'column',
 
             transition: theme.transitions.create('margin', {
                 easing: theme.transitions.easing.sharp,
@@ -177,54 +176,54 @@ const MainPage = ({classes} : {classes: any}) => (
             </div>
 
             <ErrorBoundary className={classes.errorBoundary}>
-            {/* Drawer */}
-            <Drawer
-                variant='permanent'
-                classes={{paper: classes.drawerPaper, docked: classes.drawerDocked}}>
-                {/* Search Form */}
-                <Paper className={classes.paper}>
-                    <Search store={store.ui.searchStore}/>
-                </Paper>
-
-                {/* Data navigation */}
-                {!store.queryHistory.isEmpty && (
-                    <Paper className={classes.paperNoPadding}>
-                        <QueryHistory store={store.ui.queryHistoryStore}/>
-                    </Paper>
-                )}
-
-                {/* View options */}
-                <Paper className={classes.paper}>
-                    <CytoscapeLayout store={store.ui.cytoscapeLayoutStore}/>
-                </Paper>
-
-                <Paper className={classes.paper}>
-                    <RefineryOptions store={store.ui.refineryOptionsStore}/>
-                </Paper>
-            </Drawer>
-
-            {/* Content */}
-            {
-                !store.queryHistory.isEmpty ? (
-                    <ContentComp store={store} classes={classes}/>
-                ) : (
-                    <GraphEmpty/>
-                )
-            }
-
-            {/* Info drawer */}
-            {!store.queryHistory.isEmpty && (
+                {/* Drawer */}
                 <Drawer
                     variant='permanent'
-                    anchor='right'
-                    classes={{
-                        paper: classes.infoDrawerPaper,
-                        docked: classes.infoDrawerDocked
-                    }}>
+                    classes={{paper: classes.drawerPaper, docked: classes.drawerDocked}}>
+                    {/* Search Form */}
+                    <Paper className={classes.paper}>
+                        <Search store={store.ui.searchStore}/>
+                    </Paper>
 
-                    <Details store={store.ui.detailsStore}/>
+                    {/* Data navigation */}
+                    {!store.queryHistory.isEmpty && (
+                        <Paper className={classes.paperNoPadding}>
+                            <QueryHistory store={store.ui.queryHistoryStore}/>
+                        </Paper>
+                    )}
+
+                    {/* View options */}
+                    <Paper className={classes.paper}>
+                        <CytoscapeLayout store={store.ui.cytoscapeLayoutStore}/>
+                    </Paper>
+
+                    <Paper className={classes.paper}>
+                        <RefineryOptions store={store.ui.refineryOptionsStore}/>
+                    </Paper>
                 </Drawer>
-            )}
+
+                {/* Content */}
+                {
+                    !store.queryHistory.isEmpty ? (
+                        <ContentComp store={store} classes={classes}/>
+                    ) : (
+                        <GraphEmpty/>
+                    )
+                }
+
+                {/* Info drawer */}
+                {!store.queryHistory.isEmpty && (
+                    <Drawer
+                        variant='permanent'
+                        anchor='right'
+                        classes={{
+                            paper: classes.infoDrawerPaper,
+                            docked: classes.infoDrawerDocked
+                        }}>
+
+                        <Details store={store.ui.detailsStore}/>
+                    </Drawer>
+                )}
             </ErrorBoundary>
         </div>
 

@@ -9,23 +9,34 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import {createStyles, Theme, WithStyles, withStyles} from "@material-ui/core"
 
-import {Node} from "../GraphView/GraphViewStore"
 import {ActFact} from "../types";
 
-export type ColumnKind = 'factType' | 'factValue'
+export type ColumnKind = 'sourceType' | 'sourceValue' | 'factType' | 'factValue' |
+    'destinationType' | 'destinationValue' | 'isBidirectional' | 'isOneLegged'
 
 export type SortOrder = {
     order: 'asc' | 'desc'
     orderBy: ColumnKind
 }
 
+export type FactRow = {
+    key: string,
+    fact: ActFact,
+    isSelected: boolean,
+    cells: Array<{text: string, wordBreak?: boolean}>
+}
+
 const styles = (theme: Theme) => createStyles({
     root: {
         overflowY: 'scroll',
-        height: "100%"
+        overflowX: 'scroll',
+        height: '100%'
+    },
+    headerCell: {
+        paddingLeft: theme.spacing.unit * 2,
     },
     cell: {
-        paddingLeft: theme.spacing.unit * 2
+        paddingLeft: theme.spacing.unit * 2,
     },
     row: {
         cursor: 'pointer',
@@ -33,77 +44,69 @@ const styles = (theme: Theme) => createStyles({
     }
 });
 
-const FactRowComp = ({fact, selectedNode, onRowClick, classes}: {
-    fact: ActFact,
-    selectedNode: Node,
-    onRowClick: Function,
-    classes: any
-}) => (
+const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactRowComp) => (
     <TableRow
-        key={fact.id}
+        key={key}
         hover
-        selected={fact.id === selectedNode.id}
+        selected={isSelected}
         classes={{root: classes.row}}
         onClick={() => onRowClick(fact)}>
-        <TableCell classes={{root: classes.cell}} padding='dense'>
-            {fact.type.name}
-        </TableCell>
-        <TableCell classes={{root: classes.cell}} padding='dense'>
-            {
-                // @ts-ignore
-                fact.value.startsWith('-') ? '' : fact.value}
-        </TableCell>
+        {
+            cells.map(({text, wordBreak}, idx )=> {
+                return (
+                    <TableCell key={idx} classes={{root: classes.cell}} style={ wordBreak? {wordBreak: "break-all"} : {}} padding='dense'>
+                        {text}
+                    </TableCell>
+                );
+            })
+        }
     </TableRow>
 );
 
-export const ActFactRow = compose(
+interface IFactRowComp extends FactRow, WithStyles<typeof styles> {
+    onRowClick: (f: ActFact) => void
+}
+
+export const ActFactRow = compose<IFactRowComp, Pick<IFactRowComp, Exclude<keyof IFactRowComp, 'classes'>>>(
     withStyles(styles),
     observer
-    // @ts-ignore
 )(FactRowComp);
 
-const FactsTableComp = ({facts, selectedNode, sortOrder, onSortChange, onRowClick, classes}: IFactsTableComp) => (
+const FactsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, classes}: IFactsTableComp) => (
     <div className={classes.root}>
         <Table>
             <TableHead>
                 <TableRow classes={{root: classes.row}}>
-                    <TableCell classes={{root: classes.cell}} padding='dense'>
-                        <TableSortLabel
-                            onClick={() => onSortChange('factType')}
-                            direction={sortOrder.order}
-                            active={sortOrder.orderBy === 'factType'}>
-                            Type
-                        </TableSortLabel>
-                    </TableCell>
-                    <TableCell classes={{root: classes.cell}} padding='dense'>
-                        <TableSortLabel
-                            onClick={() => onSortChange('factValue')}
-                            direction={sortOrder.order}
-                            active={sortOrder.orderBy === 'factValue'}>
-                            Value
-                        </TableSortLabel>
-                    </TableCell>
+                    {
+                        columns.map(({label, kind}) => (
+                            <TableCell key={kind} classes={{root: classes.headerCell}} padding='dense'>
+                                <TableSortLabel
+                                    onClick={() => onSortChange(kind)}
+                                    direction={sortOrder.order}
+                                    active={sortOrder.orderBy === kind}>
+                                    {label}
+                                </TableSortLabel>
+                            </TableCell>))
+                    }
                 </TableRow>
             </TableHead>
             <TableBody>
-                {facts.map((fact: ActFact) => <ActFactRow key={fact.id}
-                                                          {...{
-                                                              fact: fact,
-                                                              selectedNode: selectedNode,
-                                                              onRowClick: (fact: ActFact) => onRowClick(fact)
-                                                          }} />)}
+                {
+                    rows.map(row => <ActFactRow {...row} onRowClick={(fact: ActFact) => onRowClick(fact)}/>)
+                }
             </TableBody>
         </Table>
     </div>
 );
 
 interface IFactsTableComp extends WithStyles<typeof styles> {
-    facts: Array<ActFact>,
-    selectedNode: Node,
+    rows: Array<FactRow>,
+    columns: Array<{ label: string, kind: ColumnKind }>,
     sortOrder: SortOrder,
     onSortChange: (n: ColumnKind) => void,
-    onRowClick: (f : ActFact) => void
+    onRowClick: (f: ActFact) => void
 }
+
 
 export default compose<IFactsTableComp, Pick<IFactsTableComp, Exclude<keyof IFactsTableComp, "classes">>>(
     withStyles(styles),

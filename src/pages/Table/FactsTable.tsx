@@ -11,6 +11,8 @@ import {createStyles, Theme, WithStyles, withStyles} from "@material-ui/core"
 
 import {ActFact} from "../types";
 import Button from "@material-ui/core/Button";
+import {factColor} from "../../util/utils";
+import config from "../../config";
 
 export type ColumnKind = 'sourceType' | 'sourceValue' | 'factType' | 'factValue' |
     'destinationType' | 'destinationValue' | 'isBidirectional' | 'isOneLegged'
@@ -24,7 +26,7 @@ export type FactRow = {
     key: string,
     fact: ActFact,
     isSelected: boolean,
-    cells: Array<{text: string, style?: any}>
+    cells: Array<{text: string, kind: ColumnKind}>
 }
 
 const styles = (theme: Theme) => createStyles({
@@ -47,8 +49,73 @@ const styles = (theme: Theme) => createStyles({
         padding: "0 10px 4px 0",
         display: "flex",
         flexDirection: "row-reverse"
-    }
+    },
+    wordBreak: {
+        wordBreak: "break-all"
+    },
+    factType: {
+        color: factColor
+    },
+    ...Object.keys(config.objectColors)
+        .map(name => ({
+            [name]: {
+                // @ts-ignore
+                color: config.objectColors[name],
+            }
+        }))
+        .reduce((acc, x) => Object.assign({}, acc, x), {})
 });
+
+
+const renderCell = ({idx, kind, text, classes} : {idx: number, kind: ColumnKind, text: string, classes: any}) => {
+    switch (kind) {
+        case "sourceType":
+            const sourceType = classes[text] ? classes[text] : '';
+            return (
+                <TableCell key={idx} className={`${classes.cell} ${sourceType}`} padding='dense'>
+                    {text}
+                </TableCell>);
+        case "sourceValue":
+            return (
+                <TableCell key={idx} className={`${classes.cell} ${classes.wordBreak}`} padding='dense'>
+                    {text}
+                </TableCell>);
+        case "factType":
+            return (
+                <TableCell key={idx} className={`${classes.cell} ${classes.factType}`} padding='dense'>
+                    {text}
+                </TableCell>);
+        case "factValue":
+            return (
+                <TableCell key={idx} classes={{root: classes.cell}} padding='dense'>
+                    {text}
+                </TableCell>);
+        case "destinationType":
+            const destinationType = classes[text] ? classes[text] : '';
+            return (
+                <TableCell key={idx} className={`${classes.cell} ${destinationType}`} padding='dense'>
+                    {text}
+                </TableCell>);
+        case "destinationValue":
+            return (
+                <TableCell key={idx} className={`${classes.cell} ${classes.wordBreak}`} padding='dense'>
+                    {text}
+                </TableCell>);
+        case "isBidirectional":
+            return (
+                <TableCell key={idx} classes={{root: classes.cell}} padding='dense'>
+                    {text}
+                </TableCell>);
+        case "isOneLegged":
+            return (
+                <TableCell key={idx} classes={{root: classes.cell}} padding='dense'>
+                    {text}
+                </TableCell>);
+        default:
+            // eslint-disable-next-line
+            const _exhaustiveCheck: never = kind;
+    }
+};
 
 const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactRowComp) => (
     <TableRow
@@ -58,13 +125,7 @@ const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactR
         classes={{root: classes.row}}
         onClick={() => onRowClick(fact)}>
         {
-            cells.map(({text, style}, idx )=> {
-                return (
-                    <TableCell key={idx} classes={{root: classes.cell}} style={style} padding='dense'>
-                        {text}
-                    </TableCell>
-                );
-            })
+            cells.map((cell, idx)=> renderCell({...cell, idx:idx, classes:classes}))
         }
     </TableRow>
 );
@@ -104,7 +165,7 @@ const FactsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, onE
             </TableHead>
             <TableBody>
                 {
-                    rows.map(row => <ActFactRow {...row} onRowClick={(fact: ActFact) => onRowClick(fact)}/>)
+                    rows.map(row => <ActFactRow {...row} onRowClick={fact => onRowClick(fact)}/>)
                 }
             </TableBody>
         </Table></div>

@@ -5,7 +5,6 @@ import {Node} from "../GraphView/GraphViewStore";
 import {ColumnKind, FactRow, SortOrder} from "./FactsTable";
 import {isOneLegged} from "../../core/transformers";
 import {exportToCsv} from "../../util/util";
-import {factColor, objectTypeToColor} from "../../util/utils";
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string, kind: ColumnKind }>, objects: Array<FactRow>) => {
 
@@ -23,7 +22,7 @@ const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string, kind: Colu
     })
 };
 
-const cellText = (kind : ColumnKind, fact : ActFact) => {
+const cellText = (kind : ColumnKind, fact : ActFact, isExport: boolean) => {
     switch (kind) {
         case "sourceType":
             return fact.sourceObject ? fact.sourceObject.type.name : '';
@@ -38,41 +37,26 @@ const cellText = (kind : ColumnKind, fact : ActFact) => {
         case "destinationValue":
             return fact.destinationObject ? fact.destinationObject.value : '';
         case "isBidirectional":
-            return fact.bidirectionalBinding ? '✔' : '';
+            return fact.bidirectionalBinding ? (isExport ? '1' : '✔') : '';
         case "isOneLegged":
-            return isOneLegged(fact) ? '✔' : '';
+            return isOneLegged(fact) ? (isExport ? '1' : '✔' ) : '';
 
         default:
             return '';
     }
 };
 
-const cellStyle = (kind : ColumnKind, fact : ActFact) => {
-    switch (kind) {
-        case "sourceType":
-            return fact.sourceObject ? {color: objectTypeToColor(fact.sourceObject.type.name)} : {};
-        case "sourceValue":
-            return {wordBreak: "break-all"};
-        case "factType":
-            return {color: factColor};
-        case "destinationType":
-            return fact.destinationObject ? {color: objectTypeToColor(fact.destinationObject.type.name)} : {};
-        case "destinationValue":
-            return {wordBreak: "break-all"};
-        default:
-            return {};
-    }
-};
-
-const toFactRow = (fact: ActFact, columns: Array<{ label: string, kind: ColumnKind}>, selectedNode: Node): FactRow => {
-
+const toFactRow = (fact: ActFact,
+                   columns: Array<{ label: string, kind: ColumnKind}>,
+                   selectedNode: Node,
+                   isExport: boolean): FactRow => {
     return {
         key: fact.id,
         fact: fact,
         isSelected: fact.id === selectedNode.id,
         cells: columns.map(({kind}) => ({
-            text: cellText(kind, fact),
-            style: cellStyle(kind, fact)
+            kind: kind,
+            text: cellText(kind, fact, isExport)
         }))
     }
 };
@@ -83,15 +67,15 @@ class FactsTableStore {
     @observable
     sortOrder: SortOrder = {order: 'asc', orderBy: 'factType'};
 
-    columns: Array<{ label: string, kind: ColumnKind}> = [
+    columns: Array<{ label: string, exportLabel?: string, kind: ColumnKind}> = [
         {label: "Source Type", kind: "sourceType"},
         {label: "Source Value", kind: "sourceValue"},
         {label: "Fact Type", kind: "factType"},
         {label: "Fact Value", kind: "factValue"},
         {label: "Destination Type", kind: "destinationType"},
         {label: "Destination Value", kind: "destinationValue"},
-        {label: "Bi-dir.", kind: "isBidirectional"},
-        {label: "Object prop.", kind: "isOneLegged"},
+        {label: "Bi-dir.", exportLabel: "Bidirectional?", kind: "isBidirectional"},
+        {label: "Object prop.", exportLabel: "Object property?", kind: "isOneLegged"},
     ];
 
     constructor(root: MainPageStore) {
@@ -123,24 +107,21 @@ class FactsTableStore {
     onExportClick() {
         const factRows = Object
             .values(this.root.refineryStore.refined.facts)
-            .map((fact) => toFactRow(fact, this.columns, this.root.ui.cytoscapeStore.selectedNode));
+            .map(fact => toFactRow(fact, this.columns, this.root.ui.cytoscapeStore.selectedNode, true));
 
         const rows = sortBy(this.sortOrder, this.columns, factRows)
-            .map(row => {
-                return row.cells.map(({text}) => text)
-            });
+            .map(row => row.cells.map(({text}) => text));
 
-        const headerRow = [this.columns.map(c => c.label)];
+        const headerRow = [this.columns.map(c => c.exportLabel || c.label)];
 
         const nowTimeString = new Date().toISOString().replace(/:/g,'-').substr(0, 19);
         exportToCsv(nowTimeString + "-act-facts.csv", headerRow.concat(rows))
     }
 
-
     @computed
     get prepared() {
         const rows = Object.values(this.root.refineryStore.refined.facts)
-            .map(f => toFactRow(f, this.columns, this.root.ui.cytoscapeStore.selectedNode));
+            .map(f => toFactRow(f, this.columns, this.root.ui.cytoscapeStore.selectedNode, false));
 
         return {
             rows: sortBy(this.sortOrder, this.columns, rows),

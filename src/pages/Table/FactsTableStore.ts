@@ -4,6 +4,7 @@ import MainPageStore from "../MainPageStore";
 import {Node} from "../GraphView/GraphViewStore";
 import {ColumnKind, FactRow, SortOrder} from "./FactsTable";
 import {isOneLegged} from "../../core/transformers";
+import {exportToCsv} from "../../util/util";
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string, kind: ColumnKind }>, objects: Array<FactRow>) => {
 
@@ -52,11 +53,10 @@ const toFactRow = (fact: ActFact, columns: Array<{ label: string, kind: ColumnKi
         key: fact.id,
         fact: fact,
         isSelected: fact.id === selectedNode.id,
-        cells: columns.map(({kind, wordBreak}) => {
-
-            return {text: cellText(kind, fact),
-                wordBreak: wordBreak
-            }})
+        cells: columns.map(({kind, wordBreak}) => ({
+            text: cellText(kind, fact),
+            wordBreak: wordBreak
+        }))
     }
 };
 
@@ -74,7 +74,7 @@ class FactsTableStore {
         {label: "Destination Type", kind: "destinationType"},
         {label: "Destination Value", kind: "destinationValue", wordBreak: true},
         {label: "Bi-dir.", kind: "isBidirectional"},
-        {label: "One-legged", kind: "isOneLegged"},
+        {label: "Object prop.", kind: "isOneLegged"},
     ];
 
     constructor(root: MainPageStore) {
@@ -102,6 +102,24 @@ class FactsTableStore {
         }
     }
 
+    @action.bound
+    onExportClick() {
+        const factRows = Object
+            .values(this.root.refineryStore.refined.facts)
+            .map((fact) => toFactRow(fact, this.columns, this.root.ui.cytoscapeStore.selectedNode));
+
+        const rows = sortBy(this.sortOrder, this.columns, factRows)
+            .map(row => {
+                return row.cells.map(({text}) => text)
+            });
+
+        const headerRow = [this.columns.map(c => c.label)];
+
+        const nowTimeString = new Date().toISOString().replace(/:/g,'-').substr(0, 19);
+        exportToCsv(nowTimeString + "-act-facts.csv", headerRow.concat(rows))
+    }
+
+
     @computed
     get prepared() {
         const rows = Object.values(this.root.refineryStore.refined.facts)
@@ -112,7 +130,8 @@ class FactsTableStore {
             columns: this.columns,
             sortOrder: this.sortOrder,
             onSortChange: this.onSortChange,
-            onRowClick: this.setSelectedFact
+            onRowClick: this.setSelectedFact,
+            onExportClick: this.onExportClick
         }
     }
 }

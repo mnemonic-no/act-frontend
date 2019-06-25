@@ -41,7 +41,7 @@ const styles = (theme: Theme) => createStyles({
         cursor: 'pointer',
         height: theme.spacing.unit * 4
     },
-    footer: {
+    header: {
         padding: "0 10px 4px 0",
         display: "flex",
         flexDirection: "row-reverse"
@@ -49,7 +49,6 @@ const styles = (theme: Theme) => createStyles({
     factType: {
         color: '#F84'
     }
-
 });
 
 const ObjectRowComp = ({key, actObject, title, properties, isSelected, onRowClick, classes}: IObjectRowComp) => (
@@ -84,10 +83,10 @@ export const ActObjectRow = compose<IObjectRowComp, Pick<IObjectRowComp, Exclude
     observer
 )(ObjectRowComp);
 
-const ObjectsTableComp = ({rows, columns, classes, sortOrder, onSortChange, onRowClick, onExportClick}: IObjectsTableComp) => (
+const ObjectsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, onExportClick, classes}: IObjectsTableComp) => (
     <div className={classes.root}>
 
-        <div className={classes.footer}>
+        <div className={classes.header}>
             <Button variant='outlined' size='small' onClick={onExportClick}>Export to CSV</Button>
         </div>
 

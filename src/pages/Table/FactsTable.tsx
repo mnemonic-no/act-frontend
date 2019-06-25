@@ -10,6 +10,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import {createStyles, Theme, WithStyles, withStyles} from "@material-ui/core"
 
 import {ActFact} from "../types";
+import Button from "@material-ui/core/Button";
 
 export type ColumnKind = 'sourceType' | 'sourceValue' | 'factType' | 'factValue' |
     'destinationType' | 'destinationValue' | 'isBidirectional' | 'isOneLegged'
@@ -41,7 +42,12 @@ const styles = (theme: Theme) => createStyles({
     row: {
         cursor: 'pointer',
         height: theme.spacing.unit * 4
-    }
+    },
+    header: {
+        padding: "0 10px 4px 0",
+        display: "flex",
+        flexDirection: "row-reverse"
+    },
 });
 
 const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactRowComp) => (
@@ -72,9 +78,15 @@ export const ActFactRow = compose<IFactRowComp, Pick<IFactRowComp, Exclude<keyof
     observer
 )(FactRowComp);
 
-const FactsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, classes}: IFactsTableComp) => (
+const FactsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, onExportClick, classes}: IFactsTableComp) => (
     <div className={classes.root}>
-        <Table>
+
+        <div className={classes.header}>
+            <Button variant='outlined' size='small' onClick={onExportClick}>Export to CSV</Button>
+        </div>
+
+        <div style={{overflowY: "scroll"}}>
+            <Table>
             <TableHead>
                 <TableRow classes={{root: classes.row}}>
                     {
@@ -95,7 +107,7 @@ const FactsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, cla
                     rows.map(row => <ActFactRow {...row} onRowClick={(fact: ActFact) => onRowClick(fact)}/>)
                 }
             </TableBody>
-        </Table>
+        </Table></div>
     </div>
 );
 
@@ -104,7 +116,8 @@ interface IFactsTableComp extends WithStyles<typeof styles> {
     columns: Array<{ label: string, kind: ColumnKind }>,
     sortOrder: SortOrder,
     onSortChange: (n: ColumnKind) => void,
-    onRowClick: (f: ActFact) => void
+    onRowClick: (f: ActFact) => void,
+    onExportClick: () => void
 }
 
 

@@ -88,12 +88,10 @@ class CytoscapeContainer extends React.Component {
   }
 
   componentDidUpdate (prevProps) {
-    // TODO: Smooth update
     if (!shallowEqual(prevProps.elements, this.props.elements)) {
-      // this.cy.remove('*');
-      // this.cy.add(this.props.elements);
       this.cy.json({ elements: this.props.elements });
-      this.runLayout(this.props.layout)
+      this.runLayout(this.props.layout);
+      this.focusOnSelection();
     } else if (prevProps.layout !== this.props.layout) {
       this.runLayout(this.props.layout)
     } else if (prevProps.lockNodes !== this.props.lockNodes) {

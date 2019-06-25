@@ -5,6 +5,7 @@ import {Node} from "../GraphView/GraphViewStore";
 import {ColumnKind, FactRow, SortOrder} from "./FactsTable";
 import {isOneLegged} from "../../core/transformers";
 import {exportToCsv} from "../../util/util";
+import {factColor, objectTypeToColor} from "../../util/utils";
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string, kind: ColumnKind }>, objects: Array<FactRow>) => {
 
@@ -46,16 +47,32 @@ const cellText = (kind : ColumnKind, fact : ActFact) => {
     }
 };
 
+const cellStyle = (kind : ColumnKind, fact : ActFact) => {
+    switch (kind) {
+        case "sourceType":
+            return fact.sourceObject ? {color: objectTypeToColor(fact.sourceObject.type.name)} : {};
+        case "sourceValue":
+            return {wordBreak: "break-all"};
+        case "factType":
+            return {color: factColor};
+        case "destinationType":
+            return fact.destinationObject ? {color: objectTypeToColor(fact.destinationObject.type.name)} : {};
+        case "destinationValue":
+            return {wordBreak: "break-all"};
+        default:
+            return {};
+    }
+};
 
-const toFactRow = (fact: ActFact, columns: Array<{ label: string, kind: ColumnKind, wordBreak?: boolean }>, selectedNode: Node): FactRow => {
+const toFactRow = (fact: ActFact, columns: Array<{ label: string, kind: ColumnKind}>, selectedNode: Node): FactRow => {
 
     return {
         key: fact.id,
         fact: fact,
         isSelected: fact.id === selectedNode.id,
-        cells: columns.map(({kind, wordBreak}) => ({
+        cells: columns.map(({kind}) => ({
             text: cellText(kind, fact),
-            wordBreak: wordBreak
+            style: cellStyle(kind, fact)
         }))
     }
 };
@@ -66,13 +83,13 @@ class FactsTableStore {
     @observable
     sortOrder: SortOrder = {order: 'asc', orderBy: 'factType'};
 
-    columns: Array<{ label: string, kind: ColumnKind, wordBreak?: boolean}> = [
+    columns: Array<{ label: string, kind: ColumnKind}> = [
         {label: "Source Type", kind: "sourceType"},
-        {label: "Source Value", kind: "sourceValue", wordBreak: true},
+        {label: "Source Value", kind: "sourceValue"},
         {label: "Fact Type", kind: "factType"},
         {label: "Fact Value", kind: "factValue"},
         {label: "Destination Type", kind: "destinationType"},
-        {label: "Destination Value", kind: "destinationValue", wordBreak: true},
+        {label: "Destination Value", kind: "destinationValue"},
         {label: "Bi-dir.", kind: "isBidirectional"},
         {label: "Object prop.", kind: "isOneLegged"},
     ];

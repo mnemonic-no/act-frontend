@@ -9,7 +9,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import {createStyles, Theme, WithStyles, withStyles} from "@material-ui/core"
 
-import {objectTypeToColor, renderObjectValue} from '../../util/utils';
+import {objectTypeToColor, renderObjectValue, factColor} from '../../util/utils';
 import {ActObject} from "../types";
 import Button from "@material-ui/core/Button";
 
@@ -47,7 +47,7 @@ const styles = (theme: Theme) => createStyles({
         flexDirection: "row-reverse"
     },
     factType: {
-        color: '#F84'
+        color: factColor
     }
 });
 

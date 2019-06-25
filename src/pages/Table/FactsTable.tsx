@@ -24,7 +24,7 @@ export type FactRow = {
     key: string,
     fact: ActFact,
     isSelected: boolean,
-    cells: Array<{text: string, wordBreak?: boolean}>
+    cells: Array<{text: string, style?: any}>
 }
 
 const styles = (theme: Theme) => createStyles({
@@ -47,7 +47,7 @@ const styles = (theme: Theme) => createStyles({
         padding: "0 10px 4px 0",
         display: "flex",
         flexDirection: "row-reverse"
-    },
+    }
 });
 
 const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactRowComp) => (
@@ -58,9 +58,9 @@ const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactR
         classes={{root: classes.row}}
         onClick={() => onRowClick(fact)}>
         {
-            cells.map(({text, wordBreak}, idx )=> {
+            cells.map(({text, style}, idx )=> {
                 return (
-                    <TableCell key={idx} classes={{root: classes.cell}} style={ wordBreak? {wordBreak: "break-all"} : {}} padding='dense'>
+                    <TableCell key={idx} classes={{root: classes.cell}} style={style} padding='dense'>
                         {text}
                     </TableCell>
                 );

@@ -3,32 +3,7 @@ import config from '../config';
 export const objectTypeToColor = objectType =>
   config.objectColors[objectType] || 'inherit';
 
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set#Examples
-export const setUnion = (setA, setB) => {
-  const union = new Set(setA);
-  for (const elem of setB) {
-    union.add(elem);
-  }
-  return union;
-};
-
-export const setDifference = (setA, setB) => {
-  const difference = new Set(setA);
-  for (const elem of setB) {
-    difference.delete(elem);
-  }
-  return difference;
-};
-
-export const setIntersection = (setA, setB) => {
-  const intersection = new Set();
-  for (const elem of setB) {
-    if (setA.has(elem)) {
-      intersection.add(elem);
-    }
-  }
-  return intersection;
-};
+export const factColor = '#F84';
 
 export const truncateText = (text, maxLength = 16) => {
   if (text.length > maxLength) {
@@ -76,18 +51,6 @@ export const pick = (obj, keys) => {
     }
   }
   return result;
-};
-
-// https://github.com/acdlite/recompose/blob/master/src/packages/recompose/utils/omit.js
-export const omit = (obj, keys) => {
-  const rest = Object.assign({}, obj);
-  for (let i = 0; i < keys.length; i += 1) {
-    const key = keys[i];
-    if (rest.hasOwnProperty(key)) {
-      delete rest[key];
-    }
-  }
-  return rest;
 };
 
 /**

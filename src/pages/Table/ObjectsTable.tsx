@@ -30,8 +30,8 @@ export type SortOrder = {
 
 const styles = (theme: Theme) => createStyles({
     root: {
-        display: 'flex',
-        flexDirection: "column",
+        overflowY: 'scroll',
+        overflowX: 'scroll',
         height: "100%"
     },
     cell: {
@@ -109,7 +109,7 @@ const ObjectsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, o
                 </TableHead>
                 <TableBody>
                     {
-                        rows.map(row => <ActObjectRow {...row} onRowClick={(object) => onRowClick(object)}/>)
+                        rows.map(row => <ActObjectRow {...row} onRowClick={object => onRowClick(object)}/>)
                     }
                 </TableBody>
             </Table>

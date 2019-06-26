@@ -5,6 +5,7 @@ import {Node} from "../GraphView/GraphViewStore";
 import {ColumnKind, FactRow, SortOrder} from "./FactsTable";
 import {isOneLegged} from "../../core/transformers";
 import {exportToCsv} from "../../util/util";
+import {renderObjectValue} from "../../util/utils";
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string, kind: ColumnKind }>, objects: Array<FactRow>) => {
 
@@ -27,7 +28,7 @@ const cellText = (kind : ColumnKind, fact : ActFact, isExport: boolean) => {
         case "sourceType":
             return fact.sourceObject ? fact.sourceObject.type.name : '';
         case "sourceValue":
-            return fact.sourceObject ? fact.sourceObject.value : '';
+            return fact.sourceObject ? (isExport ? fact.sourceObject.value : renderObjectValue(fact.sourceObject, 100)) : '';
         case "factType":
             return fact.type.name;
         case "factValue":
@@ -35,12 +36,11 @@ const cellText = (kind : ColumnKind, fact : ActFact, isExport: boolean) => {
         case "destinationType":
             return fact.destinationObject ? fact.destinationObject.type.name : '';
         case "destinationValue":
-            return fact.destinationObject ? fact.destinationObject.value : '';
+            return fact.destinationObject ? (isExport ? fact.destinationObject.value : renderObjectValue(fact.destinationObject, 100)) : '';
         case "isBidirectional":
             return fact.bidirectionalBinding ? (isExport ? '1' : '✔') : '';
         case "isOneLegged":
             return isOneLegged(fact) ? (isExport ? '1' : '✔' ) : '';
-
         default:
             return '';
     }

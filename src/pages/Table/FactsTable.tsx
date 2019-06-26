@@ -13,6 +13,7 @@ import {ActFact} from "../types";
 import Button from "@material-ui/core/Button";
 import {factColor} from "../../util/utils";
 import config from "../../config";
+import Tooltip from "@material-ui/core/Tooltip";
 
 export type ColumnKind = 'sourceType' | 'sourceValue' | 'factType' | 'factValue' |
     'destinationType' | 'destinationValue' | 'isBidirectional' | 'isOneLegged'
@@ -26,7 +27,7 @@ export type FactRow = {
     key: string,
     fact: ActFact,
     isSelected: boolean,
-    cells: Array<{text: string, kind: ColumnKind}>
+    cells: Array<{ text: string, kind: ColumnKind }>
 }
 
 const styles = (theme: Theme) => createStyles({
@@ -67,55 +68,32 @@ const styles = (theme: Theme) => createStyles({
 });
 
 
-const renderCell = ({idx, kind, text, classes} : {idx: number, kind: ColumnKind, text: string, classes: any}) => {
+const cellClassNames = ({kind, text}: { kind: ColumnKind, text: string, classes: any }, classes : any) => {
     switch (kind) {
         case "sourceType":
             const sourceType = classes[text] ? classes[text] : '';
-            return (
-                <TableCell key={idx} className={`${classes.cell} ${sourceType}`} padding='dense'>
-                    {text}
-                </TableCell>);
+            return `${classes.cell} ${sourceType}`;
         case "sourceValue":
-            return (
-                <TableCell key={idx} className={`${classes.cell} ${classes.wordBreak}`} padding='dense'>
-                    {text}
-                </TableCell>);
+            return `${classes.cell} ${classes.wordBreak}`;
         case "factType":
-            return (
-                <TableCell key={idx} className={`${classes.cell} ${classes.factType}`} padding='dense'>
-                    {text}
-                </TableCell>);
+            return `${classes.cell} ${classes.factType}`;
         case "factValue":
-            return (
-                <TableCell key={idx} classes={{root: classes.cell}} padding='dense'>
-                    {text}
-                </TableCell>);
+            return classes.cell;
         case "destinationType":
             const destinationType = classes[text] ? classes[text] : '';
-            return (
-                <TableCell key={idx} className={`${classes.cell} ${destinationType}`} padding='dense'>
-                    {text}
-                </TableCell>);
+            return `${classes.cell} ${destinationType}`;
         case "destinationValue":
-            return (
-                <TableCell key={idx} className={`${classes.cell} ${classes.wordBreak}`} padding='dense'>
-                    {text}
-                </TableCell>);
+            return `${classes.cell} ${classes.wordBreak}`;
         case "isBidirectional":
-            return (
-                <TableCell key={idx} classes={{root: classes.cell}} padding='dense'>
-                    {text}
-                </TableCell>);
+            return classes.cell;
         case "isOneLegged":
-            return (
-                <TableCell key={idx} classes={{root: classes.cell}} padding='dense'>
-                    {text}
-                </TableCell>);
+            return classes.cell;
         default:
             // eslint-disable-next-line
             const _exhaustiveCheck: never = kind;
     }
 };
+
 
 const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactRowComp) => (
     <TableRow
@@ -125,7 +103,11 @@ const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactR
         classes={{root: classes.row}}
         onClick={() => onRowClick(fact)}>
         {
-            cells.map((cell, idx)=> renderCell({...cell, idx:idx, classes:classes}))
+            cells.map((cell: any, idx: number) => (
+                <TableCell key={idx} className={cellClassNames(cell, classes)} padding='dense'>
+                    {cell.text}
+                </TableCell>
+            ))
         }
     </TableRow>
 );
@@ -148,33 +130,36 @@ const FactsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, onE
 
         <div style={{overflowY: "scroll"}}>
             <Table>
-            <TableHead>
-                <TableRow classes={{root: classes.row}}>
+                <TableHead>
+                    <TableRow classes={{root: classes.row}}>
+                        {
+                            columns.map(({label, kind, tooltip}) => (
+
+                                <TableCell key={kind} classes={{root: classes.headerCell}} padding='dense'>
+                                    <Tooltip title={tooltip || '' }>
+                                        <TableSortLabel
+                                            onClick={() => onSortChange(kind)}
+                                            direction={sortOrder.order}
+                                            active={sortOrder.orderBy === kind}>
+                                            {label}
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>))
+                        }
+                    </TableRow>
+                </TableHead>
+                <TableBody>
                     {
-                        columns.map(({label, kind}) => (
-                            <TableCell key={kind} classes={{root: classes.headerCell}} padding='dense'>
-                                <TableSortLabel
-                                    onClick={() => onSortChange(kind)}
-                                    direction={sortOrder.order}
-                                    active={sortOrder.orderBy === kind}>
-                                    {label}
-                                </TableSortLabel>
-                            </TableCell>))
+                        rows.map(row => <ActFactRow {...row} onRowClick={fact => onRowClick(fact)}/>)
                     }
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                {
-                    rows.map(row => <ActFactRow {...row} onRowClick={fact => onRowClick(fact)}/>)
-                }
-            </TableBody>
-        </Table></div>
+                </TableBody>
+            </Table></div>
     </div>
 );
 
 interface IFactsTableComp extends WithStyles<typeof styles> {
     rows: Array<FactRow>,
-    columns: Array<{ label: string, kind: ColumnKind }>,
+    columns: Array<{ label: string, kind: ColumnKind, tooltip?: string }>,
     sortOrder: SortOrder,
     onSortChange: (n: ColumnKind) => void,
     onRowClick: (f: ActFact) => void,

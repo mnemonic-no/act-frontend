@@ -67,15 +67,15 @@ class FactsTableStore {
     @observable
     sortOrder: SortOrder = {order: 'asc', orderBy: 'factType'};
 
-    columns: Array<{ label: string, exportLabel?: string, kind: ColumnKind}> = [
+    columns: Array<{ label: string, exportLabel?: string, tooltip?: string, kind: ColumnKind}> = [
         {label: "Source Type", kind: "sourceType"},
         {label: "Source Value", kind: "sourceValue"},
         {label: "Fact Type", kind: "factType"},
         {label: "Fact Value", kind: "factValue"},
         {label: "Destination Type", kind: "destinationType"},
         {label: "Destination Value", kind: "destinationValue"},
-        {label: "Bi-dir.", exportLabel: "Bidirectional?", kind: "isBidirectional"},
-        {label: "Object prop.", exportLabel: "Object property?", kind: "isOneLegged"},
+        {label: "Bi-dir.", exportLabel: "Bidirectional?", kind: "isBidirectional", tooltip: "Is fact bidirectional?"},
+        {label: "Object prop.", exportLabel: "Object property?", kind: "isOneLegged", tooltip: "Is fact a property of the object?"},
     ];
 
     constructor(root: MainPageStore) {

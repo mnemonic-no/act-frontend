@@ -16,6 +16,7 @@ import {ObjectRow} from './ObjectRow'
 import {relativeStringToDate} from '../RelativeDateSelector'
 import RetractFactDialog, {retractFact} from '../RetractFact/Dialog'
 import withDataLoader, {combineDataLoaders} from '../../util/withDataLoader'
+import {factColor} from "../../util/utils";
 
 const styles = theme => ({
     root: {
@@ -50,6 +51,9 @@ const styles = theme => ({
     },
     right: {
         flex: '1 1 auto'
+    },
+    factType: {
+        color: factColor
     }
 });
 
@@ -66,7 +70,7 @@ const FactInformationComp = ({
                              }) => (
     <div className={classes.root}>
         <Typography variant='h5'>
-            <span style={{color: '#F84'}}>{fact.type.name}</span>
+            <span className={classes.factType}>{fact.type.name}</span>
             {retractions.length > 0 && (
                 <span style={{color: '#FF4F4F'}}> RETRACTED</span>
             )}

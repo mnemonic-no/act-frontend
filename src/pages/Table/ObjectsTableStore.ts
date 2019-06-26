@@ -8,7 +8,6 @@ import {oneLeggedFactsFor} from "../../core/transformers";
 import {exportToCsv} from "../../util/util";
 
 const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
-
     return objects.slice().sort((a: any, b: any) => {
         let aa;
         let bb;

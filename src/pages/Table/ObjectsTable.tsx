@@ -9,7 +9,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import {createStyles, Theme, WithStyles, withStyles} from "@material-ui/core"
 
-import {objectTypeToColor, renderObjectValue} from '../../util/utils';
+import {objectTypeToColor, renderObjectValue, factColor} from '../../util/utils';
 import {ActObject} from "../types";
 import Button from "@material-ui/core/Button";
 
@@ -30,8 +30,8 @@ export type SortOrder = {
 
 const styles = (theme: Theme) => createStyles({
     root: {
-        display: 'flex',
-        flexDirection: "column",
+        overflowY: 'scroll',
+        overflowX: 'scroll',
         height: "100%"
     },
     cell: {
@@ -41,15 +41,14 @@ const styles = (theme: Theme) => createStyles({
         cursor: 'pointer',
         height: theme.spacing.unit * 4
     },
-    footer: {
+    header: {
         padding: "0 10px 4px 0",
         display: "flex",
         flexDirection: "row-reverse"
     },
     factType: {
-        color: '#F84'
+        color: factColor
     }
-
 });
 
 const ObjectRowComp = ({key, actObject, title, properties, isSelected, onRowClick, classes}: IObjectRowComp) => (
@@ -84,10 +83,10 @@ export const ActObjectRow = compose<IObjectRowComp, Pick<IObjectRowComp, Exclude
     observer
 )(ObjectRowComp);
 
-const ObjectsTableComp = ({rows, columns, classes, sortOrder, onSortChange, onRowClick, onExportClick}: IObjectsTableComp) => (
+const ObjectsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, onExportClick, classes}: IObjectsTableComp) => (
     <div className={classes.root}>
 
-        <div className={classes.footer}>
+        <div className={classes.header}>
             <Button variant='outlined' size='small' onClick={onExportClick}>Export to CSV</Button>
         </div>
 
@@ -110,7 +109,7 @@ const ObjectsTableComp = ({rows, columns, classes, sortOrder, onSortChange, onRo
                 </TableHead>
                 <TableBody>
                     {
-                        rows.map(row => <ActObjectRow {...row} onRowClick={(object) => onRowClick(object)}/>)
+                        rows.map(row => <ActObjectRow {...row} onRowClick={object => onRowClick(object)}/>)
                     }
                 </TableBody>
             </Table>
@@ -119,12 +118,12 @@ const ObjectsTableComp = ({rows, columns, classes, sortOrder, onSortChange, onRo
 );
 
 interface IObjectsTableComp extends WithStyles<typeof styles> {
-    rows: Array<{ key: string, title: string, isSelected: boolean, actObject: ActObject, properties: any }>,
+    rows: Array<ObjectRow>,
+    columns: Array<{ label: string, kind: ColumnKind }>,
     sortOrder: SortOrder,
     onSortChange: (ck: ColumnKind) => void,
     onRowClick: (obj: ActObject) => void,
     onExportClick: () => void
-    columns: Array<{ label: string, kind: ColumnKind }>
 }
 
 export default compose<IObjectsTableComp, Pick<IObjectsTableComp, Exclude<keyof IObjectsTableComp, 'classes'>>>(

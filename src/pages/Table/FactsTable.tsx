@@ -1,136 +1,173 @@
 import React from 'react';
 import {observer} from 'mobx-react';
-import {compose, mapProps, withStateHandlers} from 'recompose';
+import {compose} from 'recompose';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import {createStyles, Theme, withStyles} from "@material-ui/core"
+import {createStyles, Theme, WithStyles, withStyles} from "@material-ui/core"
 
-import {Node} from "../GraphView/GraphViewStore"
 import {ActFact} from "../types";
+import Button from "@material-ui/core/Button";
+import {factColor} from "../../util/utils";
+import config from "../../config";
+import Tooltip from "@material-ui/core/Tooltip";
+
+export type ColumnKind = 'sourceType' | 'sourceValue' | 'factType' | 'factValue' |
+    'destinationType' | 'destinationValue' | 'isBidirectional' | 'isOneLegged'
+
+export type SortOrder = {
+    order: 'asc' | 'desc'
+    orderBy: ColumnKind
+}
+
+export type FactRow = {
+    key: string,
+    fact: ActFact,
+    isSelected: boolean,
+    cells: Array<{ text: string, kind: ColumnKind }>
+}
 
 const styles = (theme: Theme) => createStyles({
     root: {
         overflowY: 'scroll',
-        height: "100%"
+        overflowX: 'scroll',
+        height: '100%'
+    },
+    headerCell: {
+        paddingLeft: theme.spacing.unit * 2,
     },
     cell: {
-        paddingLeft: theme.spacing.unit * 2
+        paddingLeft: theme.spacing.unit * 2,
     },
     row: {
         cursor: 'pointer',
         height: theme.spacing.unit * 4
-    }
+    },
+    header: {
+        padding: "0 10px 4px 0",
+        display: "flex",
+        flexDirection: "row-reverse"
+    },
+    wordBreak: {
+        wordBreak: "break-all"
+    },
+    factType: {
+        color: factColor
+    },
+    ...Object.keys(config.objectColors)
+        .map(name => ({
+            [name]: {
+                // @ts-ignore
+                color: config.objectColors[name],
+            }
+        }))
+        .reduce((acc, x) => Object.assign({}, acc, x), {})
 });
 
-const FactRowComp = ({fact, selectedNode, onRowClick, classes}: {
-    fact: ActFact,
-    selectedNode: Node,
-    onRowClick: Function,
-    classes: any
-}) => (
+
+const cellClassNames = ({kind, text}: { kind: ColumnKind, text: string, classes: any }, classes : any) => {
+    switch (kind) {
+        case "sourceType":
+            const sourceType = classes[text] ? classes[text] : '';
+            return `${classes.cell} ${sourceType}`;
+        case "sourceValue":
+            return `${classes.cell} ${classes.wordBreak}`;
+        case "factType":
+            return `${classes.cell} ${classes.factType}`;
+        case "factValue":
+            return classes.cell;
+        case "destinationType":
+            const destinationType = classes[text] ? classes[text] : '';
+            return `${classes.cell} ${destinationType}`;
+        case "destinationValue":
+            return `${classes.cell} ${classes.wordBreak}`;
+        case "isBidirectional":
+            return classes.cell;
+        case "isOneLegged":
+            return classes.cell;
+        default:
+            // eslint-disable-next-line
+            const _exhaustiveCheck: never = kind;
+    }
+};
+
+
+const FactRowComp = ({key, fact, cells, isSelected, onRowClick, classes}: IFactRowComp) => (
     <TableRow
-        key={fact.id}
+        key={key}
         hover
-        selected={fact.id === selectedNode.id}
+        selected={isSelected}
         classes={{root: classes.row}}
         onClick={() => onRowClick(fact)}>
-        <TableCell classes={{root: classes.cell}} padding='dense'>
-            {fact.type.name}
-        </TableCell>
-        <TableCell classes={{root: classes.cell}} padding='dense'>
-            {
-                // @ts-ignore
-                fact.value.startsWith('-') ? '' : fact.value}
-        </TableCell>
+        {
+            cells.map((cell: any, idx: number) => (
+                <TableCell key={idx} className={cellClassNames(cell, classes)} padding='dense'>
+                    {cell.text}
+                </TableCell>
+            ))
+        }
     </TableRow>
 );
 
-export const ActFactRow = compose(
+interface IFactRowComp extends FactRow, WithStyles<typeof styles> {
+    onRowClick: (f: ActFact) => void
+}
+
+export const ActFactRow = compose<IFactRowComp, Pick<IFactRowComp, Exclude<keyof IFactRowComp, 'classes'>>>(
     withStyles(styles),
     observer
-    // @ts-ignore
 )(FactRowComp);
 
-const FactsTableComp = ({facts, selectedNode, orderBy, order, onSortChange, onRowClick, classes}: {
-    facts: Array<ActFact>,
-    selectedNode: Node,
-    orderBy: string,
-    order: any,
-    onSortChange: Function,
-    onRowClick: Function,
-    classes: any
-}) => (
+const FactsTableComp = ({rows, columns, sortOrder, onSortChange, onRowClick, onExportClick, classes}: IFactsTableComp) => (
     <div className={classes.root}>
-        <Table>
-            <TableHead>
-                <TableRow classes={{root: classes.row}}>
-                    <TableCell classes={{root: classes.cell}} padding='dense'>
-                        <TableSortLabel
-                            onClick={() => onSortChange('factType')}
-                            direction={order}
-                            active={orderBy === 'factType'}>
-                            Type
-                        </TableSortLabel>
-                    </TableCell>
-                    <TableCell classes={{root: classes.cell}} padding='dense'>
-                        <TableSortLabel
-                            onClick={() => onSortChange('factValue')}
-                            direction={order}
-                            active={orderBy === 'factValue'}>
-                            Value
-                        </TableSortLabel>
-                    </TableCell>
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                {facts.map((fact: ActFact) => <ActFactRow key={fact.id}
-                                                          {...{
-                                                              fact: fact,
-                                                              selectedNode: selectedNode,
-                                                              onRowClick: (fact: ActFact) => onRowClick(fact)
-                                                          }} />)}
-            </TableBody>
-        </Table>
+
+        <div className={classes.header}>
+            <Button variant='outlined' size='small' onClick={onExportClick}>Export to CSV</Button>
+        </div>
+
+        <div style={{overflowY: "scroll"}}>
+            <Table>
+                <TableHead>
+                    <TableRow classes={{root: classes.row}}>
+                        {
+                            columns.map(({label, kind, tooltip}) => (
+
+                                <TableCell key={kind} classes={{root: classes.headerCell}} padding='dense'>
+                                    <Tooltip title={tooltip || '' }>
+                                        <TableSortLabel
+                                            onClick={() => onSortChange(kind)}
+                                            direction={sortOrder.order}
+                                            active={sortOrder.orderBy === kind}>
+                                            {label}
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>))
+                        }
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {
+                        rows.map(row => <ActFactRow {...row} onRowClick={fact => onRowClick(fact)}/>)
+                    }
+                </TableBody>
+            </Table></div>
     </div>
 );
 
-export default compose(
+interface IFactsTableComp extends WithStyles<typeof styles> {
+    rows: Array<FactRow>,
+    columns: Array<{ label: string, kind: ColumnKind, tooltip?: string }>,
+    sortOrder: SortOrder,
+    onSortChange: (n: ColumnKind) => void,
+    onRowClick: (f: ActFact) => void,
+    onExportClick: () => void
+}
+
+
+export default compose<IFactsTableComp, Pick<IFactsTableComp, Exclude<keyof IFactsTableComp, "classes">>>(
     withStyles(styles),
-    withStateHandlers({
-        order: 'asc', orderBy: 'factType'
-    }, {
-        onSortChange: ({order, orderBy}) => newOrderBy => ({
-            orderBy: newOrderBy,
-            order: orderBy === newOrderBy && order === 'asc' ? 'desc' : 'asc'
-        })
-    }),
-
-    mapProps((props: any) => {
-        return {
-            ...props,
-            facts: props.facts.slice().sort((a: any, b: any) => {
-                let aa;
-                let bb;
-                if (props.orderBy === 'factType') {
-                    aa = a.type.name;
-                    bb = b.type.name;
-                } else {
-                    aa = a.value;
-                    bb = b.value;
-                }
-
-                if (props.order === 'asc') {
-                    return aa < bb ? -1 : 1;
-                } else {
-                    return aa < bb ? 1 : -1;
-                }
-            })
-        }
-    }),
     observer
-    // @ts-ignore
 )(FactsTableComp);

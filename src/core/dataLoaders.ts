@@ -292,13 +292,20 @@ export const factDataLoader = (objectId: string, factTypes: Array<String>): Prom
         .catch(handleError);
 };
 
-
 export const createFact = (request: any) => {
-
     return actWretch
         .url('/v1/fact')
         .json(request)
         .post()
         .forbidden(handleForbiddenQueryResults)
         .json(({data}: any) => data);
+};
+
+export const postJson = (url: string, jsonRequest: any) => {
+  return actWretch
+      .url(url)
+      .json(jsonRequest)
+      .post()
+      .res(result => result)
+      .catch(handleError)
 };

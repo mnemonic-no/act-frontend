@@ -2,6 +2,7 @@ import MainPageStore from "../MainPageStore";
 import {action, computed, observable} from "mobx";
 import {ActFact, ActObject, Search} from "../types";
 import CreateFactForDialog from "../../components/CreateFactFor/DialogStore";
+import * as R from "ramda";
 
 export type PredefinedObjectQuery = {
     name: string,
@@ -12,18 +13,19 @@ export type PredefinedObjectQuery = {
 
 export type ContextAction = {
     name: string,
-    type: string,
     description: string,
-    href: string,
+    href?: string,
+    onClick?: () => void
 }
 
 export type ContextActionTemplate = {
-    objects: Array<string>,
+    objects?: Array<string>,
     action: {
         name: string,
-        type: string,
+        type: 'link' | 'postAndForget',
         description: string,
-        urlPattern: string
+        urlPattern: string,
+        jsonBody?: { [key: string]: any }
     }
 }
 
@@ -33,6 +35,13 @@ export type ObjectDetails = {
 }
 
 const byName = (a: { name: string }, b: { name: string }) => a.name > b.name ? 1 : -1;
+
+const replaceAll = (s: string, replacements: {[key: string] : string}) => {
+    return Object.entries(replacements)
+        .reduce((acc: string, [searchFor, replaceWith]: [string, string]) => {
+            return acc.replace(searchFor, replaceWith);
+        }, s)
+};
 
 class DetailsStore {
     root: MainPageStore;
@@ -87,20 +96,46 @@ class DetailsStore {
         }
     }
 
-    static contextActionsFor(selected: ActObject | null, contextActionTemplates: Array<ContextActionTemplate>): Array<ContextAction> {
+    static toContextAction(template: ContextActionTemplate, selected: ActObject, postAndForgetFn: (url: string, jsonBody: any, successString : string) => void) : ContextAction {
+
+        const replacements : {[key: string] : string} = {
+            ":objectValue": selected.value,
+            ":objectType": selected.type.name
+        };
+
+        const url = replaceAll(template.action.urlPattern || '', replacements);
+
+        switch (template.action.type) {
+            case "link":
+                return {
+                    name: template.action.name,
+                    description: template.action.description,
+                    href: url
+                };
+            case "postAndForget":
+                const jsonBody = R.fromPairs(Object.entries(template.action.jsonBody || {}).map(([k,v] : any) => {
+                    return [k, replaceAll(v, replacements)];
+                }));
+
+                return {
+                    name: template.action.name,
+                    description: template.action.description,
+                    onClick: () => {
+                        postAndForgetFn(url, jsonBody, 'Success: ' + template.action.name);
+                    }
+                };
+
+            default:
+                throw Error("Unhandled case " + template.action)
+        }
+    }
+
+    static contextActionsFor(selected: ActObject | null, contextActionTemplates: Array<ContextActionTemplate>, postAndForgetFn: (url: string, jsonBody: any, successString : string) => void): Array<ContextAction> {
         if (!selected) return [];
 
         return contextActionTemplates
-            .filter((x: any) => x.action.type === "link")
-            .filter((x: any) => x.objects.find((objectType: string) => objectType === selected.type.name))
-            .map((x: any) => {
-                return {
-                    name: x.action.name,
-                    type: x.action.type,
-                    description: x.action.description,
-                    href: x.action.urlPattern.replace(":objectValue", selected.value)
-                }
-            })
+            .filter((x: any) => !x.objects || x.objects.find((objectType: string) => objectType === selected.type.name))
+            .map((x: any) => this.toContextAction(x, selected, postAndForgetFn))
             .sort(byName)
     }
 
@@ -126,7 +161,11 @@ class DetailsStore {
         return {
             id: selected.id,
             details: {
-                contextActions: DetailsStore.contextActionsFor(selected, this.contextActionTemplates),
+                contextActions: DetailsStore.contextActionsFor(
+                    selected,
+                    this.contextActionTemplates,
+                    this.root.backendStore.postAndForget.bind(this.root.backendStore)
+                ),
                 predefinedObjectQueries: DetailsStore.predefinedObjectQueriesFor(selected, this.predefinedObjectQueries)
             },
             createFactDialog: this.createFactDialog,

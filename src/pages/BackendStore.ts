@@ -1,11 +1,12 @@
 import {action, observable, runInAction} from "mobx";
 import {
     autoResolveDataLoader,
-    checkObjectStats,
+    checkObjectStats, postJson,
     searchCriteriadataLoader
 } from "../core/dataLoaders";
 import MainPageStore from "./MainPageStore";
 import {isObjectSearch, Query, Search, searchId} from "./types";
+import {addMessage} from "../util/SnackbarProvider";
 
 const maxFetchLimit = 2000;
 
@@ -63,12 +64,30 @@ class BackendStore {
                 });
             } finally {
                 runInAction(() => {
-                    this.isLoading = false
+                    this.isLoading = false;
                 })
             }
 
         } else {
             throw Error("Search of this type is not supported " + search)
+        }
+    }
+
+    @action
+    async postAndForget(url : string, request : {[key: string] : any}, successMessage: string) {
+        try {
+            this.isLoading = true;
+            await postJson(url, request);
+            addMessage(successMessage);
+
+        } catch(err) {
+            runInAction(() => {
+                this.error = err;
+            })
+        } finally {
+            runInAction(() => {
+                this.isLoading = false;
+            })
         }
     }
 }

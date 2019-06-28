@@ -11,7 +11,7 @@ const styles = (theme: Theme) => createStyles({
     }
 });
 
-const ContextActions = ({actions, classes}: {actions: Array<ContextAction>, classes: any}) => {
+const ContextActions = ({actions, classes}: { actions: Array<ContextAction>, classes: any }) => {
 
     if (!actions || actions.length === 0) return null;
 
@@ -21,22 +21,21 @@ const ContextActions = ({actions, classes}: {actions: Array<ContextAction>, clas
                 Actions
             </Typography>
             <Grid container spacing={8} className={classes.items}>
-                {actions.map(a => {
+                {actions.map(action => {
                     return (
-                        <React.Fragment key={a.name}>
-                            <Grid item>
-                                <Tooltip title={a.description}>
-                                    <Button
-                                        size='small'
-                                        variant='outlined'
-                                        target="_blank"
-                                        href={a.href}>
-                                        {a.name}
-                                    </Button>
-                                </Tooltip>
-                            </Grid>
-                        </React.Fragment>
-                    )
+                        <Grid item key={action.name}>
+                            <Tooltip title={action.description}>
+                                <Button
+                                    size='small'
+                                    variant='outlined'
+                                    target="_blank"
+                                    onClick={action.onClick}
+                                    href={action.href}>
+                                    {action.name}
+                                </Button>
+                            </Tooltip>
+                        </Grid>
+                    );
                 })}
             </Grid>
         </>

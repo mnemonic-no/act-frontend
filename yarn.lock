@@ -1365,10 +1365,10 @@
   resolved "https://registry.npmjs.org/@types/q/-/q-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
   integrity sha1-aQoUdbhPKohP0HzXl8APXzE1bqg=
 
-"@types/ramda@0.26.8":
-  version "0.26.8"
-  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.26.8.tgz#e002612cca52e52f9176d577f4d6229c8c72a10a"
-  integrity sha512-PSMkNNhB900U2xcyndlkVjJeCXpVtf1yod0Kdq/ArsLDIE0tW8pLBChmQeJs4o4dfp3AEP+AGm6zIseZPU4ndA==
+"@types/ramda@0.26.12":
+  version "0.26.12"
+  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.26.12.tgz#593017c90a57c3e27a319ff0b67ee0a3ebb33f1f"
+  integrity sha512-1cIbhPNoG8VGgmwk/Izoq8iImXdM0RWuY8MFHHxSuFqxww1v+WI1kl7a0IeTUDcDjON+lqXMF1Bw+OZUss0Bqg==
 
 "@types/react-autosuggest@9.3.9":
   version "9.3.9"

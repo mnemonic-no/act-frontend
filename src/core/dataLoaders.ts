@@ -52,7 +52,6 @@ const DEFAULT_LIMIT = 10000;
  * Fetch facts from an object specifed by type and value
  */
 export const objectFactsDataLoader = ({objectType, objectValue, factTypes}: ObjectFactsSearch) => {
-
     const requestBody = {
         ...(factTypes && factTypes.length > 0 && {factType: factTypes}),
         limit: DEFAULT_LIMIT,

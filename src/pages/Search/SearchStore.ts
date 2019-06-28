@@ -1,6 +1,5 @@
 import MainPageStore from "../MainPageStore";
 import {action, computed, observable} from "mobx";
-import {ObjectFactsSearch} from "../types";
 import {PredefinedObjectQuery} from "../Details/DetailsStore";
 
 
@@ -57,16 +56,6 @@ class SearchStore {
     onClear() {
         this.query = "";
         this.objectValue = "";
-    }
-
-    executeSearch(search: ObjectFactsSearch) {
-        this.objectValue = search.objectValue;
-        this.objectType = search.objectType;
-        if (search.query) {
-            this.query = search.query
-        }
-
-        this.submitSearch();
     }
 
     asPathname(): string {

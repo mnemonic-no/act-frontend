@@ -9,8 +9,8 @@ import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
 import FactsTableStore from "./Table/FactsTableStore";
 import BackendStore from "./BackendStore";
 import config from "../config";
-import {ObjectFactsSearch} from "./types";
 import ObjectsTableStore from "./Table/ObjectsTableStore";
+import {action} from "mobx";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {
@@ -64,18 +64,19 @@ class MainPageStore {
         };
     }
 
-    executeQuery(search: ObjectFactsSearch) {
-        this.ui.searchStore.executeSearch(search);
-    }
-
     initByUrl(location: Location) : void {
         const locationMatcher = locationDefinitions({
-            "/object-fact-query/(.+)/(.+?)(/)?$" : (objectType : string, objectValue : string) => { this.executeQuery({objectType: objectType, objectValue: objectValue})},
-            "/gremlin/(.+)/(.+)/(.+?)(/)?$" : (objectType : string, objectValue: string, query: string) => { this.executeQuery({objectType: objectType, objectValue: objectValue, query: query})},
-            "/graph-query/(.+)/(.+)/(.+?)(/)?$" : (objectType : string, objectValue: string, query: string) => { this.executeQuery({objectType: objectType, objectValue: objectValue, query: query})}
+            "/object-fact-query/(.+)/(.+?)(/)?$" : (objectType : string, objectValue : string) => { this.backendStore.executeQuery({objectType: objectType, objectValue: objectValue})},
+            "/gremlin/(.+)/(.+)/(.+?)(/)?$" : (objectType : string, objectValue: string, query: string) => { this.backendStore.executeQuery({objectType: objectType, objectValue: objectValue, query: query})},
+            "/graph-query/(.+)/(.+)/(.+?)(/)?$" : (objectType : string, objectValue: string, query: string) => { this.backendStore.executeQuery({objectType: objectType, objectValue: objectValue, query: query})}
         });
 
         locationMatcher(location);
+    }
+
+    @action.bound
+    initByImport(rawImportJson: any) : void {
+        this.backendStore.executeQueries(rawImportJson.queries);
     }
 }
 

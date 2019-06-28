@@ -94,10 +94,16 @@ const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any
         <Divider/>
         <div className={classes.buttons}>
             <Tooltip title='Export the whole search history as JSON'>
-                <Button onClick={store.export}>Export</Button>
+                <Button onClick={store.onExport}>Export</Button>
+            </Tooltip>
+            <Tooltip title='Import a previously exported search history'>
+                <Button component='label'>
+                    Import
+                    <input id='importButton' type='file' style={{display: 'none'}} onChange={store.onImport}/>
+                </Button>
             </Tooltip>
             <Tooltip title='Clear the graph'>
-                <Button onClick={store.clear}>Clear</Button>
+                <Button onClick={store.onClear}>Clear</Button>
             </Tooltip>
         </div>
     </Paper>

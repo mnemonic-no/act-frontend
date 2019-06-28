@@ -2,8 +2,8 @@ import {action, computed} from "mobx";
 import MainPageStore from "../MainPageStore";
 
 // @ts-ignore
-import {saveAs} from 'file-saver';
 import {isObjectSearch, Query, searchId} from "../types";
+import {exportToJson} from "../../util/util";
 
 export type QueryItem = {
     id: string,
@@ -28,8 +28,12 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
 
     if (isObjectSearch(search)) {
         const details = [];
-        if (search.factTypes) { details.push("Fact types: " + search.factTypes); }
-        if (search.query) { details.push(search.query) }
+        if (search.factTypes) {
+            details.push("Fact types: " + search.factTypes);
+        }
+        if (search.query) {
+            details.push(search.query)
+        }
 
         return {
             ...common,
@@ -45,6 +49,10 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
     }
 };
 
+export const queryHistoryExport = (queries: Array<Query>) : any => {
+    const searches = queries.map((q: any) => ({...q.search}));
+    return {version: '1.0.0', queries: searches}
+};
 
 class QueryHistoryStore {
     root: MainPageStore;
@@ -74,12 +82,12 @@ class QueryHistoryStore {
     }
 
     @action
-    setSelectedQuery(query : Query) {
+    setSelectedQuery(query: Query) {
         this.root.queryHistory.selectedQueryId = query.id;
     }
 
     @action
-    removeQuery(query : Query) {
+    removeQuery(query: Query) {
         this.root.queryHistory.removeQuery(query);
     }
 
@@ -89,18 +97,32 @@ class QueryHistoryStore {
     }
 
     @action.bound
-    export() {
-        const searches = this.root.queryHistory.queries.map((q : any) => ({...q.search}));
-
-        const blob = new window.Blob(
-            [JSON.stringify(searches, null, 2)],
-            { type: 'application/json' }
-        );
-        saveAs(blob, 'act-search-history.json');
+    onExport() {
+        const data = queryHistoryExport(this.root.queryHistory.queries);
+        const nowTimeString = new Date().toISOString().replace(/:/g,'-').substr(0, 19);
+        exportToJson(nowTimeString + '-act-search-history.json', data)
     }
 
     @action.bound
-    clear() {
+    onImport(fileEvent: any) {
+        const fileReader = new FileReader();
+        fileReader.onloadend = (e) => {
+            const content = fileReader.result;
+
+            if (typeof content === "string") {
+                this.root.initByImport(JSON.parse(content))
+            } else {
+                new Error("Failed to parse file"+ content)
+            }
+        };
+
+        if (fileEvent.target && fileEvent.target.files[0]) {
+            fileReader.readAsText(fileEvent.target.files[0])
+        }
+    }
+
+    @action.bound
+    onClear() {
         this.root.queryHistory.removeAllQueries();
     }
 }

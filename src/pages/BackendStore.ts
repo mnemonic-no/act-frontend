@@ -10,6 +10,14 @@ import {addMessage} from "../util/SnackbarProvider";
 
 const maxFetchLimit = 2000;
 
+const arrayToObjectWithIds = (inputArray: Array<any>) => {
+    return inputArray.reduce((acc, curr) => ({
+            ...acc,
+            [curr.id]: curr
+        }),
+        {})
+};
+
 class BackendStore {
 
     root: MainPageStore;
@@ -21,16 +29,12 @@ class BackendStore {
         this.root = root;
     }
 
-    arrayToObjectWithIds(inputArray: Array<any>) {
-        return inputArray.reduce((acc, curr) => ({
-                ...acc,
-                [curr.id]: curr
-            }),
-            {})
-    }
-
     @action
     async executeQuery(search: Search) {
+
+        if (!isObjectSearch(search)) {
+            throw Error("Search of this type is not supported " + search)
+        }
 
         const id = searchId(search);
 
@@ -39,48 +43,90 @@ class BackendStore {
             return;
         }
 
-        if (isObjectSearch(search)) {
-            try {
-                this.isLoading = true;
-                const approvedAmountOfData = await checkObjectStats(search, maxFetchLimit);
+        try {
+            this.isLoading = true;
+            const approvedAmountOfData = await checkObjectStats(search, maxFetchLimit);
 
-                if (!approvedAmountOfData) return;
+            if (!approvedAmountOfData) return;
 
-                // @ts-ignore
-                const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
-                const q: Query = {
-                    id: id,
-                    search: search,
-                    result: {
-                        facts: this.arrayToObjectWithIds(result.data.factsData),
-                        objects: this.arrayToObjectWithIds(result.data.objectsData)
-                    }
-                };
-                this.root.queryHistory.addQuery(q);
+            // @ts-ignore
+            const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
+            const q: Query = {
+                id: id,
+                search: search,
+                result: {
+                    facts: arrayToObjectWithIds(result.data.factsData),
+                    objects: arrayToObjectWithIds(result.data.objectsData)
+                }
+            };
+            this.root.queryHistory.addQuery(q);
 
-            } catch (err) {
-                runInAction(() => {
-                    this.error = err;
-                });
-            } finally {
-                runInAction(() => {
-                    this.isLoading = false;
-                })
-            }
-
-        } else {
-            throw Error("Search of this type is not supported " + search)
+        } catch (err) {
+            runInAction(() => {
+                this.error = err;
+            });
+        } finally {
+            runInAction(() => {
+                this.isLoading = false;
+            })
         }
     }
 
     @action
-    async postAndForget(url : string, request : {[key: string] : any}, successMessage: string) {
+    async executeQueries(searches: Array<Search>) {
+
+        // TODO remove duplicates
+
+        try {
+            this.isLoading = true;
+
+            const all = searches.filter(isObjectSearch).map(async search => {
+                return {
+                    search: search,
+                    result: await searchCriteriadataLoader(search).then(autoResolveDataLoader)
+                }
+            });
+            await Promise.all(all).then(results => {
+
+                    this.root.queryHistory.removeAllQueries();
+
+                    for (let {search, result} of results) {
+                        const q: Query = {
+                            id: searchId(search),
+                            search: search,
+                            result: {
+                                facts: arrayToObjectWithIds(result.data.factsData),
+                                objects: arrayToObjectWithIds(result.data.objectsData)
+                            }
+                        };
+                        this.root.queryHistory.addQuery(q);
+                    }
+                }
+            )
+
+        } catch (err) {
+            runInAction(() => {
+                const error = new Error(err);
+                // @ts-ignore
+                error.title = "Import failed";
+                this.error = error;
+            });
+        } finally {
+            runInAction(() => {
+                this.isLoading = false;
+            })
+        }
+    }
+
+
+    @action
+    async postAndForget(url: string, request: { [key: string]: any }, successMessage: string) {
         try {
             this.isLoading = true;
             await postJson(url, request);
             addMessage(successMessage);
 
-        } catch(err) {
+        } catch (err) {
             runInAction(() => {
                 this.error = err;
             })

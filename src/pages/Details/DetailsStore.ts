@@ -26,6 +26,7 @@ export type ContextActionTemplate = {
         description: string,
         urlPattern?: string,
         pathPattern?: string,
+        confirmation?: string,
         jsonBody?: { [key: string]: any }
     }
 }
@@ -122,7 +123,10 @@ class DetailsStore {
                     name: template.action.name,
                     description: template.action.description,
                     onClick: () => {
-                        postAndForgetFn(url, jsonBody, 'Success: ' + template.action.name);
+                        if (template.action.confirmation === undefined ||
+                            (template.action.confirmation && window.confirm(template.action.confirmation))) {
+                            postAndForgetFn(url, jsonBody, 'Success: ' + template.action.name);
+                        }
                     }
                 };
 

@@ -46,7 +46,7 @@ it('can get context actions for postAndForget', () => {
             name: 'Somewhere',
             description: 'Open somewhere',
             type: 'postAndForget',
-            urlPattern: '/submit/:objectType/:objectValue',
+            pathPattern: '/submit/:objectType/:objectValue',
             jsonBody: {
                 "act.type": ":objectType",
                 "act.value": ":objectValue"

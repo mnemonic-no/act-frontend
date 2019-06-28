@@ -24,7 +24,8 @@ export type ContextActionTemplate = {
         name: string,
         type: 'link' | 'postAndForget',
         description: string,
-        urlPattern: string,
+        urlPattern?: string,
+        pathPattern?: string,
         jsonBody?: { [key: string]: any }
     }
 }
@@ -103,19 +104,19 @@ class DetailsStore {
             ":objectType": selected.type.name
         };
 
-        const url = replaceAll(template.action.urlPattern || '', replacements);
-
         switch (template.action.type) {
             case "link":
                 return {
                     name: template.action.name,
                     description: template.action.description,
-                    href: url
+                    href: replaceAll(template.action.urlPattern || '', replacements)
                 };
             case "postAndForget":
                 const jsonBody = R.fromPairs(Object.entries(template.action.jsonBody || {}).map(([k,v] : any) => {
                     return [k, replaceAll(v, replacements)];
                 }));
+
+                const url = replaceAll(template.action.pathPattern || '', replacements);
 
                 return {
                     name: template.action.name,

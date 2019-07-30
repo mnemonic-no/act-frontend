@@ -1,16 +1,17 @@
-import GraphViewStore from "./GraphView/GraphViewStore";
-import CytoscapeLayoutStore from "./CytoscapeLayout/CytoscapeLayoutStore";
-import DetailsStore from './Details/DetailsStore';
-import QueryHistoryStore from "./QueryHistory/QueryHistoryStore";
-import QueryHistory from './QueryHistory';
-import SearchStore from "./Search/SearchStore";
-import RefineryStore from "./RefineryStore";
-import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
-import FactsTableStore from "./Table/FactsTableStore";
+import {action, computed, observable} from "mobx";
+
 import BackendStore from "./BackendStore";
 import config from "../config";
+import CytoscapeLayoutStore from "./CytoscapeLayout/CytoscapeLayoutStore";
+import DetailsStore from './Details/DetailsStore';
+import FactsTableStore from "./Table/FactsTableStore";
+import GraphViewStore from "./GraphView/GraphViewStore";
 import ObjectsTableStore from "./Table/ObjectsTableStore";
-import {action, computed, observable} from "mobx";
+import QueryHistory from './QueryHistory';
+import QueryHistoryStore from "./QueryHistory/QueryHistoryStore";
+import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
+import RefineryStore from "./RefineryStore";
+import SearchStore from "./Search/SearchStore";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {

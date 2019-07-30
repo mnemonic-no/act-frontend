@@ -1,7 +1,6 @@
 import {action, computed} from "mobx";
 import MainPageStore from "../MainPageStore";
-
-import {isObjectSearch, Query, searchId} from "../types";
+import {isObjectSearch, Query, Search, searchId} from "../types";
 import {exportToJson} from "../../util/util";
 
 export type QueryItem = {
@@ -11,6 +10,11 @@ export type QueryItem = {
     details: Array<string>,
     onClick: () => void,
     onRemoveClick: () => void
+}
+
+type QueryHistoryExport = {
+    version: string,
+    queries: Array<Search>
 }
 
 const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
@@ -48,7 +52,7 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
     }
 };
 
-export const queryHistoryExport = (queries: Array<Query>): any => {
+export const queryHistoryExport = (queries: Array<Query>): QueryHistoryExport => {
     const searches = queries.map((q: any) => ({...q.search}));
     return {version: '1.0.0', queries: searches}
 };
@@ -75,6 +79,10 @@ class QueryHistoryStore {
             .filter(q => q.result !== null)
             .map(q => queryItem(q, this))
     };
+
+    @computed get isEmpty(): boolean {
+        return this.root.queryHistory.isEmpty
+    }
 
     @computed get selectedQueryId(): string {
         return this.root.queryHistory.selectedQueryId;

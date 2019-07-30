@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Observer, observer} from "mobx-react";
 import {compose} from "recompose";
-import {withStyles, createStyles, Theme} from "@material-ui/core"
+import {withStyles, createStyles, Theme, WithStyles} from "@material-ui/core"
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import Drawer from "@material-ui/core/Drawer";
@@ -147,7 +147,7 @@ const ContentComp = ({store, classes} : {store: MainPageStore, classes : any}) =
 };
 
 
-const MainPage = ({classes} : {classes: any}) => (
+const MainPage = ({classes} : IMainPage) => (
 
     <div className={classes.root}>
         <div className={classes.appFrame}>
@@ -186,11 +186,9 @@ const MainPage = ({classes} : {classes: any}) => (
                     </Paper>
 
                     {/* Data navigation */}
-                    {!store.queryHistory.isEmpty && (
-                        <Paper className={classes.paperNoPadding}>
-                            <QueryHistory store={store.ui.queryHistoryStore}/>
-                        </Paper>
-                    )}
+                    <Paper className={classes.paperNoPadding}>
+                        <QueryHistory store={store.ui.queryHistoryStore}/>
+                    </Paper>
 
                     {/* View options */}
                     <Paper className={classes.paper}>
@@ -231,8 +229,9 @@ const MainPage = ({classes} : {classes: any}) => (
     </div>
 );
 
-export default compose(
+interface IMainPage extends WithStyles<typeof styles> {}
+
+export default compose<IMainPage, Pick<IMainPage, Exclude<keyof IMainPage, "classes">>>(
     withStyles(styles),
     observer
-    // @ts-ignore
 )(MainPage);

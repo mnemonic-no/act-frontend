@@ -23,7 +23,6 @@ class BackendStore {
     root: MainPageStore;
 
     @observable isLoading: boolean = false;
-    @observable error: Error | null = null;
 
     constructor(root: MainPageStore) {
         this.root = root;
@@ -63,7 +62,7 @@ class BackendStore {
 
         } catch (err) {
             runInAction(() => {
-                this.error = err;
+                this.root.handleError({error: err})
             });
         } finally {
             runInAction(() => {
@@ -74,9 +73,6 @@ class BackendStore {
 
     @action
     async executeQueries(searches: Array<Search>) {
-
-        // TODO remove duplicates
-
         try {
             this.isLoading = true;
 
@@ -106,10 +102,7 @@ class BackendStore {
 
         } catch (err) {
             runInAction(() => {
-                const error = new Error(err);
-                // @ts-ignore
-                error.title = "Import failed";
-                this.error = error;
+                this.root.handleError({error: err, title: "Import failed"});
             });
         } finally {
             runInAction(() => {
@@ -128,7 +121,7 @@ class BackendStore {
 
         } catch (err) {
             runInAction(() => {
-                this.error = err;
+                this.root.handleError({error: err})
             })
         } finally {
             runInAction(() => {

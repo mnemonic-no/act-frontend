@@ -227,7 +227,7 @@ const MainPage = ({classes} : {classes: any}) => (
             </ErrorBoundary>
         </div>
 
-        <ErrorSnackbar error={store.backendStore.error}/>
+        <ErrorSnackbar {...store.errorSnackbar}/>
     </div>
 );
 

@@ -10,7 +10,7 @@ import FactsTableStore from "./Table/FactsTableStore";
 import BackendStore from "./BackendStore";
 import config from "../config";
 import ObjectsTableStore from "./Table/ObjectsTableStore";
-import {action} from "mobx";
+import {action, computed, observable} from "mobx";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {
@@ -42,6 +42,8 @@ class MainPageStore {
         factsTableStore: FactsTableStore
         objectsTableStore: ObjectsTableStore
     };
+
+    @observable error: Error | null = null;
 
     backendStore: BackendStore;
     queryHistory: QueryHistory; // TODO confusing name, might mistake for queryHistoryStore
@@ -77,6 +79,23 @@ class MainPageStore {
     @action.bound
     initByImport(rawImportJson: any) : void {
         this.backendStore.executeQueries(rawImportJson.queries);
+    }
+
+    @action.bound
+    handleError({error, title} : {error: Error, title?: string}) {
+        if (title) {
+            // @ts-ignore
+            error.title = title
+        }
+        this.error = error
+    }
+
+    @computed
+    get errorSnackbar()  {
+        return {
+            error: this.error,
+            onClose: () => this.error = null
+        }
     }
 }
 

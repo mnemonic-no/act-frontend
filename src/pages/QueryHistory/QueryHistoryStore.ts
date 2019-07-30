@@ -1,7 +1,6 @@
 import {action, computed} from "mobx";
 import MainPageStore from "../MainPageStore";
 
-// @ts-ignore
 import {isObjectSearch, Query, searchId} from "../types";
 import {exportToJson} from "../../util/util";
 
@@ -49,7 +48,7 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
     }
 };
 
-export const queryHistoryExport = (queries: Array<Query>) : any => {
+export const queryHistoryExport = (queries: Array<Query>): any => {
     const searches = queries.map((q: any) => ({...q.search}));
     return {version: '1.0.0', queries: searches}
 };
@@ -99,7 +98,7 @@ class QueryHistoryStore {
     @action.bound
     onExport() {
         const data = queryHistoryExport(this.root.queryHistory.queries);
-        const nowTimeString = new Date().toISOString().replace(/:/g,'-').substr(0, 19);
+        const nowTimeString = new Date().toISOString().replace(/:/g, '-').substr(0, 19);
         exportToJson(nowTimeString + '-act-search-history.json', data)
     }
 
@@ -109,15 +108,25 @@ class QueryHistoryStore {
         fileReader.onloadend = (e) => {
             const content = fileReader.result;
 
-            if (typeof content === "string") {
+            try {
+                if (typeof content !== "string") {
+                    this.root.handleError({
+                        error: new Error("File content is not text"),
+                        title: "Import failed"
+                    });
+                    return
+                }
                 this.root.initByImport(JSON.parse(content))
-            } else {
-                new Error("Failed to parse file"+ content)
+
+            } catch (err) {
+                this.root.handleError({error: err, title: "Import failed"})
             }
         };
 
         if (fileEvent.target && fileEvent.target.files[0]) {
-            fileReader.readAsText(fileEvent.target.files[0])
+            fileReader.readAsText(fileEvent.target.files[0]);
+            // Clear the input field so that another file with the same name may be imported
+            fileEvent.target.value = null;
         }
     }
 
@@ -127,5 +136,4 @@ class QueryHistoryStore {
     }
 }
 
-
-export default QueryHistoryStore;
+export default QueryHistoryStore

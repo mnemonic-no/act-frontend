@@ -1,6 +1,13 @@
 # ACT Frontend
 
-> The Open Threat Intelligence Platform
+This is the frontend for the [ACT platform](https://github.com/mnemonic-no/act-platform).   
+
+<p><img src="act-graph.png" alt="ACT Graph view" width="871px" /></p>
+
+There is also a table view where you can export the data.
+
+<p><img src="act-table.png" alt="ACT Table view" width="871px" /></p>  
+
 
 ## Installation
 

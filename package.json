@@ -47,18 +47,26 @@
     "analyze": "source-map-explorer build/static/js/main.*",
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "lint": "eslint --ext js,jsx,ts,tsx src",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "ci:test": "react-scripts test --all --watchAll=false --reporters=default --reporters=jest-junit"
   },
   "devDependencies": {
     "@types/recompose": "0.30.6",
-    "husky": "^0.14.3",
+    "eslint-config-prettier": "6.0.0",
+    "husky": "^3.0.2",
     "jest-junit": "6.4.0",
     "lint-staged": "8.2.1",
-    "prettier-standard": "9.1.1",
+    "prettier": "1.18.2",
+    "pretty-quick": "1.11.1",
     "source-map-explorer": "2.0.0"
   },
   "comment_browserslist": "Cleared temporarily. See https://github.com/browserslist/browserslist/issues/382",
-  "browserslist": []
+  "browserslist": [],
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  }
 }

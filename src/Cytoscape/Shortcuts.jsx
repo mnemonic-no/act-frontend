@@ -49,16 +49,8 @@ const styles = {
   }
 };
 
-const CytoscapeShortcutsProviderComp = ({
-  classes,
-  handleShortcuts,
-  children
-}) => (
-  <Shortcuts
-    name='GRAPH'
-    handler={handleShortcuts}
-    className={classes.shortcuts}
-  >
+const CytoscapeShortcutsProviderComp = ({ classes, handleShortcuts, children }) => (
+  <Shortcuts name="GRAPH" handler={handleShortcuts} className={classes.shortcuts}>
     {children}
   </Shortcuts>
 );

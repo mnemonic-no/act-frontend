@@ -1,5 +1,5 @@
 import React from 'react';
-import {shallowEqual} from 'recompose';
+import { shallowEqual } from 'recompose';
 import PropTypes from 'prop-types';
 import Cytoscape from 'cytoscape';
 import Klay from 'klayjs';
@@ -34,7 +34,7 @@ const clickHandlerFn = (singleClickHandler, doubleClickHandler) => {
   let previousEvent = null;
   let timer = null;
 
-  return (event) => {
+  return event => {
     if (!previousEvent) {
       previousEvent = event;
       timer = setTimeout(() => {
@@ -42,22 +42,22 @@ const clickHandlerFn = (singleClickHandler, doubleClickHandler) => {
           previousEvent = null;
           singleClickHandler && singleClickHandler(event.target);
         }
-      }, 350)
+      }, 350);
     } else {
       timer && clearTimeout(timer);
       previousEvent = null;
       doubleClickHandler && doubleClickHandler(event.target);
     }
-  }
+  };
 };
 
 class CytoscapeContainer extends React.Component {
-  constructor () {
+  constructor() {
     super();
     this.runLayout = this.runLayout.bind(this);
     this.layout = null;
   }
-  componentDidMount () {
+  componentDidMount() {
     this.cy = Cytoscape(
       Object.assign({}, DEFAULT_CONF, {
         container: document.getElementById('cytoscape-container'),
@@ -79,21 +79,21 @@ class CytoscapeContainer extends React.Component {
             });
             cy.on('cxttap', 'edge', event => {
               this.props.onNodeCtxClick(event.target);
-            })
+            });
           }
         }
       })
     );
-    this.runLayout(this.props.layout)
+    this.runLayout(this.props.layout);
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (!shallowEqual(prevProps.elements, this.props.elements)) {
       this.cy.json({ elements: this.props.elements });
       this.runLayout(this.props.layout);
       this.focusOnSelection();
     } else if (prevProps.layout !== this.props.layout) {
-      this.runLayout(this.props.layout)
+      this.runLayout(this.props.layout);
     } else if (prevProps.lockNodes !== this.props.lockNodes) {
       if (this.props.lockNodes) {
         // Lock all nodes
@@ -105,10 +105,7 @@ class CytoscapeContainer extends React.Component {
     }
 
     // Allow one item to be selected
-    if (
-        prevProps.selectedNode !== this.props.selectedNode &&
-      this.props.selectedNode
-    ) {
+    if (prevProps.selectedNode !== this.props.selectedNode && this.props.selectedNode) {
       this.cy.$(':selected').unselect();
       const node = this.cy.elements().getElementById(this.props.selectedNode);
       node.select();
@@ -118,17 +115,17 @@ class CytoscapeContainer extends React.Component {
       this.cy
         .style()
         .fromJson(this.props.style)
-        .update()
+        .update();
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     if (this.cy) {
       this.cy.destroy();
     }
   }
 
-  runLayout (layout) {
+  runLayout(layout) {
     // Layout euler crashes when there is no elements
     // And there is no point of running a layout on an empty graph
     if (this.cy.elements().length === 0) return;
@@ -137,7 +134,7 @@ class CytoscapeContainer extends React.Component {
       this.layout.stop();
     }
     this.layout = this.cy.layout(layout);
-    this.layout.run()
+    this.layout.run();
   }
 
   // Actions
@@ -166,17 +163,17 @@ class CytoscapeContainer extends React.Component {
     };
     if (zoom.level < this.cy.minZoom()) return;
     // this.cy.zoom(zoom);
-    this.cy.animate({ zoom, duration: 150 })
+    this.cy.animate({ zoom, duration: 150 });
   };
 
-  render () {
+  render() {
     return (
       <div style={{ height: '100%', width: '100%', position: 'relative' }}>
         <div
-          id='cytoscape-container'
+          id="cytoscape-container"
           style={{ height: '99%', width: '98%', marginLeft: '1%' }}
           ref={el => {
-            this.containerDOM = el
+            this.containerDOM = el;
           }}
         />
         {/* Toolbar */}

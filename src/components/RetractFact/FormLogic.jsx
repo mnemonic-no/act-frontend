@@ -10,13 +10,7 @@ const Fields = {
   accessMode: 'Public'
 };
 
-const onSubmit = ({
-  fact,
-  setSubmitting,
-  setError,
-  close,
-  onSuccess
-}) => fields => {
+const onSubmit = ({ fact, setSubmitting, setError, close, onSuccess }) => fields => {
   setSubmitting(true);
   actWretch
     .url(`/v1/fact/uuid/${fact.id}/retract`)

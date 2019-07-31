@@ -9,28 +9,27 @@ import ListItemText from '@material-ui/core/ListItemText/index';
 import Switch from '@material-ui/core/Switch/index';
 import { observer } from 'mobx-react';
 
-const styles = (theme:any) => ({});
+const styles = (theme: any) => ({});
 
-const GraphOptionsComp = ({ classes, graphOptions } : {classes: any, graphOptions: any}) => (
+const GraphOptionsComp = ({ classes, graphOptions }: { classes: any; graphOptions: any }) => (
   <Grid container spacing={16}>
     <Grid item xs={12}>
       <List dense>
         <ListItem disableGutters>
-          <ListItemText primary='Edges' secondary={'Show labels'} />
+          <ListItemText primary="Edges" secondary={'Show labels'} />
           <ListItemSecondaryAction>
-            <Switch
-              onClick={() => graphOptions.toggleShowFactEdgeLabels()}
-              checked={graphOptions.showFactEdgeLabels}/>
+            <Switch onClick={() => graphOptions.toggleShowFactEdgeLabels()} checked={graphOptions.showFactEdgeLabels} />
           </ListItemSecondaryAction>
         </ListItem>
         <ListItem disableGutters>
-          <ListItemText
-            primary='Retractions'
-            secondary='Show retracted facts'/>
+          <ListItemText primary="Retractions" secondary="Show retracted facts" />
           <ListItemSecondaryAction>
             <Switch
-              onClick={() => {graphOptions.toggleShowRetractions()}}
-              checked={graphOptions.showRetractions}/>
+              onClick={() => {
+                graphOptions.toggleShowRetractions();
+              }}
+              checked={graphOptions.showRetractions}
+            />
           </ListItemSecondaryAction>
         </ListItem>
       </List>
@@ -41,5 +40,5 @@ const GraphOptionsComp = ({ classes, graphOptions } : {classes: any, graphOption
 export default compose(
   withStyles(styles),
   observer
-    // @ts-ignore
+  // @ts-ignore
 )(GraphOptionsComp);

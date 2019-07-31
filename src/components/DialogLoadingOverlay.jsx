@@ -22,7 +22,7 @@ const styles = theme => ({
 
 const DialogLoadingOverlayComp = ({ classes }) => (
   <div className={classes.loadingOverlay}>
-    <LinearProgress className={classes.loadingChild} color='secondary' />
+    <LinearProgress className={classes.loadingChild} color="secondary" />
   </div>
 );
 

@@ -8,17 +8,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import RetractFactForm from './FormLogic';
 
 const RetractFactDialog = ({ state: { open, close, fact, onSuccess } }) => (
-  <Dialog
-    open={open}
-    onClose={close}
-    disableBackdropClick
-    disableEscapeKeyDown
-    maxWidth='sm'>
-    <RetractFactForm
-      {...{ close, fact, onSuccess }}
-      ContentComp={DialogContent}
-      ActionsComp={DialogActions}
-    />
+  <Dialog open={open} onClose={close} disableBackdropClick disableEscapeKeyDown maxWidth="sm">
+    <RetractFactForm {...{ close, fact, onSuccess }} ContentComp={DialogContent} ActionsComp={DialogActions} />
   </Dialog>
 );
 
@@ -49,6 +40,7 @@ decorate(RetractFactStore, {
 const Singleton = new RetractFactStore();
 
 export const { retractFact } = Singleton;
-export default compose(withProps({ state: Singleton }), observer)(
-  RetractFactDialog
-);
+export default compose(
+  withProps({ state: Singleton }),
+  observer
+)(RetractFactDialog);

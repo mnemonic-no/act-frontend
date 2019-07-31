@@ -5,9 +5,7 @@ import { pick, assertUniqueKeys, makeCancelable } from './utils';
 
 const assertDataLoaderResultIsPromise = result => {
   if (!result || typeof result.then !== 'function') {
-    throw new Error(
-      `withDataLoader: dataLoader must always return a Promise, got ${result}`
-    );
+    throw new Error(`withDataLoader: dataLoader must always return a Promise, got ${result}`);
   }
 };
 
@@ -19,7 +17,7 @@ const assertDataLoaderResultIsPromise = result => {
  */
 const withDataLoader = (dataLoader, options = {}) => Component => {
   class WithDataLoader extends React.Component {
-    constructor () {
+    constructor() {
       super();
 
       this.state = {
@@ -35,17 +33,17 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
       this.stopLoadingData = this.stopLoadingData.bind(this);
     }
 
-    componentDidMount () {
+    componentDidMount() {
       this.loadData(this.props);
     }
 
-    componentWillReceiveProps (nextProps) {
+    componentWillReceiveProps(nextProps) {
       if (this.shouldLoadData(nextProps)) {
         this.loadData(nextProps);
       }
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
       this.stopLoadingData();
     }
 
@@ -57,14 +55,11 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
      * Uses shallowEqual to compare the props.
      * @returns {boolean} True if the dataLoader should be re-run, False if not
      */
-    shouldLoadData (nextProps) {
+    shouldLoadData(nextProps) {
       if (options.shouldLoadData) {
         return options.shouldLoadData(this.props, nextProps);
       } else if (options.watchProps) {
-        return !shallowEqual(
-          pick(this.props, options.watchProps),
-          pick(nextProps, options.watchProps)
-        );
+        return !shallowEqual(pick(this.props, options.watchProps), pick(nextProps, options.watchProps));
       }
 
       // Never reload data if no props have changed
@@ -79,7 +74,7 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
      * Every time this function is called the previous promise is always canceled, thus guaranteeing the latest dataLoader call is the one updating data.
      * @param props
      */
-    loadData (props) {
+    loadData(props) {
       this.setState(() => ({
         error: null,
         isLoading: true
@@ -111,7 +106,7 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
      * If the dataLoader is not named we only call the parent forceFetch function, because then we assume this dataLoader is part of a chain.
      * Else we re-run the dataLoader function.
      */
-    forceFetch () {
+    forceFetch() {
       const hasParentForcefetch = typeof this.props.forceFetch === 'function';
       if (hasParentForcefetch && options.name) {
         this.props.forceFetch();
@@ -127,7 +122,7 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
      * onCancel sets the isLoading state to false and cancels any dataLoading that might be going on.
      * If a parent onCancel is provided it will also be called
      */
-    onCancel () {
+    onCancel() {
       const hasParentOnCancel = typeof this.props.onCancel === 'function';
       if (hasParentOnCancel) {
         this.props.onCancel();
@@ -139,7 +134,7 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
     /**
      * onClear clears any previous fetched data, and also stops loading any data
      */
-    onClear () {
+    onClear() {
       const hasParentOnClear = typeof this.props.onClear === 'function';
       if (hasParentOnClear) {
         this.props.onClear();
@@ -156,13 +151,13 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
      * stopLoadingData cancels the dataLoading promise
      * The actual Promise is not actually aborted, but when it resolved or rejected the result is disregarded
      */
-    stopLoadingData () {
+    stopLoadingData() {
       if (this._cancelable) {
         this._cancelable.cancel();
       }
     }
 
-    render () {
+    render() {
       const {
         LoadingComponent,
         ErrorComponent,
@@ -184,31 +179,23 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
         // This is useful when you want multiple dataLoaders to fetch async, but don't want to wait for all before displaying the data
         name
           ? {
-            isLoading: Object.assign({}, this.props.isLoading, {
-              [name]: this.state.isLoading
-            }),
-            error: Object.assign({}, this.props.error, {
-              [name]: this.state.error
-            })
-          }
+              isLoading: Object.assign({}, this.props.isLoading, {
+                [name]: this.state.isLoading
+              }),
+              error: Object.assign({}, this.props.error, {
+                [name]: this.state.error
+              })
+            }
           : {
-            isLoading: this.props.isLoading || this.state.isLoading,
-            error: this.props.error || this.state.error
-          },
+              isLoading: this.props.isLoading || this.state.isLoading,
+              error: this.props.error || this.state.error
+            },
         this.state.data
       );
 
-      if (
-        this.state.isLoading &&
-        LoadingComponent &&
-        (alwaysShowLoadingComponent || !this.state.data)
-      ) {
+      if (this.state.isLoading && LoadingComponent && (alwaysShowLoadingComponent || !this.state.data)) {
         return <LoadingComponent {...props} />;
-      } else if (
-        this.state.error &&
-        ErrorComponent &&
-        (alwaysShowErrorComponent || !this.state.data)
-      ) {
+      } else if (this.state.error && ErrorComponent && (alwaysShowErrorComponent || !this.state.data)) {
         return <ErrorComponent {...props} />;
       } else {
         return <Component {...props} />;

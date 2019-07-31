@@ -16,7 +16,7 @@ const ObjectTypeComp = ({ classes, data, value, onChange, fullWidth }) => (
     SelectProps={{
       native: true
     }}
-    label='Object Type'
+    label="Object Type"
     value={value}
     onChange={e => onChange(e.target.value)}
     select>
@@ -33,7 +33,7 @@ export default compose(
 
   // Call onChange to set value if value === ""
   lifecycle({
-    componentDidMount () {
+    componentDidMount() {
       if (!this.props.value) {
         this.props.onChange(this.props.data[0].name);
       }

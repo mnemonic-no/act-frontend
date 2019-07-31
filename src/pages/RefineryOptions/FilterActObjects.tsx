@@ -8,7 +8,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { observer } from 'mobx-react';
 
 import config from '../../config';
-import {ObjectTypeFilter} from "../RefineryStore";
+import { ObjectTypeFilter } from '../RefineryStore';
 
 // @ts-ignore
 const styles = theme => ({
@@ -18,16 +18,24 @@ const styles = theme => ({
   },
   ...Object.keys(config.objectColors)
     .map(name => ({
-        // @ts-ignore
-      [name]: {color: config.objectColors[name]}
+      // @ts-ignore
+      [name]: { color: config.objectColors[name] }
     }))
     .reduce((acc, x) => Object.assign({}, acc, x), {})
 });
 
-const FilterObjectsComp = ({ objectTypeFilters, onChange, classes } : {objectTypeFilters: Array<ObjectTypeFilter>, onChange: Function, classes: any}) => (
+const FilterObjectsComp = ({
+  objectTypeFilters,
+  onChange,
+  classes
+}: {
+  objectTypeFilters: Array<ObjectTypeFilter>;
+  onChange: Function;
+  classes: any;
+}) => (
   <FormGroup>
     <FormLabel>Filter objects</FormLabel>
-    {objectTypeFilters.map((objectTypeFilter) => (
+    {objectTypeFilters.map(objectTypeFilter => (
       <FormControlLabel
         key={objectTypeFilter.id}
         classes={{
@@ -52,5 +60,5 @@ const FilterObjectsComp = ({ objectTypeFilters, onChange, classes } : {objectTyp
 export default compose(
   withStyles(styles),
   observer
-    // @ts-ignore
+  // @ts-ignore
 )(FilterObjectsComp);

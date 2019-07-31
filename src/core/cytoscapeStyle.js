@@ -54,7 +54,7 @@ export default ({ showEdgeLabels } = {}) => [
   {
     selector: 'edge:selected',
     style: {
-      width: 4,
+      width: 4
     }
   },
   {

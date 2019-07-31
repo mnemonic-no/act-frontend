@@ -1,7 +1,7 @@
-import React from 'react'
-import { compose } from 'recompose'
-import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
+import React from 'react';
+import { compose } from 'recompose';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   error: {
@@ -16,17 +16,17 @@ const styles = theme => ({
     marginLeft: -theme.spacing.unit * 3,
     marginRight: -theme.spacing.unit * 3
   }
-})
+});
 
 const DialogErrorComp = ({ classes, error }) => (
   <div className={classes.error}>
-    <Typography color='error' variant='body1'>
+    <Typography color="error" variant="body1">
       Something went wrong
     </Typography>
-    <Typography component='pre' color='error' style={{ fontSize: 10 }}>
+    <Typography component="pre" color="error" style={{ fontSize: 10 }}>
       {JSON.stringify(error, 0, 2)}
     </Typography>
   </div>
-)
+);
 
-export default compose(withStyles(styles))(DialogErrorComp)
+export default compose(withStyles(styles))(DialogErrorComp);

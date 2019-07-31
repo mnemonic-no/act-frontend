@@ -14,8 +14,6 @@ const styles = theme => ({
   }
 });
 
-const ListItemControlComp = ({ classes, children }) => (
-  <div className={classes.root}>{children}</div>
-);
+const ListItemControlComp = ({ classes, children }) => <div className={classes.root}>{children}</div>;
 
 export default withStyles(styles)(ListItemControlComp);

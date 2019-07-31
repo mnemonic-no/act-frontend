@@ -1,6 +1,5 @@
 import MainPageStore from "../MainPageStore";
 import {action, computed, observable} from "mobx";
-import {ObjectFactsSearch} from "../types";
 import {PredefinedObjectQuery} from "../Details/DetailsStore";
 
 
@@ -59,21 +58,13 @@ class SearchStore {
         this.objectValue = "";
     }
 
-    executeSearch(search: ObjectFactsSearch) {
-        this.objectValue = search.objectValue;
-        this.objectType = search.objectType;
-        if (search.query) {
-            this.query = search.query
-        }
-
-        this.submitSearch();
-    }
-
     asPathname(): string {
         if (this.query && this.query.length > 0) {
             return "/graph-query/" + encodeURIComponent(this.objectType) + "/" + encodeURIComponent(this.objectValue) + "/" + encodeURIComponent(this.query);
-        } else {
+        } else if (this.objectValue && this.objectValue.length > 0 && this.objectType && this.objectType.length > 0) {
             return "/object-fact-query/" + encodeURIComponent(this.objectType) + "/" + encodeURIComponent(this.objectValue);
+        } else {
+            return "";
         }
     }
 

@@ -73,6 +73,11 @@ export type Query = {
     search: Search
 }
 
+export type QueryHistoryExport = {
+    version: string,
+    queries: Array<Search>
+}
+
 export const searchId = (search : Search )=> {
     if (isObjectSearch(search)) {
         return [search.objectType, search.objectValue, search.query, search.factTypes]

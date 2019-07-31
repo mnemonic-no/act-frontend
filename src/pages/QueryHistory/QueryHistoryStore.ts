@@ -1,9 +1,7 @@
 import {action, computed} from "mobx";
 import MainPageStore from "../MainPageStore";
-
-// @ts-ignore
-import {saveAs} from 'file-saver';
-import {isObjectSearch, Query, searchId} from "../types";
+import {isObjectSearch, Query, QueryHistoryExport, searchId} from "../types";
+import {exportToJson} from "../../util/util";
 
 export type QueryItem = {
     id: string,
@@ -28,8 +26,12 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
 
     if (isObjectSearch(search)) {
         const details = [];
-        if (search.factTypes) { details.push("Fact types: " + search.factTypes); }
-        if (search.query) { details.push(search.query) }
+        if (search.factTypes) {
+            details.push("Fact types: " + search.factTypes);
+        }
+        if (search.query) {
+            details.push(search.query)
+        }
 
         return {
             ...common,
@@ -45,6 +47,32 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
     }
 };
 
+export const queryHistoryExport = (queries: Array<Query>): QueryHistoryExport => {
+    const searches = queries
+        .map((q: any) => ({...q.search}))
+        .filter(isObjectSearch);
+    return {version: '1.0.0', queries: searches}
+};
+
+export const parseQueryHistoryExport = (contentJson : any) : QueryHistoryExport => {
+    if (typeof contentJson !== 'string') {
+        throw new Error("File content is not text")
+    }
+
+    const parsed = JSON.parse(contentJson);
+
+    if (!parsed.queries || parsed.queries.length < 1) {
+        throw new Error("Validation failed: query history export has no 'queries'")
+    }
+
+    parsed.queries.forEach( (q: any) => {
+        if (!q.objectType || !q.objectValue ) {
+            throw new Error("Queries must have objectType and objectValue: " + JSON.stringify(q))
+        }
+    });
+
+    return parsed
+};
 
 class QueryHistoryStore {
     root: MainPageStore;
@@ -69,17 +97,21 @@ class QueryHistoryStore {
             .map(q => queryItem(q, this))
     };
 
+    @computed get isEmpty(): boolean {
+        return this.root.queryHistory.isEmpty
+    }
+
     @computed get selectedQueryId(): string {
         return this.root.queryHistory.selectedQueryId;
     }
 
     @action
-    setSelectedQuery(query : Query) {
+    setSelectedQuery(query: Query) {
         this.root.queryHistory.selectedQueryId = query.id;
     }
 
     @action
-    removeQuery(query : Query) {
+    removeQuery(query: Query) {
         this.root.queryHistory.removeQuery(query);
     }
 
@@ -89,21 +121,37 @@ class QueryHistoryStore {
     }
 
     @action.bound
-    export() {
-        const searches = this.root.queryHistory.queries.map((q : any) => ({...q.search}));
-
-        const blob = new window.Blob(
-            [JSON.stringify(searches, null, 2)],
-            { type: 'application/json' }
-        );
-        saveAs(blob, 'act-search-history.json');
+    onExport() {
+        const data = queryHistoryExport(this.root.queryHistory.queries);
+        const nowTimeString = new Date().toISOString().replace(/:/g, '-').substr(0, 19);
+        exportToJson(nowTimeString + '-act-search-history.json', data)
     }
 
     @action.bound
-    clear() {
+    onImport(fileEvent: any) {
+        const fileReader = new FileReader();
+        fileReader.onloadend = (e) => {
+            const content = fileReader.result;
+
+            try {
+                const parsed = parseQueryHistoryExport(content);
+                this.root.initByImport(parsed)
+            } catch (err) {
+                this.root.handleError({error: err, title: "Import failed"})
+            }
+        };
+
+        if (fileEvent.target && fileEvent.target.files[0]) {
+            fileReader.readAsText(fileEvent.target.files[0]);
+            // Clear the input field so that another file with the same name may be imported
+            fileEvent.target.value = null;
+        }
+    }
+
+    @action.bound
+    onClear() {
         this.root.queryHistory.removeAllQueries();
     }
 }
 
-
-export default QueryHistoryStore;
+export default QueryHistoryStore

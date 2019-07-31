@@ -13,10 +13,11 @@ import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from '@material-ui/icons/Close';
 import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
-import {withStyles} from "@material-ui/core";
+import {createStyles, Theme, WithStyles, withStyles} from "@material-ui/core";
 import {observer} from "mobx-react";
+import Typography from "@material-ui/core/Typography";
 
-const styles = (theme: any) => ({
+const styles = (theme: Theme) => createStyles({
     listItem: {
         paddingLeft: theme.spacing.unit * 2
     },
@@ -47,65 +48,80 @@ const styles = (theme: any) => ({
 });
 
 
-const QueryHistory = ({store, classes}: { store: QueryHistoryStore, classes: any }) => (
+const QueryHistory = ({store, classes}: IQueryHistory) => (
     <Paper>
         <List dense>
-            <ListItem dense disableGutters classes={{root: classes.listItem}}>
-                <ListItemText primary='Merge previous'/>
-                <ListItemSecondaryAction>
-                    <Switch
-                        onClick={() => store.flipMergePrevious()}
-                        checked={store.mergePrevious}/>
-                </ListItemSecondaryAction>
-            </ListItem>
-        </List>
-        <Divider/>
-        <List dense>
-            {store.queryItems.map(item => (
-                <ListItem
-                    classes={{
-                        root: classes.listItem,
-                        container: `${item.isSelected ? classes.activeItem : ''} ${classes.item}`
-                    }}
-                    button
-                    disableGutters
-                    dense
-                    key={item.id}
-                    onClick={item.onClick}>
-                    <ListItemText
-                        classes={{root: classes.listItemText}}
-                        secondaryTypographyProps={{component: "div"}}
-                        primary={<span>{item.title}</span>}
-                        secondary={
-                            <>
-                            {item.details.map( (detail, idx) => <div key={idx}>{detail}</div>)}
-                            </>
-                        }/>
+            <ListItem><Typography variant='subtitle2'>Query History</Typography></ListItem>
+            {!store.isEmpty && (
+                <ListItem dense disableGutters classes={{root: classes.listItem}}>
+                    <ListItemText primary='Merge previous'/>
                     <ListItemSecondaryAction>
-                        <IconButton
-                            onClick={item.onRemoveClick}
-                            classes={{root: classes.removeButton}}>
-                            <CloseIcon/>
-                        </IconButton>
+                        <Switch
+                            onClick={() => store.flipMergePrevious()}
+                            checked={store.mergePrevious}/>
                     </ListItemSecondaryAction>
-                </ListItem>
-            ))}
+                </ListItem>)
+            }
         </List>
-        <Divider/>
+        {!store.isEmpty && (
+            <>
+                <Divider/>
+                <List dense>
+                    {store.queryItems.map(item => (
+                        <ListItem
+                            classes={{
+                                root: classes.listItem,
+                                container: `${item.isSelected ? classes.activeItem : ''} ${classes.item}`
+                            }}
+                            button
+                            disableGutters
+                            dense
+                            key={item.id}
+                            onClick={item.onClick}>
+                            <ListItemText
+                                classes={{root: classes.listItemText}}
+                                secondaryTypographyProps={{component: "div"}}
+                                primary={<span>{item.title}</span>}
+                                secondary={
+                                    <>
+                                        {item.details.map((detail, idx) => <div key={idx}>{detail}</div>)}
+                                    </>
+                                }/>
+                            <ListItemSecondaryAction>
+                                <IconButton
+                                    onClick={item.onRemoveClick}
+                                    classes={{root: classes.removeButton}}>
+                                    <CloseIcon/>
+                                </IconButton>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    ))}
+                </List>
+                <Divider/>
+            </>
+        )}
         <div className={classes.buttons}>
             <Tooltip title='Export the whole search history as JSON'>
-                <Button onClick={store.export}>Export</Button>
+                <span><Button onClick={store.onExport} disabled={store.isEmpty}>Export</Button></span>
+            </Tooltip>
+            <Tooltip title='Import a previously exported search history'>
+                <Button component='label'>
+                    Import
+                    <input id='importButton' type='file' style={{display: 'none'}} onChange={store.onImport}/>
+                </Button>
             </Tooltip>
             <Tooltip title='Clear the graph'>
-                <Button onClick={store.clear}>Clear</Button>
+                <span><Button onClick={store.onClear} disabled={store.isEmpty}>Clear</Button></span>
             </Tooltip>
         </div>
     </Paper>
 );
 
+interface IQueryHistory extends WithStyles<typeof styles> {
+    store: QueryHistoryStore
+}
 
-export default compose(
-    // @ts-ignore
+export default compose<IQueryHistory, Pick<IQueryHistory, Exclude<keyof IQueryHistory, "classes">>>(
     withStyles(styles),
-    // @ts-ignore
-    observer)(QueryHistory);
+    observer
+)(QueryHistory);

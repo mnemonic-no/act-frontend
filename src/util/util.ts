@@ -22,3 +22,8 @@ export const exportToCsv = (filename: string, rows: string[][]) => {
     const blob = new window.Blob(["\uFEFF"+CSV], {type: 'text/csv;charset=utf-8'});
     saveAs(blob, filename);
 };
+
+export const exportToJson = (filename: string, data: any) => {
+    const blob = new window.Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    saveAs(blob, filename)
+};

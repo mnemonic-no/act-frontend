@@ -52,7 +52,6 @@ const DEFAULT_LIMIT = 10000;
  * Fetch facts from an object specifed by type and value
  */
 export const objectFactsDataLoader = ({objectType, objectValue, factTypes}: ObjectFactsSearch) => {
-
     const requestBody = {
         ...(factTypes && factTypes.length > 0 && {factType: factTypes}),
         limit: DEFAULT_LIMIT,
@@ -180,7 +179,8 @@ export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: numb
         .forbidden(handleForbiddenQueryResults)
         .json(({data}: any) => {
             return resultCount(search, data.statistics);
-        });
+        })
+        .catch(handleError);
 
     if (totalCount > maxCount) {
         return window.confirm("WARNING \nLarge result set. \n\n" +

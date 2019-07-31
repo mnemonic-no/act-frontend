@@ -8,7 +8,8 @@ import CloseIcon from '@material-ui/icons/Close'
 import {observer} from "mobx-react";
 
 const styles = (theme: Theme) => createStyles({
-    close: {}
+    close: {},
+    errorMessage: {wordBreak: "break-all"}
 });
 
 const ErrorSnackbarComp = ({error, onClose, classes}: IErrorSnackbarComp) =>
@@ -22,7 +23,7 @@ const ErrorSnackbarComp = ({error, onClose, classes}: IErrorSnackbarComp) =>
                 <Typography variant='subtitle1' color='inherit'>
                     {error && error.title}
                 </Typography>
-                <span id='message-id'>{error && error.message}</span>
+                <div id='message-id' className={classes.errorMessage}>{error && error.message}</div>
             </div>
         }
         action={[

@@ -179,7 +179,8 @@ export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: numb
         .forbidden(handleForbiddenQueryResults)
         .json(({data}: any) => {
             return resultCount(search, data.statistics);
-        });
+        })
+        .catch(handleError);
 
     if (totalCount > maxCount) {
         return window.confirm("WARNING \nLarge result set. \n\n" +

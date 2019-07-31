@@ -1,6 +1,6 @@
 import {action, computed} from "mobx";
 import MainPageStore from "../MainPageStore";
-import {isObjectSearch, Query, Search, searchId} from "../types";
+import {isObjectSearch, Query, QueryHistoryExport, searchId} from "../types";
 import {exportToJson} from "../../util/util";
 
 export type QueryItem = {
@@ -10,11 +10,6 @@ export type QueryItem = {
     details: Array<string>,
     onClick: () => void,
     onRemoveClick: () => void
-}
-
-type QueryHistoryExport = {
-    version: string,
-    queries: Array<Search>
 }
 
 const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
@@ -53,8 +48,30 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
 };
 
 export const queryHistoryExport = (queries: Array<Query>): QueryHistoryExport => {
-    const searches = queries.map((q: any) => ({...q.search}));
+    const searches = queries
+        .map((q: any) => ({...q.search}))
+        .filter(isObjectSearch);
     return {version: '1.0.0', queries: searches}
+};
+
+export const parseQueryHistoryExport = (contentJson : any) : QueryHistoryExport => {
+    if (typeof contentJson !== 'string') {
+        throw new Error("File content is not text")
+    }
+
+    const parsed = JSON.parse(contentJson);
+
+    if (!parsed.queries || parsed.queries.length < 1) {
+        throw new Error("Validation failed: query history export has no 'queries'")
+    }
+
+    parsed.queries.forEach( (q: any) => {
+        if (!q.objectType || !q.objectValue ) {
+            throw new Error("Queries must have objectType and objectValue: " + JSON.stringify(q))
+        }
+    });
+
+    return parsed
 };
 
 class QueryHistoryStore {
@@ -117,15 +134,8 @@ class QueryHistoryStore {
             const content = fileReader.result;
 
             try {
-                if (typeof content !== "string") {
-                    this.root.handleError({
-                        error: new Error("File content is not text"),
-                        title: "Import failed"
-                    });
-                    return
-                }
-                this.root.initByImport(JSON.parse(content))
-
+                const parsed = parseQueryHistoryExport(content);
+                this.root.initByImport(parsed)
             } catch (err) {
                 this.root.handleError({error: err, title: "Import failed"})
             }

@@ -99,7 +99,6 @@ class BackendStore {
                     }
                 }
             )
-
         } catch (err) {
             runInAction(() => {
                 this.root.handleError({error: err, title: "Import failed"});

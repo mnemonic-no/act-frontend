@@ -1,4 +1,4 @@
-import {queryHistoryExport} from "./QueryHistoryStore";
+import {parseQueryHistoryExport, queryHistoryExport} from "./QueryHistoryStore";
 import {Query} from "../types";
 
 const query = (args: { [key: string]: any }): Query => {
@@ -15,7 +15,7 @@ const query = (args: { [key: string]: any }): Query => {
 it('can export query history', () => {
     expect(
         queryHistoryExport([(query({id: 'Axiom', factTypeName: 'alias'}))]))
-        .toEqual({version: '1.0.0', queries: [{id: 'Axiom', factTypeName: 'alias'}]});
+        .toEqual({version: '1.0.0', queries: []});
 
     const objectTypeQuery = {objectType: 'threatActor', objectValue: 'Axiom'};
     const graphQuery = {
@@ -36,4 +36,15 @@ it('can export query history', () => {
             query({search: filteredQuery}),]
         ))
         .toEqual({version: '1.0.0', queries: [objectTypeQuery, graphQuery, filteredQuery]});
+});
+
+it('can import query history', () => {
+   expect(() => parseQueryHistoryExport(JSON.stringify({version: '1.0.0', queries: []})))
+       .toThrow("Validation failed: query history export has no 'queries'");
+
+    expect(() => parseQueryHistoryExport(JSON.stringify({version: '1.0.0', queries: [{bad: "data"}]})))
+        .toThrow("Queries must have objectType and objectValue: {\"bad\":\"data\"}");
+
+    expect(parseQueryHistoryExport(JSON.stringify({version: '1.0.0', queries: [{objectType: 'threatActor', objectValue: 'Axiom'}]})))
+        .toEqual({version: '1.0.0', queries: [{objectType: 'threatActor', objectValue: 'Axiom'}]})
 });

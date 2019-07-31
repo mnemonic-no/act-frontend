@@ -12,6 +12,7 @@ import QueryHistoryStore from "./QueryHistory/QueryHistoryStore";
 import RefineryOptionsStore from "./RefineryOptions/RefineryOptionsStore";
 import RefineryStore from "./RefineryStore";
 import SearchStore from "./Search/SearchStore";
+import {QueryHistoryExport} from "./types";
 
 const locationDefinitions = (routeDefinitions: any) => {
     return (location : Location) => {
@@ -78,8 +79,8 @@ class MainPageStore {
     }
 
     @action.bound
-    initByImport(rawImportJson: any) : void {
-        this.backendStore.executeQueries(rawImportJson.queries);
+    initByImport(queryHistoryExport: QueryHistoryExport) : void {
+        this.backendStore.executeQueries(queryHistoryExport.queries);
     }
 
     @action.bound

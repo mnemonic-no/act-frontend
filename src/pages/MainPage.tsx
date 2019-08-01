@@ -13,7 +13,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 // @ts-ignore
 import classNames from 'classnames';
 
-import { AboutButton } from '../components/About';
+import AboutButton from '../components/About';
 import ErrorSnackbar from '../components/ErrorSnackbar';
 import CytoscapeLayout from './CytoscapeLayout/CytoscapeLayout';
 import GraphEmpty from './GraphView/GraphEmpty';

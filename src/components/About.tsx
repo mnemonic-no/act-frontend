@@ -1,17 +1,17 @@
-import React from 'react';
-import { withState, compose } from 'recompose';
-import { withStyles } from '@material-ui/core/styles';
+import React, { useState } from 'react';
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import Typography from '@material-ui/core/Typography';
 
-const style = theme => ({
-  root: {
-    padding: theme.spacing.unit * 2
-  }
-});
+const style = (theme: Theme) =>
+  createStyles({
+    root: {
+      padding: theme.spacing.unit * 2
+    }
+  });
 
-const AboutContentsComp = ({ classes }) => (
+const AboutContentsComp = ({ classes }: IAboutContentsComp) => (
   <div className={classes.root}>
     <Typography variant="h5" gutterBottom>
       About
@@ -36,17 +36,23 @@ const AboutContentsComp = ({ classes }) => (
     </Typography>
   </div>
 );
+
+interface IAboutContentsComp extends WithStyles<typeof style> {}
+
 const AboutContents = withStyles(style)(AboutContentsComp);
 
-export const AboutButtonComp = ({ className, open, setOpen }) => (
-  <div className={className}>
-    <Button color="inherit" onClick={() => setOpen(true)}>
-      About
-    </Button>
-    <Dialog open={open} onClose={() => setOpen(false)}>
-      <AboutContents />
-    </Dialog>
-  </div>
-);
+const AboutButton = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <Button color="inherit" onClick={() => setOpen(true)}>
+        About
+      </Button>
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <AboutContents />
+      </Dialog>
+    </div>
+  );
+};
 
-export const AboutButton = compose(withState('open', 'setOpen', false))(AboutButtonComp);
+export default AboutButton;

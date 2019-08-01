@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { compose } from 'recompose';
+import Button from '@material-ui/core/Button';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -11,7 +12,6 @@ import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core';
 
 import { objectTypeToColor, renderObjectValue, factColor } from '../../util/utils';
 import { ActObject } from '../types';
-import Button from '@material-ui/core/Button';
 
 export type ColumnKind = 'objectType' | 'objectValue' | 'properties';
 

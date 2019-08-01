@@ -1,12 +1,11 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { withStyles, createStyles, Theme } from '@material-ui/core';
+import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 import { compose } from 'recompose';
 
 import ObjectInformation, { IObjectInformationComp } from '../../components/ObjectInformation/ObjectInformation';
-import FactInformation from '../../components/FactInformation/FactInformation';
+import FactInformation, { IFactInformationComp } from '../../components/FactInformation/FactInformation';
 import DetailsStore from './DetailsStore';
-import { WithStyles } from '@material-ui/core/es';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -25,7 +24,7 @@ const Details = ({ store, classes }: IDetails) => {
   const detailsComp = store.selectedObject ? (
     <ObjectInformation {...(store.selectedObjectDetails as IObjectInformationComp)} />
   ) : (
-    <FactInformation {...store.selectedFactDetails} />
+    <FactInformation {...(store.selectedFactDetails as IFactInformationComp)} />
   );
 
   return <div className={classes.root}>{detailsComp}</div>;

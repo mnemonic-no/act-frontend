@@ -6,8 +6,9 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import RetractFactForm from './FormLogic';
+import { ActFact } from '../../pages/types';
 
-const RetractFactDialog = ({ state: { open, close, fact, onSuccess } }) => (
+const RetractFactDialog = ({ state: { open, close, fact, onSuccess } }: any) => (
   <Dialog open={open} onClose={close} disableBackdropClick disableEscapeKeyDown maxWidth="sm">
     <RetractFactForm {...{ close, fact, onSuccess }} ContentComp={DialogContent} ActionsComp={DialogActions} />
   </Dialog>
@@ -16,9 +17,11 @@ const RetractFactDialog = ({ state: { open, close, fact, onSuccess } }) => (
 // State
 class RetractFactStore {
   open = false;
-  fact = null;
+  fact: ActFact | null = null;
 
-  retractFact = (fact, onSuccess = () => {}) => {
+  onSuccess = () => {};
+
+  retractFact = (fact: ActFact, onSuccess = () => {}) => {
     this.open = true;
     this.fact = fact;
     this.onSuccess = onSuccess;

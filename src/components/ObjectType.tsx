@@ -3,6 +3,7 @@ import { compose, lifecycle, branch } from 'recompose';
 import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
 import withObjectTypes from './withObjectTypes';
+import { WithStyles } from '@material-ui/core/es';
 
 const styles = () => ({
   option: {
@@ -10,7 +11,7 @@ const styles = () => ({
   }
 });
 
-const ObjectTypeComp = ({ classes, data, value, onChange, fullWidth }) => (
+const ObjectTypeComp = ({ classes, data, value, onChange, fullWidth }: IObjectTypeComp) => (
   <TextField
     fullWidth={fullWidth}
     SelectProps={{
@@ -20,7 +21,7 @@ const ObjectTypeComp = ({ classes, data, value, onChange, fullWidth }) => (
     value={value}
     onChange={e => onChange(e.target.value)}
     select>
-    {data.map(({ id, name }) => (
+    {data.map(({ id, name }: { id: string; name: string }) => (
       <option key={id} value={name} className={classes.option}>
         {name}
       </option>
@@ -28,13 +29,22 @@ const ObjectTypeComp = ({ classes, data, value, onChange, fullWidth }) => (
   </TextField>
 );
 
-export default compose(
-  branch(({ data }) => !data, withObjectTypes()),
+interface IObjectTypeComp extends WithStyles<typeof styles> {
+  data: any;
+  value: any;
+  onChange: (arg: string) => void;
+  fullWidth: boolean;
+}
+
+export default compose<IObjectTypeComp, Omit<IObjectTypeComp, 'classes' | 'data'>>(
+  branch(({ data }: any) => !data, withObjectTypes()),
 
   // Call onChange to set value if value === ""
   lifecycle({
     componentDidMount() {
+      // @ts-ignore
       if (!this.props.value) {
+        // @ts-ignore
         this.props.onChange(this.props.data[0].name);
       }
     }

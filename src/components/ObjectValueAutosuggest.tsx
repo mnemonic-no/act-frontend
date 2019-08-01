@@ -1,21 +1,22 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { compose, withHandlers, setPropTypes, withState, lifecycle, branch } from 'recompose';
-import Autosuggest from 'react-autosuggest';
+import { compose, withHandlers, withState, lifecycle, branch } from 'recompose';
+import Autosuggest, { ChangeEvent } from 'react-autosuggest';
+// @ts-ignore
 import match from 'autosuggest-highlight/match';
+// @ts-ignore
 import parse from 'autosuggest-highlight/parse';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
-import { withStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 
 import actWretch from '../util/actWretch';
 import withDataLoader from '../util/withDataLoader';
 import memoizeDataLoader from '../util/memoizeDataLoader';
 
-const renderInput = ({ classes, label, required, autoFocus, fullWidth, value, ref, ...other }) => (
+const renderInput = ({ classes, label, required, autoFocus, fullWidth, value, ref, ...other }: any) => (
   <TextField
     {...{ label, required, autoFocus, fullWidth, value }}
     inputRef={ref}
@@ -28,14 +29,14 @@ const renderInput = ({ classes, label, required, autoFocus, fullWidth, value, re
   />
 );
 
-const renderSuggestion = (suggestion, { query, isHighlighted }) => {
+const renderSuggestion = (suggestion: any, { query, isHighlighted }: any) => {
   const matches = match(suggestion.value, query);
   const parts = parse(suggestion.value, matches);
 
   return (
     <MenuItem selected={isHighlighted} component="div">
       <div>
-        {parts.map((part, index) => (
+        {parts.map((part: any, index: number) => (
           <span key={index} style={{ fontWeight: part.highlight ? 500 : 300 }}>
             {part.text}
           </span>
@@ -45,43 +46,44 @@ const renderSuggestion = (suggestion, { query, isHighlighted }) => {
   );
 };
 
-const renderSuggestionsContainer = ({ containerProps, children }) => (
+const renderSuggestionsContainer = ({ containerProps, children }: any) => (
   <Paper {...containerProps} square>
     {children}
   </Paper>
 );
 
-const styles = theme => ({
-  container: {
-    position: 'relative'
-  },
-  suggestionsContainerOpen: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 2
-  },
-  suggestion: {
-    display: 'block'
-  },
-  suggestionsList: {
-    margin: 0,
-    padding: 0,
-    listStyleType: 'none'
-  },
-  progress: {
-    color: theme.palette.common.minBlack
-  }
-});
+const styles = (theme: Theme) =>
+  createStyles({
+    container: {
+      position: 'relative'
+    },
+    suggestionsContainerOpen: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      zIndex: 2
+    },
+    suggestion: {
+      display: 'block'
+    },
+    suggestionsList: {
+      margin: 0,
+      padding: 0,
+      listStyleType: 'none'
+    },
+    progress: {
+      color: theme.palette.common.black
+    }
+  });
 
-const getSuggestionValue = suggestion => {
+const getSuggestionValue = (suggestion: any) => {
   return suggestion.value;
 };
 
 const ObjectValueAutosuggestComp = ({
   classes,
   value,
-  onChange,
+  onChangeInternal,
   suggestions,
   onClearSuggestions,
   onSuggestionsFetchRequested,
@@ -92,7 +94,7 @@ const ObjectValueAutosuggestComp = ({
   placeholder,
   isLoading,
   inputRef
-}) => (
+}: IObjectValueAutosuggestComp) => (
   <Autosuggest
     theme={{
       container: classes.container,
@@ -103,6 +105,7 @@ const ObjectValueAutosuggestComp = ({
     renderInputComponent={renderInput}
     renderSuggestion={renderSuggestion}
     renderSuggestionsContainer={renderSuggestionsContainer}
+    // @ts-ignore
     ref={x => inputRef && x && inputRef(x.input)}
     inputProps={{
       required,
@@ -112,7 +115,7 @@ const ObjectValueAutosuggestComp = ({
       placeholder,
       classes,
       value,
-      onChange,
+      onChange: onChangeInternal,
       endAdornment: (
         <>
           {isLoading && (
@@ -130,7 +133,7 @@ const ObjectValueAutosuggestComp = ({
   />
 );
 
-const objectValuesDataLoader = ({ objectType }) =>
+const objectValuesDataLoader = ({ objectType }: { objectType: string }) =>
   actWretch
     .url(`/v1/object/search`)
     .json({
@@ -142,31 +145,49 @@ const objectValuesDataLoader = ({ objectType }) =>
 
 const memoizedObjectValuesDataLoader = memoizeDataLoader(objectValuesDataLoader, ['objectType']);
 
-export default compose(
-  setPropTypes({
-    value: PropTypes.string,
-    onChange: PropTypes.func,
-    objectType: PropTypes.string,
+interface IObjectValueAutosuggestComp extends WithStyles<typeof styles> {
+  value: any;
+  objectType: any;
+  onChangeInternal: (event: React.FormEvent<any>, params: ChangeEvent) => void;
+  onChange: (value: string) => void;
+  suggestions: any;
+  onClearSuggestions: () => void;
+  onSuggestionsFetchRequested: () => void;
+  required: boolean;
+  autoFocus: any;
+  fullWidth: any;
+  label: string;
+  placeholder?: string;
+  isLoading: any;
+  inputRef: any;
+}
 
-    required: PropTypes.bool,
-    autoFocus: PropTypes.bool,
-    fullWidth: PropTypes.bool,
-    label: PropTypes.string,
-    placeholder: PropTypes.string,
-    inputRef: PropTypes.func
-  }),
+export default compose<
+  IObjectValueAutosuggestComp,
+  Omit<
+    IObjectValueAutosuggestComp,
+    | 'classes'
+    | 'suggestions'
+    | 'setSuggestions'
+    | 'onSuggestionsFetchRequested'
+    | 'onClearSuggestions'
+    | 'onChangeInternal'
+    | 'isLoading'
+    | 'inputRef'
+  >
+>(
   branch(
     // TODO: Do we want to whitelist?
-    ({ objectType }) => Boolean(objectType),
+    ({ objectType }: { objectType: string }) => Boolean(objectType),
     withDataLoader(memoizedObjectValuesDataLoader, {
       watchProps: []
     })
   ),
   withState('suggestions', 'setSuggestions', []),
   withHandlers({
-    onChange: ({ onChange }) => (event, { newValue }) => onChange(newValue),
-    onClearSuggestions: ({ setSuggestions }) => () => setSuggestions([]),
-    onSuggestionsFetchRequested: ({ setSuggestions, objectValues }) => ({ value }) => {
+    onChangeInternal: ({ onChange }: any) => (event: any, { newValue }: any) => onChange(newValue),
+    onClearSuggestions: ({ setSuggestions }: any) => () => setSuggestions([]),
+    onSuggestionsFetchRequested: ({ setSuggestions, objectValues }: any) => ({ value }: any) => {
       const inputValue = value.trim().toLowerCase();
       const inputLength = inputValue.length;
 
@@ -174,7 +195,7 @@ export default compose(
         return [];
       }
       let count = 0;
-      const suggestions = objectValues.filter(x => {
+      const suggestions = objectValues.filter((x: any) => {
         const keep = count < 5 && x.value.toLowerCase().slice(0, inputLength) === inputValue;
         if (keep) {
           count += 1;
@@ -186,7 +207,7 @@ export default compose(
     }
   }),
   lifecycle({
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps: any) {
       if (this.props.objectType !== '' && nextProps.objectType !== this.props.objectType) {
         // ObjectType has been changed, refetch suggestions
         this.props.onClearSuggestions();

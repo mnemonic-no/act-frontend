@@ -1,4 +1,5 @@
 import { action, computed, observable } from 'mobx';
+
 import { ActFact } from '../types';
 import MainPageStore from '../MainPageStore';
 import { Node } from '../GraphView/GraphViewStore';

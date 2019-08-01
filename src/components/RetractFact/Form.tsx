@@ -15,12 +15,10 @@ const RetractFactFormComp = ({
   ContentComp,
   ActionsComp,
   close,
-  factTypes,
-  objectTypes,
   isSubmitting,
   error,
   fact
-}) => (
+}: IRetractFactFormComp) => (
   <form
     onSubmit={e => {
       e.preventDefault();
@@ -44,7 +42,7 @@ const RetractFactFormComp = ({
       <br />
       <Grid container spacing={16}>
         <Grid item xs={8}>
-          <AccessModeSelector fullWidth value={fields.accessMode} onChange={v => onChange('accessMode', v)} />
+          <AccessModeSelector fullWidth value={fields.accessMode} onChange={(v: any) => onChange('accessMode', v)} />
         </Grid>
       </Grid>
       <br />
@@ -68,5 +66,17 @@ const RetractFactFormComp = ({
     </ActionsComp>
   </form>
 );
+
+interface IRetractFactFormComp {
+  fields: any;
+  fact: any;
+  error: any;
+  ContentComp: any;
+  ActionsComp: any;
+  isSubmitting: boolean;
+  onSubmit: () => void;
+  onChange: (reason: string, value: any) => void;
+  close: () => void;
+}
 
 export default RetractFactFormComp;

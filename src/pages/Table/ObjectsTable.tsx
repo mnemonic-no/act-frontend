@@ -131,7 +131,7 @@ interface IObjectsTableComp extends WithStyles<typeof styles> {
   onExportClick: () => void;
 }
 
-export default compose<IObjectsTableComp, Pick<IObjectsTableComp, Exclude<keyof IObjectsTableComp, 'classes'>>>(
+export default compose<IObjectsTableComp, Omit<IObjectsTableComp, 'classes'>>(
   withStyles(styles),
   observer
 )(ObjectsTableComp);

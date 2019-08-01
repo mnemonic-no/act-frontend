@@ -33,7 +33,7 @@ interface IFactRowComp extends WithStyles<typeof styles> {
   onRowClick: (f: ActFact) => void;
 }
 
-export const FactRow = compose<IFactRowComp, Pick<IFactRowComp, Exclude<keyof IFactRowComp, 'classes'>>>(
+export const FactRow = compose<IFactRowComp, Omit<IFactRowComp, 'classes'>>(
   withStyles(styles),
   observer
 )(FactRowComp);

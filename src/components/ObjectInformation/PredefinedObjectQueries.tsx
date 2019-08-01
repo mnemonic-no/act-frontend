@@ -1,5 +1,5 @@
 import React from 'react';
-import { withStyles, createStyles, Theme } from '@material-ui/core';
+import { withStyles, createStyles, Theme, WithStyles } from '@material-ui/core';
 import { Grid, Button, Typography, Tooltip } from '@material-ui/core';
 import { PredefinedObjectQuery } from '../../pages/Details/DetailsStore';
 
@@ -12,15 +12,7 @@ const styles = (theme: Theme) =>
     }
   });
 
-const PredefinedObjectQueriesComp = ({
-  predefinedObjectQueries,
-  onClick,
-  classes
-}: {
-  predefinedObjectQueries: Array<PredefinedObjectQuery>;
-  onClick: (q: PredefinedObjectQuery) => void;
-  classes: any;
-}) => {
+const PredefinedObjectQueriesComp = ({ predefinedObjectQueries, onClick, classes }: IPredefinedObjectQueriesComp) => {
   if (predefinedObjectQueries.length === 0) return null;
 
   return (
@@ -46,5 +38,10 @@ const PredefinedObjectQueriesComp = ({
     </React.Fragment>
   );
 };
+
+interface IPredefinedObjectQueriesComp extends WithStyles<typeof styles> {
+  predefinedObjectQueries: Array<PredefinedObjectQuery>;
+  onClick: (q: PredefinedObjectQuery) => void;
+}
 
 export default withStyles(styles)(PredefinedObjectQueriesComp);

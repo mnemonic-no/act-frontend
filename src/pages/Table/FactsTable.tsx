@@ -115,7 +115,7 @@ interface IFactRowComp extends FactRow, WithStyles<typeof styles> {
   onRowClick: (f: ActFact) => void;
 }
 
-export const ActFactRow = compose<IFactRowComp, Pick<IFactRowComp, Exclude<keyof IFactRowComp, 'classes'>>>(
+export const ActFactRow = compose<IFactRowComp, Omit<IFactRowComp, 'classes'>>(
   withStyles(styles),
   observer
 )(FactRowComp);
@@ -173,7 +173,7 @@ interface IFactsTableComp extends WithStyles<typeof styles> {
   onExportClick: () => void;
 }
 
-export default compose<IFactsTableComp, Pick<IFactsTableComp, Exclude<keyof IFactsTableComp, 'classes'>>>(
+export default compose<IFactsTableComp, Omit<IFactsTableComp, 'classes'>>(
   withStyles(styles),
   observer
 )(FactsTableComp);

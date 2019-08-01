@@ -130,7 +130,7 @@ interface IQueryHistory extends WithStyles<typeof styles> {
   store: QueryHistoryStore;
 }
 
-export default compose<IQueryHistory, Pick<IQueryHistory, Exclude<keyof IQueryHistory, 'classes'>>>(
+export default compose<IQueryHistory, Omit<IQueryHistory, 'classes'>>(
   withStyles(styles),
   observer
 )(QueryHistory);

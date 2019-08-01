@@ -42,7 +42,7 @@ interface IErrorSnackbarComp extends WithStyles<typeof styles> {
   onClose: () => void;
 }
 
-export default compose<IErrorSnackbarComp, Pick<IErrorSnackbarComp, Exclude<keyof IErrorSnackbarComp, 'classes'>>>(
+export default compose<IErrorSnackbarComp, Omit<IErrorSnackbarComp, 'classes'>>(
   withStyles(styles),
   observer
 )(ErrorSnackbarComp);

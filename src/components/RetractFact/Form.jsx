@@ -1,5 +1,4 @@
 import React from 'react';
-import { compose } from 'recompose';
 import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -70,4 +69,4 @@ const RetractFactFormComp = ({
   </form>
 );
 
-export default compose()(RetractFactFormComp);
+export default RetractFactFormComp;

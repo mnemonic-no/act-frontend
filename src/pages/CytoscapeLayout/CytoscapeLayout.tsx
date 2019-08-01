@@ -21,10 +21,10 @@ import Input from '@material-ui/core/Input';
 // @ts-ignore
 import classnames from 'classnames';
 
-// @ts-ignore
 import LAYOUTS, { types } from '../../Cytoscape/layouts';
 import ListItemControl from '../../components/ListItemControl';
 import CytoscapeLayoutStore from './CytoscapeLayoutStore';
+import { WithStyles } from '@material-ui/core/es';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -126,7 +126,7 @@ const LayoutOptionsList = ({ layoutConfig, layoutName, onChange }: any) => {
   );
 };
 
-const CytoscapeLayout = ({ store, classes }: { store: CytoscapeLayoutStore; classes: any }) => (
+const CytoscapeLayout = ({ store, classes }: ICytoscapeLayout) => (
   <Grid container spacing={16}>
     <Grid item xs={12}>
       <TextField
@@ -187,8 +187,11 @@ const CytoscapeLayout = ({ store, classes }: { store: CytoscapeLayoutStore; clas
   </Grid>
 );
 
-export default compose(
+interface ICytoscapeLayout extends WithStyles<typeof styles> {
+  store: CytoscapeLayoutStore;
+}
+
+export default compose<ICytoscapeLayout, Omit<ICytoscapeLayout, 'classes'>>(
   withStyles(styles),
   observer
-  // @ts-ignore
 )(CytoscapeLayout);

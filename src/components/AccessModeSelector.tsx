@@ -1,6 +1,6 @@
 import React from 'react';
 import { compose } from 'recompose';
-import { createStyles, withStyles } from '@material-ui/core/styles';
+import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
@@ -16,17 +16,7 @@ const styles = () =>
     }
   });
 
-const AccessModeSelectorComp = ({
-  classes,
-  onChange,
-  value,
-  ...rest
-}: {
-  classes: any;
-  onChange: Function;
-  value: string;
-  [key: string]: any;
-}) => (
+const AccessModeSelectorComp = ({ classes, onChange, value, ...rest }: IAccessModeSelectorComp) => (
   <TextField
     label="Access mode"
     onChange={e => onChange(e.target.value)}
@@ -49,8 +39,13 @@ const AccessModeSelectorComp = ({
   </TextField>
 );
 
-export default compose(
-  observer,
-  withStyles(styles)
-  // @ts-ignore
+interface IAccessModeSelectorComp extends WithStyles<typeof styles> {
+  onChange: Function;
+  value: string;
+  [key: string]: any;
+}
+
+export default compose<IAccessModeSelectorComp, Omit<IAccessModeSelectorComp, 'classes'>>(
+  withStyles(styles),
+  observer
 )(AccessModeSelectorComp);

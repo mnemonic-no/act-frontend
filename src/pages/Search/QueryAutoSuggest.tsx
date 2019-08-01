@@ -5,7 +5,7 @@ import parse from 'autosuggest-highlight/parse';
 // @ts-ignore
 import match from 'autosuggest-highlight/match';
 
-import { createStyles, Typography, withStyles } from '@material-ui/core';
+import { createStyles, Typography, WithStyles, withStyles } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
@@ -95,17 +95,7 @@ const QueryAutoSuggest = ({
   helperText,
   onChange,
   placeholder
-}: {
-  classes: any;
-  value: string;
-  suggestions: Array<Suggestion>;
-  onChange: Function;
-  required: boolean;
-  fullWidth: boolean;
-  label: string;
-  helperText?: string;
-  placeholder: string;
-}) => {
+}: IQueryAutoSuggest) => {
   const onChangeWrapper: (event: FormEvent<any>, params: ChangeEvent) => void = (event, params) => {
     const { newValue, method } = params;
     // Avoid updating the input field when the user is navigating the suggestion list.
@@ -146,5 +136,15 @@ const QueryAutoSuggest = ({
   );
 };
 
-// @ts-ignore
+interface IQueryAutoSuggest extends WithStyles<typeof styles> {
+  value: string;
+  suggestions: Array<Suggestion>;
+  onChange: Function;
+  required: boolean;
+  fullWidth: boolean;
+  label: string;
+  helperText?: string;
+  placeholder: string;
+}
+
 export default withStyles(styles)(QueryAutoSuggest);

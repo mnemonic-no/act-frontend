@@ -48,7 +48,7 @@ interface IGraphView extends WithStyles<typeof styles> {
   store: GraphViewStore;
 }
 
-export default compose<IGraphView, any>(
+export default compose<IGraphView, Omit<IGraphView, 'classes'>>(
   withStyles(styles),
   observer
 )(GraphView);

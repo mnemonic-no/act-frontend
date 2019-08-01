@@ -1,49 +1,49 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography/index';
 import Button from '@material-ui/core/Button/index';
-import { withStyles } from '@material-ui/core/styles/index';
+import { Theme, withStyles, createStyles, WithStyles } from '@material-ui/core/styles/index';
 
-// @ts-ignore
-const styles = theme => ({
-  root: {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    flexDirection: 'column'
-  },
-  inner: {
-    marginTop: 80,
-    [theme.breakpoints.down('md')]: {
-      marginTop: 80
-    }
-  },
-  logo: {
-    width: 512
-  },
-  list: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit * 3
-  },
-  text: {
-    marginTop: theme.spacing.unit * 4
-  },
-  link: {
-    cursor: 'pointer',
-    textDecoration: 'underline',
-    // color: theme.palette.secondary.main,
-    color: theme.palette.primary.main,
-    '&:hover': {
-      color: theme.palette.secondary.dark
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      flexDirection: 'column'
     },
-    '&:focus,&:active': {
-      color: theme.palette.secondary.light
+    inner: {
+      marginTop: 80,
+      [theme.breakpoints.down('md')]: {
+        marginTop: 80
+      }
+    },
+    logo: {
+      width: 512
+    },
+    list: {
+      marginTop: theme.spacing.unit,
+      marginBottom: theme.spacing.unit * 3
+    },
+    text: {
+      marginTop: theme.spacing.unit * 4
+    },
+    link: {
+      cursor: 'pointer',
+      textDecoration: 'underline',
+      // color: theme.palette.secondary.main,
+      color: theme.palette.primary.main,
+      '&:hover': {
+        color: theme.palette.secondary.dark
+      },
+      '&:focus,&:active': {
+        color: theme.palette.secondary.light
+      }
     }
-  }
-});
+  });
 
-const GraphEmptyComp = ({ classes }: { classes: any }) => (
+const GraphEmptyComp = ({ classes }: IGraphEmptyComp) => (
   <div className={classes.root}>
     <div className={classes.inner}>
       <img className={classes.logo} src="/act-logo-onWhite.svg" alt="ACT | The Open Threat Intelligence Platform" />
@@ -86,5 +86,6 @@ const GraphEmptyComp = ({ classes }: { classes: any }) => (
   </div>
 );
 
-// @ts-ignore
+interface IGraphEmptyComp extends WithStyles<typeof styles> {}
+
 export default withStyles(styles)(GraphEmptyComp);

@@ -1,15 +1,16 @@
-import React from 'react';
+import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core';
+import { observer } from 'mobx-react';
+import React from 'react';
+import { compose } from 'recompose';
+
 import ObjectType from '../../components/ObjectType';
 import ObjectValueAutosuggest from '../../components/ObjectValueAutosuggest';
-import Button from '@material-ui/core/Button';
-import { observer } from 'mobx-react';
 import SearchStore from './SearchStore';
 import QueryAutoSuggest from './QueryAutoSuggest';
-import { compose } from 'recompose';
-import { createStyles, withStyles } from '@material-ui/core';
 
-const styles = (theme: any) =>
+const styles = (theme: Theme) =>
   createStyles({
     buttonContainer: {
       display: 'flex',
@@ -17,7 +18,7 @@ const styles = (theme: any) =>
     }
   });
 
-const Search = ({ store, classes }: { store: SearchStore; classes: any }) => (
+const Search = ({ store, classes }: ISearch) => (
   <form
     onSubmit={e => {
       e.preventDefault();
@@ -59,8 +60,11 @@ const Search = ({ store, classes }: { store: SearchStore; classes: any }) => (
   </form>
 );
 
-export default compose(
+interface ISearch extends WithStyles<typeof styles> {
+  store: SearchStore;
+}
+
+export default compose<ISearch, Omit<ISearch, 'classes'>>(
   withStyles(styles),
   observer
-  // @ts-ignore
 )(Search);

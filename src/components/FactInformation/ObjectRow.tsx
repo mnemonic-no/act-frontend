@@ -35,7 +35,7 @@ interface IOBjectRowComp extends WithStyles<typeof styles> {
   onRowClick: (o: ActObject) => void;
 }
 
-export const ObjectRow = compose<IOBjectRowComp, Pick<IOBjectRowComp, Exclude<keyof IOBjectRowComp, 'classes'>>>(
+export const ObjectRow = compose<IOBjectRowComp, Omit<IOBjectRowComp, 'classes'>>(
   withStyles(styles),
   observer
 )(ObjectRowComp);

@@ -87,7 +87,7 @@ const ObjectInformationComp = ({
   onTitleClick,
   onFactClick,
   onPredefinedObjectQueryClick
-}: IObjectInformationComp) => {
+}: IObjectInformationCompInternal) => {
   const labelFromFact = getObjectLabelFromFact(selectedObject, config.objectLabelFromFactType, oneLeggedFacts);
   const totalFacts = selectedObject.statistics
     ? selectedObject.statistics.reduce((acc: any, x: any) => x.count + acc, 0)
@@ -147,7 +147,7 @@ const ObjectInformationComp = ({
   );
 };
 
-export interface IObjectInformationComp extends WithStyles<typeof styles> {
+interface IObjectInformationCompInternal extends WithStyles<typeof styles> {
   id: string;
   selectedObject: ActObject;
   oneLeggedFacts: Array<ActFact>;
@@ -155,7 +155,6 @@ export interface IObjectInformationComp extends WithStyles<typeof styles> {
   createFactDialog: any;
   onSearchSubmit: (search: Search) => void;
   onFactClick: (f: ActFact) => void;
-  onSearchClick: Function;
   onCreateFactClick: Function;
   onTitleClick: () => void;
   onPredefinedObjectQueryClick: (q: PredefinedObjectQuery) => void;
@@ -177,12 +176,16 @@ const dataLoader = async ({ id }: { id: string }) => {
 
 const memoizedDataLoader = memoizeDataLoader(dataLoader, ['id']);
 
-export default compose(
+export type IObjectInformationComp = Omit<
+  IObjectInformationCompInternal,
+  'classes' | 'alwaysShowLoadingComponent' | 'LoadingComponent' | 'selectedObject' | 'oneLeggedFacts'
+>;
+
+export default compose<IObjectInformationCompInternal, IObjectInformationComp>(
   withDataLoader(memoizedDataLoader, {
     alwaysShowLoadingComponent: true,
     LoadingComponent: CenteredCircularProgress
   }),
   withStyles(styles),
   observer
-  // @ts-ignore
 )(ObjectInformationComp);

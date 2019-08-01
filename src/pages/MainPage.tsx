@@ -217,7 +217,7 @@ const MainPage = ({ classes }: IMainPage) => (
 
 interface IMainPage extends WithStyles<typeof styles> {}
 
-export default compose<IMainPage, Pick<IMainPage, Exclude<keyof IMainPage, 'classes'>>>(
+export default compose<IMainPage, Omit<IMainPage, 'classes'>>(
   withStyles(styles),
   observer
 )(MainPage);

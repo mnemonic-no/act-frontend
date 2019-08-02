@@ -77,7 +77,8 @@ export default ({ showEdgeLabels } = {}) => [
     selector: 'edge[?retracted]',
     style: {
       'line-color': '#e47f7f',
-      'target-arrow-color': '#e47f7f'
+      'target-arrow-color': '#e47f7f',
+      'source-arrow-color': '#e47f7f'
     }
   },
   {

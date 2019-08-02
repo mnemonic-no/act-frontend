@@ -31,9 +31,6 @@ export type ActFact = {
   destinationObject?: ActObject;
   bidirectionalBinding: boolean;
   flags: Array<'Retracted' | string>;
-  // Client side
-  retracted?: Boolean;
-  retraction?: ActFact;
 };
 
 export type FactType = {

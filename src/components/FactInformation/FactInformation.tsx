@@ -11,15 +11,13 @@ import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 import actWretch from '../../util/actWretch';
 import { isRetracted, isRetraction } from '../../core/domain';
 import CenteredCircularProgress from '../CenteredCircularProgress';
-import { FactRow } from './FactsRow';
 import memoizeDataLoader from '../../util/memoizeDataLoader';
 import { ObjectRow } from './ObjectRow';
 import RetractFactDialog, { retractFact } from '../RetractFact/Dialog';
 import withDataLoader, { combineDataLoaders } from '../../util/withDataLoader';
 import { factColor } from '../../util/utils';
 import { ActFact, ActObject, FactComment } from '../../pages/types';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import { FactRow } from './FactsRow';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -57,12 +55,6 @@ const styles = (theme: Theme) =>
     },
     factType: {
       color: factColor
-    },
-    retractionRow: {
-      height: theme.spacing.unit * 4
-    },
-    retractionCell: {
-      paddingLeft: theme.spacing.unit * 2
     }
   });
 
@@ -150,14 +142,7 @@ const FactInformationComp = ({
           <Table classes={{ root: classes.objectsTable }}>
             <TableBody>
               {retractions.map((retraction: ActFact) => (
-                <TableRow className={classes.retractionRow} key={retraction.id} hover classes={{ root: classes.row }}>
-                  <TableCell className={classes.retractionCell} padding="dense">
-                    Retraction
-                  </TableCell>
-                  <TableCell className={classes.retractionCell} padding="dense">
-                    {format(new Date(retraction.timestamp), 'DD.MM.YYYY HH:mm')}
-                  </TableCell>
-                </TableRow>
+                <FactRow key={retraction.id} fact={retraction} onRowClick={fact => onFactRowClick(fact)} />
               ))}
             </TableBody>
           </Table>

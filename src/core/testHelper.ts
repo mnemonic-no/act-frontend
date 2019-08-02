@@ -16,7 +16,8 @@ export const fact = (args: { [key: string]: any }): ActFact => {
     lastSeenTimestamp: '',
     bidirectionalBinding: false,
     accessMode: '',
-    value: 'changeme'
+    value: 'changeme',
+    flags: []
   };
 
   return {

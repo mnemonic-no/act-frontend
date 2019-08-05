@@ -1,7 +1,4 @@
 {
-	"rules": {
-		"semi": [ "error", "always" ],
-		"quotes": [ "error", "single" ],
-		"jsx-quotes": [ "error", "prefer-single" ]
-	}
+  "extends": ["prettier", "react-app"],
+  "rules": {}
 }

@@ -11,17 +11,16 @@ const DEFAULT_OPTIONS = {
   removePrevious: false
 };
 
-
 export class EventEmitter {
-  registerAddMessage = (addMessagefunc) => {
+  registerAddMessage = addMessagefunc => {
     this.addMessageFunc = addMessagefunc;
   };
   addMessage = (message, options) => this.addMessageFunc(message, options);
 }
 
-export const createSnackbarProvider = (eventEmitter) =>
+export const createSnackbarProvider = eventEmitter =>
   class SnackbarProvider extends React.Component {
-    constructor () {
+    constructor() {
       super();
       eventEmitter.registerAddMessage(this.addMessage);
 
@@ -74,9 +73,7 @@ export const createSnackbarProvider = (eventEmitter) =>
           ...this.props,
           ...options
         };
-        const newMessages = removePrevious
-          ? state.messages.slice(0, 1)
-          : state.messages;
+        const newMessages = removePrevious ? state.messages.slice(0, 1) : state.messages;
 
         return {
           messages: newMessages.concat({
@@ -93,11 +90,9 @@ export const createSnackbarProvider = (eventEmitter) =>
       return closeFunc;
     };
 
-
-    render () {
+    render() {
       const { children, ...props } = this.props;
-      const { message, options, closeFunc } =
-        this.state.messages.length > 0 ? this.state.messages[0] : {};
+      const { message, options, closeFunc } = this.state.messages.length > 0 ? this.state.messages[0] : {};
 
       // eslint-disable-next-line no-unused-vars
       const { action, removePrevious, closeOnClickaway, ...finalOptions } = {

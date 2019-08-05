@@ -38,8 +38,7 @@ export const layoutConfig = {
   nestingFactor: {
     type: types.number,
     value: 5,
-    description:
-      'Nesting factor (multiplier) to compute ideal edge length for nested edges'
+    description: 'Nesting factor (multiplier) to compute ideal edge length for nested edges'
   },
   gravity: {
     type: types.number,

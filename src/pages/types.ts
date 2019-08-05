@@ -1,97 +1,95 @@
 export type NamedId = {
-    id: string,
-    name: string
-}
+  id: string;
+  name: string;
+};
 
 export type ObjectStats = {
-    type: NamedId
-    count: number,
-    lastAddedTimestamp: string,
-    lastSeenTimestamp: string,
-}
+  type: NamedId;
+  count: number;
+  lastAddedTimestamp: string;
+  lastSeenTimestamp: string;
+};
 
 export type ActObject = {
-    id: string,
-    type: NamedId,
-    value: string,
-    statistics?: Array<ObjectStats>
-}
+  id: string;
+  type: NamedId;
+  value: string;
+  statistics?: Array<ObjectStats>;
+};
 
 export type ActFact = {
-    id: string,
-    type: NamedId,
-    value?: string,
-    inReferenceTo?: NamedId,
-    organization: NamedId,
-    source: NamedId,
-    accessMode: string,
-    timestamp: string,
-    lastSeenTimestamp: string,
-    sourceObject?: ActObject,
-    destinationObject?: ActObject,
-    bidirectionalBinding: boolean,
-    // Client side
-    retracted?: Boolean,
-    retraction?: ActFact
-}
+  id: string;
+  type: NamedId;
+  value?: string;
+  inReferenceTo?: NamedId;
+  organization: NamedId;
+  source: NamedId;
+  accessMode: string;
+  timestamp: string;
+  lastSeenTimestamp: string;
+  sourceObject?: ActObject;
+  destinationObject?: ActObject;
+  bidirectionalBinding: boolean;
+  // Client side
+  retracted?: Boolean;
+  retraction?: ActFact;
+};
 
 export type FactType = {
-    id: string,
-    name: string,
-    namespace: NamedId,
-    relevantObjectBindings: Array<{
-        bidirectionalBinding: boolean,
-        sourceObjectType: NamedId,
-        destinationObjectType: NamedId
-    }>,
-    validator: string,
-    validatorParameter: string
+  id: string;
+  name: string;
+  namespace: NamedId;
+  relevantObjectBindings: Array<{
+    bidirectionalBinding: boolean;
+    sourceObjectType: NamedId;
+    destinationObjectType: NamedId;
+  }>;
+  validator: string;
+  validatorParameter: string;
 };
 
 export type QueryResult = {
-    facts: { [id: string]: ActFact },
-    objects: { [id: string]: ActObject }
-}
+  facts: { [id: string]: ActFact };
+  objects: { [id: string]: ActObject };
+};
 
 export type SingleFactSearch = {
-    id: string,
-    factTypeName: string
-}
+  id: string;
+  factTypeName: string;
+};
 
 export type ObjectFactsSearch = {
-    objectType: string,
-    objectValue: string,
-    query?: string,
-    factTypes?: Array<string>
-}
+  objectType: string;
+  objectValue: string;
+  query?: string;
+  factTypes?: Array<string>;
+};
 
-export type Search = SingleFactSearch | ObjectFactsSearch
+export type Search = SingleFactSearch | ObjectFactsSearch;
 
 export type Query = {
-    id: string,
-    result: QueryResult,
-    search: Search
-}
+  id: string;
+  result: QueryResult;
+  search: Search;
+};
 
 export type QueryHistoryExport = {
-    version: string,
-    queries: Array<Search>
-}
-
-export const searchId = (search : Search )=> {
-    if (isObjectSearch(search)) {
-        return [search.objectType, search.objectValue, search.query, search.factTypes]
-            .filter(x => x)
-            .join(":");
-    } else {
-        return search.id;
-    }
+  version: string;
+  queries: Array<Search>;
 };
 
-export const isObjectSearch = (search : Search) : search is ObjectFactsSearch => {
-    return (search as ObjectFactsSearch).objectType !== undefined;
+export const searchId = (search: Search) => {
+  if (isObjectSearch(search)) {
+    return [search.objectType, search.objectValue, search.query, search.factTypes].filter(x => x).join(':');
+  } else {
+    return search.id;
+  }
 };
 
-export const isFactSearch = (search : Search) : search is SingleFactSearch => {
-    return (search as SingleFactSearch).factTypeName !== undefined;
+export const isObjectSearch = (search: Search): search is ObjectFactsSearch => {
+  return (search as ObjectFactsSearch).objectType !== undefined;
+};
+
+export const isFactSearch = (search: Search): search is SingleFactSearch => {
+  return (search as SingleFactSearch).factTypeName !== undefined;
 };

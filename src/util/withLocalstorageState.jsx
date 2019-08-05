@@ -1,12 +1,7 @@
 import { compose, withState, withHandlers } from 'recompose';
 
 const createHoc = (storage = window.localStorage) => {
-  return function withLocalStorageState (
-    storageName,
-    stateName,
-    stateUpdaterName,
-    initialValue = null
-  ) {
+  return function withLocalStorageState(storageName, stateName, stateUpdaterName, initialValue = null) {
     return compose(
       withState(stateName, stateUpdaterName, () => {
         const storedValue = JSON.parse(storage.getItem(storageName));

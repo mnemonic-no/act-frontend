@@ -1,7 +1,6 @@
 import config from '../config';
 
-export const objectTypeToColor = objectType =>
-  config.objectColors[objectType] || 'inherit';
+export const objectTypeToColor = objectType => config.objectColors[objectType] || 'inherit';
 
 export const factColor = '#F84';
 
@@ -35,7 +34,7 @@ export const makeCancelable = promise => {
 
   return {
     promise: wrappedPromise,
-    cancel () {
+    cancel() {
       hasCanceled_ = true;
     }
   };
@@ -57,7 +56,7 @@ export const pick = (obj, keys) => {
  * assertUniqueKeys asserts that the passed objects only contain unique keys, throws an error if they do
  * @param objects
  */
-export function assertUniqueKeys (objects) {
+export function assertUniqueKeys(objects) {
   const uniqueKeys = new Set();
   objects.forEach(o => {
     Object.keys(o).forEach(key => {

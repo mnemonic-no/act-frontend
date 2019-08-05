@@ -10,7 +10,7 @@ const dataLoader = () =>
     .url('/v1/objectType')
     .get()
     .json(({ data }) => ({
-      data: data.slice().sort((a, b) => {
+      data: data.slice().sort((a: any, b: any) => {
         return a.name > b.name ? 1 : -1;
       })
     }))

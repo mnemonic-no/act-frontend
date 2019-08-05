@@ -9,7 +9,7 @@ export const layoutConfig = {
   padding: { type: types.number, value: 30, description: `the padding on fit` },
   startAngle: {
     type: types.number,
-    value: 3 / 2 * Math.PI,
+    value: (3 / 2) * Math.PI,
     description: `where nodes start in radians`
   },
   sweep: {

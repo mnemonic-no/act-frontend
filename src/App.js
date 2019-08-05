@@ -1,10 +1,8 @@
-import React from 'react'
-import { compose, lifecycle } from 'recompose'
+import React from 'react';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
-import SnackbarProvider from './util/SnackbarProvider'
-
-import MainPage from './pages/MainPage'
+import SnackbarProvider from './util/SnackbarProvider';
+import MainPage from './pages/MainPage';
 
 const Black = {
   50: '#9e9e9e',
@@ -51,25 +49,20 @@ const theme = createMuiTheme({
   overrides: {
     MuiTooltip: {
       tooltip: {
-        padding: "8px 16px",
-        fontSize: 14,
-      },
-    },
-  },
+        padding: '8px 16px',
+        fontSize: 14
+      }
+    }
+  }
 });
 
 const App = () => (
-    <>
-      <MuiThemeProvider theme={theme}>
-        <SnackbarProvider/>
-        <MainPage/>
-      </MuiThemeProvider>
-    </>
+  <>
+    <MuiThemeProvider theme={theme}>
+      <SnackbarProvider />
+      <MainPage />
+    </MuiThemeProvider>
+  </>
 );
 
-export default compose(
-  lifecycle({
-    // componentDidCatch (error, info) {
-    // }
-  })
-)(App)
+export default App;

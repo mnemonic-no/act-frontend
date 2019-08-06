@@ -9,15 +9,15 @@ import Button from '@material-ui/core/Button/index';
 import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 
 import actWretch from '../../util/actWretch';
+import { isRetracted, isRetraction } from '../../core/domain';
 import CenteredCircularProgress from '../CenteredCircularProgress';
-import { FactRow } from './FactsRow';
 import memoizeDataLoader from '../../util/memoizeDataLoader';
 import { ObjectRow } from './ObjectRow';
-import { relativeStringToDate } from '../RelativeDateSelector';
 import RetractFactDialog, { retractFact } from '../RetractFact/Dialog';
 import withDataLoader, { combineDataLoaders } from '../../util/withDataLoader';
 import { factColor } from '../../util/utils';
-import { ActFact, ActObject } from '../../pages/types';
+import { ActFact, ActObject, FactComment } from '../../pages/types';
+import { FactRow } from './FactsRow';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -42,7 +42,6 @@ const styles = (theme: Theme) =>
     objectsTable: {
       marginLeft: -theme.spacing.unit * 2
     },
-
     row: {
       display: 'flex'
     },
@@ -59,13 +58,6 @@ const styles = (theme: Theme) =>
     }
   });
 
-type Comment = {
-  id: string;
-  replyTo: string;
-  comment: string;
-  timestamp: any;
-};
-
 const FactInformationComp = ({
   classes,
   id,
@@ -80,10 +72,10 @@ const FactInformationComp = ({
   <div className={classes.root}>
     <Typography variant="h5">
       <span className={classes.factType}>{fact.type.name}</span>
-      {retractions.length > 0 && <span style={{ color: '#FF4F4F' }}> RETRACTED</span>}
+      {isRetracted(fact) && <span style={{ color: '#FF4F4F' }}> RETRACTED</span>}
     </Typography>
     <Typography variant="subtitle1" gutterBottom>
-      {fact.value.startsWith('-') ? '' : fact.value}
+      {fact.value && fact.value.startsWith('-') ? '' : fact.value}
     </Typography>
     <div className={classes.info}>
       <Grid container spacing={0}>
@@ -131,26 +123,30 @@ const FactInformationComp = ({
         </TableBody>
       </Table>
 
-      {comments.length > 0 && <br />}
-      {comments.map(({ id, replyTo, comment, timestamp }: Comment) => (
-        <div key={id}>
-          <Typography>{replyTo}</Typography>
-          <Typography>{comment}</Typography>
-          <Typography variant="caption">{format(new Date(timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
-        </div>
-      ))}
+      {comments && comments.length > 0 && <br />}
+      {comments &&
+        comments.map(({ id, replyTo, comment, timestamp }: FactComment) => (
+          <div key={id}>
+            <Typography>{replyTo}</Typography>
+            <Typography>{comment}</Typography>
+            <Typography variant="caption">{format(new Date(timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
+          </div>
+        ))}
 
-      {retractions.length > 0 && (
-        <React.Fragment>
+      {retractions && retractions.length > 0 && (
+        <>
           <br />
+          <Typography variant="body1" gutterBottom>
+            {retractions.length} retractions
+          </Typography>
           <Table classes={{ root: classes.objectsTable }}>
             <TableBody>
-              {retractions.map((retraction: any) => (
+              {retractions.map((retraction: ActFact) => (
                 <FactRow key={retraction.id} fact={retraction} onRowClick={fact => onFactRowClick(fact)} />
               ))}
             </TableBody>
           </Table>
-        </React.Fragment>
+        </>
       )}
     </div>
     <div className={classes.actions}>
@@ -180,28 +176,22 @@ const accessDataLoader = ({ id }: { id: string }) =>
     .get()
     .json(({ data }) => ({ access: data }));
 
-const retractionsDataLoader = ({ id, endTimestamp }: { id: string; endTimestamp: any }) =>
+const retractionsDataLoader = ({ id }: { id: string }) =>
   actWretch
-    .url(`/v1/fact/search`)
-    .json({
-      before: endTimestamp === 'Any time' ? null : relativeStringToDate(endTimestamp),
-      factType: ['Retraction'],
-      factValue: [`Retracted Fact with id = ${id}.`],
-      limit: 0
-    })
-    .post()
-    .json(({ data }) => ({ retractions: data }));
+    .url(`/v1/fact/uuid/${id}/meta`)
+    .get()
+    .json(({ data }) => ({ retractions: data.filter(isRetraction) }));
 
 const memoizedFactDataLoader = memoizeDataLoader(factDataLoader, ['id']);
 
 interface IFactInformationCompInternal extends WithStyles<typeof styles> {
   id: string;
-  fact: any;
+  fact: ActFact;
   onObjectRowClick: (obj: ActObject) => void;
   onFactRowClick: (fact: ActFact) => void;
-  comments: any;
+  comments: Array<FactComment>;
   access: any;
-  retractions: any;
+  retractions: Array<ActFact>;
   onRetractFactClick: (x: any) => void;
 }
 

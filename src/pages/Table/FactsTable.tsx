@@ -23,7 +23,8 @@ export type ColumnKind =
   | 'destinationType'
   | 'destinationValue'
   | 'isBidirectional'
-  | 'isOneLegged';
+  | 'isOneLegged'
+  | 'isRetracted';
 
 export type SortOrder = {
   order: 'asc' | 'desc';
@@ -75,7 +76,7 @@ const styles = (theme: Theme) =>
       .reduce((acc, x) => Object.assign({}, acc, x), {})
   });
 
-const cellClassNames = ({ kind, text }: { kind: ColumnKind; text: string; classes: any }, classes: any) => {
+const cellClassNames = ({ kind, text }: { kind: ColumnKind; text: string }, classes: any) => {
   switch (kind) {
     case 'sourceType':
       const sourceType = classes[text] ? classes[text] : '';
@@ -91,6 +92,8 @@ const cellClassNames = ({ kind, text }: { kind: ColumnKind; text: string; classe
       return `${classes.cell} ${destinationType}`;
     case 'destinationValue':
       return `${classes.cell} ${classes.wordBreak}`;
+    case 'isRetracted':
+      return `${classes.cell}`;
     case 'isBidirectional':
       return classes.cell;
     case 'isOneLegged':

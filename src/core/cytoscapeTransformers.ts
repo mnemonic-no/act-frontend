@@ -1,6 +1,7 @@
 import { truncateText } from '../util/utils';
 import { isOneLegged, objectLabel } from './transformers';
 import { ActFact, ActObject } from '../pages/types';
+import { isRetracted } from './domain';
 
 /*
  * Convert ACT object and fact structures to cytoscape structures
@@ -41,7 +42,7 @@ export const factToSingleCytoscapeEdge = (fact: ActFact) => {
 
       isFact: true,
       factId: fact.id,
-      retracted: Boolean(fact.retracted)
+      retracted: isRetracted(fact)
     },
     classes
   };

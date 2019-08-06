@@ -30,9 +30,7 @@ export type ActFact = {
   sourceObject?: ActObject;
   destinationObject?: ActObject;
   bidirectionalBinding: boolean;
-  // Client side
-  retracted?: Boolean;
-  retraction?: ActFact;
+  flags: Array<'Retracted' | string>;
 };
 
 export type FactType = {
@@ -46,6 +44,13 @@ export type FactType = {
   }>;
   validator: string;
   validatorParameter: string;
+};
+
+export type FactComment = {
+  id: string;
+  replyTo: string;
+  comment: string;
+  timestamp: any;
 };
 
 export type QueryResult = {

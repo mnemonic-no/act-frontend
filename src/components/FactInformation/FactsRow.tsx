@@ -6,6 +6,8 @@ import TableRow from '@material-ui/core/TableRow';
 import { WithStyles, withStyles } from '@material-ui/core/styles';
 import { ActFact } from '../../pages/types';
 import { Theme } from '@material-ui/core';
+import format from 'date-fns/format';
+import { isRetraction } from '../../core/domain';
 
 const styles = (theme: Theme) => ({
   cell: {
@@ -17,16 +19,33 @@ const styles = (theme: Theme) => ({
   }
 });
 
-const FactRowComp = ({ onRowClick, classes, fact }: IFactRowComp) => (
-  <TableRow key={fact.id} hover classes={{ root: classes.row }} onClick={() => onRowClick(fact)}>
+const RetractionRowComp = ({ classes, fact }: IFactRowComp) => (
+  <TableRow key={fact.id} hover classes={{ root: classes.row }}>
     <TableCell classes={{ root: classes.cell }} padding="dense">
-      {fact.type.name}
+      Retraction
     </TableCell>
     <TableCell classes={{ root: classes.cell }} padding="dense">
-      {fact.value && fact.value.startsWith('-') ? '' : fact.value}
+      {format(new Date(fact.timestamp), 'DD.MM.YYYY HH:mm')}
     </TableCell>
   </TableRow>
 );
+
+const FactRowComp = ({ onRowClick, classes, fact }: IFactRowComp) => {
+  if (isRetraction(fact)) {
+    return <RetractionRowComp {...{ onRowClick, classes, fact }} />;
+  } else {
+    return (
+      <TableRow key={fact.id} hover classes={{ root: classes.row }} onClick={() => onRowClick(fact)}>
+        <TableCell classes={{ root: classes.cell }} padding="dense">
+          {fact.type.name}
+        </TableCell>
+        <TableCell classes={{ root: classes.cell }} padding="dense">
+          {fact.value && fact.value.startsWith('-') ? '' : fact.value}
+        </TableCell>
+      </TableRow>
+    );
+  }
+};
 
 interface IFactRowComp extends WithStyles<typeof styles> {
   fact: ActFact;

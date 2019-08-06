@@ -58,7 +58,6 @@ class CytoscapeLayoutStore {
       layoutName: this.graphOptions.layout.layoutName,
       layoutUrl: this.graphOptions.layout.layoutUrl,
       layoutConfig,
-      // @ts-ignore
       layoutObject: layoutConfigToObject({
         layoutName: this.graphOptions.layout.layoutName,
         layoutConfig

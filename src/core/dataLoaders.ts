@@ -1,8 +1,11 @@
 import config from '../config';
 import actWretch from '../util/actWretch';
-import { factsToObjects } from './transformers';
-import { ActFact, FactType, ObjectFactsSearch, ObjectStats } from '../pages/types';
+import { factMapToObjectMap } from './transformers';
+import { ActFact, ActObject, FactType, ObjectFactsSearch, ObjectStats } from '../pages/types';
+import * as _ from 'lodash/fp';
+
 import memoizeDataLoader from '../util/memoizeDataLoader';
+import { arrayToObjectWithIds } from '../util/util';
 
 const handleError = (error: any) => {
   if (error instanceof TypeError) {
@@ -64,15 +67,12 @@ export const objectFactsDataLoader = ({ objectType, objectValue, factTypes }: Ob
     .post()
     .forbidden(handleForbiddenQueryResults)
     .json(({ data }: any) => {
-      const factsData = data;
-      const objectsData = factsToObjects(data);
+      const facts: { [id: string]: ActFact } = arrayToObjectWithIds(data);
+      const objects: { [id: string]: ActObject } = factMapToObjectMap(facts);
+
       return {
-        data: {
-          factsData,
-          objectsData,
-          factsSet: new Set(factsData.map((fact: any) => fact.id)),
-          objectsSet: new Set(objectsData.map((fact: any) => fact.id))
-        }
+        facts,
+        objects
       };
     })
     .catch(handleError);
@@ -92,35 +92,15 @@ export const objectFactsTraverseDataLoader = ({ objectType, objectValue, query }
     .json(({ data }: any) => {
       const isFact = (maybeFact: any) => maybeFact.hasOwnProperty('bidirectionalBinding');
 
-      const factsSet = new Set();
-      const objectsSet = new Set();
-      const factsData: Array<any> = [];
-      const objectsData: Array<any> = [];
+      const facts: { [id: string]: ActFact } = arrayToObjectWithIds(data.filter(isFact));
 
-      data.forEach((x: any) => {
-        if (isFact(x) && !factsSet.has(x.id)) {
-          factsSet.add(x.id);
-          factsData.push(x);
-        } else if (!isFact(x) && !objectsSet.has(x.id)) {
-          objectsSet.add(x.id);
-          objectsData.push(x);
-        }
-      });
-
-      // Add objects from facts
-      factsToObjects(factsData).forEach((x: any) => {
-        if (objectsSet.has(x.id)) return false;
-        objectsSet.add(x.id);
-        objectsData.push(x);
-      });
+      const objectsFromJson: { [id: string]: ActObject } = arrayToObjectWithIds(data.filter(_.negate(isFact)));
+      const objectsFromFacts: { [id: string]: ActObject } = factMapToObjectMap(facts);
+      const objects: { [id: string]: ActObject } = { ...objectsFromFacts, ...objectsFromJson };
 
       return {
-        data: {
-          factsData,
-          objectsData,
-          factsSet,
-          objectsSet
-        }
+        facts,
+        objects
       };
     })
     .catch(handleError);
@@ -182,15 +162,22 @@ export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: numb
 /**
  * Resolve preconfigured facts for objects based on list of facts (with connected objects)
  */
-export const autoResolveDataLoader = ({ data }: any) => {
-  const { factsData, objectsData = [], factsSet, objectsSet } = data;
+export const autoResolveDataLoader = ({
+  facts,
+  objects
+}: {
+  facts: { [id: string]: ActFact };
+  objects: { [id: string]: ActObject };
+}) => {
+  const originalFacts = facts;
+  const originalObjects = objects;
 
   const autoResolveFactsKeys = Object.keys(config.autoResolveFacts);
 
-  const promises = objectsData
+  const promises = Object.values(objects)
     .filter((object: any) => autoResolveFactsKeys.includes(object.type.name))
-    .map((object: any) =>
-      actWretch
+    .map((object: any) => {
+      return actWretch
         .url(`/v1/object/uuid/${object.id}/facts`)
         .json({
           // @ts-ignore
@@ -198,53 +185,27 @@ export const autoResolveDataLoader = ({ data }: any) => {
           includeRetracted: true
         })
         .post()
-        .json(({ data }: any) => data)
-    );
+        .json(({ data }: any) => data);
+    });
 
   if (promises.length === 0) {
-    return Promise.resolve({ data });
+    return Promise.resolve({ facts, objects });
   }
 
-  return (
-    Promise.all(promises)
-      // @ts-ignore
-      .then(data => data.reduce((acc, x) => acc.concat(x), [])) // flatten
-      .then(data => ({
-        resolvedFacts: data,
-        resolvedObjects: factsToObjects(data)
-      }))
-      // Merge
-      .then(({ resolvedFacts, resolvedObjects }) => {
-        const newFactsSet = new Set(factsSet);
-        const newObjectsSet = new Set(objectsSet);
+  return Promise.all(promises)
 
-        // Distinct and poplate sets
-        const mergedFacts = factsData.concat(
-          // @ts-ignore
-          resolvedFacts.filter((fact: any) => {
-            if (newFactsSet.has(fact.id)) return false;
-            newFactsSet.add(fact.id);
-            return true;
-          })
-        );
-        const mergedObjects = objectsData.concat(
-          resolvedObjects.filter((object: any) => {
-            if (newObjectsSet.has(object.id)) return false;
-            newObjectsSet.add(object.id);
-            return true;
-          })
-        );
+    .then(data => {
+      const flattenedData = _.flatten(data);
 
-        return {
-          factsData: mergedFacts,
-          objectsData: mergedObjects,
-          objectsSet: newObjectsSet,
-          factsSet: newFactsSet
-        };
-      })
-      .then(data => ({ data }))
-      .catch(handleError)
-  );
+      const newFacts: { [id: string]: ActFact } = arrayToObjectWithIds(flattenedData);
+      const newObjects: { [id: string]: ActObject } = factMapToObjectMap(newFacts);
+
+      return {
+        facts: { ...newFacts, ...originalFacts },
+        objects: { ...newObjects, ...originalObjects }
+      };
+    })
+    .catch(handleError);
 };
 
 export const factTypesDataLoader = memoizeDataLoader(

@@ -6,16 +6,6 @@ import { addMessage } from '../util/SnackbarProvider';
 
 const maxFetchLimit = 2000;
 
-const arrayToObjectWithIds = (inputArray: Array<any>) => {
-  return inputArray.reduce(
-    (acc, curr) => ({
-      ...acc,
-      [curr.id]: curr
-    }),
-    {}
-  );
-};
-
 class BackendStore {
   root: MainPageStore;
 
@@ -44,14 +34,13 @@ class BackendStore {
 
       if (!approvedAmountOfData) return;
 
-      // @ts-ignore
       const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
       const q: Query = {
         id: id,
         search: search,
         result: {
-          facts: arrayToObjectWithIds(result.data.factsData),
-          objects: arrayToObjectWithIds(result.data.objectsData)
+          facts: result.facts,
+          objects: result.objects
         }
       };
       this.root.queryHistory.addQuery(q);
@@ -85,8 +74,8 @@ class BackendStore {
             id: searchId(search),
             search: search,
             result: {
-              facts: arrayToObjectWithIds(result.data.factsData),
-              objects: arrayToObjectWithIds(result.data.objectsData)
+              facts: result.facts,
+              objects: result.objects
             }
           };
           this.root.queryHistory.addQuery(q);

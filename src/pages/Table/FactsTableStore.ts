@@ -7,6 +7,7 @@ import { ColumnKind, FactRow, SortOrder } from './FactsTable';
 import { isOneLegged } from '../../core/transformers';
 import { exportToCsv } from '../../util/util';
 import { renderObjectValue } from '../../util/utils';
+import { isRetracted } from '../../core/domain';
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string; kind: ColumnKind }>, objects: Array<FactRow>) => {
   const cellIdx = columns.findIndex(({ kind }) => kind === sortOrder.orderBy);
@@ -41,12 +42,15 @@ const cellText = (kind: ColumnKind, fact: ActFact, isExport: boolean) => {
           ? fact.destinationObject.value
           : renderObjectValue(fact.destinationObject, 100)
         : '';
+    case 'isRetracted':
+      return isRetracted(fact) ? (isExport ? '1' : '✗') : '';
     case 'isBidirectional':
       return fact.bidirectionalBinding ? (isExport ? '1' : '✔') : '';
     case 'isOneLegged':
       return isOneLegged(fact) ? (isExport ? '1' : '✔') : '';
     default:
-      return '';
+      // eslint-disable-next-line
+      const _exhaustiveCheck: never = kind;
   }
 };
 
@@ -80,6 +84,7 @@ class FactsTableStore {
     { label: 'Fact Value', kind: 'factValue' },
     { label: 'Destination Type', kind: 'destinationType' },
     { label: 'Destination Value', kind: 'destinationValue' },
+    { label: 'Retracted', kind: 'isRetracted', tooltip: 'Is fact retracted?' },
     { label: 'Bi-dir.', exportLabel: 'Bidirectional?', kind: 'isBidirectional', tooltip: 'Is fact bidirectional?' },
     {
       label: 'Object prop.',

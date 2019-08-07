@@ -169,31 +169,24 @@ export const autoResolveDataLoader = ({
   facts: { [id: string]: ActFact };
   objects: { [id: string]: ActObject };
 }) => {
-  const originalFacts = facts;
-  const originalObjects = objects;
+  const factTypesToSearchFor: Array<{
+    objectIds: Array<string>;
+    factTypes: Array<string>;
+  }> = factTypesToResolveByObjectId(config.autoResolveFacts, Object.values(objects));
 
-  const autoResolveFactsKeys = Object.keys(config.autoResolveFacts);
-
-  const promises = Object.values(objects)
-    .filter((object: any) => autoResolveFactsKeys.includes(object.type.name))
-    .map((object: any) => {
-      return actWretch
-        .url(`/v1/object/uuid/${object.id}/facts`)
-        .json({
-          // @ts-ignore
-          factType: config.autoResolveFacts[object.type.name],
-          includeRetracted: true
-        })
-        .post()
-        .json(({ data }: any) => data);
-    });
-
-  if (promises.length === 0) {
+  if (!factTypesToSearchFor || factTypesToSearchFor.length === 0) {
     return Promise.resolve({ facts, objects });
   }
 
-  return Promise.all(promises)
+  const promises = factTypesToSearchFor.map(({ objectIds, factTypes }) => {
+    return actWretch
+      .url('/v1/fact/search')
+      .json({ factType: factTypes, includeRetracted: true, objectID: objectIds, limit: DEFAULT_LIMIT })
+      .post()
+      .json(({ data }: any) => data);
+  });
 
+  return Promise.all(promises)
     .then(data => {
       const flattenedData = _.flatten(data);
 
@@ -201,11 +194,44 @@ export const autoResolveDataLoader = ({
       const newObjects: { [id: string]: ActObject } = factMapToObjectMap(newFacts);
 
       return {
-        facts: { ...newFacts, ...originalFacts },
-        objects: { ...newObjects, ...originalObjects }
+        facts: { ...newFacts, ...facts },
+        objects: { ...newObjects, ...objects }
       };
     })
     .catch(handleError);
+};
+
+export const factTypesToResolveByObjectId = (
+  objectTypeToFactTypes: { [id: string]: Array<string> },
+  objects: Array<ActObject>
+): Array<{ objectIds: Array<string>; factTypes: Array<string> }> => {
+  const factTypesToObjectTypes = matchFactTypesToObjectTypes(objectTypeToFactTypes);
+
+  return _.pipe(
+    _.map((x: { factTypes: Array<string>; objectTypes: Array<string> }) => {
+      return {
+        ...x,
+        objectIds: objects
+          .filter((o: ActObject) => x.objectTypes.some((objectTypeName: string) => objectTypeName === o.type.name))
+          .map((o: ActObject) => o.id)
+      };
+    }),
+    _.filter(x => x.objectIds.length > 0)
+  )(factTypesToObjectTypes);
+};
+
+export const matchFactTypesToObjectTypes = (factTypeToObjectTypes: { [id: string]: Array<string> }) => {
+  return _.pipe(
+    _.toPairs,
+    _.map(([objectType, factTypes]: [string, Array<string>]) => ({ factTypes: factTypes, objectTypes: [objectType] })),
+    _.groupBy('factTypes'),
+    _.values,
+    _.map((x: Array<{ factTypes: Array<string>; objectTypes: Array<string> }>) => {
+      const factTypes = x[0].factTypes;
+      const objectTypes = _.flatMap((a: { objectTypes: Array<string> }) => a.objectTypes)(x);
+      return { factTypes: factTypes, objectTypes: objectTypes };
+    })
+  )(factTypeToObjectTypes);
 };
 
 export const factTypesDataLoader = memoizeDataLoader(

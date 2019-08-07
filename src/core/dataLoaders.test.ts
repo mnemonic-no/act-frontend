@@ -1,4 +1,5 @@
-import { resultCount } from './dataLoaders';
+import { factTypesToResolveByObjectId, matchFactTypesToObjectTypes, resultCount } from './dataLoaders';
+import { actObject } from './testHelper';
 
 const objectStat = (type: string, count: number) => ({
   lastAddedTimestamp: '',
@@ -53,4 +54,51 @@ it('can count stats with factType filter', () => {
       [objectStat('factX', 10), objectStat('factY', 20)]
     )
   ).toBe(20);
+});
+
+it('can match fact types to object types', () => {
+  const autoResolveFactsConfig = {
+    asn: ['name'],
+    incident: ['name'],
+    ipv4: ['sinkhole'],
+    ipv6: ['sinkhole'],
+    path: ['basename'],
+    report: ['name'],
+    uri: ['port', 'scheme']
+  };
+
+  expect(new Set(matchFactTypesToObjectTypes(autoResolveFactsConfig))).toEqual(
+    new Set([
+      { factTypes: ['name'], objectTypes: ['asn', 'incident', 'report'] },
+      { factTypes: ['sinkhole'], objectTypes: ['ipv4', 'ipv6'] },
+      { factTypes: ['basename'], objectTypes: ['path'] },
+      { factTypes: ['port', 'scheme'], objectTypes: ['uri'] }
+    ])
+  );
+});
+
+it('can figure out which objects need which fact types resolved', () => {
+  const autoResolveFactsConfig = {
+    asn: ['name'],
+    incident: ['name'],
+    ipv4: ['sinkhole'],
+    ipv6: ['sinkhole'],
+    path: ['basename'],
+    report: ['name'],
+    uri: ['port', 'scheme']
+  };
+
+  const objects = [
+    actObject({ id: '1', type: { id: 'r', name: 'report' } }),
+    actObject({ id: '2', type: { id: 'a', name: 'asn' } }),
+    actObject({ id: '3', type: { id: 'i', name: 'ipv4' } }),
+    actObject({ id: '4', type: { id: 'x', name: 'willBeExcluded' } })
+  ];
+
+  expect(new Set(factTypesToResolveByObjectId(autoResolveFactsConfig, objects))).toEqual(
+    new Set([
+      { objectIds: ['1', '2'], factTypes: ['name'], objectTypes: ['asn', 'incident', 'report'] },
+      { objectIds: ['3'], factTypes: ['sinkhole'], objectTypes: ['ipv4', 'ipv6'] }
+    ])
+  );
 });

@@ -35,6 +35,7 @@ class BackendStore {
       if (!approvedAmountOfData) return;
 
       const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
+
       const q: Query = {
         id: id,
         search: search,

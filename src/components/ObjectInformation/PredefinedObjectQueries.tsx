@@ -6,9 +6,8 @@ import { PredefinedObjectQuery } from '../../pages/Details/DetailsStore';
 const styles = (theme: Theme) =>
   createStyles({
     items: {
-      minHeight: 120,
-      overflow: 'scroll',
-      padding: theme.spacing.unit
+      maxHeight: 120,
+      overflowY: 'auto'
     }
   });
 
@@ -20,7 +19,7 @@ const PredefinedObjectQueriesComp = ({ predefinedObjectQueries, onClick, classes
       <Typography variant="body1" gutterBottom>
         Predefined graph queries
       </Typography>
-      <Grid container spacing={8} className={classes.items}>
+      <Grid container spacing={8} className={classes.items} justify={'flex-start'}>
         {predefinedObjectQueries.map(q => {
           return (
             <React.Fragment key={q.name}>

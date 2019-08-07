@@ -6,9 +6,8 @@ import { ContextAction } from '../../pages/Details/DetailsStore';
 const styles = (theme: Theme) =>
   createStyles({
     items: {
-      maxHeight: 100,
-      overflow: 'scroll',
-      padding: theme.spacing.unit
+      maxHeight: 120,
+      overflowY: 'auto'
     }
   });
 

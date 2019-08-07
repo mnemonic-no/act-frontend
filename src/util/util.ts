@@ -27,3 +27,13 @@ export const exportToJson = (filename: string, data: any) => {
   const blob = new window.Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   saveAs(blob, filename);
 };
+
+export const arrayToObjectWithIds = (inputArray: Array<any>) => {
+  return inputArray.reduce(
+    (acc, curr) => ({
+      ...acc,
+      [curr.id]: curr
+    }),
+    {}
+  );
+};

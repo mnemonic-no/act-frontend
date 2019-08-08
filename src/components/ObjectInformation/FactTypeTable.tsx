@@ -22,6 +22,9 @@ const styles = (theme: Theme) =>
     cell: {
       paddingLeft: theme.spacing.unit * 2
     },
+    cellValue: {
+      wordBreak: 'break-word'
+    },
     factLink: {
       paddingBottom: '4px',
       cursor: 'pointer',
@@ -59,7 +62,7 @@ const FactTableRowComp = withStyles(styles)(
           <TableCell classes={{ root: classes.cell }} style={{ verticalAlign: 'top' }}>
             {objStats.type.name}
           </TableCell>
-          <TableCell classes={{ root: classes.cell }}>
+          <TableCell classes={{ root: `${classes.cell} ${classes.cellValue}` }}>
             {facts
               .sort((a, b) => (a.value && b.value && a.value > b.value ? 1 : -1))
               .map(fact => {

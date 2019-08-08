@@ -61,7 +61,7 @@ const styles = (theme: Theme) =>
       flexDirection: 'row-reverse'
     },
     wordBreak: {
-      wordBreak: 'break-all'
+      wordBreak: 'break-word'
     },
     factType: {
       color: factColor

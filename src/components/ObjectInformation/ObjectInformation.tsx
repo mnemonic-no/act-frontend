@@ -36,7 +36,7 @@ const styles = (theme: Theme) =>
       minHeight: '200px'
     },
     objectValueLabel: {
-      wordBreak: 'break-all'
+      wordBreak: 'break-word'
     },
     contextActions: {
       paddingTop: theme.spacing.unit * 2
@@ -100,7 +100,7 @@ const ObjectInformationComp = ({
   return (
     <div className={classes.root}>
       <div onClick={() => onTitleClick()}>
-        <Typography variant="h6" className={`${classes.link} ${selectedObjectClass}`}>
+        <Typography variant="h6" className={`${classes.link} ${selectedObjectClass} ${classes.objectValueLabel}`}>
           <div>{labelFromFact ? labelFromFact : objectValueText(selectedObject)}</div>
         </Typography>
       </div>

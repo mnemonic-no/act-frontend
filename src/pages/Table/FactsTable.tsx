@@ -41,8 +41,7 @@ export type FactRow = {
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      overflowY: 'scroll',
-      overflowX: 'scroll',
+      overflow: 'auto',
       height: '100%'
     },
     headerCell: {
@@ -139,7 +138,7 @@ const FactsTableComp = ({
       </Button>
     </div>
 
-    <div style={{ overflowY: 'scroll' }}>
+    <div style={{ overflowY: 'auto' }}>
       <Table>
         <TableHead>
           <TableRow classes={{ root: classes.row }}>

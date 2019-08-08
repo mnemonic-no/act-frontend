@@ -12,6 +12,7 @@ class GraphViewStore {
   root: MainPageStore;
 
   renderThreshold: number = 2000;
+  @observable resizeEvent = 0; // Used to trigger rerendering of the cytoscape element when it changes
 
   @observable selectedNode: Node = { type: 'fact', id: null };
   @observable acceptRenderWarning = false;
@@ -25,12 +26,17 @@ class GraphViewStore {
     this.acceptRenderWarning = true;
   }
 
+  @action.bound rerender() {
+    this.resizeEvent = new Date().getTime();
+  }
+
   @computed
   get prepared() {
     const canRender =
       this.acceptRenderWarning || this.root.refineryStore.cytoscapeElements.length < this.renderThreshold;
 
     return {
+      resizeEvent: this.resizeEvent,
       canRender: canRender,
       selectedNode: this.selectedNode.type === 'fact' ? 'edge-' + this.selectedNode.id : this.selectedNode.id,
       elements: this.root.refineryStore.cytoscapeElements,
@@ -59,6 +65,7 @@ class GraphViewStore {
   @action
   setSelectedNode(value: Node) {
     this.selectedNode = value;
+    this.root.ui.detailsStore.open();
   }
 
   @action

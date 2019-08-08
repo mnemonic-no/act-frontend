@@ -52,6 +52,8 @@ class DetailsStore {
 
   @observable createFactDialog: CreateFactForDialog | null = null;
 
+  @observable isOpen = false;
+
   constructor(root: MainPageStore, config: any) {
     this.root = root;
     this.contextActionTemplates = config.contextActions || [];
@@ -95,6 +97,18 @@ class DetailsStore {
     if (obj) {
       this.root.backendStore.executeQuery({ objectType: obj.type.name, objectValue: obj.value, query: q.query });
     }
+  }
+
+  @action.bound
+  close(): void {
+    this.isOpen = false;
+    this.root.ui.cytoscapeStore.rerender();
+  }
+
+  @action.bound
+  open(): void {
+    this.isOpen = true;
+    this.root.ui.cytoscapeStore.rerender();
   }
 
   static toContextAction(

@@ -31,8 +31,7 @@ export type SortOrder = {
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      overflowY: 'scroll',
-      overflowX: 'scroll',
+      overflow: 'auto',
       height: '100%'
     },
     cell: {
@@ -96,7 +95,7 @@ const ObjectsTableComp = ({
       </Button>
     </div>
 
-    <div style={{ overflowY: 'scroll' }}>
+    <div style={{ overflowY: 'auto' }}>
       <Table>
         <TableHead>
           <TableRow classes={{ root: classes.row }}>

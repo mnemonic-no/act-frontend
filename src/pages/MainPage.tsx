@@ -68,41 +68,36 @@ const styles = (theme: Theme) => {
       maxWidth: 'none'
     },
 
-    drawerDocked: {},
-    drawerPaper: {
+    searchDrawerDocked: { flex: `0 0 ${drawerWidth}px` },
+    searchDrawerPaper: {
       position: 'relative',
       marginTop: appBarHeight,
       height: `calc(100% - ${appBarHeight}px)`,
-      width: drawerWidth,
       backgroundColor: '#FAFAFA'
     },
     content: {
       position: 'relative',
       marginTop: appBarHeight,
       height: `calc(100% - ${appBarHeight}px)`,
-      width: `calc(100% - ${drawerWidth}px - ${infoDrawerWidth}px)`,
+
+      overflow: 'hidden',
+      flex: '1 0 300px',
+
       display: 'flex',
       flexDirection: 'column',
-
       transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen
       })
     },
 
-    infoDrawerDocked: {},
+    infoDrawerDocked: { flex: `0 0 ${infoDrawerWidth}px` },
     infoDrawerPaper: {
       position: 'relative',
       marginTop: appBarHeight,
-      height: `calc(100% - ${appBarHeight}px)`,
-      width: infoDrawerWidth
-    },
-    inforDrawerRoot: {
-      height: '100%',
-      position: 'relative'
+      height: `calc(100% - ${appBarHeight}px)`
     },
 
-    //
     paper: {
       padding: theme.spacing.unit * 2,
       marginLeft: theme.spacing.unit * 2,
@@ -171,43 +166,47 @@ const MainPage = ({ classes }: IMainPage) => (
       </div>
 
       <ErrorBoundary className={classes.errorBoundary}>
-        {/* Drawer */}
-        <Drawer variant="permanent" classes={{ paper: classes.drawerPaper, docked: classes.drawerDocked }}>
-          {/* Search Form */}
-          <Paper className={classes.paper}>
-            <Search store={store.ui.searchStore} />
-          </Paper>
-
-          {/* Data navigation */}
-          <Paper className={classes.paperNoPadding}>
-            <QueryHistory store={store.ui.queryHistoryStore} />
-          </Paper>
-
-          {/* View options */}
-          <Paper className={classes.paper}>
-            <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
-          </Paper>
-
-          <Paper className={classes.paper}>
-            <RefineryOptions store={store.ui.refineryOptionsStore} />
-          </Paper>
-        </Drawer>
-
-        {/* Content */}
-        {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
-
-        {/* Info drawer */}
-        {!store.queryHistory.isEmpty && (
+        <div style={{ display: 'flex', width: '100%' }}>
+          {/* Search drawer */}
           <Drawer
             variant="permanent"
-            anchor="right"
-            classes={{
-              paper: classes.infoDrawerPaper,
-              docked: classes.infoDrawerDocked
-            }}>
-            <Details store={store.ui.detailsStore} />
+            classes={{ paper: classes.searchDrawerPaper, docked: classes.searchDrawerDocked }}>
+            {/* Search Form */}
+            <Paper className={classes.paper}>
+              <Search store={store.ui.searchStore} />
+            </Paper>
+
+            {/* Data navigation */}
+            <Paper className={classes.paperNoPadding}>
+              <QueryHistory store={store.ui.queryHistoryStore} />
+            </Paper>
+
+            {/* View options */}
+            <Paper className={classes.paper}>
+              <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
+            </Paper>
+
+            <Paper className={classes.paper}>
+              <RefineryOptions store={store.ui.refineryOptionsStore} />
+            </Paper>
           </Drawer>
-        )}
+
+          {/* Content */}
+          {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
+
+          {/* Info drawer */}
+          {store.ui.detailsStore.isOpen && (
+            <Drawer
+              variant="permanent"
+              anchor="right"
+              classes={{
+                paper: classes.infoDrawerPaper,
+                docked: classes.infoDrawerDocked
+              }}>
+              <Details store={store.ui.detailsStore} />
+            </Drawer>
+          )}
+        </div>
       </ErrorBoundary>
     </div>
 

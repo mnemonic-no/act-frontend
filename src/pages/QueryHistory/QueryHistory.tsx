@@ -44,7 +44,8 @@ const styles = (theme: Theme) =>
     },
     listItemText: {
       overflowX: 'hidden',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis'
     }
   });
 

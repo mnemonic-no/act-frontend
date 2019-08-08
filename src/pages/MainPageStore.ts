@@ -44,6 +44,7 @@ class MainPageStore {
     objectsTableStore: ObjectsTableStore;
   };
 
+  @observable isSearchDrawerOpen = true;
   @observable error: Error | null = null;
 
   backendStore: BackendStore;
@@ -65,6 +66,11 @@ class MainPageStore {
       factsTableStore: new FactsTableStore(this),
       objectsTableStore: new ObjectsTableStore(this)
     };
+  }
+
+  @action.bound
+  toggleSearchDrawer() {
+    this.isSearchDrawerOpen = !this.isSearchDrawerOpen;
   }
 
   initByUrl(location: Location): void {

@@ -1,25 +1,16 @@
 import React from 'react';
-import { withStyles, createStyles, Theme, WithStyles } from '@material-ui/core';
 import { Grid, Button, Typography, Tooltip } from '@material-ui/core';
 import { PredefinedObjectQuery } from '../../pages/Details/DetailsStore';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    items: {
-      maxHeight: 120,
-      overflowY: 'auto'
-    }
-  });
-
-const PredefinedObjectQueriesComp = ({ predefinedObjectQueries, onClick, classes }: IPredefinedObjectQueriesComp) => {
+const PredefinedObjectQueriesComp = ({ predefinedObjectQueries, onClick }: IPredefinedObjectQueriesComp) => {
   if (predefinedObjectQueries.length === 0) return null;
 
   return (
-    <React.Fragment>
+    <>
       <Typography variant="body1" gutterBottom>
         Predefined graph queries
       </Typography>
-      <Grid container spacing={1} className={classes.items} justify={'flex-start'}>
+      <Grid container spacing={1} justify={'flex-start'}>
         {predefinedObjectQueries.map(q => {
           return (
             <React.Fragment key={q.name}>
@@ -34,13 +25,13 @@ const PredefinedObjectQueriesComp = ({ predefinedObjectQueries, onClick, classes
           );
         })}
       </Grid>
-    </React.Fragment>
+    </>
   );
 };
 
-interface IPredefinedObjectQueriesComp extends WithStyles<typeof styles> {
+interface IPredefinedObjectQueriesComp {
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
   onClick: (q: PredefinedObjectQuery) => void;
 }
 
-export default withStyles(styles)(PredefinedObjectQueriesComp);
+export default PredefinedObjectQueriesComp;

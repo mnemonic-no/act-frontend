@@ -1,17 +1,8 @@
 import React from 'react';
-import { Button, createStyles, Grid, Theme, Tooltip, Typography } from '@material-ui/core';
-import withStyles from '@material-ui/core/styles/withStyles';
+import { Button, Grid, Tooltip, Typography } from '@material-ui/core';
 import { ContextAction } from '../../pages/Details/DetailsStore';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    items: {
-      maxHeight: 120,
-      overflowY: 'auto'
-    }
-  });
-
-const ContextActions = ({ actions, classes }: { actions: Array<ContextAction>; classes: any }) => {
+const ContextActions = ({ actions }: { actions: Array<ContextAction> }) => {
   if (!actions || actions.length === 0) return null;
 
   return (
@@ -19,7 +10,7 @@ const ContextActions = ({ actions, classes }: { actions: Array<ContextAction>; c
       <Typography variant="body1" gutterBottom>
         Actions
       </Typography>
-      <Grid container spacing={1} className={classes.items}>
+      <Grid container spacing={1}>
         {actions.map(action => {
           return (
             <Grid item key={action.name}>
@@ -36,4 +27,4 @@ const ContextActions = ({ actions, classes }: { actions: Array<ContextAction>; c
   );
 };
 
-export default withStyles(styles)(ContextActions);
+export default ContextActions;

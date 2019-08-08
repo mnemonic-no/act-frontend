@@ -102,13 +102,11 @@ class DetailsStore {
   @action.bound
   close(): void {
     this.isOpen = false;
-    this.root.ui.cytoscapeStore.rerender();
   }
 
   @action.bound
   open(): void {
     this.isOpen = true;
-    this.root.ui.cytoscapeStore.rerender();
   }
 
   static toContextAction(

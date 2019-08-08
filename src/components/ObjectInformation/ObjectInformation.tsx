@@ -27,8 +27,7 @@ const styles = (theme: Theme) =>
       flexDirection: 'column',
       padding: theme.spacing(2),
       paddingBottom: 0,
-      height: `calc(100% - ${theme.spacing(3)}px)`,
-      overflow: 'hidden'
+      height: `calc(100% - ${theme.spacing(3)}px)`
     },
     info: {
       overflowY: 'auto',

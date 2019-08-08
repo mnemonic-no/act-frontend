@@ -34,17 +34,20 @@ const styles = (theme: Theme) =>
       overflow: 'auto',
       height: '100%'
     },
+    header: {
+      padding: '16px 10px 18px 0',
+      display: 'flex',
+      flexDirection: 'row-reverse'
+    },
+    tableContainer: {
+      overflowY: 'auto'
+    },
     cell: {
       paddingLeft: theme.spacing(2)
     },
     row: {
       cursor: 'pointer',
       height: theme.spacing(4)
-    },
-    header: {
-      padding: '0 10px 4px 0',
-      display: 'flex',
-      flexDirection: 'row-reverse'
     },
     factType: {
       color: factColor
@@ -95,7 +98,7 @@ const ObjectsTableComp = ({
       </Button>
     </div>
 
-    <div style={{ overflowY: 'auto' }}>
+    <div className={classes.tableContainer}>
       <Table>
         <TableHead>
           <TableRow classes={{ root: classes.row }}>

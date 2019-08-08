@@ -26,8 +26,10 @@ import Details from './Details/Details';
 import ObjectsTable from './Table/ObjectsTable';
 import FactsTable from './Table/FactsTable';
 import ErrorBoundary from '../components/ErrorBoundary';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
-const drawerWidth = 360;
+const drawerWidth = 380;
 const infoDrawerWidth = 360;
 
 const styles = (theme: Theme) => {
@@ -68,7 +70,32 @@ const styles = (theme: Theme) => {
       maxWidth: 'none'
     },
 
-    searchDrawerDocked: { flex: `0 0 ${drawerWidth}px` },
+    searchContainer: {
+      position: 'relative',
+      overflow: 'visible',
+      zIndex: 200,
+      flexGrow: 0,
+      flexShrink: 0
+    },
+    searchContainerOpen: {
+      flexBasis: drawerWidth + 'px',
+      transition: theme.transitions.create('flex-basis', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen
+      })
+    },
+    searchContainerClosed: {
+      flexBasis: 0,
+      transition: theme.transitions.create('flex-basis', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen
+      })
+    },
+    searchDrawerDocked: {
+      overflowY: 'auto',
+      maxWidth: drawerWidth + 'px',
+      height: '100%'
+    },
     searchDrawerPaper: {
       position: 'relative',
       marginTop: appBarHeight,
@@ -91,7 +118,24 @@ const styles = (theme: Theme) => {
       })
     },
 
-    infoDrawerDocked: { flex: `0 0 ${infoDrawerWidth}px` },
+    infoDrawerDocked: {
+      flexGrow: 0,
+      flexShrink: 0,
+      flexBasis: infoDrawerWidth + 'px',
+      transition: theme.transitions.create('flex-basis', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen
+      })
+    },
+    infoDrawerDockedClosed: {
+      flexGrow: 0,
+      flexShrink: 0,
+      flexBasis: '0px',
+      transition: theme.transitions.create('flex-basis', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen
+      })
+    },
     infoDrawerPaper: {
       position: 'relative',
       marginTop: appBarHeight,
@@ -110,10 +154,17 @@ const styles = (theme: Theme) => {
       marginTop: theme.spacing(2)
     },
 
-    closeButton: {
+    searchToggleButton: {
+      background: '#FAFAFA',
+      borderTopRightRadius: '10px',
+      borderBottomRightRadius: '10px',
+      borderColor: 'rgba(0,0,0,0.12)',
+      borderStyle: 'solid',
+      borderWidth: '1px 1px 1px 0',
       position: 'absolute',
-      right: 0,
-      top: 0
+      top: appBarHeight + 56,
+      zIndex: 99999,
+      right: '-48px'
     }
   });
 };
@@ -173,63 +224,73 @@ const MainPage = ({ classes }: IMainPage) => (
 
       <ErrorBoundary className={classes.errorBoundary}>
         <div style={{ display: 'flex', width: '100%' }}>
-          {/* Search drawer */}
-          {store.isSearchDrawerOpen ? (
-            <Drawer
-              open={false}
-              variant="permanent"
-              classes={{ paper: classes.searchDrawerPaper, docked: classes.searchDrawerDocked }}>
-              <div style={{ position: 'relative' }}>
-                <div className={classes.closeButton}>
-                  <IconButton onClick={store.toggleSearchDrawer}>
-                    <CloseIcon />
-                  </IconButton>
-                </div>
-
-                {/* Search Form */}
-                <Paper className={classes.paper}>
-                  <Search store={store.ui.searchStore} />
-                </Paper>
-
-                {/* Data navigation */}
-                <Paper className={classes.paperNoPadding}>
-                  <QueryHistory store={store.ui.queryHistoryStore} />
-                </Paper>
-
-                {/* View options */}
-                <Paper className={classes.paper}>
-                  <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
-                </Paper>
-
-                <Paper className={classes.paper}>
-                  <RefineryOptions store={store.ui.refineryOptionsStore} />
-                </Paper>
-              </div>
-            </Drawer>
-          ) : (
-            <div className={classes.searchHidden}>
+          {/* Search container */}
+          <div
+            data-container-id="searchContainer"
+            onTransitionEnd={(event: any) => {
+              if (event.target.getAttribute('data-container-id') === 'searchContainer') {
+                store.ui.cytoscapeStore.rerender();
+              }
+            }}
+            className={`${classes.searchContainer} ${
+              store.isSearchDrawerOpen ? classes.searchContainerOpen : classes.searchContainerClosed
+            }`}>
+            <div className={classes.searchToggleButton}>
               <IconButton onClick={store.toggleSearchDrawer}>
-                <ViewHeadlineIcon />
+                {store.isSearchDrawerOpen ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
               </IconButton>
             </div>
-          )}
+
+            <Drawer
+              open={store.isSearchDrawerOpen}
+              anchor="left"
+              variant="permanent"
+              classes={{
+                paper: classes.searchDrawerPaper,
+                docked: classes.searchDrawerDocked
+              }}>
+              {store.isSearchDrawerOpen && (
+                <>
+                  <Paper className={classes.paper}>
+                    <Search store={store.ui.searchStore} />
+                  </Paper>
+
+                  <Paper className={classes.paperNoPadding}>
+                    <QueryHistory store={store.ui.queryHistoryStore} />
+                  </Paper>
+
+                  <Paper className={classes.paper}>
+                    <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
+                  </Paper>
+
+                  <Paper className={classes.paper}>
+                    <RefineryOptions store={store.ui.refineryOptionsStore} />
+                  </Paper>
+                </>
+              )}
+            </Drawer>
+          </div>
 
           {/* Content */}
           {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
 
           {/* Info drawer */}
-          {store.ui.detailsStore.isOpen && (
-            <Drawer
-              open={store.ui.detailsStore.isOpen}
-              variant="permanent"
-              anchor="right"
-              classes={{
-                paper: classes.infoDrawerPaper,
-                docked: classes.infoDrawerDocked
-              }}>
-              <Details store={store.ui.detailsStore} />
-            </Drawer>
-          )}
+          <Drawer
+            data-drawer-id="infoDrawer"
+            open={store.ui.detailsStore.isOpen}
+            onTransitionEnd={(event: any) => {
+              if (event.target.getAttribute('data-drawer-id') === 'infoDrawer') {
+                store.ui.cytoscapeStore.rerender();
+              }
+            }}
+            variant="permanent"
+            anchor="right"
+            classes={{
+              paper: classes.infoDrawerPaper,
+              docked: store.ui.detailsStore.isOpen ? classes.infoDrawerDocked : classes.infoDrawerDockedClosed
+            }}>
+            <Details store={store.ui.detailsStore} />
+          </Drawer>
         </div>
       </ErrorBoundary>
     </div>

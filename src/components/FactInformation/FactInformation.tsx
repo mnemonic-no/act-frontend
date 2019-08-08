@@ -27,11 +27,10 @@ const styles = (theme: Theme) =>
       height: `calc(100% - ${theme.spacing(3)}px)`,
       display: 'flex',
       flexDirection: 'column',
-      overflow: 'hidden',
+      overflow: 'auto',
       flex: 1
     },
     info: {
-      overflow: 'auto',
       flex: 1
     },
     actions: {

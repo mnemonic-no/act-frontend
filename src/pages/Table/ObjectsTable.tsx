@@ -35,11 +35,11 @@ const styles = (theme: Theme) =>
       height: '100%'
     },
     cell: {
-      paddingLeft: theme.spacing.unit * 2
+      paddingLeft: theme.spacing(2)
     },
     row: {
       cursor: 'pointer',
-      height: theme.spacing.unit * 4
+      height: theme.spacing(4)
     },
     header: {
       padding: '0 10px 4px 0',
@@ -53,13 +53,13 @@ const styles = (theme: Theme) =>
 
 const ObjectRowComp = ({ key, actObject, title, properties, isSelected, onRowClick, classes }: IObjectRowComp) => (
   <TableRow key={key} hover selected={isSelected} classes={{ root: classes.row }} onClick={() => onRowClick(actObject)}>
-    <TableCell classes={{ root: classes.cell }} padding="dense">
+    <TableCell classes={{ root: classes.cell }} size="small">
       <span style={{ color: objectTypeToColor(actObject.type.name) }}>{title}</span>
     </TableCell>
-    <TableCell classes={{ root: classes.cell }} padding="dense">
+    <TableCell classes={{ root: classes.cell }} size="small">
       {renderObjectValue(actObject, 256)}
     </TableCell>
-    <TableCell classes={{ root: classes.cell }} padding="dense">
+    <TableCell classes={{ root: classes.cell }} size="small">
       {properties.map(({ k, v }: { k: string; v: string }, idx: number) => (
         <div key={idx}>
           <span className={classes.factType}>{`${k}: `}</span>
@@ -100,7 +100,7 @@ const ObjectsTableComp = ({
         <TableHead>
           <TableRow classes={{ root: classes.row }}>
             {columns.map(({ label, kind }) => (
-              <TableCell key={kind} classes={{ root: classes.cell }} padding="dense">
+              <TableCell key={kind} classes={{ root: classes.cell }} size="small">
                 <TableSortLabel
                   onClick={() => onSortChange(kind)}
                   direction={sortOrder.order}

@@ -40,13 +40,13 @@ const RetractFactFormComp = ({
       </Typography>
 
       <br />
-      <Grid container spacing={16}>
+      <Grid container spacing={2}>
         <Grid item xs={8}>
           <AccessModeSelector fullWidth value={fields.accessMode} onChange={(v: any) => onChange('accessMode', v)} />
         </Grid>
       </Grid>
       <br />
-      <Grid container spacing={16}>
+      <Grid container spacing={2}>
         <Grid item xs={8}>
           <TextField
             autoFocus

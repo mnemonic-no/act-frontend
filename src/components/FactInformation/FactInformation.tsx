@@ -22,9 +22,9 @@ import { FactRow } from './FactsRow';
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      padding: theme.spacing.unit * 2,
+      padding: theme.spacing(2),
       paddingBottom: 0,
-      height: `calc(100% - ${theme.spacing.unit * 3}px)`,
+      height: `calc(100% - ${theme.spacing(3)}px)`,
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
@@ -35,12 +35,12 @@ const styles = (theme: Theme) =>
       flex: 1
     },
     actions: {
-      paddingTop: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(1)
     },
 
     objectsTable: {
-      marginLeft: -theme.spacing.unit * 2
+      marginLeft: -theme.spacing(2)
     },
     row: {
       display: 'flex'

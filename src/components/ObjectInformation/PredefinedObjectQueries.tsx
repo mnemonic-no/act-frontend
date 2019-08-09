@@ -19,7 +19,7 @@ const PredefinedObjectQueriesComp = ({ predefinedObjectQueries, onClick, classes
       <Typography variant="body1" gutterBottom>
         Predefined graph queries
       </Typography>
-      <Grid container spacing={8} className={classes.items} justify={'flex-start'}>
+      <Grid container spacing={1} className={classes.items} justify={'flex-start'}>
         {predefinedObjectQueries.map(q => {
           return (
             <React.Fragment key={q.name}>

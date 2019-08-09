@@ -19,12 +19,12 @@ const ContextActions = ({ actions, classes }: { actions: Array<ContextAction>; c
       <Typography variant="body1" gutterBottom>
         Actions
       </Typography>
-      <Grid container spacing={8} className={classes.items}>
+      <Grid container spacing={1} className={classes.items}>
         {actions.map(action => {
           return (
             <Grid item key={action.name}>
               <Tooltip title={action.description}>
-                <Button size="small" variant="outlined" target="_blank" onClick={action.onClick} href={action.href}>
+                <Button size="small" variant="outlined" onClick={action.onClick} href={action.href}>
                   {action.name}
                 </Button>
               </Tooltip>

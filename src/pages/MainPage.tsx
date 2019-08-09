@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Observer, observer } from 'mobx-react';
 import { compose } from 'recompose';
-import { withStyles, createStyles, Theme, WithStyles } from '@material-ui/core';
+import { withStyles, createStyles, Theme, WithStyles, IconButton } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import Drawer from '@material-ui/core/Drawer';
@@ -31,7 +31,7 @@ const drawerWidth = 360;
 const infoDrawerWidth = 360;
 
 const styles = (theme: Theme) => {
-  const appBarHeight = theme.spacing.unit * 8;
+  const appBarHeight = theme.spacing(8);
   return createStyles({
     root: {
       height: '100vh',
@@ -99,15 +99,21 @@ const styles = (theme: Theme) => {
     },
 
     paper: {
-      padding: theme.spacing.unit * 2,
-      marginLeft: theme.spacing.unit * 2,
-      marginRight: theme.spacing.unit * 2,
-      marginTop: theme.spacing.unit * 2
+      padding: theme.spacing(2),
+      marginLeft: theme.spacing(2),
+      marginRight: theme.spacing(2),
+      marginTop: theme.spacing(2)
     },
     paperNoPadding: {
-      marginLeft: theme.spacing.unit * 2,
-      marginRight: theme.spacing.unit * 2,
-      marginTop: theme.spacing.unit * 2
+      marginLeft: theme.spacing(2),
+      marginRight: theme.spacing(2),
+      marginTop: theme.spacing(2)
+    },
+
+    closeButton: {
+      position: 'absolute',
+      right: 0,
+      top: 0
     }
   });
 };
@@ -168,28 +174,45 @@ const MainPage = ({ classes }: IMainPage) => (
       <ErrorBoundary className={classes.errorBoundary}>
         <div style={{ display: 'flex', width: '100%' }}>
           {/* Search drawer */}
-          <Drawer
-            variant="permanent"
-            classes={{ paper: classes.searchDrawerPaper, docked: classes.searchDrawerDocked }}>
-            {/* Search Form */}
-            <Paper className={classes.paper}>
-              <Search store={store.ui.searchStore} />
-            </Paper>
+          {store.isSearchDrawerOpen ? (
+            <Drawer
+              open={false}
+              variant="permanent"
+              classes={{ paper: classes.searchDrawerPaper, docked: classes.searchDrawerDocked }}>
+              <div style={{ position: 'relative' }}>
+                <div className={classes.closeButton}>
+                  <IconButton onClick={store.toggleSearchDrawer}>
+                    <CloseIcon />
+                  </IconButton>
+                </div>
 
-            {/* Data navigation */}
-            <Paper className={classes.paperNoPadding}>
-              <QueryHistory store={store.ui.queryHistoryStore} />
-            </Paper>
+                {/* Search Form */}
+                <Paper className={classes.paper}>
+                  <Search store={store.ui.searchStore} />
+                </Paper>
 
-            {/* View options */}
-            <Paper className={classes.paper}>
-              <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
-            </Paper>
+                {/* Data navigation */}
+                <Paper className={classes.paperNoPadding}>
+                  <QueryHistory store={store.ui.queryHistoryStore} />
+                </Paper>
 
-            <Paper className={classes.paper}>
-              <RefineryOptions store={store.ui.refineryOptionsStore} />
-            </Paper>
-          </Drawer>
+                {/* View options */}
+                <Paper className={classes.paper}>
+                  <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
+                </Paper>
+
+                <Paper className={classes.paper}>
+                  <RefineryOptions store={store.ui.refineryOptionsStore} />
+                </Paper>
+              </div>
+            </Drawer>
+          ) : (
+            <div className={classes.searchHidden}>
+              <IconButton onClick={store.toggleSearchDrawer}>
+                <ViewHeadlineIcon />
+              </IconButton>
+            </div>
+          )}
 
           {/* Content */}
           {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
@@ -197,6 +220,7 @@ const MainPage = ({ classes }: IMainPage) => (
           {/* Info drawer */}
           {store.ui.detailsStore.isOpen && (
             <Drawer
+              open={store.ui.detailsStore.isOpen}
               variant="permanent"
               anchor="right"
               classes={{

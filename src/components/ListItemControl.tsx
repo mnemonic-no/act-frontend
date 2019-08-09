@@ -6,12 +6,12 @@ const styles = (theme: Theme) =>
   createStyles({
     root: {
       flex: '0 0 auto',
-      height: theme.spacing.unit * 6,
+      height: theme.spacing(6),
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
       position: 'relative',
-      width: theme.spacing.unit * 12
+      width: theme.spacing(12)
     }
   });
 

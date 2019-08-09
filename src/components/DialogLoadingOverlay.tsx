@@ -13,8 +13,8 @@ const styles = (theme: Theme) =>
       zIndex: 100,
 
       // Negeate dialog padding
-      marginTop: -theme.spacing.unit * 3,
-      marginLeft: -theme.spacing.unit * 3
+      marginTop: -theme.spacing(3),
+      marginLeft: -theme.spacing(3)
     },
     loadingChild: {
       zIndex: 101

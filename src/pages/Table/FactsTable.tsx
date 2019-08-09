@@ -45,14 +45,14 @@ const styles = (theme: Theme) =>
       height: '100%'
     },
     headerCell: {
-      paddingLeft: theme.spacing.unit * 2
+      paddingLeft: theme.spacing(2)
     },
     cell: {
-      paddingLeft: theme.spacing.unit * 2
+      paddingLeft: theme.spacing(2)
     },
     row: {
       cursor: 'pointer',
-      height: theme.spacing.unit * 4
+      height: theme.spacing(4)
     },
     header: {
       padding: '0 10px 4px 0',
@@ -106,7 +106,7 @@ const cellClassNames = ({ kind, text }: { kind: ColumnKind; text: string }, clas
 const FactRowComp = ({ key, fact, cells, isSelected, onRowClick, classes }: IFactRowComp) => (
   <TableRow key={key} hover selected={isSelected} classes={{ root: classes.row }} onClick={() => onRowClick(fact)}>
     {cells.map((cell: any, idx: number) => (
-      <TableCell key={idx} className={cellClassNames(cell, classes)} padding="dense">
+      <TableCell key={idx} className={cellClassNames(cell, classes)} size="small">
         {cell.text}
       </TableCell>
     ))}
@@ -143,7 +143,7 @@ const FactsTableComp = ({
         <TableHead>
           <TableRow classes={{ root: classes.row }}>
             {columns.map(({ label, kind, tooltip }) => (
-              <TableCell key={kind} classes={{ root: classes.headerCell }} padding="dense">
+              <TableCell key={kind} classes={{ root: classes.headerCell }} size="small">
                 <Tooltip title={tooltip || ''}>
                   <TableSortLabel
                     onClick={() => onSortChange(kind)}

@@ -1,9 +1,8 @@
 import React from 'react';
 import { compose, lifecycle, branch } from 'recompose';
 import TextField from '@material-ui/core/TextField';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, WithStyles } from '@material-ui/core/styles';
 import withObjectTypes from './withObjectTypes';
-import { WithStyles } from '@material-ui/core/es';
 
 const styles = () => ({
   option: {

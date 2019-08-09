@@ -6,16 +6,16 @@ import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 const styles = (theme: Theme) =>
   createStyles({
     error: {
-      padding: theme.spacing.unit * 3,
+      padding: theme.spacing(3),
 
       backgroundColor: theme.palette.grey[200],
 
-      marginBottom: theme.spacing.unit * 2,
+      marginBottom: theme.spacing(2),
 
       // Negeate dialog padding
-      marginTop: -theme.spacing.unit * 3,
-      marginLeft: -theme.spacing.unit * 3,
-      marginRight: -theme.spacing.unit * 3
+      marginTop: -theme.spacing(3),
+      marginLeft: -theme.spacing(3),
+      marginRight: -theme.spacing(3)
     }
   });
 

@@ -104,7 +104,6 @@ class CreateFactForDialog {
   @observable isSubmitting: boolean = false;
   @observable error: any;
 
-  @observable factTypeField: any;
   @observable factTypes: Array<FactType> = [];
 
   @observable selectedFactTypeName: string | null = null;

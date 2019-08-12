@@ -24,7 +24,7 @@ const Search = ({ store, classes }: ISearch) => (
       e.preventDefault();
       store.submitSearch();
     }}>
-    <Grid container spacing={16}>
+    <Grid container spacing={2}>
       <Grid item xs={12}>
         <ObjectType fullWidth value={store.objectType} onChange={(value: string) => (store.objectType = value)} />
       </Grid>

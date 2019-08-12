@@ -58,8 +58,9 @@ class CytoscapeContainer extends React.Component {
     this.layout = null;
   }
   componentDidMount() {
-    this.cy = Cytoscape(
-      Object.assign({}, DEFAULT_CONF, {
+    this.cy = Cytoscape({
+      ...DEFAULT_CONF,
+      ...{
         container: document.getElementById('cytoscape-container'),
         elements: this.props.elements,
         style: this.props.style,
@@ -82,12 +83,17 @@ class CytoscapeContainer extends React.Component {
             });
           }
         }
-      })
-    );
+      }
+    });
     this.runLayout(this.props.layout);
   }
 
   componentDidUpdate(prevProps) {
+    // Force the cytoscape container to resize itself when the container changes size
+    if (this.props.resizeEvent !== prevProps.resizeEvent) {
+      this.cy.invalidateDimensions();
+    }
+
     if (!shallowEqual(prevProps.elements, this.props.elements)) {
       this.cy.json({ elements: this.props.elements });
       this.runLayout(this.props.layout);
@@ -171,7 +177,7 @@ class CytoscapeContainer extends React.Component {
       <div style={{ height: '100%', width: '100%', position: 'relative' }}>
         <div
           id="cytoscape-container"
-          style={{ height: '99%', width: '98%', marginLeft: '1%' }}
+          style={{ height: 'calc(100% - 10px)', width: 'calc(100% - 20px)', marginLeft: '10px' }}
           ref={el => {
             this.containerDOM = el;
           }}
@@ -187,7 +193,9 @@ class CytoscapeContainer extends React.Component {
     );
   }
 }
+
 CytoscapeContainer.propTypes = {
+  resizeEvent: PropTypes.number.isRequired,
   elements: PropTypes.array.isRequired,
   style: PropTypes.array,
   layout: PropTypes.object.isRequired,

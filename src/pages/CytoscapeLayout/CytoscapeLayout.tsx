@@ -13,7 +13,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
-import { withStyles, createStyles, Theme } from '@material-ui/core';
+import { withStyles, createStyles, Theme, WithStyles } from '@material-ui/core';
 import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
 import Input from '@material-ui/core/Input';
@@ -24,7 +24,6 @@ import classnames from 'classnames';
 import LAYOUTS, { types } from '../../Cytoscape/layouts';
 import ListItemControl from '../../components/ListItemControl';
 import CytoscapeLayoutStore from './CytoscapeLayoutStore';
-import { WithStyles } from '@material-ui/core/es';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -127,7 +126,7 @@ const LayoutOptionsList = ({ layoutConfig, layoutName, onChange }: any) => {
 };
 
 const CytoscapeLayout = ({ store, classes }: ICytoscapeLayout) => (
-  <Grid container spacing={16}>
+  <Grid container spacing={2}>
     <Grid item xs={12}>
       <TextField
         fullWidth

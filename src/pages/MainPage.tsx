@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Observer, observer } from 'mobx-react';
 import { compose } from 'recompose';
-import { withStyles, createStyles, Theme, WithStyles } from '@material-ui/core';
+import { withStyles, createStyles, Theme, WithStyles, IconButton } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import Drawer from '@material-ui/core/Drawer';
@@ -26,12 +26,14 @@ import Details from './Details/Details';
 import ObjectsTable from './Table/ObjectsTable';
 import FactsTable from './Table/FactsTable';
 import ErrorBoundary from '../components/ErrorBoundary';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
-const drawerWidth = 360;
+const drawerWidth = 380;
 const infoDrawerWidth = 360;
 
 const styles = (theme: Theme) => {
-  const appBarHeight = theme.spacing.unit * 8;
+  const appBarHeight = theme.spacing(8);
   return createStyles({
     root: {
       height: '100vh',
@@ -68,51 +70,101 @@ const styles = (theme: Theme) => {
       maxWidth: 'none'
     },
 
-    drawerDocked: {},
-    drawerPaper: {
+    searchContainer: {
+      position: 'relative',
+      overflow: 'visible',
+      zIndex: 200,
+      flexGrow: 0,
+      flexShrink: 0
+    },
+    searchContainerOpen: {
+      flexBasis: drawerWidth + 'px',
+      transition: theme.transitions.create('flex-basis', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen
+      })
+    },
+    searchContainerClosed: {
+      flexBasis: 0,
+      transition: theme.transitions.create('flex-basis', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen
+      })
+    },
+    searchDrawerDocked: {
+      overflowY: 'auto',
+      maxWidth: drawerWidth + 'px',
+      height: '100%'
+    },
+    searchDrawerPaper: {
       position: 'relative',
       marginTop: appBarHeight,
       height: `calc(100% - ${appBarHeight}px)`,
-      width: drawerWidth,
       backgroundColor: '#FAFAFA'
     },
     content: {
       position: 'relative',
       marginTop: appBarHeight,
       height: `calc(100% - ${appBarHeight}px)`,
-      width: `calc(100% - ${drawerWidth}px - ${infoDrawerWidth}px)`,
+
+      overflow: 'hidden',
+      flex: '1 0 300px',
+
       display: 'flex',
       flexDirection: 'column',
-
       transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen
       })
     },
 
-    infoDrawerDocked: {},
+    infoDrawerDocked: {
+      flexGrow: 0,
+      flexShrink: 0,
+      flexBasis: infoDrawerWidth + 'px',
+      transition: theme.transitions.create('flex-basis', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen
+      })
+    },
+    infoDrawerDockedClosed: {
+      flexGrow: 0,
+      flexShrink: 0,
+      flexBasis: '0px',
+      transition: theme.transitions.create('flex-basis', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen
+      })
+    },
     infoDrawerPaper: {
       position: 'relative',
       marginTop: appBarHeight,
-      height: `calc(100% - ${appBarHeight}px)`,
-      width: infoDrawerWidth
-    },
-    inforDrawerRoot: {
-      height: '100%',
-      position: 'relative'
+      height: `calc(100% - ${appBarHeight}px)`
     },
 
-    //
     paper: {
-      padding: theme.spacing.unit * 2,
-      marginLeft: theme.spacing.unit * 2,
-      marginRight: theme.spacing.unit * 2,
-      marginTop: theme.spacing.unit * 2
+      padding: theme.spacing(2),
+      marginLeft: theme.spacing(2),
+      marginRight: theme.spacing(2),
+      marginTop: theme.spacing(2)
     },
     paperNoPadding: {
-      marginLeft: theme.spacing.unit * 2,
-      marginRight: theme.spacing.unit * 2,
-      marginTop: theme.spacing.unit * 2
+      marginLeft: theme.spacing(2),
+      marginRight: theme.spacing(2),
+      marginTop: theme.spacing(2)
+    },
+
+    searchToggleButton: {
+      background: '#FAFAFA',
+      borderTopRightRadius: '10px',
+      borderBottomRightRadius: '10px',
+      borderColor: 'rgba(0,0,0,0.12)',
+      borderStyle: 'solid',
+      borderWidth: '1px 1px 1px 0',
+      position: 'absolute',
+      top: appBarHeight + 56,
+      zIndex: 99999,
+      right: '-48px'
     }
   });
 };
@@ -171,43 +223,75 @@ const MainPage = ({ classes }: IMainPage) => (
       </div>
 
       <ErrorBoundary className={classes.errorBoundary}>
-        {/* Drawer */}
-        <Drawer variant="permanent" classes={{ paper: classes.drawerPaper, docked: classes.drawerDocked }}>
-          {/* Search Form */}
-          <Paper className={classes.paper}>
-            <Search store={store.ui.searchStore} />
-          </Paper>
+        <div style={{ display: 'flex', width: '100%' }}>
+          {/* Search container */}
+          <div
+            data-container-id="searchContainer"
+            onTransitionEnd={(event: any) => {
+              if (event.target.getAttribute('data-container-id') === 'searchContainer') {
+                store.ui.cytoscapeStore.rerender();
+              }
+            }}
+            className={`${classes.searchContainer} ${
+              store.isSearchDrawerOpen ? classes.searchContainerOpen : classes.searchContainerClosed
+            }`}>
+            <div className={classes.searchToggleButton}>
+              <IconButton onClick={store.toggleSearchDrawer}>
+                {store.isSearchDrawerOpen ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
+              </IconButton>
+            </div>
 
-          {/* Data navigation */}
-          <Paper className={classes.paperNoPadding}>
-            <QueryHistory store={store.ui.queryHistoryStore} />
-          </Paper>
+            <Drawer
+              open={store.isSearchDrawerOpen}
+              anchor="left"
+              variant="permanent"
+              classes={{
+                paper: classes.searchDrawerPaper,
+                docked: classes.searchDrawerDocked
+              }}>
+              {store.isSearchDrawerOpen && (
+                <>
+                  <Paper className={classes.paper}>
+                    <Search store={store.ui.searchStore} />
+                  </Paper>
 
-          {/* View options */}
-          <Paper className={classes.paper}>
-            <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
-          </Paper>
+                  <Paper className={classes.paperNoPadding}>
+                    <QueryHistory store={store.ui.queryHistoryStore} />
+                  </Paper>
 
-          <Paper className={classes.paper}>
-            <RefineryOptions store={store.ui.refineryOptionsStore} />
-          </Paper>
-        </Drawer>
+                  <Paper className={classes.paper}>
+                    <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
+                  </Paper>
 
-        {/* Content */}
-        {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
+                  <Paper className={classes.paper}>
+                    <RefineryOptions store={store.ui.refineryOptionsStore} />
+                  </Paper>
+                </>
+              )}
+            </Drawer>
+          </div>
 
-        {/* Info drawer */}
-        {!store.queryHistory.isEmpty && (
+          {/* Content */}
+          {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
+
+          {/* Info drawer */}
           <Drawer
+            data-drawer-id="infoDrawer"
+            open={store.ui.detailsStore.isOpen}
+            onTransitionEnd={(event: any) => {
+              if (event.target.getAttribute('data-drawer-id') === 'infoDrawer') {
+                store.ui.cytoscapeStore.rerender();
+              }
+            }}
             variant="permanent"
             anchor="right"
             classes={{
               paper: classes.infoDrawerPaper,
-              docked: classes.infoDrawerDocked
+              docked: store.ui.detailsStore.isOpen ? classes.infoDrawerDocked : classes.infoDrawerDockedClosed
             }}>
             <Details store={store.ui.detailsStore} />
           </Drawer>
-        )}
+        </div>
       </ErrorBoundary>
     </div>
 

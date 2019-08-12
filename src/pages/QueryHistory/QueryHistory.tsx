@@ -20,7 +20,7 @@ import Typography from '@material-ui/core/Typography';
 const styles = (theme: Theme) =>
   createStyles({
     listItem: {
-      paddingLeft: theme.spacing.unit * 2
+      paddingLeft: theme.spacing(2)
     },
     item: {},
     activeItem: {
@@ -36,15 +36,16 @@ const styles = (theme: Theme) =>
       })
     },
     buttons: {
-      padding: theme.spacing.unit * 2,
-      paddingTop: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit,
+      padding: theme.spacing(2),
+      paddingTop: theme.spacing(),
+      paddingBottom: theme.spacing(),
       display: 'flex',
       justifyContent: 'space-between'
     },
     listItemText: {
       overflowX: 'hidden',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis'
     }
   });
 

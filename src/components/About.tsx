@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 const style = (theme: Theme) =>
   createStyles({
     root: {
-      padding: theme.spacing.unit * 2
+      padding: theme.spacing(2)
     }
   });
 

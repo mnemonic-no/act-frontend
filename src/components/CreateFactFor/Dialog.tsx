@@ -376,8 +376,7 @@ const DialogComp = ({ store, classes }: IDialogComp) => {
 
           <TextField
             label="Fact type"
-            autoFocus
-            value={store.factTypeField}
+            value={store.selectedFactTypeName}
             onChange={v => store.onFactTypeChange(v.target.value)}
             select
             SelectProps={{ native: true }}>

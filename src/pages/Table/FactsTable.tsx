@@ -41,27 +41,29 @@ export type FactRow = {
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      overflowY: 'scroll',
-      overflowX: 'scroll',
+      overflow: 'auto',
       height: '100%'
     },
-    headerCell: {
-      paddingLeft: theme.spacing.unit * 2
-    },
-    cell: {
-      paddingLeft: theme.spacing.unit * 2
-    },
-    row: {
-      cursor: 'pointer',
-      height: theme.spacing.unit * 4
-    },
     header: {
-      padding: '0 10px 4px 0',
+      padding: '16px 10px 18px 0',
       display: 'flex',
       flexDirection: 'row-reverse'
     },
+    tableContainer: {
+      overflowY: 'auto'
+    },
+    headerCell: {
+      paddingLeft: theme.spacing(2)
+    },
+    cell: {
+      paddingLeft: theme.spacing(2)
+    },
+    row: {
+      cursor: 'pointer',
+      height: theme.spacing(4)
+    },
     wordBreak: {
-      wordBreak: 'break-all'
+      wordBreak: 'break-word'
     },
     factType: {
       color: factColor
@@ -107,7 +109,7 @@ const cellClassNames = ({ kind, text }: { kind: ColumnKind; text: string }, clas
 const FactRowComp = ({ key, fact, cells, isSelected, onRowClick, classes }: IFactRowComp) => (
   <TableRow key={key} hover selected={isSelected} classes={{ root: classes.row }} onClick={() => onRowClick(fact)}>
     {cells.map((cell: any, idx: number) => (
-      <TableCell key={idx} className={cellClassNames(cell, classes)} padding="dense">
+      <TableCell key={idx} className={cellClassNames(cell, classes)} size="small">
         {cell.text}
       </TableCell>
     ))}
@@ -139,12 +141,12 @@ const FactsTableComp = ({
       </Button>
     </div>
 
-    <div style={{ overflowY: 'scroll' }}>
+    <div className={classes.tableContainer}>
       <Table>
         <TableHead>
           <TableRow classes={{ root: classes.row }}>
             {columns.map(({ label, kind, tooltip }) => (
-              <TableCell key={kind} classes={{ root: classes.headerCell }} padding="dense">
+              <TableCell key={kind} classes={{ root: classes.headerCell }} size="small">
                 <Tooltip title={tooltip || ''}>
                   <TableSortLabel
                     onClick={() => onSortChange(kind)}

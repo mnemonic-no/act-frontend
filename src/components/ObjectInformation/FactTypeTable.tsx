@@ -10,17 +10,20 @@ import TableCell from '@material-ui/core/TableCell';
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      marginLeft: -theme.spacing.unit * 2
+      marginLeft: -theme.spacing(2)
     },
     rowLink: {
       cursor: 'pointer',
-      height: theme.spacing.unit * 4
+      height: theme.spacing(4)
     },
     row: {
-      height: theme.spacing.unit * 4
+      height: theme.spacing(4)
     },
     cell: {
-      paddingLeft: theme.spacing.unit * 2
+      paddingLeft: theme.spacing(2)
+    },
+    cellValue: {
+      wordBreak: 'break-word'
     },
     factLink: {
       paddingBottom: '4px',
@@ -44,10 +47,10 @@ const FactTableRowComp = withStyles(styles)(
       return (
         <Tooltip key={objStats.type.id} title={'Execute search'}>
           <TableRow classes={{ root: classes.rowLink }} hover onClick={() => onFactTypeClick()}>
-            <TableCell classes={{ root: classes.cell }} padding="dense">
+            <TableCell classes={{ root: classes.cell }} size="small">
               {objStats.type.name}
             </TableCell>
-            <TableCell classes={{ root: classes.cell }} padding="dense">
+            <TableCell classes={{ root: classes.cell }} size="small">
               {objStats.count}
             </TableCell>
           </TableRow>
@@ -59,7 +62,7 @@ const FactTableRowComp = withStyles(styles)(
           <TableCell classes={{ root: classes.cell }} style={{ verticalAlign: 'top' }}>
             {objStats.type.name}
           </TableCell>
-          <TableCell classes={{ root: classes.cell }}>
+          <TableCell classes={{ root: `${classes.cell} ${classes.cellValue}` }}>
             {facts
               .sort((a, b) => (a.value && b.value && a.value > b.value ? 1 : -1))
               .map(fact => {
@@ -88,13 +91,13 @@ interface IFactTableRowComp extends WithStyles<typeof styles> {
 const tableStyles = (theme: Theme) =>
   createStyles({
     root: {
-      marginLeft: -theme.spacing.unit * 2
+      marginLeft: -theme.spacing(2)
     }
   });
 
 const FactTypeTable = ({ classes, selectedObject, oneLeggedFacts, onFactClick, onSearchSubmit }: IFactTypeTable) => {
   return (
-    <Table padding="dense" className={classes.root}>
+    <Table size="small" className={classes.root}>
       <TableBody>
         {selectedObject.statistics &&
           selectedObject.statistics

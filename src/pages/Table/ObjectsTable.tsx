@@ -31,21 +31,23 @@ export type SortOrder = {
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      overflowY: 'scroll',
-      overflowX: 'scroll',
+      overflow: 'auto',
       height: '100%'
     },
+    header: {
+      padding: '16px 10px 18px 0',
+      display: 'flex',
+      flexDirection: 'row-reverse'
+    },
+    tableContainer: {
+      overflowY: 'auto'
+    },
     cell: {
-      paddingLeft: theme.spacing.unit * 2
+      paddingLeft: theme.spacing(2)
     },
     row: {
       cursor: 'pointer',
-      height: theme.spacing.unit * 4
-    },
-    header: {
-      padding: '0 10px 4px 0',
-      display: 'flex',
-      flexDirection: 'row-reverse'
+      height: theme.spacing(4)
     },
     factType: {
       color: factColor
@@ -54,13 +56,13 @@ const styles = (theme: Theme) =>
 
 const ObjectRowComp = ({ key, actObject, title, properties, isSelected, onRowClick, classes }: IObjectRowComp) => (
   <TableRow key={key} hover selected={isSelected} classes={{ root: classes.row }} onClick={() => onRowClick(actObject)}>
-    <TableCell classes={{ root: classes.cell }} padding="dense">
+    <TableCell classes={{ root: classes.cell }} size="small">
       <span style={{ color: objectTypeToColor(actObject.type.name) }}>{title}</span>
     </TableCell>
-    <TableCell classes={{ root: classes.cell }} padding="dense">
+    <TableCell classes={{ root: classes.cell }} size="small">
       {renderObjectValue(actObject, 256)}
     </TableCell>
-    <TableCell classes={{ root: classes.cell }} padding="dense">
+    <TableCell classes={{ root: classes.cell }} size="small">
       {properties.map(({ k, v }: { k: string; v: string }, idx: number) => (
         <div key={idx}>
           <span className={classes.factType}>{`${k}: `}</span>
@@ -96,12 +98,12 @@ const ObjectsTableComp = ({
       </Button>
     </div>
 
-    <div style={{ overflowY: 'scroll' }}>
+    <div className={classes.tableContainer}>
       <Table>
         <TableHead>
           <TableRow classes={{ root: classes.row }}>
             {columns.map(({ label, kind }) => (
-              <TableCell key={kind} classes={{ root: classes.cell }} padding="dense">
+              <TableCell key={kind} classes={{ root: classes.cell }} size="small">
                 <TableSortLabel
                   onClick={() => onSortChange(kind)}
                   direction={sortOrder.order}

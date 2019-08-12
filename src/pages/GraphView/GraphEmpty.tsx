@@ -23,11 +23,11 @@ const styles = (theme: Theme) =>
       width: 512
     },
     list: {
-      marginTop: theme.spacing.unit,
-      marginBottom: theme.spacing.unit * 3
+      marginTop: theme.spacing(),
+      marginBottom: theme.spacing(3)
     },
     text: {
-      marginTop: theme.spacing.unit * 4
+      marginTop: theme.spacing(4)
     },
     link: {
       cursor: 'pointer',

@@ -11,20 +11,20 @@ import { isRetraction } from '../../core/domain';
 
 const styles = (theme: Theme) => ({
   cell: {
-    paddingLeft: theme.spacing.unit * 2
+    paddingLeft: theme.spacing(2)
   },
   row: {
     cursor: 'pointer',
-    height: theme.spacing.unit * 4
+    height: theme.spacing(4)
   }
 });
 
 const RetractionRowComp = ({ classes, fact }: IFactRowComp) => (
   <TableRow key={fact.id} hover classes={{ root: classes.row }}>
-    <TableCell classes={{ root: classes.cell }} padding="dense">
+    <TableCell classes={{ root: classes.cell }} size="small">
       Retraction
     </TableCell>
-    <TableCell classes={{ root: classes.cell }} padding="dense">
+    <TableCell classes={{ root: classes.cell }} size="small">
       {format(new Date(fact.timestamp), 'DD.MM.YYYY HH:mm')}
     </TableCell>
   </TableRow>
@@ -36,10 +36,10 @@ const FactRowComp = ({ onRowClick, classes, fact }: IFactRowComp) => {
   } else {
     return (
       <TableRow key={fact.id} hover classes={{ root: classes.row }} onClick={() => onRowClick(fact)}>
-        <TableCell classes={{ root: classes.cell }} padding="dense">
+        <TableCell classes={{ root: classes.cell }} size="small">
           {fact.type.name}
         </TableCell>
-        <TableCell classes={{ root: classes.cell }} padding="dense">
+        <TableCell classes={{ root: classes.cell }} size="small">
           {fact.value && fact.value.startsWith('-') ? '' : fact.value}
         </TableCell>
       </TableRow>

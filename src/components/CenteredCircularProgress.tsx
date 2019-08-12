@@ -9,7 +9,7 @@ const styles = (theme: Theme) =>
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      paddingTop: theme.spacing.unit * 12
+      paddingTop: theme.spacing(12)
     }
   });
 

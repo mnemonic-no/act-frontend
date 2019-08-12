@@ -25,10 +25,9 @@ const styles = (theme: Theme) =>
     root: {
       display: 'flex',
       flexDirection: 'column',
-      padding: theme.spacing.unit * 2,
+      padding: theme.spacing(2),
       paddingBottom: 0,
-      height: `calc(100% - ${theme.spacing.unit * 3}px)`,
-      overflow: 'hidden'
+      height: `calc(100% - ${theme.spacing(3)}px)`
     },
     info: {
       overflowY: 'auto',
@@ -36,19 +35,19 @@ const styles = (theme: Theme) =>
       minHeight: '200px'
     },
     objectValueLabel: {
-      wordBreak: 'break-all'
+      wordBreak: 'break-word'
     },
     contextActions: {
-      paddingTop: theme.spacing.unit * 2
+      paddingTop: theme.spacing(2)
     },
     predefinedQueries: {
       flex: '1 1 auto',
-      paddingTop: theme.spacing.unit * 2
+      paddingTop: theme.spacing(2)
     },
     footer: {
       justifySelf: 'end',
-      paddingTop: theme.spacing.unit * 2,
-      paddingBottom: theme.spacing.unit
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing()
     },
     link: {
       cursor: 'pointer',
@@ -100,7 +99,7 @@ const ObjectInformationComp = ({
   return (
     <div className={classes.root}>
       <div onClick={() => onTitleClick()}>
-        <Typography variant="h6" className={`${classes.link} ${selectedObjectClass}`}>
+        <Typography variant="h6" className={`${classes.link} ${selectedObjectClass} ${classes.objectValueLabel}`}>
           <div>{labelFromFact ? labelFromFact : objectValueText(selectedObject)}</div>
         </Typography>
       </div>

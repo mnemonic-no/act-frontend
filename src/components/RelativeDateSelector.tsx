@@ -54,15 +54,15 @@ const styles = (theme: Theme) =>
       marginLeft: '-2px'
     },
     checkIcon: {
-      marginRight: theme.spacing.unit
+      marginRight: theme.spacing()
     },
     checkIconPlaceholder: {
       width: 24,
-      marginRight: theme.spacing.unit
+      marginRight: theme.spacing()
     },
     listItem: {
-      paddingLeft: theme.spacing.unit,
-      paddingRight: theme.spacing.unit
+      paddingLeft: theme.spacing(),
+      paddingRight: theme.spacing()
     },
     optionText: {
       paddingLeft: 0

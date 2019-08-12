@@ -52,7 +52,7 @@ class DetailsStore {
 
   @observable createFactDialog: CreateFactForDialog | null = null;
 
-  @observable isOpen = false;
+  @observable _isOpen = false;
 
   constructor(root: MainPageStore, config: any) {
     this.root = root;
@@ -101,12 +101,17 @@ class DetailsStore {
 
   @action.bound
   close(): void {
-    this.isOpen = false;
+    this._isOpen = false;
   }
 
   @action.bound
   open(): void {
-    this.isOpen = true;
+    this._isOpen = true;
+  }
+
+  @computed
+  get isOpen() {
+    return this._isOpen && (Boolean(this.selectedFact) || Boolean(this.selectedObject));
   }
 
   static toContextAction(

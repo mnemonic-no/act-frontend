@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx';
+import { action, computed, observable, reaction } from 'mobx';
 
 import BackendStore from './BackendStore';
 import config from '../config';
@@ -66,11 +66,18 @@ class MainPageStore {
       factsTableStore: new FactsTableStore(this),
       objectsTableStore: new ObjectsTableStore(this)
     };
-  }
 
-  @action.bound
-  toggleSearchDrawer() {
-    this.isSearchDrawerOpen = !this.isSearchDrawerOpen;
+    // Make the URL reflect the last query in history
+    reaction(
+      () => this.queryHistory.result,
+      q => {
+        if (this.queryHistory.isEmpty) {
+          window.history.pushState(null, '', '/');
+        } else {
+          window.history.pushState(null, '', this.queryHistory.asPathname());
+        }
+      }
+    );
   }
 
   initByUrl(location: Location): void {
@@ -87,6 +94,11 @@ class MainPageStore {
     });
 
     locationMatcher(location);
+  }
+
+  @action.bound
+  toggleSearchDrawer() {
+    this.isSearchDrawerOpen = !this.isSearchDrawerOpen;
   }
 
   @action.bound

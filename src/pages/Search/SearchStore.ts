@@ -54,23 +54,6 @@ class SearchStore {
     this.objectValue = '';
   }
 
-  asPathname(): string {
-    if (this.query && this.query.length > 0) {
-      return (
-        '/graph-query/' +
-        encodeURIComponent(this.objectType) +
-        '/' +
-        encodeURIComponent(this.objectValue) +
-        '/' +
-        encodeURIComponent(this.query)
-      );
-    } else if (this.objectValue && this.objectValue.length > 0 && this.objectType && this.objectType.length > 0) {
-      return '/object-fact-query/' + encodeURIComponent(this.objectType) + '/' + encodeURIComponent(this.objectValue);
-    } else {
-      return '';
-    }
-  }
-
   @action.bound
   onQueryInputChange(newValue: string) {
     this.query = newValue;

@@ -1,6 +1,34 @@
-import { action, computed, observable, reaction } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import MainPageStore from './MainPageStore';
-import { Query, QueryResult } from './types';
+import { isFactSearch, isObjectSearch, Query, QueryResult } from './types';
+import * as _ from 'lodash/fp';
+
+export const queryHistoryToPath = (queries: Array<Query>) => {
+  const latest = _.last(queries);
+  const search = latest ? latest.search : '';
+
+  if (!search || isFactSearch(search)) {
+    return '';
+  }
+
+  if (isObjectSearch(search) && !_.isEmpty(search.objectValue) && !_.isEmpty(search.objectType)) {
+    if (search.query && !_.isEmpty(search.query)) {
+      return (
+        '/graph-query/' +
+        encodeURIComponent(search.objectType) +
+        '/' +
+        encodeURIComponent(search.objectValue) +
+        '/' +
+        encodeURIComponent(search.query)
+      );
+    } else {
+      return (
+        '/object-fact-query/' + encodeURIComponent(search.objectType) + '/' + encodeURIComponent(search.objectValue)
+      );
+    }
+  }
+  return '';
+};
 
 class QueryHistory {
   root: MainPageStore;
@@ -12,18 +40,6 @@ class QueryHistory {
 
   constructor(root: MainPageStore) {
     this.root = root;
-
-    // Make the URL reflect the initial query
-    reaction(
-      () => this.result,
-      q => {
-        if (this.queries.length === 0) {
-          window.history.pushState(null, '', '/');
-        } else if (window.location.pathname === '/') {
-          window.history.pushState(null, '', this.root.ui.searchStore.asPathname());
-        }
-      }
-    );
   }
 
   @computed get isEmpty(): boolean {
@@ -77,6 +93,10 @@ class QueryHistory {
   removeAllQueries() {
     // @ts-ignore
     this.queries.clear();
+  }
+
+  asPathname(): string {
+    return queryHistoryToPath(this.queries);
   }
 }
 

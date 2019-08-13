@@ -1,3 +1,4 @@
+import * as _ from 'lodash/fp';
 import React from 'react';
 import { compose, withHandlers } from 'recompose';
 import Typography from '@material-ui/core/Typography/index';
@@ -9,7 +10,7 @@ import Button from '@material-ui/core/Button/index';
 import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 
 import actWretch from '../../util/actWretch';
-import { isRetracted, isRetraction } from '../../core/domain';
+import { isRetracted } from '../../core/domain';
 import CenteredCircularProgress from '../CenteredCircularProgress';
 import memoizeDataLoader from '../../util/memoizeDataLoader';
 import { ObjectRow } from './ObjectRow';
@@ -18,6 +19,7 @@ import withDataLoader, { combineDataLoaders } from '../../util/withDataLoader';
 import { factColor } from '../../util/utils';
 import { ActFact, ActObject, FactComment } from '../../pages/types';
 import { FactRow } from './FactsRow';
+import { pluralize } from '../../util/util';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -37,8 +39,7 @@ const styles = (theme: Theme) =>
       paddingTop: theme.spacing(1),
       paddingBottom: theme.spacing(1)
     },
-
-    objectsTable: {
+    tables: {
       marginLeft: -theme.spacing(2)
     },
     row: {
@@ -54,6 +55,15 @@ const styles = (theme: Theme) =>
     },
     factType: {
       color: factColor
+    },
+    objects: {
+      paddingTop: '1rem'
+    },
+    metaFacts: {
+      paddingTop: '1rem'
+    },
+    comments: {
+      paddingTop: '2rem'
     }
   });
 
@@ -62,10 +72,9 @@ const FactInformationComp = ({
   id,
   fact,
   onObjectRowClick,
-  onFactRowClick,
   comments,
   access,
-  retractions,
+  metaFacts,
   onRetractFactClick
 }: IFactInformationCompInternal) => (
   <div className={classes.root}>
@@ -100,53 +109,51 @@ const FactInformationComp = ({
         </Grid>
       </Grid>
 
-      <Typography variant="body1" gutterBottom>
-        {fact.sourceObject && fact.destinationObject ? 2 : 1} objects
-      </Typography>
-      <Table classes={{ root: classes.objectsTable }}>
-        <TableBody>
-          {fact.sourceObject && (
-            <ObjectRow
-              key={fact.sourceObject.id}
-              object={fact.sourceObject}
-              onRowClick={object => onObjectRowClick(object)}
-            />
-          )}
-          {fact.destinationObject && (
-            <ObjectRow
-              key={fact.destinationObject.id}
-              object={fact.destinationObject}
-              onRowClick={object => onObjectRowClick(object)}
-            />
-          )}
-        </TableBody>
-      </Table>
+      <div className={classes.objects}>
+        <Typography variant="body1">
+          {pluralize(fact.sourceObject && fact.destinationObject ? 2 : 1, 'object')}
+        </Typography>
+        <Table classes={{ root: classes.tables }}>
+          <TableBody>
+            {fact.sourceObject && (
+              <ObjectRow
+                key={fact.sourceObject.id}
+                object={fact.sourceObject}
+                onRowClick={object => onObjectRowClick(object)}
+              />
+            )}
+            {fact.destinationObject && (
+              <ObjectRow
+                key={fact.destinationObject.id}
+                object={fact.destinationObject}
+                onRowClick={object => onObjectRowClick(object)}
+              />
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-      {comments && comments.length > 0 && <br />}
+      {!_.isEmpty(metaFacts) && (
+        <div className={classes.metaFacts}>
+          <Typography variant="body1">{pluralize(metaFacts.length, 'fact')}</Typography>
+          <Table classes={{ root: classes.tables }}>
+            <TableBody>
+              {metaFacts.map((metaFact: ActFact) => (
+                <FactRow key={metaFact.id} fact={metaFact} />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
       {comments &&
         comments.map(({ id, replyTo, comment, timestamp }: FactComment) => (
-          <div key={id}>
+          <div key={id} className={classes.comments}>
             <Typography>{replyTo}</Typography>
             <Typography>{comment}</Typography>
             <Typography variant="caption">{format(new Date(timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
           </div>
         ))}
-
-      {retractions && retractions.length > 0 && (
-        <>
-          <br />
-          <Typography variant="body1" gutterBottom>
-            {retractions.length} retractions
-          </Typography>
-          <Table classes={{ root: classes.objectsTable }}>
-            <TableBody>
-              {retractions.map((retraction: ActFact) => (
-                <FactRow key={retraction.id} fact={retraction} onRowClick={fact => onFactRowClick(fact)} />
-              ))}
-            </TableBody>
-          </Table>
-        </>
-      )}
     </div>
     <div className={classes.actions}>
       <Button onClick={onRetractFactClick}>Retract fact</Button>
@@ -175,11 +182,11 @@ const accessDataLoader = ({ id }: { id: string }) =>
     .get()
     .json(({ data }) => ({ access: data }));
 
-const retractionsDataLoader = ({ id }: { id: string }) =>
+const metaFactsDataLoader = ({ id }: { id: string }) =>
   actWretch
     .url(`/v1/fact/uuid/${id}/meta`)
     .get()
-    .json(({ data }) => ({ retractions: data.filter(isRetraction) }));
+    .json(({ data }) => ({ metaFacts: data }));
 
 const memoizedFactDataLoader = memoizeDataLoader(factDataLoader, ['id']);
 
@@ -187,10 +194,9 @@ interface IFactInformationCompInternal extends WithStyles<typeof styles> {
   id: string;
   fact: ActFact;
   onObjectRowClick: (obj: ActObject) => void;
-  onFactRowClick: (fact: ActFact) => void;
   comments: Array<FactComment>;
   access: any;
-  retractions: Array<ActFact>;
+  metaFacts: Array<ActFact>;
   onRetractFactClick: (x: any) => void;
 }
 
@@ -200,7 +206,7 @@ export type IFactInformationComp = Omit<
   | 'alwaysShowLoadingComponent'
   | 'LoadingComponent'
   | 'fact'
-  | 'retractions'
+  | 'metaFacts'
   | 'comments'
   | 'access'
   | 'onRetractFactClick'
@@ -208,7 +214,7 @@ export type IFactInformationComp = Omit<
 
 export default compose<IFactInformationCompInternal, IFactInformationComp>(
   withDataLoader(
-    combineDataLoaders(memoizedFactDataLoader, commentsDataLoader, accessDataLoader, retractionsDataLoader),
+    combineDataLoaders(memoizedFactDataLoader, commentsDataLoader, accessDataLoader, metaFactsDataLoader),
     {
       alwaysShowLoadingComponent: true,
       LoadingComponent: CenteredCircularProgress

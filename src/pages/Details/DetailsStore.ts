@@ -219,8 +219,7 @@ class DetailsStore {
       id: selected.id,
       endTimestamp: this.endTimestamp,
       selectedNode: this.selectedNode,
-      onObjectRowClick: this.setSelectedObject,
-      onFactRowClick: this.setSelectedFact
+      onObjectRowClick: this.setSelectedObject
     };
   }
 

@@ -35,7 +35,11 @@ const FactRowComp = ({ onRowClick, classes, fact }: IFactRowComp) => {
     return <RetractionRowComp {...{ onRowClick, classes, fact }} />;
   } else {
     return (
-      <TableRow key={fact.id} hover classes={{ root: classes.row }} onClick={() => onRowClick(fact)}>
+      <TableRow
+        key={fact.id}
+        hover
+        classes={{ root: classes.row }}
+        onClick={onRowClick ? () => onRowClick(fact) : undefined}>
         <TableCell classes={{ root: classes.cell }} size="small">
           {fact.type.name}
         </TableCell>
@@ -49,7 +53,7 @@ const FactRowComp = ({ onRowClick, classes, fact }: IFactRowComp) => {
 
 interface IFactRowComp extends WithStyles<typeof styles> {
   fact: ActFact;
-  onRowClick: (f: ActFact) => void;
+  onRowClick?: (f: ActFact) => void;
 }
 
 export const FactRow = compose<IFactRowComp, Omit<IFactRowComp, 'classes'>>(

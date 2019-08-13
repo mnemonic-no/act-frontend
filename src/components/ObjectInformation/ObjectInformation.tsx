@@ -87,6 +87,10 @@ const ObjectInformationComp = ({
   onFactClick,
   onPredefinedObjectQueryClick
 }: IObjectInformationCompInternal) => {
+  if (!selectedObject) {
+    return null;
+  }
+
   const labelFromFact = getObjectLabelFromFact(selectedObject, config.objectLabelFromFactType, oneLeggedFacts);
   const totalFacts = selectedObject.statistics
     ? selectedObject.statistics.reduce((acc: any, x: any) => x.count + acc, 0)

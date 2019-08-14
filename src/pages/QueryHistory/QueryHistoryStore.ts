@@ -2,6 +2,7 @@ import { action, computed } from 'mobx';
 import MainPageStore from '../MainPageStore';
 import { isObjectSearch, Query, QueryHistoryExport, searchId } from '../types';
 import { exportToJson } from '../../util/util';
+import * as _ from 'lodash/fp';
 
 export type QueryItem = {
   id: string;
@@ -101,13 +102,18 @@ class QueryHistoryStore {
   }
 
   @action
-  setSelectedQuery(query: Query) {
-    this.root.queryHistory.selectedQueryId = query.id;
+  setSelectedQuery(query: Query | undefined) {
+    if (query) {
+      this.root.queryHistory.selectedQueryId = query.id;
+    }
   }
 
   @action
   removeQuery(query: Query) {
     this.root.queryHistory.removeQuery(query);
+    if (query.id === this.selectedQueryId) {
+      this.setSelectedQuery(_.last(this.root.queryHistory.queries));
+    }
   }
 
   @action

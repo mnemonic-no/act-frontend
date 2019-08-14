@@ -83,6 +83,11 @@ export type QueryHistoryExport = {
   queries: Array<Search>;
 };
 
+export type ActSelection = {
+  id: string;
+  kind: 'fact' | 'object';
+};
+
 export const searchId = (search: Search) => {
   if (isObjectSearch(search)) {
     return [search.objectType, search.objectValue, search.query, search.factTypes].filter(x => x).join(':');

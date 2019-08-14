@@ -12,7 +12,7 @@ import QueryHistoryStore from './QueryHistory/QueryHistoryStore';
 import RefineryOptionsStore from './RefineryOptions/RefineryOptionsStore';
 import RefineryStore from './RefineryStore';
 import SearchStore from './Search/SearchStore';
-import { QueryHistoryExport } from './types';
+import { ActSelection, QueryHistoryExport } from './types';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -22,7 +22,6 @@ const locationDefinitions = (routeDefinitions: any) => {
       const match = re.exec(location.pathname);
 
       if (match && match.length > 1) {
-        // @ts-ignore
         const pathValues = match.slice(1).map(x => decodeURIComponent(x));
         // @ts-ignore
         v(...pathValues);
@@ -46,6 +45,7 @@ class MainPageStore {
 
   @observable isSearchDrawerOpen = true;
   @observable error: Error | null = null;
+  @observable currentSelection: ActSelection | null = null;
 
   backendStore: BackendStore;
   queryHistory: QueryHistory; // TODO confusing name, might mistake for queryHistoryStore
@@ -104,6 +104,12 @@ class MainPageStore {
   @action.bound
   initByImport(queryHistoryExport: QueryHistoryExport): void {
     this.backendStore.executeQueries(queryHistoryExport.queries);
+  }
+
+  @action.bound
+  setCurrentSelection(selection: ActSelection | null) {
+    this.currentSelection = selection;
+    this.ui.detailsStore.open();
   }
 
   @action.bound

@@ -60,10 +60,6 @@ class DetailsStore {
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
   }
 
-  @computed get selectedNode() {
-    return this.root.ui.cytoscapeStore.selectedNode;
-  }
-
   @action.bound
   onSearchSubmit(search: Search) {
     this.root.backendStore.executeQuery(search);
@@ -74,8 +70,8 @@ class DetailsStore {
   }
 
   @computed get selectedObject(): ActObject | null {
-    const selected = this.selectedNode;
-    if (selected && selected.id && selected.type === 'object') {
+    const selected = this.root.currentSelection;
+    if (selected && selected.id && selected.kind === 'object') {
       return this.root.queryHistory.result.objects[selected.id];
     } else {
       return null;
@@ -83,8 +79,8 @@ class DetailsStore {
   }
 
   @computed get selectedFact(): ActFact | null {
-    const selected = this.selectedNode;
-    if (selected && selected.id && selected.type === 'fact') {
+    const selected = this.root.currentSelection;
+    if (selected && selected.id && selected.kind === 'fact') {
       return this.root.queryHistory.result.facts[selected.id];
     } else {
       return null;
@@ -218,19 +214,18 @@ class DetailsStore {
     return {
       id: selected.id,
       endTimestamp: this.endTimestamp,
-      selectedNode: this.selectedNode,
       onObjectRowClick: this.setSelectedObject
     };
   }
 
   @action.bound
   setSelectedObject(actObject: ActObject) {
-    this.root.ui.cytoscapeStore.setSelectedNode({ type: 'object', id: actObject.id });
+    this.root.setCurrentSelection({ kind: 'object', id: actObject.id });
   }
 
   @action.bound
   setSelectedFact(fact: ActFact) {
-    this.root.ui.cytoscapeStore.setSelectedNode({ type: 'fact', id: fact.id });
+    this.root.setCurrentSelection({ kind: 'fact', id: fact.id });
   }
 
   @action.bound

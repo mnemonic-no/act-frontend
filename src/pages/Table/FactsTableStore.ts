@@ -1,8 +1,7 @@
 import { action, computed, observable } from 'mobx';
 
-import { ActFact } from '../types';
+import { ActFact, ActSelection } from '../types';
 import MainPageStore from '../MainPageStore';
-import { Node } from '../GraphView/GraphViewStore';
 import { ColumnKind, FactRow, SortOrder } from './FactsTable';
 import { isOneLegged } from '../../core/transformers';
 import { exportToCsv } from '../../util/util';
@@ -57,13 +56,13 @@ const cellText = (kind: ColumnKind, fact: ActFact, isExport: boolean) => {
 const toFactRow = (
   fact: ActFact,
   columns: Array<{ label: string; kind: ColumnKind }>,
-  selectedNode: Node,
+  selectedNode: ActSelection | null,
   isExport: boolean
 ): FactRow => {
   return {
     key: fact.id,
     fact: fact,
-    isSelected: fact.id === selectedNode.id,
+    isSelected: Boolean(selectedNode && fact.id === selectedNode.id),
     cells: columns.map(({ kind }) => ({
       kind: kind,
       text: cellText(kind, fact, isExport)
@@ -98,17 +97,13 @@ class FactsTableStore {
     this.root = root;
   }
 
-  @computed get selectedNode() {
-    return this.root.ui.cytoscapeStore.selectedNode;
-  }
-
   @computed get facts() {
     return Object.values(this.root.refineryStore.refined.facts);
   }
 
   @action.bound
   setSelectedFact(actFact: ActFact) {
-    this.root.ui.cytoscapeStore.setSelectedNode({ type: 'fact', id: actFact.id });
+    this.root.setCurrentSelection({ kind: 'fact', id: actFact.id });
   }
 
   @action.bound
@@ -122,7 +117,7 @@ class FactsTableStore {
   @action.bound
   onExportClick() {
     const factRows = Object.values(this.root.refineryStore.refined.facts).map(fact =>
-      toFactRow(fact, this.columns, this.root.ui.cytoscapeStore.selectedNode, true)
+      toFactRow(fact, this.columns, this.root.currentSelection, true)
     );
 
     const rows = sortBy(this.sortOrder, this.columns, factRows).map(row => row.cells.map(({ text }) => text));
@@ -139,7 +134,7 @@ class FactsTableStore {
   @computed
   get prepared() {
     const rows = Object.values(this.root.refineryStore.refined.facts).map(f =>
-      toFactRow(f, this.columns, this.root.ui.cytoscapeStore.selectedNode, false)
+      toFactRow(f, this.columns, this.root.currentSelection, false)
     );
 
     return {

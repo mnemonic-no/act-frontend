@@ -1,8 +1,7 @@
 import { action, computed, observable } from 'mobx';
 
-import { ActFact, ActObject } from '../types';
+import { ActFact, ActObject, ActSelection } from '../types';
 import { ColumnKind, ObjectRow, SortOrder } from './ObjectsTable';
-import { Node } from '../GraphView/GraphViewStore';
 import MainPageStore from '../MainPageStore';
 import { oneLeggedFactsFor } from '../../core/transformers';
 import { exportToCsv } from '../../util/util';
@@ -33,11 +32,11 @@ const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
   });
 };
 
-const toObjectRow = (object: ActObject, selectedNode: Node, facts: Array<ActFact>): ObjectRow => {
+const toObjectRow = (object: ActObject, selection: ActSelection | null, facts: Array<ActFact>): ObjectRow => {
   return {
     key: object.id,
     title: object.type.name,
-    isSelected: object.id === selectedNode.id,
+    isSelected: Boolean(selection && object.id === selection.id),
     actObject: object,
     properties: oneLeggedFactsFor(object, facts).map(f => {
       return { k: f.type.name, v: f.value || '' };
@@ -67,13 +66,13 @@ class ObjectsTableStore {
 
   @action.bound
   setSelectedObject(actObject: ActObject) {
-    this.root.ui.cytoscapeStore.setSelectedNode({ type: 'object', id: actObject.id });
+    this.root.setCurrentSelection({ kind: 'object', id: actObject.id });
   }
 
   @action.bound
   exportToCsv() {
     const objectRows = Object.values(this.root.refineryStore.refined.objects).map(o =>
-      toObjectRow(o, this.root.ui.cytoscapeStore.selectedNode, Object.values(this.root.refineryStore.refined.facts))
+      toObjectRow(o, this.root.currentSelection, Object.values(this.root.refineryStore.refined.facts))
     );
 
     const rows = sortBy(this.sortOrder, objectRows).map(row => {
@@ -100,7 +99,7 @@ class ObjectsTableStore {
   @computed
   get prepared() {
     const rows = Object.values(this.root.refineryStore.refined.objects).map(o =>
-      toObjectRow(o, this.root.ui.cytoscapeStore.selectedNode, Object.values(this.root.refineryStore.refined.facts))
+      toObjectRow(o, this.root.currentSelection, Object.values(this.root.refineryStore.refined.facts))
     );
 
     return {

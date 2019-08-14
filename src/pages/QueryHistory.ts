@@ -93,6 +93,7 @@ class QueryHistory {
   removeAllQueries() {
     // @ts-ignore
     this.queries.clear();
+    this.root.setCurrentSelection(null);
   }
 
   asPathname(): string {

@@ -22,16 +22,21 @@ const styles = (theme: Theme) =>
     }
   });
 
+const content = (store: DetailsStore) => {
+  if (store.selectedObjectDetails) {
+    return <ObjectInformation {...(store.selectedObjectDetails as IObjectInformationComp)} />;
+  } else if (store.selectedFactDetails) {
+    return <FactInformation {...(store.selectedFactDetails as IFactInformationComp)} />;
+  }
+  return null;
+};
+
 const Details = ({ store, classes }: IDetails) => {
   if (!store.isOpen) {
     return null;
   }
 
-  const detailsComp = store.selectedObject ? (
-    <ObjectInformation {...(store.selectedObjectDetails as IObjectInformationComp)} />
-  ) : (
-    <FactInformation {...(store.selectedFactDetails as IFactInformationComp)} />
-  );
+  const detailsComp = content(store);
 
   return (
     <div className={classes.root}>

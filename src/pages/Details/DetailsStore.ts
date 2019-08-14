@@ -71,17 +71,8 @@ class DetailsStore {
 
   @computed get selectedObject(): ActObject | null {
     const selected = this.root.currentSelection;
-    if (selected && selected.id && selected.kind === 'object') {
+    if (selected && selected.kind === 'object') {
       return this.root.queryHistory.result.objects[selected.id];
-    } else {
-      return null;
-    }
-  }
-
-  @computed get selectedFact(): ActFact | null {
-    const selected = this.root.currentSelection;
-    if (selected && selected.id && selected.kind === 'fact') {
-      return this.root.queryHistory.result.facts[selected.id];
     } else {
       return null;
     }
@@ -107,7 +98,7 @@ class DetailsStore {
 
   @computed
   get isOpen() {
-    return this._isOpen && (Boolean(this.selectedFact) || Boolean(this.selectedObject));
+    return this._isOpen && Boolean(this.selectedObjectDetails || this.selectedFactDetails);
   }
 
   static toContextAction(
@@ -176,11 +167,6 @@ class DetailsStore {
   }
 
   @computed
-  get hasSelection(): boolean {
-    return Boolean(this.selectedObject) || Boolean(this.selectedFact);
-  }
-
-  @computed
   get selectedObjectDetails() {
     const selected = this.selectedObject;
 
@@ -207,14 +193,20 @@ class DetailsStore {
 
   @computed
   get selectedFactDetails() {
-    const selected = this.selectedFact;
+    const selected = this.root.currentSelection;
 
-    if (!selected) return {};
+    if (!selected || selected.kind !== 'fact') return null;
 
     return {
       id: selected.id,
       endTimestamp: this.endTimestamp,
-      onObjectRowClick: this.setSelectedObject
+      onObjectRowClick: this.setSelectedObject,
+      onFactRowClick: this.setSelectedFact,
+      onReferenceClick: (fact: ActFact) => {
+        if (fact.inReferenceTo) {
+          this.root.setCurrentSelection({ kind: 'fact', id: fact.inReferenceTo.id });
+        }
+      }
     };
   }
 

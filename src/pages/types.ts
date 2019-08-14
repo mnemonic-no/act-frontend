@@ -21,7 +21,7 @@ export type ActFact = {
   id: string;
   type: NamedId;
   value?: string;
-  inReferenceTo?: NamedId;
+  inReferenceTo?: { id: string; type: NamedId };
   organization: NamedId;
   source: NamedId;
   accessMode: string;

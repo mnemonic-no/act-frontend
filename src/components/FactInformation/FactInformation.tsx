@@ -1,15 +1,17 @@
+import * as _ from 'lodash/fp';
 import React from 'react';
 import { compose, withHandlers } from 'recompose';
-import Typography from '@material-ui/core/Typography/index';
 import format from 'date-fns/format';
+import Button from '@material-ui/core/Button/index';
+import Link from '@material-ui/core/Link';
+import Grid from '@material-ui/core/Grid/index';
 import Table from '@material-ui/core/Table/index';
 import TableBody from '@material-ui/core/TableBody/index';
-import Grid from '@material-ui/core/Grid/index';
-import Button from '@material-ui/core/Button/index';
+import Typography from '@material-ui/core/Typography/index';
 import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 
 import actWretch from '../../util/actWretch';
-import { isRetracted, isRetraction } from '../../core/domain';
+import { isMetaFact, isRetracted } from '../../core/domain';
 import CenteredCircularProgress from '../CenteredCircularProgress';
 import memoizeDataLoader from '../../util/memoizeDataLoader';
 import { ObjectRow } from './ObjectRow';
@@ -18,6 +20,7 @@ import withDataLoader, { combineDataLoaders } from '../../util/withDataLoader';
 import { factColor } from '../../util/utils';
 import { ActFact, ActObject, FactComment } from '../../pages/types';
 import { FactRow } from './FactsRow';
+import { pluralize } from '../../util/util';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -37,8 +40,7 @@ const styles = (theme: Theme) =>
       paddingTop: theme.spacing(1),
       paddingBottom: theme.spacing(1)
     },
-
-    objectsTable: {
+    tables: {
       marginLeft: -theme.spacing(2)
     },
     row: {
@@ -54,6 +56,15 @@ const styles = (theme: Theme) =>
     },
     factType: {
       color: factColor
+    },
+    objects: {
+      paddingTop: '1rem'
+    },
+    metaFacts: {
+      paddingTop: '1rem'
+    },
+    comments: {
+      paddingTop: '2rem'
     }
   });
 
@@ -61,99 +72,114 @@ const FactInformationComp = ({
   classes,
   id,
   fact,
-  onObjectRowClick,
-  onFactRowClick,
+  metaFacts,
   comments,
   access,
-  retractions,
+  onFactRowClick,
+  onObjectRowClick,
+  onReferenceClick,
   onRetractFactClick
-}: IFactInformationCompInternal) => (
-  <div className={classes.root}>
-    <Typography variant="h5">
-      <span className={classes.factType}>{fact.type.name}</span>
-      {isRetracted(fact) && <span style={{ color: '#FF4F4F' }}> RETRACTED</span>}
-    </Typography>
-    <Typography variant="subtitle1" gutterBottom>
-      {fact.value && fact.value.startsWith('-') ? '' : fact.value}
-    </Typography>
-    <div className={classes.info}>
-      <Grid container spacing={0}>
-        <Grid item xs={12} classes={{ item: classes.row }}>
-          <Typography className={classes.left}>organization</Typography>
-          <Typography className={classes.right}>{fact.organization.name}</Typography>
-        </Grid>
-        <Grid item xs={12} classes={{ item: classes.row }}>
-          <Typography className={classes.left}>access mode</Typography>
-          <Typography className={classes.right}>{fact.accessMode}</Typography>
-        </Grid>
-        <Grid item xs={12} classes={{ item: classes.row }}>
-          <Typography className={classes.left}>date</Typography>
-          <Typography className={classes.right}>{format(new Date(fact.timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
-        </Grid>
-        <Grid item xs={12} classes={{ item: classes.row }}>
-          <Typography gutterBottom className={classes.left}>
-            last seen
-          </Typography>
-          <Typography className={classes.right}>
-            {format(new Date(fact.lastSeenTimestamp), 'DD.MM.YYYY HH:mm')}
-          </Typography>
-        </Grid>
-      </Grid>
+}: IFactInformationCompInternal) => {
+  if (!fact) {
+    return null;
+  }
 
-      <Typography variant="body1" gutterBottom>
-        {fact.sourceObject && fact.destinationObject ? 2 : 1} objects
+  return (
+    <div className={classes.root}>
+      <Typography variant="h5">
+        <span className={classes.factType}>{fact.type.name}</span>
+        {isRetracted(fact) && <span style={{ color: '#FF4F4F' }}> RETRACTED</span>}
       </Typography>
-      <Table classes={{ root: classes.objectsTable }}>
-        <TableBody>
-          {fact.sourceObject && (
-            <ObjectRow
-              key={fact.sourceObject.id}
-              object={fact.sourceObject}
-              onRowClick={object => onObjectRowClick(object)}
-            />
-          )}
-          {fact.destinationObject && (
-            <ObjectRow
-              key={fact.destinationObject.id}
-              object={fact.destinationObject}
-              onRowClick={object => onObjectRowClick(object)}
-            />
-          )}
-        </TableBody>
-      </Table>
+      <Typography variant="subtitle1" gutterBottom>
+        {fact.value && fact.value.startsWith('-') ? '' : fact.value}
+      </Typography>
+      <div className={classes.info}>
+        <Grid container spacing={0}>
+          <Grid item xs={12} classes={{ item: classes.row }}>
+            <Typography className={classes.left}>organization</Typography>
+            <Typography className={classes.right}>{fact.organization.name}</Typography>
+          </Grid>
+          <Grid item xs={12} classes={{ item: classes.row }}>
+            <Typography className={classes.left}>access mode</Typography>
+            <Typography className={classes.right}>{fact.accessMode}</Typography>
+          </Grid>
+          <Grid item xs={12} classes={{ item: classes.row }}>
+            <Typography className={classes.left}>date</Typography>
+            <Typography className={classes.right}>{format(new Date(fact.timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
+          </Grid>
+          <Grid item xs={12} classes={{ item: classes.row }}>
+            <Typography gutterBottom className={classes.left}>
+              last seen
+            </Typography>
+            <Typography className={classes.right}>
+              {format(new Date(fact.lastSeenTimestamp), 'DD.MM.YYYY HH:mm')}
+            </Typography>
+          </Grid>
+        </Grid>
 
-      {comments && comments.length > 0 && <br />}
-      {comments &&
-        comments.map(({ id, replyTo, comment, timestamp }: FactComment) => (
-          <div key={id}>
-            <Typography>{replyTo}</Typography>
-            <Typography>{comment}</Typography>
-            <Typography variant="caption">{format(new Date(timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
+        {isMetaFact(fact) && fact.inReferenceTo && (
+          <div className={classes.metaFacts}>
+            <Link component="button" color="primary" variant="body1" onClick={() => onReferenceClick(fact)}>
+              In reference to <span className={classes.factType}>{fact.inReferenceTo.type.name}</span>
+            </Link>
           </div>
-        ))}
+        )}
 
-      {retractions && retractions.length > 0 && (
-        <>
-          <br />
-          <Typography variant="body1" gutterBottom>
-            {retractions.length} retractions
-          </Typography>
-          <Table classes={{ root: classes.objectsTable }}>
-            <TableBody>
-              {retractions.map((retraction: ActFact) => (
-                <FactRow key={retraction.id} fact={retraction} onRowClick={fact => onFactRowClick(fact)} />
-              ))}
-            </TableBody>
-          </Table>
-        </>
-      )}
+        {!isMetaFact(fact) && (
+          <div className={classes.objects}>
+            <Typography variant="body1">
+              {pluralize(fact.sourceObject && fact.destinationObject ? 2 : 1, 'object')}
+            </Typography>
+            <Table classes={{ root: classes.tables }}>
+              <TableBody>
+                {fact.sourceObject && (
+                  <ObjectRow
+                    key={fact.sourceObject.id}
+                    object={fact.sourceObject}
+                    onRowClick={object => onObjectRowClick(object)}
+                  />
+                )}
+                {fact.destinationObject && (
+                  <ObjectRow
+                    key={fact.destinationObject.id}
+                    object={fact.destinationObject}
+                    onRowClick={object => onObjectRowClick(object)}
+                  />
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        {!_.isEmpty(metaFacts) && (
+          <div className={classes.metaFacts}>
+            <Typography variant="body1">{pluralize(metaFacts.length, 'fact')}</Typography>
+            <Table classes={{ root: classes.tables }}>
+              <TableBody>
+                {metaFacts.map((metaFact: ActFact) => (
+                  <FactRow key={metaFact.id} fact={metaFact} onRowClick={fact => onFactRowClick(fact)} />
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        {comments &&
+          comments.map(({ id, replyTo, comment, timestamp }: FactComment) => (
+            <div key={id} className={classes.comments}>
+              <Typography>{replyTo}</Typography>
+              <Typography>{comment}</Typography>
+              <Typography variant="caption">{format(new Date(timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
+            </div>
+          ))}
+      </div>
+      <div className={classes.actions}>
+        <Button onClick={onRetractFactClick}>Retract fact</Button>
+        <RetractFactDialog />
+      </div>
     </div>
-    <div className={classes.actions}>
-      <Button onClick={onRetractFactClick}>Retract fact</Button>
-      <RetractFactDialog />
-    </div>
-  </div>
-);
+  );
+};
 
 const factDataLoader = ({ id }: { id: string }) =>
   actWretch
@@ -175,11 +201,12 @@ const accessDataLoader = ({ id }: { id: string }) =>
     .get()
     .json(({ data }) => ({ access: data }));
 
-const retractionsDataLoader = ({ id }: { id: string }) =>
+const metaFactsDataLoader = ({ id }: { id: string }) =>
   actWretch
     .url(`/v1/fact/uuid/${id}/meta`)
+    .query({ includeRetracted: true })
     .get()
-    .json(({ data }) => ({ retractions: data.filter(isRetraction) }));
+    .json(({ data }) => ({ metaFacts: data }));
 
 const memoizedFactDataLoader = memoizeDataLoader(factDataLoader, ['id']);
 
@@ -188,9 +215,10 @@ interface IFactInformationCompInternal extends WithStyles<typeof styles> {
   fact: ActFact;
   onObjectRowClick: (obj: ActObject) => void;
   onFactRowClick: (fact: ActFact) => void;
+  onReferenceClick: (fact: ActFact) => void;
   comments: Array<FactComment>;
   access: any;
-  retractions: Array<ActFact>;
+  metaFacts: Array<ActFact>;
   onRetractFactClick: (x: any) => void;
 }
 
@@ -200,7 +228,7 @@ export type IFactInformationComp = Omit<
   | 'alwaysShowLoadingComponent'
   | 'LoadingComponent'
   | 'fact'
-  | 'retractions'
+  | 'metaFacts'
   | 'comments'
   | 'access'
   | 'onRetractFactClick'
@@ -208,7 +236,7 @@ export type IFactInformationComp = Omit<
 
 export default compose<IFactInformationCompInternal, IFactInformationComp>(
   withDataLoader(
-    combineDataLoaders(memoizedFactDataLoader, commentsDataLoader, accessDataLoader, retractionsDataLoader),
+    combineDataLoaders(memoizedFactDataLoader, commentsDataLoader, accessDataLoader, metaFactsDataLoader),
     {
       alwaysShowLoadingComponent: true,
       LoadingComponent: CenteredCircularProgress

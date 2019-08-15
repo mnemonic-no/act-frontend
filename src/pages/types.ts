@@ -21,7 +21,7 @@ export type ActFact = {
   id: string;
   type: NamedId;
   value?: string;
-  inReferenceTo?: NamedId;
+  inReferenceTo?: { id: string; type: NamedId };
   organization: NamedId;
   source: NamedId;
   accessMode: string;
@@ -81,6 +81,11 @@ export type Query = {
 export type QueryHistoryExport = {
   version: string;
   queries: Array<Search>;
+};
+
+export type ActSelection = {
+  id: string;
+  kind: 'fact' | 'object';
 };
 
 export const searchId = (search: Search) => {

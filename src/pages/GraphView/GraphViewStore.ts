@@ -1,7 +1,7 @@
 import { action, computed, observable } from 'mobx';
 import MainPageStore from '../MainPageStore';
 import getStyle from '../../core/cytoscapeStyle';
-import { ActObject, Search, ActFact, isObjectSearch, isFactSearch } from '../types';
+import { ActObject, Search, ActFact, isObjectSearch, isFactSearch, ActSelection } from '../types';
 
 export type Node = {
   id: string | null;
@@ -30,6 +30,11 @@ class GraphViewStore {
     this.resizeEvent = new Date().getTime();
   }
 
+  selectedCytoscapeNode(selection: ActSelection | null) {
+    if (!selection) return null;
+    return selection.kind === 'fact' ? 'edge-' + selection.id : selection.id;
+  }
+
   @computed
   get prepared() {
     const canRender =
@@ -38,20 +43,20 @@ class GraphViewStore {
     return {
       resizeEvent: this.resizeEvent,
       canRender: canRender,
-      selectedNode: this.selectedNode.type === 'fact' ? 'edge-' + this.selectedNode.id : this.selectedNode.id,
+      selectedNode: this.selectedCytoscapeNode(this.root.currentSelection),
       elements: this.root.refineryStore.cytoscapeElements,
       layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
       style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels }),
       onNodeClick: (node: any) => {
-        this.setSelectedNode({
+        this.root.setCurrentSelection({
           id: node.data('isFact') ? node.data('factId') : node.id(),
-          type: node.data('isFact') ? 'fact' : 'object'
+          kind: node.data('isFact') ? 'fact' : 'object'
         });
       },
       onNodeCtxClick: (node: any) => {
-        this.setSelectedNode({
+        this.root.setCurrentSelection({
           id: node.data('isFact') ? node.data('factId') : node.id(),
-          type: node.data('isFact') ? 'fact' : 'object'
+          kind: node.data('isFact') ? 'fact' : 'object'
         });
       },
       onNodeDoubleClick: (node: any) => {
@@ -63,26 +68,20 @@ class GraphViewStore {
   }
 
   @action
-  setSelectedNode(value: Node) {
-    this.selectedNode = value;
-    this.root.ui.detailsStore.open();
-  }
-
-  @action
   setSelectedNodeBasedOnSearch(search: Search) {
     if (isObjectSearch(search)) {
       const searchedNode = Object.values(this.root.refineryStore.refined.objects).find(
         (object: ActObject) => object.type.name === search.objectType && object.value === search.objectValue
       );
       if (searchedNode && !search.query) {
-        this.root.ui.cytoscapeStore.setSelectedNode({ id: searchedNode.id, type: 'object' });
+        this.root.setCurrentSelection({ id: searchedNode.id, kind: 'object' });
       }
     } else if (isFactSearch(search)) {
       const searchedNode = Object.values(this.root.refineryStore.refined.facts).find(
         (fact: ActFact) => fact.id === search.id
       );
       if (searchedNode) {
-        this.root.ui.cytoscapeStore.setSelectedNode({ id: searchedNode.id, type: 'fact' });
+        this.root.setCurrentSelection({ id: searchedNode.id, kind: 'fact' });
       }
     } else {
       // eslint-disable-next-line

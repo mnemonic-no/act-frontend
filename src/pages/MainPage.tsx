@@ -10,6 +10,9 @@ import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Toolbar from '@material-ui/core/Toolbar';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+
 // @ts-ignore
 import classNames from 'classnames';
 
@@ -26,8 +29,7 @@ import Details from './Details/Details';
 import ObjectsTable from './Table/ObjectsTable';
 import FactsTable from './Table/FactsTable';
 import ErrorBoundary from '../components/ErrorBoundary';
-import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import Timeline from '../components/Timeline/Timeline';
 
 const drawerWidth = 380;
 const infoDrawerWidth = 360;
@@ -154,11 +156,15 @@ const styles = (theme: Theme) => {
       marginTop: theme.spacing(2)
     },
 
+    timelineContainer: {
+      borderTop: `1px solid ${theme.palette.divider}`
+    },
+
     searchToggleButton: {
       background: '#FAFAFA',
       borderTopRightRadius: '10px',
       borderBottomRightRadius: '10px',
-      borderColor: 'rgba(0,0,0,0.12)',
+      borderColor: theme.palette.divider,
       borderStyle: 'solid',
       borderWidth: '1px 1px 1px 0',
       position: 'absolute',
@@ -189,8 +195,13 @@ const ContentComp = ({ store, classes }: { store: MainPageStore; classes: any })
           </Tabs>
 
           {selectedTab === 'graph' && (
-            <div style={{ flex: '1 0 auto' }}>
-              <GraphView store={store.ui.cytoscapeStore} />
+            <div style={{ flex: '1 0 auto', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ flex: '1 0 auto' }}>
+                <GraphView store={store.ui.cytoscapeStore} />
+              </div>
+              <div className={classes.timelineContainer} style={{ flex: '0 0 200px' }}>
+                <Timeline {...store.ui.cytoscapeStore.timeline} />
+              </div>
             </div>
           )}
           {selectedTab === 'tableOfFacts' && <FactsTable {...store.ui.factsTableStore.prepared} />}

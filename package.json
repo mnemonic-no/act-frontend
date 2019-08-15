@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "4.3.1",
     "@material-ui/icons": "4.2.1",
+    "@types/d3": "5.7.2",
     "@types/jest": "24.0.17",
     "@types/lodash": "4.14.136",
     "@types/node": "12.7.1",
@@ -21,6 +22,7 @@
     "cytoscape-euler": "1.0.0",
     "cytoscape-klay": "3.1.2",
     "cytoscape-spread": "3.0.0",
+    "d3": "5.11.0",
     "dagre": "0.8.4",
     "date-fns": "2.0.0-alpha.7",
     "file-saver": "2.0.2",
@@ -45,16 +47,8 @@
     "typescript": "3.5.3",
     "wretch": "1.5.4"
   },
-  "scripts": {
-    "analyze": "source-map-explorer build/static/js/main.*",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "lint": "eslint --ext js,jsx,ts,tsx src",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "ci:test": "react-scripts test --all --watchAll=false --reporters=default --reporters=jest-junit"
-  },
   "devDependencies": {
+    "@storybook/react": "5.1.11",
     "@types/recompose": "0.30.6",
     "eslint-config-prettier": "6.0.0",
     "husky": "^3.0.3",
@@ -62,6 +56,16 @@
     "prettier": "1.18.2",
     "pretty-quick": "1.11.1",
     "source-map-explorer": "2.0.1"
+  },
+  "scripts": {
+    "analyze": "source-map-explorer build/static/js/main.*",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "lint": "eslint --ext js,jsx,ts,tsx src",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "ci:test": "react-scripts test --all --watchAll=false --reporters=default --reporters=jest-junit",
+    "storybook": "start-storybook"
   },
   "comment_browserslist": "Cleared temporarily. See https://github.com/browserslist/browserslist/issues/382",
   "browserslist": [],

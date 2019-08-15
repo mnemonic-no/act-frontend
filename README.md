@@ -50,3 +50,12 @@ yarn build
 ```
 
 This will create a folder `build/` with static files ready to be deployed.
+
+
+### Storybook
+
+[Storybook](https://github.com/storybookjs/storybook) is configured for the project in order to develop UI components in isolation.
+
+```bash
+yarn storybook
+```

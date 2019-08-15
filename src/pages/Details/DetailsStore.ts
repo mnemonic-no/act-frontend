@@ -223,7 +223,7 @@ class DetailsStore {
   @action.bound
   onCreateFactClick() {
     if (this.selectedObject) {
-      this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.queryHistory);
+      this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.queryHistory, []);
     }
   }
 }

@@ -197,14 +197,13 @@ class CreateFactForDialog {
   }
 
   @action.bound
-  onFormBidirectionalChange(otherObject: any) {
+  onFormBidirectionalChange(otherObject: { type: NamedId; value: string }) {
     if (this.formBidirectional === null) throw Error('Should not happen');
-
     this.formBidirectional = { ...this.formBidirectional, otherObject: otherObject };
   }
 
   @action.bound
-  onFormUniDirectionalChange(otherObject: any) {
+  onFormUniDirectionalChange(otherObject: { type: NamedId; value: string }) {
     if (!this.formUniDirectional) return;
     this.formUniDirectional.otherObject = otherObject;
   }

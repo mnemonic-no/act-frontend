@@ -59,7 +59,7 @@ const ObjectSelectionComp = observer(
     title: string;
     validObjectTypes: Array<NamedId>;
     selectionObject: { type: NamedId; value: string };
-    onChange: Function;
+    onChange: (obj: { type: NamedId; value: string }) => void;
   }) => {
     if (!selectionObject.type) {
       return <div>Missing type for selection object</div>;
@@ -76,7 +76,9 @@ const ObjectSelectionComp = observer(
           SelectProps={{ native: true }}
           value={selectionObject.type.name}
           onChange={e => {
-            return onChange({ ...selectionObject, type: e.target.value });
+            const newTypeName = e.target.value;
+            const newObjectType = validObjectTypes.filter(ot => ot.name === newTypeName)[0];
+            return onChange({ ...selectionObject, type: newObjectType });
           }}>
           {validObjectTypes.map(({ id, name }: any) => (
             <option key={id} value={name}>
@@ -270,7 +272,7 @@ const UniDirectionalFact = observer(
   }: {
     store: DialogStore;
     form: FormUniDirectional;
-    onChange: Function;
+    onChange: (obj: { type: NamedId; value: string }) => void;
     onSwapClick: Function | undefined;
   }) => {
     const SourceComp = observer(() => {

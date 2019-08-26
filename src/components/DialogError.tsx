@@ -19,16 +19,26 @@ const styles = (theme: Theme) =>
     }
   });
 
-const DialogErrorComp = ({ classes, error }: IDialogErrorComp) => (
-  <div className={classes.error}>
-    <Typography color="error" variant="body1">
-      Something went wrong
-    </Typography>
-    <Typography component="pre" color="error" style={{ fontSize: 10 }}>
-      {JSON.stringify(error, [0], 2)}
-    </Typography>
-  </div>
-);
+const toErrorMessage = (error: any) => {
+  if (error instanceof Error) {
+    // @ts-ignore
+    return (error.title ? error.title : '') + ' ' + error.message;
+  }
+  return JSON.stringify(error);
+};
+
+const DialogErrorComp = ({ classes, error }: IDialogErrorComp) => {
+  return (
+    <div className={classes.error}>
+      <Typography color="error" variant="body1">
+        Something went wrong
+      </Typography>
+      <Typography component="pre" color="error" style={{ fontSize: 10 }}>
+        {toErrorMessage(error)}
+      </Typography>
+    </div>
+  );
+};
 
 interface IDialogErrorComp extends WithStyles<typeof styles> {
   error: any;

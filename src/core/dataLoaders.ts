@@ -276,7 +276,8 @@ export const createFact = (request: any) => {
     .json(request)
     .post()
     .forbidden(handleForbiddenQueryResults)
-    .json(({ data }: any) => data);
+    .json(({ data }: any) => data)
+    .catch(handleError);
 };
 
 export const postJson = (url: string, jsonRequest: any) => {

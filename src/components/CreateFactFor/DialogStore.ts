@@ -8,6 +8,7 @@ import {
   validBidirectionalFactTargetObjectTypes,
   validUnidirectionalFactTargetObjectTypes
 } from '../../core/transformers';
+import * as _ from 'lodash/fp';
 import { addMessage } from '../../util/SnackbarProvider';
 import QueryHistory from '../../pages/QueryHistory';
 
@@ -118,19 +119,24 @@ class CreateFactForDialog {
   selectedObject: ActObject;
   queryHistory: QueryHistory;
 
-  constructor(selectedObject: ActObject, queryHistory: QueryHistory) {
+  constructor(selectedObject: ActObject, queryHistory: QueryHistory, factTypes: Array<FactType>) {
     this.selectedObject = selectedObject;
     this.queryHistory = queryHistory;
 
-    factTypesDataLoader().then((factTypes: Array<FactType>) => {
-      runInAction(() => {
-        this.factTypes = factTypes
-          .filter(ft => isRelevantFactType(ft, selectedObject))
-          .sort((a, b) => (a.name > b.name ? 1 : -1));
+    if (_.isEmpty(factTypes)) {
+      factTypesDataLoader().then((factTypes: Array<FactType>) => {
+        runInAction(() => {
+          this.factTypes = factTypes
+            .filter(ft => isRelevantFactType(ft, selectedObject))
+            .sort((a, b) => (a.name > b.name ? 1 : -1));
 
-        this.onFactTypeChange(this.factTypes[0].name);
+          this.onFactTypeChange(this.factTypes[0].name);
+        });
       });
-    });
+    } else {
+      this.factTypes = factTypes;
+      this.onFactTypeChange(this.factTypes[0].name);
+    }
   }
 
   @action.bound

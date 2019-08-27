@@ -38,7 +38,7 @@ const Orange = {
   A700: '#eb6800' // dark
 };
 
-const theme = createMuiTheme({
+export const actTheme = createMuiTheme({
   typography: {
     useNextVariants: true
   },
@@ -58,7 +58,7 @@ const theme = createMuiTheme({
 
 const App = () => (
   <>
-    <MuiThemeProvider theme={theme}>
+    <MuiThemeProvider theme={actTheme}>
       <SnackbarProvider />
       <MainPage />
     </MuiThemeProvider>

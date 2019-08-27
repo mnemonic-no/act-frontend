@@ -1,7 +1,8 @@
 import { action, computed, observable } from 'mobx';
 import MainPageStore from '../MainPageStore';
 import getStyle from '../../core/cytoscapeStyle';
-import { ActObject, Search, ActFact, isObjectSearch, isFactSearch, ActSelection } from '../types';
+import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, Search } from '../types';
+import * as _ from 'lodash/fp';
 
 export type Node = {
   id: string | null;
@@ -87,6 +88,24 @@ class GraphViewStore {
       // eslint-disable-next-line
       const _exhaustiveCheck: never = search;
     }
+  }
+
+  @computed
+  get timeRange(): [Date, Date] {
+    return [new Date(2013, 0, 1), new Date(2016, 0, 1)];
+  }
+
+  @computed
+  get timeline() {
+    const timeData = _.map((f: ActFact) => ({ value: new Date(f.timestamp) }))(
+      Object.values(this.root.refineryStore.refined.facts)
+    );
+
+    return {
+      resizeEvent: this.resizeEvent,
+      timeRange: this.root.refineryStore.timeRange,
+      data: timeData
+    };
   }
 }
 

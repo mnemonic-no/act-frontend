@@ -9,6 +9,7 @@ import * as _ from 'lodash/fp';
 import { objectFactsToElements } from '../core/cytoscapeTransformers';
 import { ActFact, ActObject, QueryResult } from './types';
 import { isRetracted, isRetraction } from '../core/domain';
+import * as d3 from 'd3';
 
 export type ObjectTypeFilter = {
   id: string;
@@ -112,6 +113,24 @@ class RefineryStore {
   @action
   toggleObjectTypeFilter(x: ObjectTypeFilter) {
     x.checked = !x.checked;
+  }
+
+  @computed
+  get timeRange(): [Date, Date] {
+    const res: QueryResult = this.refined;
+
+    const facts = Object.values(res.facts);
+
+    if (facts.length === 0) {
+      const now = new Date();
+      return [d3.timeMonth.floor(now), d3.timeMonth.ceil(now)];
+    }
+
+    // @ts-ignore
+    const earliest = new Date(_.minBy(x => x.timestamp)(facts).timestamp);
+    // @ts-ignore
+    const latest = new Date(_.maxBy(x => x.timestamp)(facts).timestamp);
+    return [earliest, latest];
   }
 }
 

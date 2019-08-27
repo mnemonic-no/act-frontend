@@ -19,6 +19,7 @@ import { ActFact, ActObject, FactType, Search } from '../../pages/types';
 import FactTypeTable from './FactTypeTable';
 import CreateFactForObjectDialog from '../CreateFactFor/Dialog';
 import { observer } from 'mobx-react';
+import CreateFactForDialog from '../CreateFactFor/DialogStore';
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -155,7 +156,7 @@ interface IObjectInformationCompInternal extends WithStyles<typeof styles> {
   selectedObject: ActObject;
   oneLeggedFacts: Array<ActFact>;
   details: ObjectDetails;
-  createFactDialog: any;
+  createFactDialog: CreateFactForDialog;
   onSearchSubmit: (search: Search) => void;
   onFactClick: (f: ActFact) => void;
   onCreateFactClick: Function;

@@ -9,7 +9,8 @@ export const useOnResize = (onResizeFn: () => void) => {
     return () => {
       window.removeEventListener('resize', onResizeFn);
     };
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return null;
 };

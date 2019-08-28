@@ -131,8 +131,13 @@ const drawXAxis = (e: any, scaleFn: any, containerHeight: number) => {
   const xAxis = d3
     .axisBottom(scaleFn)
     .ticks(10)
-    // @ts-ignore
-    .tickFormat(multiFormat);
+    .tickFormat((d: any, i: number) => {
+      // Always show the year-month-day on the first tick
+      if (i === 0) {
+        return d3.timeFormat('%Y-%m-%d')(d);
+      }
+      return multiFormat(d);
+    });
 
   const update = e.select('.xAxis');
 
@@ -215,6 +220,7 @@ const secondsInYear = 60 * 60 * 24 * 365;
 const secondsInMonth = 60 * 60 * 24 * 31;
 const secondsInWeek = 60 * 60 * 24 * 7;
 const secondsInDay = 60 * 60 * 24;
+const secondsInHour = 60 * 60;
 
 const binSize = (timeRange: [Date, Date]) => {
   const timeRangeInSec = d3.timeSecond.count(timeRange[0], timeRange[1]);
@@ -229,8 +235,10 @@ const binSize = (timeRange: [Date, Date]) => {
     return d3.timeDay;
   } else if (timeRangeInSec > secondsInDay / 2) {
     return d3.timeHour;
-  } else {
+  } else if (timeRangeInSec > secondsInHour) {
     return d3.timeMinute;
+  } else {
+    return d3.timeSecond;
   }
 };
 

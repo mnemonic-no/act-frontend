@@ -1,54 +1,56 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import * as _ from 'lodash/fp';
-import { ScaleTime } from 'd3';
-import { useOnResize, usePrevious } from '../../hooks';
-import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core';
-import { pluralize } from '../../util/util';
 import { observer } from 'mobx-react';
-import { compose } from 'recompose';
+import { makeStyles, Theme } from '@material-ui/core';
+
+import { useOnResize, usePrevious } from '../../hooks';
+import { pluralize } from '../../util/util';
 
 const defaultContainerSize = { width: 900, height: 200 };
 const margin = { top: 20, right: 30, bottom: 30, left: 40 };
 
-const styles = (theme: Theme) =>
-  createStyles({
-    chartRoot: {
-      '& .xAxis': { color: theme.palette.primary.light },
-      '& .yAxis': { color: theme.palette.primary.light },
-      '& .grid': {
-        color: theme.palette.grey['600'],
-        opacity: 0.07
-      },
-      '& .grid path': {
-        visibility: 'hidden'
-      },
-      '& .histogram': {
-        strokeWidth: 0.5,
-        stroke: theme.palette.grey['600'],
-        fill: theme.palette.grey['300']
-      }
+const useStyles = makeStyles((theme: Theme) => ({
+  chartRoot: {
+    '& .xAxis': { color: theme.palette.primary.light },
+    '& .yAxis': { color: theme.palette.primary.light },
+    '& .grid': {
+      color: theme.palette.grey['600'],
+      opacity: 0.07
     },
-    root: {
-      '& .tooltip': {
-        fontSize: '0.9rem',
-        position: 'absolute',
-        borderRadius: '5px',
-        zIndex: 9999,
-        backgroundColor: theme.palette.grey.A700,
-        color: theme.palette.common.white,
-        padding: '8px',
-        pointerEvents: 'none',
-        transition: 'all 0.15s ease',
-        opacity: 0
-      },
-      '& .tooltip h1': {
-        fontSize: '1.1rem',
-        fontWeight: 'bold',
-        margin: 0
-      }
+    '& .grid path': {
+      visibility: 'hidden'
+    },
+    '& .histogram': {
+      strokeWidth: 0.5,
+      stroke: theme.palette.grey['600'],
+      fill: theme.palette.grey['300']
     }
-  });
+  },
+  root: {
+    width: '100%',
+    height: '200px',
+    position: 'relative',
+
+    '& .tooltip': {
+      fontSize: '0.9rem',
+      position: 'absolute',
+      borderRadius: '5px',
+      zIndex: 9999,
+      backgroundColor: theme.palette.grey.A700,
+      color: theme.palette.common.white,
+      padding: '8px',
+      pointerEvents: 'none',
+      transition: 'all 0.1s ease',
+      opacity: 0
+    },
+    '& .tooltip h1': {
+      fontSize: '1.1rem',
+      fontWeight: 'bold',
+      margin: 0
+    }
+  }
+}));
 
 const formatMillisecond = d3.timeFormat('.%L'),
   formatSecond = d3.timeFormat(':%S'),
@@ -59,7 +61,6 @@ const formatMillisecond = d3.timeFormat('.%L'),
   formatMonth = d3.timeFormat('%B'),
   formatYear = d3.timeFormat('%Y');
 
-// Define filter conditions
 const multiFormat = (date: Date): string => {
   return (d3.timeSecond(date) < date
     ? formatMillisecond
@@ -78,23 +79,28 @@ const multiFormat = (date: Date): string => {
     : formatYear)(date);
 };
 
-const mouseOver = (tooltipEl: any) => {
+const mouseOver = (targetSelector: string, tooltipEl: any) => {
   return (d: any, i: number, nodes: any) => {
     tooltipEl.style('opacity', 0.9);
-    d3.select(nodes[i]).style('opacity', '0.5');
+    d3.select(nodes[i])
+      .select(targetSelector)
+      .style('opacity', '0.6');
   };
 };
 
-const mouseLeave = (tooltipEl: any) => {
+const mouseLeave = (targetSelector: string, tooltipEl: any) => {
   return (d: any, i: number, nodes: any) => {
     tooltipEl.style('opacity', 0);
-    d3.select(nodes[i]).style('opacity', '1');
+    d3.select(nodes[i])
+      .select(targetSelector)
+      .style('opacity', '1');
   };
 };
 
-const mouseMove = (tooltipEl: any) => {
+const mouseMove = (targetSelector: string, tooltipEl: any) => {
   return (d: any, i: number, nodes: any) => {
-    const targetEl = d3.select(nodes[i]);
+    const targetEl = d3.select(nodes[i]).select(targetSelector);
+    // @ts-ignore
     const [x, y] = d3.mouse(targetEl.node());
 
     const tooltipLeft = _.max([x - margin.left - margin.right, margin.left]);
@@ -183,7 +189,7 @@ const drawGrid = (el: any, xScale: any, yScale: any, width: number, height: numb
 function drawHistogram(
   el: any,
   container: any,
-  xScale: ScaleTime<number, number>,
+  xScale: d3.ScaleTime<number, number>,
   yScale: any,
   data: Array<{ value: Date }>,
   containerHeight: number
@@ -193,18 +199,24 @@ function drawHistogram(
     container.append('div').attr('class', 'tooltip');
   }
 
-  const update = el
+  const binGroup = el
     .select('.histogram')
-    .selectAll('rect')
+    .selectAll('g')
     .data(data, (d: any) => d);
+  binGroup.exit().remove();
 
-  update
+  const binGroupEnter = binGroup
     .enter()
+    .append('g')
+    .on('mouseover', mouseOver('.bin', container.select('.tooltip')))
+    .on('mouseleave', mouseLeave('.bin', container.select('.tooltip')))
+    .on('mousemove', mouseMove('.bin', container.select('.tooltip')));
+
+  // The bin
+  binGroupEnter
     .append('rect')
-    .on('mouseover', mouseOver(container.select('.tooltip')))
-    .on('mouseleave', mouseLeave(container.select('.tooltip')))
-    .on('mousemove', mouseMove(container.select('.tooltip')))
-    .merge(update)
+    .attr('class', 'bin')
+    .merge(binGroup.select('.bin'))
     .attr('x', (d: any) => xScale(d.x0))
     .attr('height', (d: any) => containerHeight - yScale(d.length))
     .attr('data-count', (d: any) => d.length)
@@ -213,7 +225,15 @@ function drawHistogram(
     .attr('y', (d: any) => yScale(d.length))
     .attr('width', (d: any) => xScale(d.x1) - xScale(d.x0));
 
-  update.exit().remove();
+  // Makes the mouse target always fill the height of the chart, regardless of actual bin height
+  binGroupEnter
+    .append('rect')
+    .attr('class', 'mouseCatcher')
+    .style('opacity', 0)
+    .merge(binGroup.select('.mouseCatcher'))
+    .attr('x', (d: any) => xScale(d.x0))
+    .attr('height', (d: any) => containerHeight)
+    .attr('width', (d: any) => xScale(d.x1) - xScale(d.x0));
 }
 
 const secondsInYear = 60 * 60 * 24 * 365;
@@ -274,7 +294,8 @@ const d3Draw = ({ el, container, width, height, data, timeRange }: IDrawData) =>
 };
 
 const TimelineComp = (inputProps: IProps) => {
-  const { data, timeRange, classes, resizeEvent } = inputProps;
+  const { data, timeRange, resizeEvent } = inputProps;
+  const classes = useStyles();
 
   const [containerSize, setContainerState] = useState(defaultContainerSize);
 
@@ -313,7 +334,7 @@ const TimelineComp = (inputProps: IProps) => {
 
   // Render
   return (
-    <div style={{ width: '100%', height: '200px', position: 'relative' }} className={classes.root} ref={d3Container}>
+    <div className={classes.root} ref={d3Container}>
       <svg viewBox={`0 0 ${containerSize.width} ${containerSize.height}`} preserveAspectRatio="xMidYMid meet">
         <g className={`chart ${classes.chartRoot}`} transform={`translate(${margin.left}, ${margin.top})`} />
       </svg>
@@ -321,13 +342,10 @@ const TimelineComp = (inputProps: IProps) => {
   );
 };
 
-interface IProps extends WithStyles<typeof styles> {
+interface IProps {
   resizeEvent: any;
   timeRange: [Date, Date];
   data: Array<{ value: Date }>;
 }
 
-export default compose<IProps, Omit<IProps, 'classes'>>(
-  withStyles(styles),
-  observer
-)(TimelineComp);
+export default observer(TimelineComp);

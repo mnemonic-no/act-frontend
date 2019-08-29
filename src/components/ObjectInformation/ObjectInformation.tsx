@@ -1,7 +1,7 @@
 import React from 'react';
 import { compose } from 'recompose';
 import Typography from '@material-ui/core/Typography/index';
-import { withStyles, createStyles, Theme, WithStyles } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core';
 import { darken, lighten } from '@material-ui/core/styles/colorManipulator';
 import Button from '@material-ui/core/Button/index';
 
@@ -21,62 +21,60 @@ import CreateFactForObjectDialog from '../CreateFactFor/Dialog';
 import { observer } from 'mobx-react';
 import CreateFactForDialog from '../CreateFactFor/DialogStore';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-      flexDirection: 'column',
-      padding: theme.spacing(2),
-      paddingBottom: 0,
-      height: `calc(100% - ${theme.spacing(3)}px)`
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    padding: theme.spacing(2),
+    paddingBottom: 0,
+    height: `calc(100% - ${theme.spacing(3)}px)`
+  },
+  info: {
+    overflowY: 'auto',
+    flex: '0 1 auto',
+    minHeight: '200px'
+  },
+  objectValueLabel: {
+    wordBreak: 'break-word'
+  },
+  contextActions: {
+    paddingTop: theme.spacing(2)
+  },
+  predefinedQueries: {
+    flex: '1 1 auto',
+    paddingTop: theme.spacing(2)
+  },
+  footer: {
+    justifySelf: 'end',
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing()
+  },
+  link: {
+    cursor: 'pointer',
+    color: theme.palette.text.primary,
+    '&:hover': {
+      color: lighten(theme.palette.text.primary, 0.2)
     },
-    info: {
-      overflowY: 'auto',
-      flex: '0 1 auto',
-      minHeight: '200px'
-    },
-    objectValueLabel: {
-      wordBreak: 'break-word'
-    },
-    contextActions: {
-      paddingTop: theme.spacing(2)
-    },
-    predefinedQueries: {
-      flex: '1 1 auto',
-      paddingTop: theme.spacing(2)
-    },
-    footer: {
-      justifySelf: 'end',
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing()
-    },
-    link: {
-      cursor: 'pointer',
-      color: theme.palette.text.primary,
-      '&:hover': {
-        color: lighten(theme.palette.text.primary, 0.2)
-      },
-      transition: theme.transitions.create('color', {
-        duration: theme.transitions.duration.shortest
-      })
-    },
+    transition: theme.transitions.create('color', {
+      duration: theme.transitions.duration.shortest
+    })
+  },
 
-    ...Object.keys(config.objectColors)
-      .map(name => ({
-        [name]: {
+  ...Object.keys(config.objectColors)
+    .map(name => ({
+      [name]: {
+        // @ts-ignore
+        color: config.objectColors[name],
+        '&:hover': {
           // @ts-ignore
-          color: config.objectColors[name],
-          '&:hover': {
-            // @ts-ignore
-            color: darken(config.objectColors[name], 0.2)
-          }
+          color: darken(config.objectColors[name], 0.2)
         }
-      }))
-      .reduce((acc, x) => Object.assign({}, acc, x), {})
-  });
+      }
+    }))
+    .reduce((acc, x) => Object.assign({}, acc, x), {})
+}));
 
 const ObjectInformationComp = ({
-  classes,
   selectedObject,
   id,
   oneLeggedFacts,
@@ -88,6 +86,8 @@ const ObjectInformationComp = ({
   onFactClick,
   onPredefinedObjectQueryClick
 }: IObjectInformationCompInternal) => {
+  const classes = useStyles();
+
   if (!selectedObject) {
     return null;
   }
@@ -151,7 +151,7 @@ const ObjectInformationComp = ({
   );
 };
 
-interface IObjectInformationCompInternal extends WithStyles<typeof styles> {
+interface IObjectInformationCompInternal {
   id: string;
   selectedObject: ActObject;
   oneLeggedFacts: Array<ActFact>;
@@ -182,7 +182,7 @@ const memoizedDataLoader = memoizeDataLoader(dataLoader, ['id']);
 
 export type IObjectInformationComp = Omit<
   IObjectInformationCompInternal,
-  'classes' | 'alwaysShowLoadingComponent' | 'LoadingComponent' | 'selectedObject' | 'oneLeggedFacts'
+  'alwaysShowLoadingComponent' | 'LoadingComponent' | 'selectedObject' | 'oneLeggedFacts'
 >;
 
 export default compose<IObjectInformationCompInternal, IObjectInformationComp>(
@@ -190,6 +190,5 @@ export default compose<IObjectInformationCompInternal, IObjectInformationComp>(
     alwaysShowLoadingComponent: true,
     LoadingComponent: CenteredCircularProgress
   }),
-  withStyles(styles),
   observer
 )(ObjectInformationComp);

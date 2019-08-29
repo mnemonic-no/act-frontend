@@ -4,9 +4,11 @@ import getStyle from '../../core/cytoscapeStyle';
 import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, Search } from '../types';
 import * as _ from 'lodash/fp';
 
-export type Node = {
-  id: string | null;
-  type: 'fact' | 'object';
+const cytoscapeNodeToNode = (cytoNode: any): ActSelection => {
+  return {
+    id: cytoNode.data('isFact') ? cytoNode.data('factId') : cytoNode.id(),
+    kind: cytoNode.data('isFact') ? 'fact' : 'object'
+  };
 };
 
 class GraphViewStore {
@@ -15,7 +17,8 @@ class GraphViewStore {
   renderThreshold: number = 2000;
   @observable resizeEvent = 0; // Used to trigger rerendering of the cytoscape element when it changes
 
-  @observable selectedNode: Node = { type: 'fact', id: null };
+  @observable selectedNodes: Array<ActSelection> = [];
+  @observable selectedNode: ActSelection = { id: '', kind: 'fact' };
   @observable acceptRenderWarning = false;
 
   constructor(root: MainPageStore) {
@@ -38,21 +41,22 @@ class GraphViewStore {
 
   @computed
   get prepared() {
+    console.log('Graph view store called!');
+
     const canRender =
       this.acceptRenderWarning || this.root.refineryStore.cytoscapeElements.length < this.renderThreshold;
 
     return {
       resizeEvent: this.resizeEvent,
       canRender: canRender,
+      // TODO this.root has only single selection, need to fix that to be a collection instead ...
       selectedNode: this.selectedCytoscapeNode(this.root.currentSelection),
+      selecedNodes: this.selectedNodes,
       elements: this.root.refineryStore.cytoscapeElements,
       layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
       style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels }),
       onNodeClick: (node: any) => {
-        this.root.setCurrentSelection({
-          id: node.data('isFact') ? node.data('factId') : node.id(),
-          kind: node.data('isFact') ? 'fact' : 'object'
-        });
+        this.root.setCurrentSelection(cytoscapeNodeToNode(node));
       },
       onNodeCtxClick: (node: any) => {
         this.root.setCurrentSelection({
@@ -64,6 +68,14 @@ class GraphViewStore {
         if (node.data('isFact')) return;
 
         this.root.backendStore.executeQuery({ objectType: node.data('type'), objectValue: node.data('value') });
+      },
+      onSelectionChange: (selection: Array<any>) => {
+        console.log('Selection size: ' + selection.length);
+        this.selectedNodes = selection;
+
+        this.root.setCurrentlySelected(
+          selection.map(cytoscapeNodeToNode).reduce((acc: any, x: any) => ({ ...acc, [x.id]: x }), {})
+        );
       }
     };
   }

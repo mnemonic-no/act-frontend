@@ -2,6 +2,7 @@ import React from 'react';
 import { shallowEqual } from 'recompose';
 import PropTypes from 'prop-types';
 import Cytoscape from 'cytoscape';
+import * as _ from 'lodash/fp';
 import Klay from 'klayjs';
 // Layouts
 import CytoscapeCoseBilkent from 'cytoscape-cose-bilkent/cytoscape-cose-bilkent';
@@ -74,6 +75,19 @@ class CytoscapeContainer extends React.Component {
           cy.on('tap', 'node', clickHandlerFn(this.props.onNodeClick, this.props.onNodeDoubleClick));
           cy.on('tap', 'edge', clickHandlerFn(this.props.onNodeClick, this.props.onNodeDoubleClick));
 
+          if (this.props.onSelectionChange) {
+            // Debounce since this is called once per element in selection
+            const debouncedFn = _.debounce(100)(() => {
+              const selectionElements = cy.elements().filter(x => {
+                return x.selected();
+              });
+              this.props.onSelectionChange(selectionElements);
+            });
+
+            cy.on('select', debouncedFn);
+            cy.on('unselect', debouncedFn);
+          }
+
           if (this.props.onNodeCtxClick) {
             cy.on('cxttap', 'node', event => {
               this.props.onNodeCtxClick(event.target);
@@ -89,6 +103,8 @@ class CytoscapeContainer extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    console.log('Cytoscape did update');
+
     // Force the cytoscape container to resize itself when the container changes size
     if (this.props.resizeEvent !== prevProps.resizeEvent) {
       this.cy.invalidateDimensions();
@@ -110,6 +126,7 @@ class CytoscapeContainer extends React.Component {
       }
     }
 
+    // TODO should be unecessary. Rather set selection directly on elements passed in as props
     // Allow one item to be selected
     if (prevProps.selectedNode !== this.props.selectedNode && this.props.selectedNode) {
       this.cy.$(':selected').unselect();
@@ -201,6 +218,7 @@ CytoscapeContainer.propTypes = {
   layout: PropTypes.object.isRequired,
   onNodeClick: PropTypes.func.isRequired,
   onNodeCtxClick: PropTypes.func,
+  onSelectionChange: PropTypes.func,
   lockNodes: PropTypes.bool,
   selectedNode: PropTypes.string
 };

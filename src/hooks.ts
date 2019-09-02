@@ -15,8 +15,8 @@ export const useOnResize = (onResizeFn: () => void) => {
   return null;
 };
 
-export const usePrevious = (value: any) => {
-  const ref = useRef();
+export const usePrevious = <T>(value: T) => {
+  const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   });

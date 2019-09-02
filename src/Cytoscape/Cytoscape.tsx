@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { shallowEqual } from 'recompose';
-import Cytoscape from 'cytoscape';
 import * as _ from 'lodash/fp';
+import Cytoscape from 'cytoscape';
 // @ts-ignore
 import Klay from 'klayjs';
 // Layouts
@@ -17,10 +16,12 @@ import CytoscapeEuler from 'cytoscape-euler';
 import CytoscapeSpread from 'cytoscape-spread';
 // @ts-ignore
 import CytoscapeKlay from 'cytoscape-klay';
-import betterGrid from './betterGrid';
+import { shallowEqual } from 'recompose';
 
-import Toolbar from './Toolbar';
+import betterGrid from './betterGrid';
 import { usePrevious } from '../hooks';
+import { modifierKeysUsed } from '../util/util';
+import Toolbar from './Toolbar';
 
 Cytoscape.use(CytoscapeDagre);
 CytoscapeCoseBilkent(Cytoscape);
@@ -47,6 +48,11 @@ const clickHandlerFn = (singleClickHandler: (event: any) => void, doubleClickHan
 
   // @ts-ignore
   return (event: any) => {
+    // Ignore mouse events with modifiers
+    if (event.originalEvent && modifierKeysUsed(event.originalEvent)) {
+      return;
+    }
+
     if (!previousEvent) {
       previousEvent = event;
       timer = setTimeout(() => {
@@ -116,7 +122,7 @@ const runLayout = (
 const CytoscapeComp = (input: ICytoscapeComp) => {
   const {
     elements,
-    selectedNode,
+    selectedNodeIds,
     resizeEvent,
     style,
     layoutConfig,
@@ -129,7 +135,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
   const previousProps = usePrevious({
     elements,
     style,
-    selectedNode,
+    selectedNodeIds,
     resizeEvent,
     layoutConfig
   });
@@ -215,12 +221,16 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
 
     // Keep the selection state up to date (sadly not handled by cy.json({elements: elements} above,
     // so we have to fix it ourselves))
-    // @ts-ignore
-    // Allow one item to be selected
-    if (selectedNode && previousProps.selectedNode !== selectedNode) {
-      cy.$(':selected').unselect();
-      const node = cy.elements().getElementById(selectedNode);
-      node.select();
+    if (previousProps && _.difference([...previousProps.selectedNodeIds], [...selectedNodeIds]).length > 0) {
+      cy.$(':selected').each(x => {
+        if (!selectedNodeIds.has(x.data().id)) x.unselect();
+      });
+
+      selectedNodeIds.forEach(id => {
+        cy.elements()
+          .getElementById(id)
+          .select();
+      });
     }
 
     // @ts-ignore
@@ -231,7 +241,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
         .update();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [elements, selectedNode, style, resizeEvent]);
+  }, [elements, selectedNodeIds, style, resizeEvent]);
 
   return (
     <div style={{ height: '100%', width: '100%', position: 'relative' }}>
@@ -251,7 +261,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
 
 interface ICytoscapeComp {
   elements: any;
-  selectedNode: any;
+  selectedNodeIds: Set<string>;
   resizeEvent: number;
   style: any;
   layoutConfig: any;

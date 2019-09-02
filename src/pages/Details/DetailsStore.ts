@@ -200,8 +200,6 @@ class DetailsStore {
   get selectedFactDetails() {
     const selected = Object.values(this.root.currentlySelected)[0];
 
-    console.log('FACT SELECTED', selected);
-
     if (!selected || selected.kind !== 'fact') return null;
 
     return {
@@ -226,6 +224,7 @@ class DetailsStore {
       title: `${selectedObjects.length} selected objects`,
       objects: selectedObjects
         .map(selection => this.root.queryHistory.result.objects[selection.id])
+        .filter(x => x !== undefined && x !== null)
         .sort(byTypeThenName),
       onObjectClick: (object: ActObject) => {
         this.root.removeFromSelection({ id: object.id, kind: 'object' });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { createStyles, Theme, IconButton, makeStyles } from '@material-ui/core';
+import { Theme, IconButton, makeStyles } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
 import DetailsStore from './DetailsStore';
@@ -8,20 +8,18 @@ import FactInformation, { IFactInformationComp } from '../../components/FactInfo
 import ObjectInformation, { IObjectInformationComp } from '../../components/ObjectInformation/ObjectInformation';
 import MultipleObjectsInformation, { IMultipleObjectsInformationComp } from './MultipleObjectsInformation';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      position: 'relative',
-      overflowY: 'auto',
-      height: '100%'
-    },
-    closeButton: {
-      position: 'absolute',
-      right: 0,
-      top: 0
-    }
-  })
-);
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    position: 'relative',
+    overflowY: 'auto',
+    height: '100%'
+  },
+  closeButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0
+  }
+}));
 
 const content = (store: DetailsStore) => {
   switch (store.contentsKind) {

@@ -1,15 +1,13 @@
-import MainPageStore from './MainPageStore';
-import { action, computed, observable, reaction } from 'mobx';
-import { factMapToObjectMap, factsToObjects } from '../core/transformers';
-import { relativeStringToDate } from '../components/RelativeDateSelector';
+import * as d3 from 'd3';
 import { isBefore } from 'date-fns';
-import config from '../config';
+import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { objectFactsToElements } from '../core/cytoscapeTransformers';
-import { ActFact, ActObject, QueryResult } from './types';
 import { isRetracted, isRetraction } from '../core/domain';
-import * as d3 from 'd3';
+import { ActFact, ActObject, QueryResult } from './types';
+import MainPageStore from './MainPageStore';
+import { relativeStringToDate } from '../components/RelativeDateSelector';
+import { factMapToObjectMap, factsToObjects } from '../core/transformers';
 
 export type ObjectTypeFilter = {
   id: string;
@@ -93,16 +91,6 @@ class RefineryStore {
       this.endTimestamp,
       this.root.ui.refineryOptionsStore.graphOptions.showRetractions
     );
-  }
-
-  @computed get cytoscapeElements() {
-    const res: QueryResult = this.refined;
-
-    return objectFactsToElements({
-      facts: Object.values(res.facts),
-      objects: Object.values(res.objects),
-      objectLabelFromFactType: config.objectLabelFromFactType
-    });
   }
 
   @action

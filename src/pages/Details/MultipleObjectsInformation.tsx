@@ -14,7 +14,7 @@ import { ActObject } from '../types';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { objectTypeToColor, renderObjectValue } from '../../util/utils';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles<Theme>((theme: Theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const MultipleObjectsInformationComp = ({ id, title, objects, onObjectClick }: IMultipleObjectsInformationComp) => {
+const MultipleObjectsInformationComp = ({ title, objects, onObjectClick }: IMultipleObjectsInformationComp) => {
   const classes = useStyles();
 
   return (

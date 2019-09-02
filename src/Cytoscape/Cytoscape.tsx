@@ -119,6 +119,19 @@ const runLayout = (
   lay.run();
 };
 
+// Reflect the set of selected nodes in the Cytoscape view
+const syncSelection = (cy: Cytoscape.Core, selectedNodeIds: Set<string>) => {
+  cy.$(':selected').each(x => {
+    if (!selectedNodeIds.has(x.data().id)) x.unselect();
+  });
+
+  selectedNodeIds.forEach(id => {
+    cy.elements()
+      .getElementById(id)
+      .select();
+  });
+};
+
 const CytoscapeComp = (input: ICytoscapeComp) => {
   const {
     elements,
@@ -145,7 +158,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
 
   // Bootstrap ! Just once!
   useEffect(() => {
-    const theCy = Cytoscape({
+    const newCy = Cytoscape({
       ...DEFAULT_CONF,
       ...{
         container: document.getElementById('cytoscape-container'),
@@ -181,8 +194,9 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
       }
     });
 
-    setCy(theCy);
-    runLayout(theCy, layoutConfig, layout, setLayout);
+    setCy(newCy);
+    runLayout(newCy, layoutConfig, layout, setLayout);
+    syncSelection(newCy, selectedNodeIds);
 
     // Cleanup when the component unmounts
     return () => {
@@ -222,15 +236,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
     // Keep the selection state up to date (sadly not handled by cy.json({elements: elements} above,
     // so we have to fix it ourselves))
     if (previousProps && _.difference([...previousProps.selectedNodeIds], [...selectedNodeIds]).length > 0) {
-      cy.$(':selected').each(x => {
-        if (!selectedNodeIds.has(x.data().id)) x.unselect();
-      });
-
-      selectedNodeIds.forEach(id => {
-        cy.elements()
-          .getElementById(id)
-          .select();
-      });
+      syncSelection(cy, selectedNodeIds);
     }
 
     // @ts-ignore

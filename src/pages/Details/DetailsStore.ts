@@ -228,6 +228,9 @@ class DetailsStore {
         .sort(byTypeThenName),
       onObjectClick: (object: ActObject) => {
         this.root.removeFromSelection({ id: object.id, kind: 'object' });
+      },
+      onPruneObjectsClick: () => {
+        // TODO implement
       }
     };
   }

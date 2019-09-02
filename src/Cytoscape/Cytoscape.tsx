@@ -156,7 +156,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
   const [cy, setCy] = useState<Cytoscape.Core | null>(null);
   const [layout, setLayout] = useState<Cytoscape.Layouts | null>(null);
 
-  // Bootstrap ! Just once!
+  // Bootstrap Cytoscape element the first time the component is mounted
   useEffect(() => {
     const newCy = Cytoscape({
       ...DEFAULT_CONF,

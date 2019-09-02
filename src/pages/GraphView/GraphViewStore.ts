@@ -53,7 +53,7 @@ class GraphViewStore {
       selectedNode: this.selectedCytoscapeNode(this.root.currentSelection),
       selecedNodes: this.selectedNodes,
       elements: this.root.refineryStore.cytoscapeElements,
-      layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
+      layoutConfig: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
       style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels }),
       onNodeClick: (node: any) => {
         this.root.setCurrentSelection(cytoscapeNodeToNode(node));

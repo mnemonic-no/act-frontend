@@ -45,8 +45,6 @@ class MainPageStore {
 
   @observable isSearchDrawerOpen = true;
   @observable error: Error | null = null;
-  // TODO Remove currentSelection
-  @observable currentSelection: ActSelection | null = null;
   @observable currentlySelected: { [id: string]: ActSelection } = {};
 
   backendStore: BackendStore;
@@ -110,7 +108,6 @@ class MainPageStore {
 
   @action.bound
   setCurrentSelection(selection: ActSelection | null) {
-    this.currentSelection = selection;
     if (selection !== null) {
       this.setCurrentlySelected({ [selection.id]: selection });
     } else {

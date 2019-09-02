@@ -32,11 +32,15 @@ const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
   });
 };
 
-const toObjectRow = (object: ActObject, selection: ActSelection | null, facts: Array<ActFact>): ObjectRow => {
+const toObjectRow = (
+  object: ActObject,
+  currentlySelected: { [id: string]: ActSelection },
+  facts: Array<ActFact>
+): ObjectRow => {
   return {
     key: object.id,
     title: object.type.name,
-    isSelected: Boolean(selection && object.id === selection.id),
+    isSelected: Boolean(currentlySelected[object.id]),
     actObject: object,
     properties: oneLeggedFactsFor(object, facts).map(f => {
       return { k: f.type.name, v: f.value || '' };
@@ -72,7 +76,7 @@ class ObjectsTableStore {
   @action.bound
   exportToCsv() {
     const objectRows = Object.values(this.root.refineryStore.refined.objects).map(o =>
-      toObjectRow(o, this.root.currentSelection, Object.values(this.root.refineryStore.refined.facts))
+      toObjectRow(o, this.root.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
     );
 
     const rows = sortBy(this.sortOrder, objectRows).map(row => {
@@ -99,7 +103,7 @@ class ObjectsTableStore {
   @computed
   get prepared() {
     const rows = Object.values(this.root.refineryStore.refined.objects).map(o =>
-      toObjectRow(o, this.root.currentSelection, Object.values(this.root.refineryStore.refined.facts))
+      toObjectRow(o, this.root.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
     );
 
     return {

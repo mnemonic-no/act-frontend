@@ -38,7 +38,7 @@ const toObjectRow = (
   facts: Array<ActFact>
 ): ObjectRow => {
   return {
-    key: object.id,
+    id: object.id,
     title: object.type.name,
     isSelected: Boolean(currentlySelected[object.id]),
     actObject: object,

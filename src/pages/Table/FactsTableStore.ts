@@ -60,7 +60,7 @@ const toFactRow = (
   isExport: boolean
 ): FactRow => {
   return {
-    key: fact.id,
+    id: fact.id,
     fact: fact,
     isSelected: Boolean(currentlySelected[fact.id]),
     cells: columns.map(({ kind }) => ({

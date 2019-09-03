@@ -38,6 +38,10 @@ export type ObjectDetails = {
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
 
+// TODO instead take a concatenated string instead of act objects. Because the value should be value or the name (if report e.g)
+const byTypeThenName = (a: ActObject, b: ActObject) =>
+  a.type.name + '' + a.value > b.type.name + '' + b.value ? 1 : -1;
+
 const replaceAll = (s: string, replacements: { [key: string]: string }) => {
   return Object.entries(replacements).reduce((acc: string, [searchFor, replaceWith]: [string, string]) => {
     return acc.replace(searchFor, replaceWith);
@@ -70,7 +74,8 @@ class DetailsStore {
   }
 
   @computed get selectedObject(): ActObject | null {
-    const selected = this.root.currentSelection;
+    const selected = Object.values(this.root.currentlySelected)[0];
+
     if (selected && selected.kind === 'object') {
       return this.root.queryHistory.result.objects[selected.id];
     } else {
@@ -193,7 +198,7 @@ class DetailsStore {
 
   @computed
   get selectedFactDetails() {
-    const selected = this.root.currentSelection;
+    const selected = Object.values(this.root.currentlySelected)[0];
 
     if (!selected || selected.kind !== 'fact') return null;
 
@@ -206,6 +211,23 @@ class DetailsStore {
         if (fact.inReferenceTo) {
           this.root.setCurrentSelection({ kind: 'fact', id: fact.inReferenceTo.id });
         }
+      }
+    };
+  }
+
+  @computed
+  get selectedMultipleObjectsDetails() {
+    const selectedObjects = Object.values(this.root.currentlySelected).filter(s => s.kind === 'object');
+
+    return {
+      id: 'testing',
+      title: `${selectedObjects.length} selected objects`,
+      objects: selectedObjects
+        .map(selection => this.root.queryHistory.result.objects[selection.id])
+        .filter(x => x !== undefined && x !== null)
+        .sort(byTypeThenName),
+      onObjectClick: (object: ActObject) => {
+        this.root.removeFromSelection({ id: object.id, kind: 'object' });
       }
     };
   }
@@ -225,6 +247,19 @@ class DetailsStore {
     if (this.selectedObject) {
       this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.queryHistory, []);
     }
+  }
+
+  @computed
+  get contentsKind(): 'empty' | 'objects' | 'object' | 'fact' {
+    const selectionCount = Object.keys(this.root.currentlySelected).length;
+
+    if (selectionCount === 0) {
+      return 'empty';
+    } else if (selectionCount > 1) {
+      return 'objects';
+    }
+
+    return Object.values(this.root.currentlySelected)[0].kind;
   }
 }
 

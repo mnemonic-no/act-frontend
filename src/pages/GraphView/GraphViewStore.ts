@@ -1,12 +1,16 @@
 import { action, computed, observable } from 'mobx';
 import MainPageStore from '../MainPageStore';
 import getStyle from '../../core/cytoscapeStyle';
-import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, Search } from '../types';
+import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, QueryResult, Search } from '../types';
 import * as _ from 'lodash/fp';
+import { objectFactsToElements } from '../../core/cytoscapeTransformers';
+import config from '../../config';
 
-export type Node = {
-  id: string | null;
-  type: 'fact' | 'object';
+const cytoscapeNodeToNode = (cytoNode: any): ActSelection => {
+  return {
+    id: cytoNode.data('isFact') ? cytoNode.data('factId') : cytoNode.id(),
+    kind: cytoNode.data('isFact') ? 'fact' : 'object'
+  };
 };
 
 class GraphViewStore {
@@ -14,8 +18,6 @@ class GraphViewStore {
 
   renderThreshold: number = 2000;
   @observable resizeEvent = 0; // Used to trigger rerendering of the cytoscape element when it changes
-
-  @observable selectedNode: Node = { type: 'fact', id: null };
   @observable acceptRenderWarning = false;
 
   constructor(root: MainPageStore) {
@@ -31,32 +33,34 @@ class GraphViewStore {
     this.resizeEvent = new Date().getTime();
   }
 
-  selectedCytoscapeNode(selection: ActSelection | null) {
-    if (!selection) return null;
-    return selection.kind === 'fact' ? 'edge-' + selection.id : selection.id;
+  @computed get cytoscapeElements() {
+    const res: QueryResult = this.root.refineryStore.refined;
+
+    return objectFactsToElements({
+      facts: Object.values(res.facts),
+      objects: Object.values(res.objects),
+      objectLabelFromFactType: config.objectLabelFromFactType
+    });
   }
 
   @computed
   get prepared() {
-    const canRender =
-      this.acceptRenderWarning || this.root.refineryStore.cytoscapeElements.length < this.renderThreshold;
+    const canRender = this.acceptRenderWarning || this.cytoscapeElements.length < this.renderThreshold;
 
     return {
-      resizeEvent: this.resizeEvent,
       canRender: canRender,
-      selectedNode: this.selectedCytoscapeNode(this.root.currentSelection),
-      elements: this.root.refineryStore.cytoscapeElements,
+      resizeEvent: this.resizeEvent,
+      selectedNodeIds: new Set(Object.values(this.root.currentlySelected).map(x => x.id)),
+      elements: this.cytoscapeElements,
       layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
+      layoutConfig: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
       style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels }),
       onNodeClick: (node: any) => {
-        this.root.setCurrentSelection({
-          id: node.data('isFact') ? node.data('factId') : node.id(),
-          kind: node.data('isFact') ? 'fact' : 'object'
-        });
+        this.root.setCurrentSelection(cytoscapeNodeToNode(node));
       },
       onNodeCtxClick: (node: any) => {
         this.root.setCurrentSelection({
-          id: node.data('isFact') ? node.data('factId') : node.id(),
+          id: node.id(),
           kind: node.data('isFact') ? 'fact' : 'object'
         });
       },
@@ -64,6 +68,11 @@ class GraphViewStore {
         if (node.data('isFact')) return;
 
         this.root.backendStore.executeQuery({ objectType: node.data('type'), objectValue: node.data('value') });
+      },
+      onSelectionChange: (selection: Array<any>) => {
+        this.root.setCurrentlySelected(
+          selection.map(cytoscapeNodeToNode).reduce((acc: any, x: any) => ({ ...acc, [x.id]: x }), {})
+        );
       }
     };
   }
@@ -88,11 +97,6 @@ class GraphViewStore {
       // eslint-disable-next-line
       const _exhaustiveCheck: never = search;
     }
-  }
-
-  @computed
-  get timeRange(): [Date, Date] {
-    return [new Date(2013, 0, 1), new Date(2016, 0, 1)];
   }
 
   @computed

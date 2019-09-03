@@ -1,37 +1,44 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { withStyles, WithStyles, createStyles, Theme, IconButton } from '@material-ui/core';
-import { compose } from 'recompose';
+import { Theme, IconButton, makeStyles } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
-import ObjectInformation, { IObjectInformationComp } from '../../components/ObjectInformation/ObjectInformation';
-import FactInformation, { IFactInformationComp } from '../../components/FactInformation/FactInformation';
 import DetailsStore from './DetailsStore';
+import FactInformation, { IFactInformationComp } from '../../components/FactInformation/FactInformation';
+import ObjectInformation, { IObjectInformationComp } from '../../components/ObjectInformation/ObjectInformation';
+import MultipleObjectsInformation, { IMultipleObjectsInformationComp } from './MultipleObjectsInformation';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    root: {
-      position: 'relative',
-      overflowY: 'auto',
-      height: '100%'
-    },
-    closeButton: {
-      position: 'absolute',
-      right: 0,
-      top: 0
-    }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    position: 'relative',
+    overflowY: 'auto',
+    height: '100%'
+  },
+  closeButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0
+  }
+}));
 
 const content = (store: DetailsStore) => {
-  if (store.selectedObjectDetails) {
-    return <ObjectInformation {...(store.selectedObjectDetails as IObjectInformationComp)} />;
-  } else if (store.selectedFactDetails) {
-    return <FactInformation {...(store.selectedFactDetails as IFactInformationComp)} />;
+  switch (store.contentsKind) {
+    case 'object':
+      return <ObjectInformation {...(store.selectedObjectDetails as IObjectInformationComp)} />;
+    case 'fact':
+      return <FactInformation {...(store.selectedFactDetails as IFactInformationComp)} />;
+    case 'objects':
+      return (
+        <MultipleObjectsInformation {...(store.selectedMultipleObjectsDetails as IMultipleObjectsInformationComp)} />
+      );
+    default:
+      return null;
   }
-  return null;
 };
 
-const Details = ({ store, classes }: IDetails) => {
+const Details = ({ store }: IDetails) => {
+  const classes = useStyles();
+
   if (!store.isOpen) {
     return null;
   }
@@ -50,11 +57,8 @@ const Details = ({ store, classes }: IDetails) => {
   );
 };
 
-interface IDetails extends WithStyles<typeof styles> {
+interface IDetails {
   store: DetailsStore;
 }
 
-export default compose<IDetails, Omit<IDetails, 'classes'>>(
-  withStyles(styles),
-  observer
-)(Details);
+export default observer(Details);

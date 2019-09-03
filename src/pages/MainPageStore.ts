@@ -45,7 +45,7 @@ class MainPageStore {
 
   @observable isSearchDrawerOpen = true;
   @observable error: Error | null = null;
-  @observable currentSelection: ActSelection | null = null;
+  @observable currentlySelected: { [id: string]: ActSelection } = {};
 
   backendStore: BackendStore;
   queryHistory: QueryHistory; // TODO confusing name, might mistake for queryHistoryStore
@@ -108,8 +108,24 @@ class MainPageStore {
 
   @action.bound
   setCurrentSelection(selection: ActSelection | null) {
-    this.currentSelection = selection;
+    if (selection !== null) {
+      this.setCurrentlySelected({ [selection.id]: selection });
+    } else {
+      this.setCurrentlySelected({});
+    }
+
     this.ui.detailsStore.open();
+  }
+
+  @action.bound
+  setCurrentlySelected(selection: { [id: string]: ActSelection }) {
+    this.currentlySelected = selection;
+    this.ui.detailsStore.open();
+  }
+
+  @action.bound
+  removeFromSelection(selection: ActSelection) {
+    delete this.currentlySelected[selection.id];
   }
 
   @action.bound

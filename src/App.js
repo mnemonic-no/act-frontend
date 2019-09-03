@@ -39,9 +39,6 @@ const Orange = {
 };
 
 export const actTheme = createMuiTheme({
-  typography: {
-    useNextVariants: true
-  },
   palette: {
     primary: Black,
     secondary: Orange

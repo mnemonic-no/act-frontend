@@ -8,7 +8,7 @@ import Grid from '@material-ui/core/Grid/index';
 import Table from '@material-ui/core/Table/index';
 import TableBody from '@material-ui/core/TableBody/index';
 import Typography from '@material-ui/core/Typography/index';
-import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
+import { Theme, makeStyles } from '@material-ui/core';
 
 import actWretch from '../../util/actWretch';
 import { isMetaFact, isRetracted } from '../../core/domain';
@@ -22,54 +22,52 @@ import { ActFact, ActObject, FactComment } from '../../pages/types';
 import { FactRow } from './FactsRow';
 import { pluralize } from '../../util/util';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    root: {
-      padding: theme.spacing(2),
-      paddingBottom: 0,
-      height: `calc(100% - ${theme.spacing(3)}px)`,
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'auto',
-      flex: 1
-    },
-    info: {
-      flex: 1
-    },
-    actions: {
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1)
-    },
-    tables: {
-      marginLeft: -theme.spacing(2)
-    },
-    row: {
-      display: 'flex'
-    },
-    left: {
-      flex: '0 0 100px',
-      // Ensure left has the same line-height as right to make them align correctly
-      lineHeight: theme.typography.body1.lineHeight
-    },
-    right: {
-      flex: '1 1 auto'
-    },
-    factType: {
-      color: factColor
-    },
-    objects: {
-      paddingTop: '1rem'
-    },
-    metaFacts: {
-      paddingTop: '1rem'
-    },
-    comments: {
-      paddingTop: '2rem'
-    }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    padding: theme.spacing(2),
+    paddingBottom: 0,
+    height: `calc(100% - ${theme.spacing(3)}px)`,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    flex: 1
+  },
+  info: {
+    flex: 1
+  },
+  actions: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1)
+  },
+  tables: {
+    marginLeft: -theme.spacing(2)
+  },
+  row: {
+    display: 'flex'
+  },
+  left: {
+    flex: '0 0 100px',
+    // Ensure left has the same line-height as right to make them align correctly
+    lineHeight: theme.typography.body1.lineHeight
+  },
+  right: {
+    flex: '1 1 auto'
+  },
+  factType: {
+    color: factColor
+  },
+  objects: {
+    paddingTop: '1rem'
+  },
+  metaFacts: {
+    paddingTop: '1rem'
+  },
+  comments: {
+    paddingTop: '2rem'
+  }
+}));
 
 const FactInformationComp = ({
-  classes,
   id,
   fact,
   metaFacts,
@@ -80,6 +78,8 @@ const FactInformationComp = ({
   onReferenceClick,
   onRetractFactClick
 }: IFactInformationCompInternal) => {
+  const classes = useStyles();
+
   if (!fact) {
     return null;
   }
@@ -210,7 +210,7 @@ const metaFactsDataLoader = ({ id }: { id: string }) =>
 
 const memoizedFactDataLoader = memoizeDataLoader(factDataLoader, ['id']);
 
-interface IFactInformationCompInternal extends WithStyles<typeof styles> {
+interface IFactInformationCompInternal {
   id: string;
   fact: ActFact;
   onObjectRowClick: (obj: ActObject) => void;
@@ -224,7 +224,6 @@ interface IFactInformationCompInternal extends WithStyles<typeof styles> {
 
 export type IFactInformationComp = Omit<
   IFactInformationCompInternal,
-  | 'classes'
   | 'alwaysShowLoadingComponent'
   | 'LoadingComponent'
   | 'fact'
@@ -250,6 +249,5 @@ export default compose<IFactInformationCompInternal, IFactInformationComp>(
         () => setTimeout(forceFetch, 1000)
       );
     }
-  }),
-  withStyles(styles)
+  })
 )(FactInformationComp);

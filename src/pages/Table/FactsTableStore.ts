@@ -56,13 +56,13 @@ const cellText = (kind: ColumnKind, fact: ActFact, isExport: boolean) => {
 const toFactRow = (
   fact: ActFact,
   columns: Array<{ label: string; kind: ColumnKind }>,
-  selectedNode: ActSelection | null,
+  currentlySelected: { [id: string]: ActSelection },
   isExport: boolean
 ): FactRow => {
   return {
     key: fact.id,
     fact: fact,
-    isSelected: Boolean(selectedNode && fact.id === selectedNode.id),
+    isSelected: Boolean(currentlySelected[fact.id]),
     cells: columns.map(({ kind }) => ({
       kind: kind,
       text: cellText(kind, fact, isExport)
@@ -117,7 +117,7 @@ class FactsTableStore {
   @action.bound
   onExportClick() {
     const factRows = Object.values(this.root.refineryStore.refined.facts).map(fact =>
-      toFactRow(fact, this.columns, this.root.currentSelection, true)
+      toFactRow(fact, this.columns, this.root.currentlySelected, true)
     );
 
     const rows = sortBy(this.sortOrder, this.columns, factRows).map(row => row.cells.map(({ text }) => text));
@@ -134,7 +134,7 @@ class FactsTableStore {
   @computed
   get prepared() {
     const rows = Object.values(this.root.refineryStore.refined.facts).map(f =>
-      toFactRow(f, this.columns, this.root.currentSelection, false)
+      toFactRow(f, this.columns, this.root.currentlySelected, false)
     );
 
     return {

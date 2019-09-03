@@ -1,15 +1,15 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { compose } from 'recompose';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import { WithStyles, withStyles } from '@material-ui/core/styles';
-import { ActFact } from '../../pages/types';
+import { makeStyles } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core';
 import format from 'date-fns/format';
+
+import { ActFact } from '../../pages/types';
 import { isRetraction } from '../../core/domain';
 
-const styles = (theme: Theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   cell: {
     paddingLeft: theme.spacing(2)
   },
@@ -17,24 +17,29 @@ const styles = (theme: Theme) => ({
     cursor: 'pointer',
     height: theme.spacing(4)
   }
-});
+}));
 
-const RetractionRowComp = ({ classes, fact, onRowClick }: IFactRowComp) => (
-  <TableRow
-    key={fact.id}
-    hover
-    classes={{ root: classes.row }}
-    onClick={onRowClick ? () => onRowClick(fact) : undefined}>
-    <TableCell classes={{ root: classes.cell }} size="small">
-      Retraction
-    </TableCell>
-    <TableCell classes={{ root: classes.cell }} size="small">
-      {format(new Date(fact.timestamp), 'DD.MM.YYYY HH:mm')}
-    </TableCell>
-  </TableRow>
-);
+const RetractionRowComp = ({ fact, onRowClick }: IFactRowComp) => {
+  const classes = useStyles();
+  return (
+    <TableRow
+      key={fact.id}
+      hover
+      classes={{ root: classes.row }}
+      onClick={onRowClick ? () => onRowClick(fact) : undefined}>
+      <TableCell classes={{ root: classes.cell }} size="small">
+        Retraction
+      </TableCell>
+      <TableCell classes={{ root: classes.cell }} size="small">
+        {format(new Date(fact.timestamp), 'DD.MM.YYYY HH:mm')}
+      </TableCell>
+    </TableRow>
+  );
+};
 
-const FactRowComp = ({ classes, fact, onRowClick }: IFactRowComp) => {
+const FactRowComp = ({ fact, onRowClick }: IFactRowComp) => {
+  const classes = useStyles();
+
   if (isRetraction(fact)) {
     return <RetractionRowComp {...{ classes, fact, onRowClick }} />;
   } else {
@@ -55,12 +60,9 @@ const FactRowComp = ({ classes, fact, onRowClick }: IFactRowComp) => {
   }
 };
 
-interface IFactRowComp extends WithStyles<typeof styles> {
+interface IFactRowComp {
   fact: ActFact;
   onRowClick?: (f: ActFact) => void;
 }
 
-export const FactRow = compose<IFactRowComp, Omit<IFactRowComp, 'classes'>>(
-  withStyles(styles),
-  observer
-)(FactRowComp);
+export const FactRow = observer(FactRowComp);

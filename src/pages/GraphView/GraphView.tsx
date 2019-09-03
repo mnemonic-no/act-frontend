@@ -1,27 +1,26 @@
 import React from 'react';
-import CytoscapeContainer from '../../Cytoscape/Cytoscape';
 import { observer } from 'mobx-react';
-import GraphViewStore from './GraphViewStore';
-import { createStyles, Theme, Typography, WithStyles, withStyles } from '@material-ui/core';
+import { makeStyles, Theme, Typography } from '@material-ui/core';
 import WarnIcon from '@material-ui/icons/Warning';
-import { compose } from 'recompose';
 import Button from '@material-ui/core/Button';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    warning: {
-      padding: '20px',
-      display: 'flex',
-      height: '100%',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
+import CytoscapeComp from '../../Cytoscape/Cytoscape';
+import GraphViewStore from './GraphViewStore';
 
-    warningButton: {
-      paddingTop: '20px'
-    }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  warning: {
+    padding: '20px',
+    display: 'flex',
+    height: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  warningButton: {
+    paddingTop: '20px'
+  }
+}));
 
 const RenderWarning = ({ classes, onClick }: { classes: any; onClick: Function }) => (
   <div className={classes.warning}>
@@ -36,19 +35,18 @@ const RenderWarning = ({ classes, onClick }: { classes: any; onClick: Function }
   </div>
 );
 
-const GraphView = ({ store, classes }: IGraphView) => {
+const GraphView = ({ store }: IGraphView) => {
+  const classes = useStyles();
+
   if (store.prepared.canRender) {
-    return <CytoscapeContainer {...store.prepared} />;
+    return <CytoscapeComp {...store.prepared} />;
   } else {
     return <RenderWarning classes={classes} onClick={() => store.acceptRenderWarningOnClick()} />;
   }
 };
 
-interface IGraphView extends WithStyles<typeof styles> {
+interface IGraphView {
   store: GraphViewStore;
 }
 
-export default compose<IGraphView, Omit<IGraphView, 'classes'>>(
-  withStyles(styles),
-  observer
-)(GraphView);
+export default observer(GraphView);

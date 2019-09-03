@@ -41,3 +41,7 @@ export const arrayToObjectWithIds = (inputArray: Array<any>) => {
 export const pluralize = (itemCount: number, suffix: string) => {
   return itemCount === 1 ? `${itemCount} ${suffix}` : `${itemCount} ${suffix}s`;
 };
+
+export const modifierKeysUsed = (event: MouseEvent) => {
+  return event && (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey);
+};

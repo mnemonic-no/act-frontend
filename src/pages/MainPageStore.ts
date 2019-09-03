@@ -12,7 +12,8 @@ import QueryHistoryStore from './QueryHistory/QueryHistoryStore';
 import RefineryOptionsStore from './RefineryOptions/RefineryOptionsStore';
 import RefineryStore from './RefineryStore';
 import SearchStore from './Search/SearchStore';
-import { ActSelection, QueryHistoryExport } from './types';
+import { QueryHistoryExport } from './types';
+import SelectionStore from './SelectionStore';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -45,16 +46,17 @@ class MainPageStore {
 
   @observable isSearchDrawerOpen = true;
   @observable error: Error | null = null;
-  @observable currentlySelected: { [id: string]: ActSelection } = {};
 
   backendStore: BackendStore;
   queryHistory: QueryHistory; // TODO confusing name, might mistake for queryHistoryStore
   refineryStore: RefineryStore;
+  selectionStore: SelectionStore;
 
   constructor() {
     this.backendStore = new BackendStore(this);
     this.queryHistory = new QueryHistory(this);
     this.refineryStore = new RefineryStore(this);
+    this.selectionStore = new SelectionStore();
     this.ui = {
       cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
       cytoscapeStore: new GraphViewStore(this),
@@ -104,37 +106,6 @@ class MainPageStore {
   @action.bound
   initByImport(queryHistoryExport: QueryHistoryExport): void {
     this.backendStore.executeQueries(queryHistoryExport.queries);
-  }
-
-  @action.bound
-  setCurrentSelection(selection: ActSelection) {
-    this.setCurrentlySelected({ [selection.id]: selection });
-    this.ui.detailsStore.open();
-  }
-
-  @action.bound
-  setCurrentlySelected(selection: { [id: string]: ActSelection }) {
-    this.currentlySelected = selection;
-    this.ui.detailsStore.open();
-  }
-
-  @action.bound
-  removeFromSelection(selection: ActSelection) {
-    delete this.currentlySelected[selection.id];
-  }
-
-  @action.bound
-  clearSelection() {
-    this.setCurrentlySelected({});
-  }
-
-  @action.bound
-  toggleSelection(selection: ActSelection) {
-    if (this.currentlySelected[selection.id]) {
-      this.removeFromSelection(selection);
-    } else {
-      this.setCurrentlySelected({ ...this.currentlySelected, [selection.id]: selection });
-    }
   }
 
   @action.bound

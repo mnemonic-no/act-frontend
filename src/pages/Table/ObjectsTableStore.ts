@@ -70,13 +70,13 @@ class ObjectsTableStore {
 
   @action.bound
   onToggleSelection(actObject: ActObject) {
-    this.root.toggleSelection({ kind: 'object', id: actObject.id });
+    this.root.selectionStore.toggleSelection({ kind: 'object', id: actObject.id });
   }
 
   @action.bound
   exportToCsv() {
     const objectRows = Object.values(this.root.refineryStore.refined.objects).map(o =>
-      toObjectRow(o, this.root.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
+      toObjectRow(o, this.root.selectionStore.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
     );
 
     const rows = sortBy(this.sortOrder, objectRows).map(row => {
@@ -103,7 +103,7 @@ class ObjectsTableStore {
   @computed
   get prepared() {
     const rows = Object.values(this.root.refineryStore.refined.objects).map(o =>
-      toObjectRow(o, this.root.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
+      toObjectRow(o, this.root.selectionStore.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
     );
 
     return {

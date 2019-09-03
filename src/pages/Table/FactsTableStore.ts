@@ -103,7 +103,7 @@ class FactsTableStore {
 
   @action.bound
   setSelectedFact(actFact: ActFact) {
-    this.root.setCurrentSelection({ kind: 'fact', id: actFact.id });
+    this.root.selectionStore.setCurrentSelection({ kind: 'fact', id: actFact.id });
   }
 
   @action.bound
@@ -117,7 +117,7 @@ class FactsTableStore {
   @action.bound
   onExportClick() {
     const factRows = Object.values(this.root.refineryStore.refined.facts).map(fact =>
-      toFactRow(fact, this.columns, this.root.currentlySelected, true)
+      toFactRow(fact, this.columns, this.root.selectionStore.currentlySelected, true)
     );
 
     const rows = sortBy(this.sortOrder, this.columns, factRows).map(row => row.cells.map(({ text }) => text));
@@ -134,7 +134,7 @@ class FactsTableStore {
   @computed
   get prepared() {
     const rows = Object.values(this.root.refineryStore.refined.facts).map(f =>
-      toFactRow(f, this.columns, this.root.currentlySelected, false)
+      toFactRow(f, this.columns, this.root.selectionStore.currentlySelected, false)
     );
 
     return {

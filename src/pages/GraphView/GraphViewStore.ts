@@ -50,16 +50,16 @@ class GraphViewStore {
     return {
       canRender: canRender,
       resizeEvent: this.resizeEvent,
-      selectedNodeIds: new Set(Object.values(this.root.currentlySelected).map(x => x.id)),
+      selectedNodeIds: new Set(Object.values(this.root.selectionStore.currentlySelected).map(x => x.id)),
       elements: this.cytoscapeElements,
       layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
       layoutConfig: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
       style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels }),
       onNodeClick: (node: any) => {
-        this.root.setCurrentSelection(cytoscapeNodeToNode(node));
+        this.root.selectionStore.setCurrentSelection(cytoscapeNodeToNode(node));
       },
       onNodeCtxClick: (node: any) => {
-        this.root.setCurrentSelection({
+        this.root.selectionStore.setCurrentSelection({
           id: node.id(),
           kind: node.data('isFact') ? 'fact' : 'object'
         });
@@ -70,7 +70,7 @@ class GraphViewStore {
         this.root.backendStore.executeQuery({ objectType: node.data('type'), objectValue: node.data('value') });
       },
       onSelectionChange: (selection: Array<any>) => {
-        this.root.setCurrentlySelected(
+        this.root.selectionStore.setCurrentlySelected(
           selection.map(cytoscapeNodeToNode).reduce((acc: any, x: any) => ({ ...acc, [x.id]: x }), {})
         );
       }
@@ -84,14 +84,14 @@ class GraphViewStore {
         (object: ActObject) => object.type.name === search.objectType && object.value === search.objectValue
       );
       if (searchedNode && !search.query) {
-        this.root.setCurrentSelection({ id: searchedNode.id, kind: 'object' });
+        this.root.selectionStore.setCurrentSelection({ id: searchedNode.id, kind: 'object' });
       }
     } else if (isFactSearch(search)) {
       const searchedNode = Object.values(this.root.refineryStore.refined.facts).find(
         (fact: ActFact) => fact.id === search.id
       );
       if (searchedNode) {
-        this.root.setCurrentSelection({ id: searchedNode.id, kind: 'fact' });
+        this.root.selectionStore.setCurrentSelection({ id: searchedNode.id, kind: 'fact' });
       }
     } else {
       // eslint-disable-next-line

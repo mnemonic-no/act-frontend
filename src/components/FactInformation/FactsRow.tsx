@@ -31,7 +31,7 @@ const RetractionRowComp = ({ fact, onRowClick }: IFactRowComp) => {
         Retraction
       </TableCell>
       <TableCell classes={{ root: classes.cell }} size="small">
-        {format(new Date(fact.timestamp), 'DD.MM.YYYY HH:mm')}
+        {format(new Date(fact.timestamp), 'yyyy.MM.dd HH:mm')}
       </TableCell>
     </TableRow>
   );

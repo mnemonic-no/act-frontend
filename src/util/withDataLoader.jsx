@@ -37,7 +37,7 @@ const withDataLoader = (dataLoader, options = {}) => Component => {
       this.loadData(this.props);
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
       if (this.shouldLoadData(nextProps)) {
         this.loadData(nextProps);
       }

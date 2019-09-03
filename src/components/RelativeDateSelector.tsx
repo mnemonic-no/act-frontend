@@ -15,8 +15,8 @@ import subWeeks from 'date-fns/subWeeks';
 import subMonths from 'date-fns/subMonths';
 import formatDate from 'date-fns/format';
 import DayPicker from 'react-day-picker';
+import { Theme, makeStyles } from '@material-ui/core';
 import 'react-day-picker/lib/style.css';
-import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
 
 const RELATIVE_OPTIONS = ['Any time', 'Hour ago', '24 hours ago', 'Week ago', 'Month ago'];
 
@@ -40,49 +40,42 @@ export const relativeStringToDate = (x: Date | string) => {
   }
 };
 
-const styles = (theme: Theme) =>
-  createStyles({
-    root: {
-      // paddingTop: theme.spacing.unit,
-      // paddingBottom: theme.spacing.unit
-    },
-    selector: {
-      cursor: 'pointer'
-    },
-    arrowDown: {
-      verticalAlign: 'middle',
-      marginLeft: '-2px'
-    },
-    checkIcon: {
-      marginRight: theme.spacing()
-    },
-    checkIconPlaceholder: {
-      width: 24,
-      marginRight: theme.spacing()
-    },
-    listItem: {
-      paddingLeft: theme.spacing(),
-      paddingRight: theme.spacing()
-    },
-    optionText: {
-      paddingLeft: 0
-    },
-    datePicker: {
-      fontFamily: theme.typography.fontFamily
-    }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    // paddingTop: theme.spacing.unit,
+    // paddingBottom: theme.spacing.unit
+  },
+  selector: {
+    cursor: 'pointer'
+  },
+  arrowDown: {
+    verticalAlign: 'middle',
+    marginLeft: '-2px'
+  },
+  checkIcon: {
+    marginRight: theme.spacing()
+  },
+  checkIconPlaceholder: {
+    width: 24,
+    marginRight: theme.spacing()
+  },
+  listItem: {
+    paddingLeft: theme.spacing(),
+    paddingRight: theme.spacing()
+  },
+  optionText: {
+    paddingLeft: 0
+  },
+  datePicker: {
+    fontFamily: theme.typography.fontFamily
+  }
+}));
 
-const RelativeDateSelectorComp = ({
-  open,
-  setOpen,
-  defaultValue,
-  value,
-  onChange,
-  classes,
-  datePickerOpen,
-  setDatePickerOpen
-}: IRelativeDateSelectorComp) => {
+const RelativeDateSelectorComp = ({ defaultValue, value, onChange }: IRelativeDateSelectorComp) => {
+  const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   return (
     <div className={classes.root}>
@@ -95,7 +88,7 @@ const RelativeDateSelectorComp = ({
         }}
         className={classes.selector}>
         <Typography variant={value === defaultValue ? 'body2' : 'body1'}>
-          {value instanceof Date ? formatDate(value, 'MMM D, YYYY') : value}
+          {value instanceof Date ? formatDate(value, 'MMM d, yyyy') : value}
           <ArrowDropDown className={classes.arrowDown} />
         </Typography>
       </div>
@@ -113,7 +106,8 @@ const RelativeDateSelectorComp = ({
               dense
               button
               onClick={() => {
-                setOpen(false, () => onChange(option));
+                onChange(option);
+                setOpen(false);
               }}>
               {option === value && (
                 <ListItemIcon classes={{ root: classes.checkIcon }}>
@@ -162,29 +156,19 @@ const RelativeDateSelectorComp = ({
   );
 };
 
-interface IRelativeDateSelectorComp extends WithStyles<typeof styles> {
-  open: boolean;
-  setOpen: (x: boolean, fn?: () => void) => void;
+interface IRelativeDateSelectorComp {
   defaultValue: any;
   value: any;
   onChange: (x: any) => void;
-  datePickerOpen: boolean;
-  setDatePickerOpen: (x: boolean) => void;
 }
 
 export default compose<
   IRelativeDateSelectorComp,
-  Omit<
-    IRelativeDateSelectorComp,
-    'classes' | 'defaultValue' | 'open' | 'setOpen' | 'datePickerOpen' | 'setDatePickerOpen'
-  >
+  Omit<IRelativeDateSelectorComp, 'defaultValue' | 'open' | 'setOpen' | 'datePickerOpen' | 'setDatePickerOpen'>
 >(
   withProps({ defaultValue: 'Any time' }),
   branch(
     ({ value, onChange }: { value: any; onChange: () => void }) => !(value && onChange),
     withState('value', 'onChange', ({ defaultValue }: any) => defaultValue)
-  ),
-  withState('open', 'setOpen', false),
-  withState('datePickerOpen', 'setDatePickerOpen', false),
-  withStyles(styles)
+  )
 )(RelativeDateSelectorComp);

@@ -105,14 +105,14 @@ const FactInformationComp = ({
           </Grid>
           <Grid item xs={12} classes={{ item: classes.row }}>
             <Typography className={classes.left}>date</Typography>
-            <Typography className={classes.right}>{format(new Date(fact.timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
+            <Typography className={classes.right}>{format(new Date(fact.timestamp), 'yyyy.MM.dd HH:mm')}</Typography>
           </Grid>
           <Grid item xs={12} classes={{ item: classes.row }}>
             <Typography gutterBottom className={classes.left}>
               last seen
             </Typography>
             <Typography className={classes.right}>
-              {format(new Date(fact.lastSeenTimestamp), 'DD.MM.YYYY HH:mm')}
+              {format(new Date(fact.lastSeenTimestamp), 'yyyy.MM.dd HH:mm')}
             </Typography>
           </Grid>
         </Grid>
@@ -169,7 +169,7 @@ const FactInformationComp = ({
             <div key={id} className={classes.comments}>
               <Typography>{replyTo}</Typography>
               <Typography>{comment}</Typography>
-              <Typography variant="caption">{format(new Date(timestamp), 'DD.MM.YYYY HH:mm')}</Typography>
+              <Typography variant="caption">{format(new Date(timestamp), 'yyyy.MM.dd HH:mm')}</Typography>
             </div>
           ))}
       </div>

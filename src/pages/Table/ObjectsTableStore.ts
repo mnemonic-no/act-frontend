@@ -69,8 +69,8 @@ class ObjectsTableStore {
   }
 
   @action.bound
-  setSelectedObject(actObject: ActObject) {
-    this.root.setCurrentSelection({ kind: 'object', id: actObject.id });
+  onToggleSelection(actObject: ActObject) {
+    this.root.toggleSelection({ kind: 'object', id: actObject.id });
   }
 
   @action.bound
@@ -111,7 +111,7 @@ class ObjectsTableStore {
       onSortChange: this.onSortChange,
       columns: this.columns,
       rows: sortBy(this.sortOrder, rows),
-      onRowClick: this.setSelectedObject,
+      onRowClick: this.onToggleSelection,
       onExportClick: this.exportToCsv
     };
   }

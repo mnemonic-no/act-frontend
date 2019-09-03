@@ -107,13 +107,8 @@ class MainPageStore {
   }
 
   @action.bound
-  setCurrentSelection(selection: ActSelection | null) {
-    if (selection !== null) {
-      this.setCurrentlySelected({ [selection.id]: selection });
-    } else {
-      this.setCurrentlySelected({});
-    }
-
+  setCurrentSelection(selection: ActSelection) {
+    this.setCurrentlySelected({ [selection.id]: selection });
     this.ui.detailsStore.open();
   }
 
@@ -126,6 +121,20 @@ class MainPageStore {
   @action.bound
   removeFromSelection(selection: ActSelection) {
     delete this.currentlySelected[selection.id];
+  }
+
+  @action.bound
+  clearSelection() {
+    this.setCurrentlySelected({});
+  }
+
+  @action.bound
+  toggleSelection(selection: ActSelection) {
+    if (this.currentlySelected[selection.id]) {
+      this.removeFromSelection(selection);
+    } else {
+      this.setCurrentlySelected({ ...this.currentlySelected, [selection.id]: selection });
+    }
   }
 
   @action.bound

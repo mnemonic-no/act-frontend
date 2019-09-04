@@ -20,6 +20,13 @@ class SelectionStore {
   }
 
   @action.bound
+  removeAllFromSelection(selection: Array<ActSelection>) {
+    selection.forEach(x => {
+      delete this.currentlySelected[x.id];
+    });
+  }
+
+  @action.bound
   clearSelection() {
     this.setCurrentlySelected({});
   }

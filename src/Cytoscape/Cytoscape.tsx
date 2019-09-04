@@ -20,7 +20,7 @@ import { shallowEqual } from 'recompose';
 
 import betterGrid from './betterGrid';
 import { usePrevious } from '../hooks';
-import { modifierKeysUsed } from '../util/util';
+import { createBatcherFn, modifierKeysUsed } from '../util/util';
 import Toolbar from './Toolbar';
 
 Cytoscape.use(CytoscapeDagre);
@@ -141,7 +141,8 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
     layoutConfig,
     onNodeClick,
     onNodeDoubleClick,
-    onSelectionChange,
+    onSelect,
+    onUnselect,
     onNodeCtxClick
   } = input;
 
@@ -168,25 +169,30 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
           cy.on('tap', 'node', clickHandlerFn(onNodeClick, onNodeDoubleClick));
           cy.on('tap', 'edge', clickHandlerFn(onNodeClick, onNodeDoubleClick));
 
-          if (onSelectionChange) {
+          if (onSelect) {
             // Debounce since this is called once per element in selection
             const debouncedFn = _.debounce(100)(() => {
               const selectionElements = cy.elements().filter(x => {
                 return x.selected();
               });
               // @ts-ignore
-              onSelectionChange(selectionElements);
+              onSelect(selectionElements);
             });
-
             cy.on('select', debouncedFn);
-            cy.on('unselect', debouncedFn);
+          }
+
+          if (onUnselect) {
+            const onUnselectBatchFn = createBatcherFn<Cytoscape.EventObject>(onUnselect, 200);
+            cy.on('unselect', (event: Cytoscape.EventObject) => {
+              onUnselectBatchFn(event.target);
+            });
           }
 
           if (onNodeCtxClick) {
-            cy.on('cxttap', 'node', (event: any) => {
+            cy.on('cxttap', 'node', (event: Cytoscape.EventObject) => {
               onNodeCtxClick(event.target);
             });
-            cy.on('cxttap', 'edge', (event: any) => {
+            cy.on('cxttap', 'edge', (event: Cytoscape.EventObject) => {
               onNodeCtxClick(event.target);
             });
           }
@@ -273,8 +279,9 @@ interface ICytoscapeComp {
   layoutConfig: any;
   onNodeClick: (target: any) => void;
   onNodeDoubleClick: (target: any) => void;
-  onNodeCtxClick: (target: any) => void;
-  onSelectionChange: (selection: Array<any>) => void;
+  onNodeCtxClick?: (target: any) => void;
+  onSelect?: (selection: Array<any>) => void;
+  onUnselect?: (selection: Array<any>) => void;
 }
 
 export default CytoscapeComp;

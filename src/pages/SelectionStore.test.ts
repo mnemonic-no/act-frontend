@@ -46,6 +46,22 @@ it('can remove from selection', () => {
   });
 });
 
+it('can remove subset from selection', () => {
+  const store = new SelectionStore();
+  expect(store.currentlySelected).toEqual({});
+  store.setCurrentlySelected({
+    a: { id: 'a', kind: 'object' },
+    b: { id: 'b', kind: 'fact' },
+    c: { id: 'c', kind: 'fact' }
+  });
+
+  store.removeAllFromSelection([{ id: 'b', kind: 'fact' }, { id: 'c', kind: 'fact' }]);
+
+  expect(store.currentlySelected).toEqual({
+    a: { id: 'a', kind: 'object' }
+  });
+});
+
 it('can toggle selection', () => {
   const store = new SelectionStore();
   expect(store.currentlySelected).toEqual({});

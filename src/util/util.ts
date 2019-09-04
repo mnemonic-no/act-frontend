@@ -45,3 +45,26 @@ export const pluralize = (itemCount: number, suffix: string) => {
 export const modifierKeysUsed = (event: MouseEvent) => {
   return event && (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey);
 };
+
+/**
+ * Batch and delay calls to a batchFn.
+ *
+ * Returns a function that takes a single item and will eventually call the batchFn with items from previously
+ * invoked calls.
+ *
+ * @param batchFn  Function that handles a batch of T
+ * @param delay    milliseconds to delay before calling the batchFn
+ */
+export const createBatcherFn = <T>(batchFn: (batch: Array<T>) => void, delay: number) => {
+  let currentBatch: Array<T> = [];
+
+  return (item: T) => {
+    if (currentBatch.length === 0) {
+      setTimeout(() => {
+        batchFn(currentBatch);
+        currentBatch = [];
+      }, delay);
+    }
+    currentBatch.push(item);
+  };
+};

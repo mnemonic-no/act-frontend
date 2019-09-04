@@ -8,6 +8,7 @@ import { ActFact, ActObject, QueryResult } from './types';
 import MainPageStore from './MainPageStore';
 import { relativeStringToDate } from '../components/RelativeDateSelector';
 import { factMapToObjectMap, factsToObjects } from '../core/transformers';
+import { setUnion } from '../util/util';
 
 export type ObjectTypeFilter = {
   id: string;
@@ -33,6 +34,14 @@ export const filterByObjectTypes = (facts: { [id: string]: ActFact }, objectType
   })(facts);
 };
 
+export const filterByPrunedObjects = (facts: { [id: string]: ActFact }, prunedObjectIds: Set<string>) => {
+  return _.pickBy((fact: ActFact) => {
+    return factsToObjects([fact]).every((object: ActObject) => {
+      return !prunedObjectIds.has(object.id);
+    });
+  })(facts);
+};
+
 export const handleRetractions = (facts: { [id: string]: ActFact }, showRetractions: boolean) => {
   return showRetractions ? facts : _.omitBy((f: ActFact) => isRetraction(f) || isRetracted(f))(facts);
 };
@@ -41,11 +50,13 @@ export const refineResult = (
   queryResult: QueryResult,
   objectTypeFilters: Array<ObjectTypeFilter>,
   endTimestamp: Date | string,
-  showRetractions: boolean
+  showRetractions: boolean,
+  prunedObjectIds: Set<string>
 ): QueryResult => {
   const filteredFacts = _.pipe(
     facts => handleRetractions(facts, showRetractions),
     facts => filterByObjectTypes(facts, objectTypeFilters),
+    facts => filterByPrunedObjects(facts, prunedObjectIds),
     facts => filterByTime(facts, endTimestamp)
   )(queryResult.facts);
 
@@ -57,6 +68,7 @@ export const refineResult = (
 class RefineryStore {
   root: MainPageStore;
 
+  @observable prunedObjectIds: Set<string> = new Set();
   @observable objectTypeFilters: Array<ObjectTypeFilter> = [];
   @observable endTimestamp: Date | string = 'Any time';
 
@@ -89,7 +101,8 @@ class RefineryStore {
       this.root.queryHistory.result,
       this.objectTypeFilters,
       this.endTimestamp,
-      this.root.ui.refineryOptionsStore.graphOptions.showRetractions
+      this.root.ui.refineryOptionsStore.graphOptions.showRetractions,
+      this.prunedObjectIds
     );
   }
 
@@ -119,6 +132,11 @@ class RefineryStore {
     // @ts-ignore
     const latest = new Date(_.maxBy(x => x.timestamp)(facts).timestamp);
     return [earliest, latest];
+  }
+
+  @action.bound
+  pruneObjectIds(prune: Array<string>) {
+    this.prunedObjectIds = setUnion(this.prunedObjectIds, new Set(prune));
   }
 }
 

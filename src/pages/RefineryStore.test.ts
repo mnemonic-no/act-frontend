@@ -1,4 +1,10 @@
-import { filterByObjectTypes, filterByTime, handleRetractions, refineResult } from './RefineryStore';
+import {
+  filterByObjectTypes,
+  filterByPrunedObjects,
+  filterByTime,
+  handleRetractions,
+  refineResult
+} from './RefineryStore';
 import { actObject, fact } from '../core/testHelper';
 
 it('can handle retractions', () => {
@@ -46,8 +52,29 @@ it('can filter by object types', () => {
   ).toEqual({ [threatActorFact.id]: threatActorFact });
 });
 
+it('can prune by objectIds', () => {
+  expect(filterByPrunedObjects({}, new Set())).toEqual({});
+
+  const shouldBePrunedFact = fact({
+    id: 'toBePruned',
+    sourceObject: actObject({ id: 'pruneMe', value: 'Something', type: { id: 'x', name: 'threatActor' } })
+  });
+
+  const threatActorFact = fact({
+    id: 'keepMe',
+    sourceObject: actObject({ id: 'keepMe', value: 'Something', type: { id: 'x', name: 'threatActor' } })
+  });
+
+  expect(
+    filterByPrunedObjects(
+      { [threatActorFact.id]: threatActorFact, [shouldBePrunedFact.id]: shouldBePrunedFact },
+      new Set(['pruneMe'])
+    )
+  ).toEqual({ [threatActorFact.id]: threatActorFact });
+});
+
 it('can refine query results', () => {
-  expect(refineResult({ facts: {}, objects: {} }, [], 'Any time', true)).toEqual({ facts: {}, objects: {} });
+  expect(refineResult({ facts: {}, objects: {} }, [], 'Any time', true, new Set())).toEqual({ facts: {}, objects: {} });
 
   const nowFact = fact({ id: 'nowFact', timestamp: new Date() });
   const someFact = fact({
@@ -59,7 +86,13 @@ it('can refine query results', () => {
   });
 
   expect(
-    refineResult({ facts: { [nowFact.id]: nowFact, [someFact.id]: someFact }, objects: {} }, [], '24 hours ago', false)
+    refineResult(
+      { facts: { [nowFact.id]: nowFact, [someFact.id]: someFact }, objects: {} },
+      [],
+      '24 hours ago',
+      false,
+      new Set()
+    )
   ).toEqual({
     facts: { [someFact.id]: someFact },
     objects: {

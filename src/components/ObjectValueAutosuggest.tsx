@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
+import { Theme, makeStyles } from '@material-ui/core';
 
 import actWretch from '../util/actWretch';
 import withDataLoader from '../util/withDataLoader';
@@ -52,36 +52,34 @@ const renderSuggestionsContainer = ({ containerProps, children }: any) => (
   </Paper>
 );
 
-const styles = (theme: Theme) =>
-  createStyles({
-    container: {
-      position: 'relative'
-    },
-    suggestionsContainerOpen: {
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      zIndex: 2
-    },
-    suggestion: {
-      display: 'block'
-    },
-    suggestionsList: {
-      margin: 0,
-      padding: 0,
-      listStyleType: 'none'
-    },
-    progress: {
-      color: theme.palette.common.black
-    }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  container: {
+    position: 'relative'
+  },
+  suggestionsContainerOpen: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 2
+  },
+  suggestion: {
+    display: 'block'
+  },
+  suggestionsList: {
+    margin: 0,
+    padding: 0,
+    listStyleType: 'none'
+  },
+  progress: {
+    color: theme.palette.common.black
+  }
+}));
 
 const getSuggestionValue = (suggestion: any) => {
   return suggestion.value;
 };
 
 const ObjectValueAutosuggestComp = ({
-  classes,
   value,
   onChangeInternal,
   suggestions,
@@ -94,44 +92,48 @@ const ObjectValueAutosuggestComp = ({
   placeholder,
   isLoading,
   inputRef
-}: IObjectValueAutosuggestComp) => (
-  <Autosuggest
-    theme={{
-      container: classes.container,
-      suggestionsContainerOpen: classes.suggestionsContainerOpen,
-      suggestionsList: classes.suggestionsList,
-      suggestion: classes.suggestion
-    }}
-    renderInputComponent={renderInput}
-    renderSuggestion={renderSuggestion}
-    renderSuggestionsContainer={renderSuggestionsContainer}
-    // @ts-ignore
-    ref={x => inputRef && x && inputRef(x.input)}
-    inputProps={{
-      required,
-      autoFocus,
-      fullWidth,
-      label,
-      placeholder,
-      classes,
-      value,
-      onChange: onChangeInternal,
-      endAdornment: (
-        <>
-          {isLoading && (
-            <InputAdornment position="end">
-              <CircularProgress classes={{ root: classes.progress }} size={20} />
-            </InputAdornment>
-          )}
-        </>
-      )
-    }}
-    suggestions={suggestions}
-    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
-    onSuggestionsClearRequested={onClearSuggestions}
-    getSuggestionValue={getSuggestionValue}
-  />
-);
+}: IObjectValueAutosuggestComp) => {
+  const classes = useStyles();
+
+  return (
+    <Autosuggest
+      theme={{
+        container: classes.container,
+        suggestionsContainerOpen: classes.suggestionsContainerOpen,
+        suggestionsList: classes.suggestionsList,
+        suggestion: classes.suggestion
+      }}
+      renderInputComponent={renderInput}
+      renderSuggestion={renderSuggestion}
+      renderSuggestionsContainer={renderSuggestionsContainer}
+      // @ts-ignore
+      ref={x => inputRef && x && inputRef(x.input)}
+      inputProps={{
+        required,
+        autoFocus,
+        fullWidth,
+        label,
+        placeholder,
+        classes,
+        value,
+        onChange: onChangeInternal,
+        endAdornment: (
+          <>
+            {isLoading && (
+              <InputAdornment position="end">
+                <CircularProgress classes={{ root: classes.progress }} size={20} />
+              </InputAdornment>
+            )}
+          </>
+        )
+      }}
+      suggestions={suggestions}
+      onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+      onSuggestionsClearRequested={onClearSuggestions}
+      getSuggestionValue={getSuggestionValue}
+    />
+  );
+};
 
 const objectValuesDataLoader = ({ objectType }: { objectType: string }) =>
   actWretch
@@ -145,7 +147,7 @@ const objectValuesDataLoader = ({ objectType }: { objectType: string }) =>
 
 const memoizedObjectValuesDataLoader = memoizeDataLoader(objectValuesDataLoader, ['objectType']);
 
-interface IObjectValueAutosuggestComp extends WithStyles<typeof styles> {
+interface IObjectValueAutosuggestComp {
   value: any;
   objectType: any;
   onChangeInternal: (event: React.FormEvent<any>, params: ChangeEvent) => void;
@@ -166,7 +168,6 @@ export default compose<
   IObjectValueAutosuggestComp,
   Omit<
     IObjectValueAutosuggestComp,
-    | 'classes'
     | 'suggestions'
     | 'setSuggestions'
     | 'onSuggestionsFetchRequested'
@@ -207,7 +208,7 @@ export default compose<
     }
   }),
   lifecycle({
-    componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
       if (this.props.objectType !== '' && nextProps.objectType !== this.props.objectType) {
         // ObjectType has been changed, refetch suggestions
         this.props.onClearSuggestions();
@@ -220,6 +221,5 @@ export default compose<
         // .? maybe not do anything?
       }
     }
-  }),
-  withStyles(styles)
+  })
 )(ObjectValueAutosuggestComp);

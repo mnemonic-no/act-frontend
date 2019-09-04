@@ -38,7 +38,7 @@ const toObjectRow = (
   facts: Array<ActFact>
 ): ObjectRow => {
   return {
-    key: object.id,
+    id: object.id,
     title: object.type.name,
     isSelected: Boolean(currentlySelected[object.id]),
     actObject: object,
@@ -69,14 +69,14 @@ class ObjectsTableStore {
   }
 
   @action.bound
-  setSelectedObject(actObject: ActObject) {
-    this.root.setCurrentSelection({ kind: 'object', id: actObject.id });
+  onToggleSelection(actObject: ActObject) {
+    this.root.selectionStore.toggleSelection({ kind: 'object', id: actObject.id });
   }
 
   @action.bound
   exportToCsv() {
     const objectRows = Object.values(this.root.refineryStore.refined.objects).map(o =>
-      toObjectRow(o, this.root.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
+      toObjectRow(o, this.root.selectionStore.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
     );
 
     const rows = sortBy(this.sortOrder, objectRows).map(row => {
@@ -103,7 +103,7 @@ class ObjectsTableStore {
   @computed
   get prepared() {
     const rows = Object.values(this.root.refineryStore.refined.objects).map(o =>
-      toObjectRow(o, this.root.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
+      toObjectRow(o, this.root.selectionStore.currentlySelected, Object.values(this.root.refineryStore.refined.facts))
     );
 
     return {
@@ -111,7 +111,7 @@ class ObjectsTableStore {
       onSortChange: this.onSortChange,
       columns: this.columns,
       rows: sortBy(this.sortOrder, rows),
-      onRowClick: this.setSelectedObject,
+      onRowClick: this.onToggleSelection,
       onExportClick: this.exportToCsv
     };
   }

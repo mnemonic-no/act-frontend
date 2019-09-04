@@ -1,5 +1,5 @@
 import MainPageStore from '../MainPageStore';
-import { action, computed, observable } from 'mobx';
+import { action, computed, observable, reaction } from 'mobx';
 import { ActFact, ActObject, Search } from '../types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
 import * as R from 'ramda';
@@ -62,6 +62,15 @@ class DetailsStore {
     this.root = root;
     this.contextActionTemplates = config.contextActions || [];
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
+
+    reaction(
+      () => this.root.selectionStore.currentlySelected,
+      currentlySelected => {
+        if (Object.keys(currentlySelected).length > 0) {
+          this.open();
+        }
+      }
+    );
   }
 
   @action.bound
@@ -74,7 +83,7 @@ class DetailsStore {
   }
 
   @computed get selectedObject(): ActObject | null {
-    const selected = Object.values(this.root.currentlySelected)[0];
+    const selected = Object.values(this.root.selectionStore.currentlySelected)[0];
 
     if (selected && selected.kind === 'object') {
       return this.root.queryHistory.result.objects[selected.id];
@@ -198,7 +207,7 @@ class DetailsStore {
 
   @computed
   get selectedFactDetails() {
-    const selected = Object.values(this.root.currentlySelected)[0];
+    const selected = Object.values(this.root.selectionStore.currentlySelected)[0];
 
     if (!selected || selected.kind !== 'fact') return null;
 
@@ -209,7 +218,7 @@ class DetailsStore {
       onFactRowClick: this.setSelectedFact,
       onReferenceClick: (fact: ActFact) => {
         if (fact.inReferenceTo) {
-          this.root.setCurrentSelection({ kind: 'fact', id: fact.inReferenceTo.id });
+          this.root.selectionStore.setCurrentSelection({ kind: 'fact', id: fact.inReferenceTo.id });
         }
       }
     };
@@ -217,7 +226,7 @@ class DetailsStore {
 
   @computed
   get selectedMultipleObjectsDetails() {
-    const selectedObjects = Object.values(this.root.currentlySelected).filter(s => s.kind === 'object');
+    const selectedObjects = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'object');
 
     return {
       id: 'testing',
@@ -227,19 +236,22 @@ class DetailsStore {
         .filter(x => x !== undefined && x !== null)
         .sort(byTypeThenName),
       onObjectClick: (object: ActObject) => {
-        this.root.removeFromSelection({ id: object.id, kind: 'object' });
+        this.root.selectionStore.removeFromSelection({ id: object.id, kind: 'object' });
+      },
+      onPruneObjectsClick: () => {
+        // TODO implement
       }
     };
   }
 
   @action.bound
   setSelectedObject(actObject: ActObject) {
-    this.root.setCurrentSelection({ kind: 'object', id: actObject.id });
+    this.root.selectionStore.setCurrentSelection({ kind: 'object', id: actObject.id });
   }
 
   @action.bound
   setSelectedFact(fact: ActFact) {
-    this.root.setCurrentSelection({ kind: 'fact', id: fact.id });
+    this.root.selectionStore.setCurrentSelection({ kind: 'fact', id: fact.id });
   }
 
   @action.bound
@@ -251,7 +263,7 @@ class DetailsStore {
 
   @computed
   get contentsKind(): 'empty' | 'objects' | 'object' | 'fact' {
-    const selectionCount = Object.keys(this.root.currentlySelected).length;
+    const selectionCount = Object.keys(this.root.selectionStore.currentlySelected).length;
 
     if (selectionCount === 0) {
       return 'empty';
@@ -259,7 +271,7 @@ class DetailsStore {
       return 'objects';
     }
 
-    return Object.values(this.root.currentlySelected)[0].kind;
+    return Object.values(this.root.selectionStore.currentlySelected)[0].kind;
   }
 }
 

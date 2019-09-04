@@ -6,11 +6,15 @@ import * as _ from 'lodash/fp';
 import { objectFactsToElements } from '../../core/cytoscapeTransformers';
 import config from '../../config';
 
-const cytoscapeNodeToNode = (cytoNode: any): ActSelection => {
+const cytoscapeNodeToSelection = (node: any): ActSelection => {
   return {
-    id: cytoNode.data('isFact') ? cytoNode.data('factId') : cytoNode.id(),
-    kind: cytoNode.data('isFact') ? 'fact' : 'object'
+    id: node.data('isFact') ? node.data('factId') : node.id(),
+    kind: node.data('isFact') ? 'fact' : 'object'
   };
+};
+
+const selectionToCytoscapeNodeId = (selection: ActSelection) => {
+  return selection.kind === 'fact' ? 'edge-' + selection.id : selection.id;
 };
 
 class GraphViewStore {
@@ -50,29 +54,30 @@ class GraphViewStore {
     return {
       canRender: canRender,
       resizeEvent: this.resizeEvent,
-      selectedNodeIds: new Set(Object.values(this.root.selectionStore.currentlySelected).map(x => x.id)),
+      selectedNodeIds: new Set(
+        Object.values(this.root.selectionStore.currentlySelected).map(selectionToCytoscapeNodeId)
+      ),
       elements: this.cytoscapeElements,
       layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
       layoutConfig: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
       style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels }),
       onNodeClick: (node: any) => {
-        this.root.selectionStore.setCurrentSelection(cytoscapeNodeToNode(node));
+        node.select();
       },
       onNodeCtxClick: (node: any) => {
-        this.root.selectionStore.setCurrentSelection({
-          id: node.id(),
-          kind: node.data('isFact') ? 'fact' : 'object'
-        });
+        node.select();
       },
       onNodeDoubleClick: (node: any) => {
         if (node.data('isFact')) return;
-
         this.root.backendStore.executeQuery({ objectType: node.data('type'), objectValue: node.data('value') });
       },
-      onSelectionChange: (selection: Array<any>) => {
+      onSelect: (selection: Array<any>) => {
         this.root.selectionStore.setCurrentlySelected(
-          selection.map(cytoscapeNodeToNode).reduce((acc: any, x: any) => ({ ...acc, [x.id]: x }), {})
+          selection.map(cytoscapeNodeToSelection).reduce((acc: any, x: ActSelection) => ({ ...acc, [x.id]: x }), {})
         );
+      },
+      onUnselect: (selection: Array<any>) => {
+        this.root.selectionStore.removeAllFromSelection(selection.map(cytoscapeNodeToSelection));
       }
     };
   }

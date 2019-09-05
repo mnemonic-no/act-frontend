@@ -138,6 +138,23 @@ class RefineryStore {
   pruneObjectIds(prune: Array<string>) {
     this.prunedObjectIds = setUnion(this.prunedObjectIds, new Set(prune));
   }
+
+  @action.bound
+  clearPrunedObjectIds() {
+    this.prunedObjectIds = new Set();
+  }
+
+  @action.bound
+  unpruneObjectId(id: string) {
+    this.prunedObjectIds.delete(id);
+  }
+
+  @computed
+  get prunedObjects(): Array<ActObject> {
+    return [...this.prunedObjectIds].map((objectId: string) => {
+      return this.root.queryHistory.result.objects[objectId];
+    });
+  }
 }
 
 export default RefineryStore;

@@ -12,23 +12,23 @@ import Tab from '@material-ui/core/Tab';
 import Toolbar from '@material-ui/core/Toolbar';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-
 // @ts-ignore
 import classNames from 'classnames';
 
 import AboutButton from '../components/About';
-import ErrorSnackbar from '../components/ErrorSnackbar';
 import CytoscapeLayout from './CytoscapeLayout/CytoscapeLayout';
+import ErrorSnackbar from '../components/ErrorSnackbar';
+import ErrorBoundary from '../components/ErrorBoundary';
 import GraphEmpty from './GraphView/GraphEmpty';
 import GraphView from './GraphView/GraphView';
+import MainPageStore from './MainPageStore';
+import Details from './Details/Details';
+import FactsTable from './Table/FactsTable';
+import ObjectsTable from './Table/ObjectsTable';
+import PrunedObjectsTable from './Table/PrunedObjectsTable';
 import QueryHistory from './QueryHistory/QueryHistory';
 import RefineryOptions from './RefineryOptions/RefineryOptions';
-import MainPageStore from './MainPageStore';
 import Search from './Search/Search';
-import Details from './Details/Details';
-import ObjectsTable from './Table/ObjectsTable';
-import FactsTable from './Table/FactsTable';
-import ErrorBoundary from '../components/ErrorBoundary';
 import Timeline from '../components/Timeline/Timeline';
 
 const drawerWidth = 380;
@@ -192,6 +192,10 @@ const ContentComp = ({ store, classes }: { store: MainPageStore; classes: any })
             <Tab label="Graph" value="graph" />
             <Tab label={`Table (${store.ui.factsTableStore.facts.length})`} value="tableOfFacts" />
             <Tab label={`Objects (${store.ui.objectsTableStore.objects.length})`} value="tableOfObjects" />
+            <Tab
+              label={`Pruned objects (${store.ui.prunedObjectsTableStore.prepared.rows.length})`}
+              value="tableOfPrunedObjects"
+            />
           </Tabs>
 
           {selectedTab === 'graph' && (
@@ -206,6 +210,9 @@ const ContentComp = ({ store, classes }: { store: MainPageStore; classes: any })
           )}
           {selectedTab === 'tableOfFacts' && <FactsTable {...store.ui.factsTableStore.prepared} />}
           {selectedTab === 'tableOfObjects' && <ObjectsTable {...store.ui.objectsTableStore.prepared} />}
+          {selectedTab === 'tableOfPrunedObjects' && (
+            <PrunedObjectsTable {...store.ui.prunedObjectsTableStore.prepared} />
+          )}
         </main>
       )}
     </Observer>

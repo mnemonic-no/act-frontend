@@ -1,7 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Theme, IconButton, makeStyles } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Theme, makeStyles } from '@material-ui/core';
 
 import DetailsStore from './DetailsStore';
 import FactInformation, { IFactInformationComp } from '../../components/FactInformation/FactInformation';
@@ -13,11 +12,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'relative',
     overflowY: 'auto',
     height: '100%'
-  },
-  closeButton: {
-    position: 'absolute',
-    right: 0,
-    top: 0
   }
 }));
 
@@ -45,16 +39,7 @@ const Details = ({ store }: IDetails) => {
 
   const detailsComp = content(store);
 
-  return (
-    <div className={classes.root}>
-      <div className={classes.closeButton}>
-        <IconButton onClick={store.close}>
-          <CloseIcon />
-        </IconButton>
-      </div>
-      {detailsComp}
-    </div>
-  );
+  return <div className={classes.root}>{detailsComp}</div>;
 };
 
 interface IDetails {

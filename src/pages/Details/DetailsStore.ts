@@ -249,6 +249,9 @@ class DetailsStore {
           .map(x => x.id);
         this.root.refineryStore.pruneObjectIds(selectedObjectIds);
         this.root.selectionStore.clearSelection();
+      },
+      onClearSelectionClick: () => {
+        this.root.selectionStore.clearSelection();
       }
     };
   }

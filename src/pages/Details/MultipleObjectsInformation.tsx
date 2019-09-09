@@ -1,9 +1,8 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import Button from '@material-ui/core/Button';
-import DeleteIcon from '@material-ui/icons/Delete';
-import Typography from '@material-ui/core/Typography';
+import CloseIcon from '@material-ui/icons/Close';
 import {
+  Button,
   IconButton,
   List,
   ListItem,
@@ -11,7 +10,8 @@ import {
   ListItemText,
   makeStyles,
   Theme,
-  Tooltip
+  Tooltip,
+  Typography
 } from '@material-ui/core';
 
 import { ActObject } from '../types';
@@ -25,6 +25,11 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
     paddingTop: theme.spacing(2),
     paddingBottom: 0,
     height: `calc(100% - ${theme.spacing(3)}px)`
+  },
+  titleContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingRight: theme.spacing(2)
   },
   objectList: {
     minHeight: 0,
@@ -42,13 +47,21 @@ const MultipleObjectsInformationComp = ({
   title,
   objects,
   onObjectClick,
-  onPruneObjectsClick
+  onPruneObjectsClick,
+  onClearSelectionClick
 }: IMultipleObjectsInformationComp) => {
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
-      <Typography variant="h6">{title}</Typography>
+      <div className={classes.titleContainer}>
+        <Typography variant="h6">{title}</Typography>
+        <Tooltip title="Clear selection">
+          <Button size="small" variant="outlined" onClick={onClearSelectionClick}>
+            Clear
+          </Button>
+        </Tooltip>
+      </div>
 
       <div className={classes.objectList}>
         <List>
@@ -71,7 +84,7 @@ const MultipleObjectsInformationComp = ({
                 />
                 <ListItemSecondaryAction>
                   <IconButton edge="end" aria-label="delete" onClick={() => onObjectClick(object)}>
-                    <DeleteIcon />
+                    <CloseIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
               </ListItem>
@@ -96,6 +109,7 @@ export interface IMultipleObjectsInformationComp {
   objects: Array<ActObject>;
   onObjectClick: (obj: ActObject) => void;
   onPruneObjectsClick: () => void;
+  onClearSelectionClick: () => void;
 }
 
 export default observer(MultipleObjectsInformationComp);

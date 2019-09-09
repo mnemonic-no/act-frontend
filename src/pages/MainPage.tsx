@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { Observer, observer } from 'mobx-react';
-import { compose } from 'recompose';
-import { withStyles, createStyles, Theme, WithStyles, IconButton } from '@material-ui/core';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import Drawer from '@material-ui/core/Drawer';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Paper from '@material-ui/core/Paper';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Toolbar from '@material-ui/core/Toolbar';
+import {
+  AppBar,
+  Button,
+  Drawer,
+  IconButton,
+  LinearProgress,
+  makeStyles,
+  Paper,
+  Tab,
+  Tabs,
+  Theme,
+  Toolbar
+} from '@material-ui/core';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-// @ts-ignore
-import classNames from 'classnames';
 
 import AboutButton from '../components/About';
 import CytoscapeLayout from './CytoscapeLayout/CytoscapeLayout';
@@ -34,9 +35,9 @@ import Timeline from '../components/Timeline/Timeline';
 const drawerWidth = 380;
 const detailsDrawerWidth = 360;
 
-const styles = (theme: Theme) => {
+const useStyles = makeStyles((theme: Theme) => {
   const appBarHeight = theme.spacing(8);
-  return createStyles({
+  return {
     root: {
       height: '100vh',
       zIndex: 1,
@@ -113,11 +114,7 @@ const styles = (theme: Theme) => {
       flex: '1 0 300px',
 
       display: 'flex',
-      flexDirection: 'column',
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-      })
+      flexDirection: 'column'
     },
 
     detailsContainer: {
@@ -190,8 +187,8 @@ const styles = (theme: Theme) => {
       top: appBarHeight + 4,
       left: '-48px'
     }
-  });
-};
+  };
+});
 
 const store = new MainPageStore();
 store.initByUrl(window.location);
@@ -202,7 +199,7 @@ const ContentComp = ({ store, classes }: { store: MainPageStore; classes: any })
   return (
     <Observer>
       {() => (
-        <main className={classNames(classes.content)}>
+        <main className={classes.content}>
           <Tabs
             value={selectedTab}
             onChange={(e: any, value: string) => setSelectedTab(value)}
@@ -237,119 +234,118 @@ const ContentComp = ({ store, classes }: { store: MainPageStore; classes: any })
   );
 };
 
-const MainPage = ({ classes }: IMainPage) => (
-  <div className={classes.root}>
-    <div className={classes.appFrame}>
-      {/* Header */}
-      <div className={classes.appBar}>
-        <AppBar position="static">
-          <Toolbar>
-            <div className={classes.appBarLeft}>
-              <a href="/">
-                <img src="/act-logo-onDark.svg" alt="ACT" className={classes.appBarLogo} />
-              </a>
+const MainPage = () => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.root}>
+      <div className={classes.appFrame}>
+        {/* Header */}
+        <div className={classes.appBar}>
+          <AppBar position="static">
+            <Toolbar>
+              <div className={classes.appBarLeft}>
+                <a href="/">
+                  <img src="/act-logo-onDark.svg" alt="ACT" className={classes.appBarLogo} />
+                </a>
+              </div>
+              <Button color="inherit" component="a" href="/examples">
+                Examples
+              </Button>
+              <AboutButton />
+            </Toolbar>
+            {store.backendStore.isLoading && <LinearProgress variant="query" color="secondary" />}
+          </AppBar>
+        </div>
+
+        <ErrorBoundary className={classes.errorBoundary}>
+          <div style={{ display: 'flex', width: '100%' }}>
+            {/* Search container */}
+            <div
+              data-container-id="searchContainer"
+              onTransitionEnd={(event: any) => {
+                if (event.target.getAttribute('data-container-id') === 'searchContainer') {
+                  store.ui.cytoscapeStore.rerender();
+                }
+              }}
+              className={`${classes.searchContainer} ${
+                store.isSearchDrawerOpen ? classes.searchContainerOpen : classes.searchContainerClosed
+              }`}>
+              <div className={`${classes.toggleButton} ${classes.toggleButtonRight}`}>
+                <IconButton onClick={store.toggleSearchDrawer}>
+                  {store.isSearchDrawerOpen ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
+                </IconButton>
+              </div>
+
+              <Drawer
+                open={store.isSearchDrawerOpen}
+                anchor="left"
+                variant="permanent"
+                classes={{
+                  paper: classes.searchDrawerPaper,
+                  docked: classes.searchDrawerDocked
+                }}>
+                {store.isSearchDrawerOpen && (
+                  <>
+                    <Paper className={classes.paper}>
+                      <Search store={store.ui.searchStore} />
+                    </Paper>
+
+                    <Paper className={classes.paperNoPadding}>
+                      <QueryHistory store={store.ui.queryHistoryStore} />
+                    </Paper>
+
+                    <Paper className={classes.paper}>
+                      <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
+                    </Paper>
+
+                    <Paper className={classes.paper}>
+                      <RefineryOptions store={store.ui.refineryOptionsStore} />
+                    </Paper>
+                  </>
+                )}
+              </Drawer>
             </div>
-            <Button color="inherit" component="a" href="/examples">
-              Examples
-            </Button>
-            <AboutButton />
-          </Toolbar>
-          {store.backendStore.isLoading && <LinearProgress variant="query" color="secondary" />}
-        </AppBar>
+
+            {/* Content */}
+            {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
+
+            {/* Details drawer */}
+            <div
+              data-container-id="detailsContainer"
+              onTransitionEnd={(event: any) => {
+                if (event.target.getAttribute('data-container-id') === 'detailsContainer') {
+                  store.ui.cytoscapeStore.rerender();
+                }
+              }}
+              className={`${classes.detailsContainer} ${
+                store.ui.detailsStore.isOpen ? classes.detailsContainerOpen : classes.detailsContainerClosed
+              }`}>
+              <div className={`${classes.toggleButton} ${classes.toggleButtonLeft}`}>
+                <IconButton onClick={store.ui.detailsStore.toggle}>
+                  {store.ui.detailsStore.isOpen ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
+                </IconButton>
+              </div>
+
+              <Drawer
+                open={store.ui.detailsStore.isOpen}
+                variant="permanent"
+                anchor="right"
+                classes={{
+                  paper: `${classes.detailsDrawerPaper} ${
+                    store.ui.detailsStore.isOpen ? classes.detailsDrawerPaperOpen : classes.detailsDrawerPaperClosed
+                  }`
+                }}>
+                <Details store={store.ui.detailsStore} />
+              </Drawer>
+            </div>
+          </div>
+        </ErrorBoundary>
       </div>
 
-      <ErrorBoundary className={classes.errorBoundary}>
-        <div style={{ display: 'flex', width: '100%' }}>
-          {/* Search container */}
-          <div
-            data-container-id="searchContainer"
-            onTransitionEnd={(event: any) => {
-              if (event.target.getAttribute('data-container-id') === 'searchContainer') {
-                store.ui.cytoscapeStore.rerender();
-              }
-            }}
-            className={`${classes.searchContainer} ${
-              store.isSearchDrawerOpen ? classes.searchContainerOpen : classes.searchContainerClosed
-            }`}>
-            <div className={`${classes.toggleButton} ${classes.toggleButtonRight}`}>
-              <IconButton onClick={store.toggleSearchDrawer}>
-                {store.isSearchDrawerOpen ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
-              </IconButton>
-            </div>
-
-            <Drawer
-              open={store.isSearchDrawerOpen}
-              anchor="left"
-              variant="permanent"
-              classes={{
-                paper: classes.searchDrawerPaper,
-                docked: classes.searchDrawerDocked
-              }}>
-              {store.isSearchDrawerOpen && (
-                <>
-                  <Paper className={classes.paper}>
-                    <Search store={store.ui.searchStore} />
-                  </Paper>
-
-                  <Paper className={classes.paperNoPadding}>
-                    <QueryHistory store={store.ui.queryHistoryStore} />
-                  </Paper>
-
-                  <Paper className={classes.paper}>
-                    <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
-                  </Paper>
-
-                  <Paper className={classes.paper}>
-                    <RefineryOptions store={store.ui.refineryOptionsStore} />
-                  </Paper>
-                </>
-              )}
-            </Drawer>
-          </div>
-
-          {/* Content */}
-          {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
-
-          {/* Details drawer */}
-          <div
-            data-container-id="detailsContainer"
-            onTransitionEnd={(event: any) => {
-              if (event.target.getAttribute('data-container-id') === 'detailsContainer') {
-                store.ui.cytoscapeStore.rerender();
-              }
-            }}
-            className={`${classes.detailsContainer} ${
-              store.ui.detailsStore.isOpen ? classes.detailsContainerOpen : classes.detailsContainerClosed
-            }`}>
-            <div className={`${classes.toggleButton} ${classes.toggleButtonLeft}`}>
-              <IconButton onClick={store.ui.detailsStore.toggle}>
-                {store.ui.detailsStore.isOpen ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
-              </IconButton>
-            </div>
-
-            <Drawer
-              open={store.ui.detailsStore.isOpen}
-              variant="permanent"
-              anchor="right"
-              classes={{
-                paper: `${classes.detailsDrawerPaper} ${
-                  store.ui.detailsStore.isOpen ? classes.detailsDrawerPaperOpen : classes.detailsDrawerPaperClosed
-                }`
-              }}>
-              <Details store={store.ui.detailsStore} />
-            </Drawer>
-          </div>
-        </div>
-      </ErrorBoundary>
+      <ErrorSnackbar {...store.errorSnackbar} />
     </div>
+  );
+};
 
-    <ErrorSnackbar {...store.errorSnackbar} />
-  </div>
-);
-
-interface IMainPage extends WithStyles<typeof styles> {}
-
-export default compose<IMainPage, Omit<IMainPage, 'classes'>>(
-  withStyles(styles),
-  observer
-)(MainPage);
+export default observer(MainPage);

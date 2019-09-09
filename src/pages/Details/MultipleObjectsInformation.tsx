@@ -82,9 +82,7 @@ const MultipleObjectsInformationComp = ({
       <div className={classes.actions}>
         <Tooltip title="Prune the selected objects from the view">
           <span>
-            <Button disabled onClick={onPruneObjectsClick}>
-              Prune objects
-            </Button>
+            <Button onClick={onPruneObjectsClick}>Prune objects</Button>
           </span>
         </Tooltip>
       </div>

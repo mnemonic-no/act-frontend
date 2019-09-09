@@ -68,3 +68,11 @@ export const createBatcherFn = <T>(batchFn: (batch: Array<T>) => void, delay: nu
     currentBatch.push(item);
   };
 };
+
+export const setUnion = <T>(a: Set<T>, b: Set<T>): Set<T> => {
+  const unionized = new Set(a);
+  for (const elem of b) {
+    unionized.add(elem);
+  }
+  return unionized;
+};

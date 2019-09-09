@@ -14,6 +14,7 @@ import RefineryStore from './RefineryStore';
 import SearchStore from './Search/SearchStore';
 import { QueryHistoryExport } from './types';
 import SelectionStore from './SelectionStore';
+import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -42,6 +43,7 @@ class MainPageStore {
     queryHistoryStore: QueryHistoryStore;
     factsTableStore: FactsTableStore;
     objectsTableStore: ObjectsTableStore;
+    prunedObjectsTableStore: PrunedObjectsTableStore;
   };
 
   @observable isSearchDrawerOpen = true;
@@ -62,6 +64,7 @@ class MainPageStore {
       cytoscapeStore: new GraphViewStore(this),
 
       detailsStore: new DetailsStore(this, config),
+      prunedObjectsTableStore: new PrunedObjectsTableStore(this),
       refineryOptionsStore: new RefineryOptionsStore(this),
       searchStore: new SearchStore(this, config),
       queryHistoryStore: new QueryHistoryStore(this),

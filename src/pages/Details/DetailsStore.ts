@@ -239,7 +239,11 @@ class DetailsStore {
         this.root.selectionStore.removeFromSelection({ id: object.id, kind: 'object' });
       },
       onPruneObjectsClick: () => {
-        // TODO implement
+        const selectedObjectIds = Object.values(this.root.selectionStore.currentlySelected)
+          .filter(x => x.kind === 'object')
+          .map(x => x.id);
+        this.root.refineryStore.pruneObjectIds(selectedObjectIds);
+        this.root.selectionStore.clearSelection();
       }
     };
   }

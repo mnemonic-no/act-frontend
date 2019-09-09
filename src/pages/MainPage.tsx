@@ -32,7 +32,7 @@ import Search from './Search/Search';
 import Timeline from '../components/Timeline/Timeline';
 
 const drawerWidth = 380;
-const infoDrawerWidth = 360;
+const detailsDrawerWidth = 360;
 
 const styles = (theme: Theme) => {
   const appBarHeight = theme.spacing(8);
@@ -120,28 +120,37 @@ const styles = (theme: Theme) => {
       })
     },
 
-    infoDrawerDocked: {
+    detailsContainer: {
+      position: 'relative',
+      overflow: 'visible',
+      zIndex: 200,
       flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: infoDrawerWidth + 'px',
+      flexShrink: 0
+    },
+    detailsContainerOpen: {
+      flexBasis: detailsDrawerWidth + 'px',
       transition: theme.transitions.create('flex-basis', {
         easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen
+        duration: theme.transitions.duration.shortest
       })
     },
-    infoDrawerDockedClosed: {
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: '0px',
+    detailsContainerClosed: {
+      flexBasis: 0,
       transition: theme.transitions.create('flex-basis', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen
       })
     },
-    infoDrawerPaper: {
-      position: 'relative',
+    detailsDrawerPaper: {
       marginTop: appBarHeight,
+      width: detailsDrawerWidth + 'px',
       height: `calc(100% - ${appBarHeight}px)`
+    },
+    detailsDrawerPaperOpen: {
+      width: detailsDrawerWidth + 'px'
+    },
+    detailsDrawerPaperClosed: {
+      width: 0
     },
 
     paper: {
@@ -160,17 +169,26 @@ const styles = (theme: Theme) => {
       borderTop: `1px solid ${theme.palette.divider}`
     },
 
-    searchToggleButton: {
-      background: '#FAFAFA',
-      borderTopRightRadius: '10px',
-      borderBottomRightRadius: '10px',
+    toggleButton: {
+      background: theme.palette.common.white,
       borderColor: theme.palette.divider,
       borderStyle: 'solid',
-      borderWidth: '1px 1px 1px 0',
       position: 'absolute',
+      zIndex: 99999
+    },
+    toggleButtonRight: {
+      borderTopRightRadius: '10px',
+      borderBottomRightRadius: '10px',
+      borderWidth: '1px 1px 1px 0',
       top: appBarHeight + 56,
-      zIndex: 99999,
       right: '-48px'
+    },
+    toggleButtonLeft: {
+      borderTopLeftRadius: '10px',
+      borderBottomLeftRadius: '10px',
+      borderWidth: '1px 0 1px 1px',
+      top: appBarHeight + 4,
+      left: '-48px'
     }
   });
 };
@@ -253,7 +271,7 @@ const MainPage = ({ classes }: IMainPage) => (
             className={`${classes.searchContainer} ${
               store.isSearchDrawerOpen ? classes.searchContainerOpen : classes.searchContainerClosed
             }`}>
-            <div className={classes.searchToggleButton}>
+            <div className={`${classes.toggleButton} ${classes.toggleButtonRight}`}>
               <IconButton onClick={store.toggleSearchDrawer}>
                 {store.isSearchDrawerOpen ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
               </IconButton>
@@ -292,23 +310,35 @@ const MainPage = ({ classes }: IMainPage) => (
           {/* Content */}
           {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
 
-          {/* Info drawer */}
-          <Drawer
-            data-drawer-id="infoDrawer"
-            open={store.ui.detailsStore.isOpen}
+          {/* Details drawer */}
+          <div
+            data-container-id="detailsContainer"
             onTransitionEnd={(event: any) => {
-              if (event.target.getAttribute('data-drawer-id') === 'infoDrawer') {
+              if (event.target.getAttribute('data-container-id') === 'detailsContainer') {
                 store.ui.cytoscapeStore.rerender();
               }
             }}
-            variant="permanent"
-            anchor="right"
-            classes={{
-              paper: classes.infoDrawerPaper,
-              docked: store.ui.detailsStore.isOpen ? classes.infoDrawerDocked : classes.infoDrawerDockedClosed
-            }}>
-            <Details store={store.ui.detailsStore} />
-          </Drawer>
+            className={`${classes.detailsContainer} ${
+              store.ui.detailsStore.isOpen ? classes.detailsContainerOpen : classes.detailsContainerClosed
+            }`}>
+            <div className={`${classes.toggleButton} ${classes.toggleButtonLeft}`}>
+              <IconButton onClick={store.ui.detailsStore.toggle}>
+                {store.ui.detailsStore.isOpen ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
+              </IconButton>
+            </div>
+
+            <Drawer
+              open={store.ui.detailsStore.isOpen}
+              variant="permanent"
+              anchor="right"
+              classes={{
+                paper: `${classes.detailsDrawerPaper} ${
+                  store.ui.detailsStore.isOpen ? classes.detailsDrawerPaperOpen : classes.detailsDrawerPaperClosed
+                }`
+              }}>
+              <Details store={store.ui.detailsStore} />
+            </Drawer>
+          </div>
         </div>
       </ErrorBoundary>
     </div>

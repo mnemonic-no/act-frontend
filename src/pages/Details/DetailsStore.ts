@@ -110,6 +110,11 @@ class DetailsStore {
     this._isOpen = true;
   }
 
+  @action.bound
+  toggle(): void {
+    this._isOpen = !this._isOpen;
+  }
+
   @computed
   get isOpen() {
     return this._isOpen && Boolean(this.selectedObjectDetails || this.selectedFactDetails);

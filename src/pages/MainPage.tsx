@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Observer, observer } from 'mobx-react';
+import React from 'react';
+import { observer } from 'mobx-react';
 import {
   AppBar,
   Button,
@@ -8,8 +8,6 @@ import {
   LinearProgress,
   makeStyles,
   Paper,
-  Tab,
-  Tabs,
   Theme,
   Toolbar
 } from '@material-ui/core';
@@ -21,16 +19,12 @@ import CytoscapeLayout from './CytoscapeLayout/CytoscapeLayout';
 import ErrorSnackbar from '../components/ErrorSnackbar';
 import ErrorBoundary from '../components/ErrorBoundary';
 import GraphEmpty from './GraphView/GraphEmpty';
-import GraphView from './GraphView/GraphView';
 import MainPageStore from './MainPageStore';
 import Details from './Details/Details';
-import FactsTable from './Table/FactsTable';
-import ObjectsTable from './Table/ObjectsTable';
-import PrunedObjectsTable from './Table/PrunedObjectsTable';
 import QueryHistory from './QueryHistory/QueryHistory';
 import RefineryOptions from './RefineryOptions/RefineryOptions';
 import Search from './Search/Search';
-import Timeline from '../components/Timeline/Timeline';
+import Content from './Content';
 
 const drawerWidth = 380;
 const detailsDrawerWidth = 360;
@@ -48,6 +42,10 @@ const useStyles = makeStyles((theme: Theme) => {
       display: 'flex',
       width: '100%',
       height: '100%'
+    },
+    mainFrame: {
+      display: 'flex',
+      width: '100%'
     },
 
     errorBoundary: {
@@ -162,10 +160,6 @@ const useStyles = makeStyles((theme: Theme) => {
       marginTop: theme.spacing(2)
     },
 
-    timelineContainer: {
-      borderTop: `1px solid ${theme.palette.divider}`
-    },
-
     toggleButton: {
       background: theme.palette.common.white,
       borderColor: theme.palette.divider,
@@ -193,47 +187,6 @@ const useStyles = makeStyles((theme: Theme) => {
 const store = new MainPageStore();
 store.initByUrl(window.location);
 
-const ContentComp = ({ store, classes }: { store: MainPageStore; classes: any }) => {
-  const [selectedTab, setSelectedTab] = useState('graph');
-
-  return (
-    <Observer>
-      {() => (
-        <main className={classes.content}>
-          <Tabs
-            value={selectedTab}
-            onChange={(e: any, value: string) => setSelectedTab(value)}
-            indicatorColor="primary">
-            <Tab label="Graph" value="graph" />
-            <Tab label={`Table (${store.ui.factsTableStore.facts.length})`} value="tableOfFacts" />
-            <Tab label={`Objects (${store.ui.objectsTableStore.objects.length})`} value="tableOfObjects" />
-            <Tab
-              label={`Pruned objects (${store.ui.prunedObjectsTableStore.prepared.rows.length})`}
-              value="tableOfPrunedObjects"
-            />
-          </Tabs>
-
-          {selectedTab === 'graph' && (
-            <div style={{ flex: '1 0 auto', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ flex: '1 0 auto' }}>
-                <GraphView store={store.ui.cytoscapeStore} />
-              </div>
-              <div className={classes.timelineContainer} style={{ flex: '0 0 200px' }}>
-                <Timeline {...store.ui.cytoscapeStore.timeline} />
-              </div>
-            </div>
-          )}
-          {selectedTab === 'tableOfFacts' && <FactsTable {...store.ui.factsTableStore.prepared} />}
-          {selectedTab === 'tableOfObjects' && <ObjectsTable {...store.ui.objectsTableStore.prepared} />}
-          {selectedTab === 'tableOfPrunedObjects' && (
-            <PrunedObjectsTable {...store.ui.prunedObjectsTableStore.prepared} />
-          )}
-        </main>
-      )}
-    </Observer>
-  );
-};
-
 const MainPage = () => {
   const classes = useStyles();
 
@@ -259,7 +212,7 @@ const MainPage = () => {
         </div>
 
         <ErrorBoundary className={classes.errorBoundary}>
-          <div style={{ display: 'flex', width: '100%' }}>
+          <div className={classes.mainFrame}>
             {/* Search container */}
             <div
               data-container-id="searchContainer"
@@ -308,7 +261,7 @@ const MainPage = () => {
             </div>
 
             {/* Content */}
-            {!store.queryHistory.isEmpty ? <ContentComp store={store} classes={classes} /> : <GraphEmpty />}
+            {!store.queryHistory.isEmpty ? <Content {...store.content} rootClass={classes.content} /> : <GraphEmpty />}
 
             {/* Details drawer */}
             <div

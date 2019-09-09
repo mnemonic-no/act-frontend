@@ -101,6 +101,16 @@ class MainPageStore {
     locationMatcher(location);
   }
 
+  @computed
+  get content() {
+    return {
+      cytoscapeStore: this.ui.cytoscapeStore,
+      factsTableStore: this.ui.factsTableStore,
+      objectsTableStore: this.ui.objectsTableStore,
+      prunedObjectsTableStore: this.ui.prunedObjectsTableStore
+    };
+  }
+
   @action.bound
   toggleSearchDrawer() {
     this.isSearchDrawerOpen = !this.isSearchDrawerOpen;

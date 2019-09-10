@@ -30,6 +30,28 @@ it('can count stats', () => {
       [objectStat('factX', 10), objectStat('factY', 20)]
     )
   ).toBe(30);
+
+  expect(
+    resultCount(
+      {
+        factTypes: [],
+        objectValue: 'China',
+        objectType: 'Country'
+      },
+      []
+    )
+  ).toBe(0);
+
+  expect(
+    resultCount(
+      {
+        factTypes: [],
+        objectValue: 'China',
+        objectType: 'Country'
+      },
+      undefined
+    )
+  ).toBe(0);
 });
 
 it('can count stats with factType filter', () => {

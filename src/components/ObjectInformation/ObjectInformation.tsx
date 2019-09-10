@@ -47,7 +47,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   footer: {
     justifySelf: 'end',
     paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing()
+    paddingBottom: theme.spacing(),
+    display: 'flex',
+    justifyContent: 'space-between'
   },
   link: {
     cursor: 'pointer',
@@ -82,6 +84,7 @@ const ObjectInformationComp = ({
   createFactDialog,
   onSearchSubmit,
   onCreateFactClick,
+  onPruneObject,
   onTitleClick,
   onFactClick,
   onPredefinedObjectQueryClick
@@ -144,6 +147,7 @@ const ObjectInformationComp = ({
         />
       </div>
       <div className={classes.footer}>
+        <Button onClick={() => onPruneObject(selectedObject)}>Prune</Button>
         <Button onClick={e => onCreateFactClick(e)}>Create fact</Button>
         {createFactDialog && <CreateFactForObjectDialog store={createFactDialog} />}
       </div>
@@ -159,7 +163,8 @@ interface IObjectInformationCompInternal {
   createFactDialog: CreateFactForDialog;
   onSearchSubmit: (search: Search) => void;
   onFactClick: (f: ActFact) => void;
-  onCreateFactClick: Function;
+  onCreateFactClick: (e: any) => void;
+  onPruneObject: (o: ActObject) => void;
   onTitleClick: () => void;
   onPredefinedObjectQueryClick: (q: PredefinedObjectQuery) => void;
 }

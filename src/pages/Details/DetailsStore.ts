@@ -208,7 +208,7 @@ class DetailsStore {
       onPredefinedObjectQueryClick: this.onPredefinedObjectQueryClick,
       onCreateFactClick: this.onCreateFactClick,
       onPruneObject: (o: ActObject) => {
-        this.root.refineryStore.pruneObjectIds([o.id]);
+        this.root.refineryStore.addToPrunedObjectIds([o.id]);
         this.root.selectionStore.clearSelection();
       }
     };
@@ -251,7 +251,7 @@ class DetailsStore {
         const selectedObjectIds = Object.values(this.root.selectionStore.currentlySelected)
           .filter(x => x.kind === 'object')
           .map(x => x.id);
-        this.root.refineryStore.pruneObjectIds(selectedObjectIds);
+        this.root.refineryStore.addToPrunedObjectIds(selectedObjectIds);
         this.root.selectionStore.clearSelection();
       },
       onClearSelectionClick: () => {

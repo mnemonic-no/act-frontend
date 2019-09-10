@@ -78,9 +78,10 @@ export type Query = {
   search: Search;
 };
 
-export type QueryHistoryExport = {
+export type StateExport = {
   version: string;
   queries: Array<Search>;
+  prunedObjectIds: Array<string>;
 };
 
 export type ActSelection = {

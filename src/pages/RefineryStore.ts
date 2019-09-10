@@ -135,8 +135,13 @@ class RefineryStore {
   }
 
   @action.bound
-  pruneObjectIds(prune: Array<string>) {
+  addToPrunedObjectIds(prune: Array<string>) {
     this.prunedObjectIds = setUnion(this.prunedObjectIds, new Set(prune));
+  }
+
+  @action.bound
+  setPrunedObjectIds(prune: Array<string>) {
+    this.prunedObjectIds = new Set(prune);
   }
 
   @action.bound

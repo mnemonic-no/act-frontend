@@ -1,4 +1,4 @@
-import { parseQueryHistoryExport, queryHistoryExport } from './QueryHistoryStore';
+import { parseStateExport, stateExport } from './QueryHistoryStore';
 import { Query } from '../types';
 
 const query = (args: { [key: string]: any }): Query => {
@@ -13,9 +13,10 @@ const query = (args: { [key: string]: any }): Query => {
 };
 
 it('can export query history', () => {
-  expect(queryHistoryExport([query({ id: 'Axiom', factTypeName: 'alias' })])).toEqual({
+  expect(stateExport([query({ id: 'Axiom', factTypeName: 'alias' })], new Set())).toEqual({
     version: '1.0.0',
-    queries: []
+    queries: [],
+    prunedObjectIds: []
   });
 
   const objectTypeQuery = { objectType: 'threatActor', objectValue: 'Axiom' };
@@ -32,25 +33,28 @@ it('can export query history', () => {
   };
 
   expect(
-    queryHistoryExport([
-      query({ search: objectTypeQuery }),
-      query({ search: graphQuery }),
-      query({ search: filteredQuery })
-    ])
-  ).toEqual({ version: '1.0.0', queries: [objectTypeQuery, graphQuery, filteredQuery] });
+    stateExport(
+      [query({ search: objectTypeQuery }), query({ search: graphQuery }), query({ search: filteredQuery })],
+      new Set(['abcd', 'efgh'])
+    )
+  ).toEqual({
+    version: '1.0.0',
+    queries: [objectTypeQuery, graphQuery, filteredQuery],
+    prunedObjectIds: ['abcd', 'efgh']
+  });
 });
 
 it('can import query history', () => {
-  expect(() => parseQueryHistoryExport(JSON.stringify({ version: '1.0.0', queries: [] }))).toThrow(
+  expect(() => parseStateExport(JSON.stringify({ version: '1.0.0', queries: [] }))).toThrow(
     "Validation failed: query history export has no 'queries'"
   );
 
-  expect(() => parseQueryHistoryExport(JSON.stringify({ version: '1.0.0', queries: [{ bad: 'data' }] }))).toThrow(
+  expect(() => parseStateExport(JSON.stringify({ version: '1.0.0', queries: [{ bad: 'data' }] }))).toThrow(
     'Queries must have objectType and objectValue: {"bad":"data"}'
   );
 
   expect(
-    parseQueryHistoryExport(
+    parseStateExport(
       JSON.stringify({
         version: '1.0.0',
         queries: [{ objectType: 'threatActor', objectValue: 'Axiom' }]

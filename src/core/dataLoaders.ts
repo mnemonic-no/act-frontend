@@ -117,7 +117,11 @@ export const searchCriteriadataLoader = (search: ObjectFactsSearch) => {
   }
 };
 
-export const resultCount = (search: ObjectFactsSearch, statistics: Array<ObjectStats>) => {
+export const resultCount = (search: ObjectFactsSearch, statistics: Array<ObjectStats> | undefined) => {
+  if (!statistics) {
+    return 0;
+  }
+
   // There is no fact type filter
   if (!search.factTypes || search.factTypes.length === 0) {
     return statistics.reduce((acc: number, x: any) => acc + x.count, 0);

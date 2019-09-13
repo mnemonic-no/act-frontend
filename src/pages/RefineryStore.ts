@@ -135,8 +135,13 @@ class RefineryStore {
   }
 
   @action.bound
-  pruneObjectIds(prune: Array<string>) {
+  addToPrunedObjectIds(prune: Array<string>) {
     this.prunedObjectIds = setUnion(this.prunedObjectIds, new Set(prune));
+  }
+
+  @action.bound
+  setPrunedObjectIds(prune: Array<string>) {
+    this.prunedObjectIds = new Set(prune);
   }
 
   @action.bound
@@ -151,9 +156,11 @@ class RefineryStore {
 
   @computed
   get prunedObjects(): Array<ActObject> {
-    return [...this.prunedObjectIds].map((objectId: string) => {
-      return this.root.queryHistory.result.objects[objectId];
-    });
+    return [...this.prunedObjectIds]
+      .map((objectId: string) => {
+        return this.root.queryHistory.result.objects[objectId];
+      })
+      .filter(x => x);
   }
 }
 

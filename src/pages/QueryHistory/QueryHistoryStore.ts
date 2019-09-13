@@ -1,6 +1,6 @@
 import { action, computed } from 'mobx';
 import MainPageStore from '../MainPageStore';
-import { isObjectSearch, Query, QueryHistoryExport, searchId } from '../types';
+import { isObjectSearch, Query, StateExport, searchId } from '../types';
 import { exportToJson } from '../../util/util';
 import * as _ from 'lodash/fp';
 
@@ -47,12 +47,12 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
   }
 };
 
-export const queryHistoryExport = (queries: Array<Query>): QueryHistoryExport => {
+export const stateExport = (queries: Array<Query>, prunedObjectIds: Set<string>): StateExport => {
   const searches = queries.map((q: any) => ({ ...q.search })).filter(isObjectSearch);
-  return { version: '1.0.0', queries: searches };
+  return { version: '1.0.0', queries: searches, prunedObjectIds: [...prunedObjectIds] };
 };
 
-export const parseQueryHistoryExport = (contentJson: any): QueryHistoryExport => {
+export const parseStateExport = (contentJson: any): StateExport => {
   if (typeof contentJson !== 'string') {
     throw new Error('File content is not text');
   }
@@ -68,6 +68,14 @@ export const parseQueryHistoryExport = (contentJson: any): QueryHistoryExport =>
       throw new Error('Queries must have objectType and objectValue: ' + JSON.stringify(q));
     }
   });
+
+  if (parsed.prunedObjectIds) {
+    parsed.prunedObjectIds.forEach((objectId: any) => {
+      if (typeof objectId !== 'string') {
+        throw new Error('prunedObjectIds must be strings: ' + JSON.stringify(objectId));
+      }
+    });
+  }
 
   return parsed;
 };
@@ -123,7 +131,7 @@ class QueryHistoryStore {
 
   @action.bound
   onExport() {
-    const data = queryHistoryExport(this.root.queryHistory.queries);
+    const data = stateExport(this.root.queryHistory.queries, this.root.refineryStore.prunedObjectIds);
     const nowTimeString = new Date()
       .toISOString()
       .replace(/:/g, '-')
@@ -138,7 +146,7 @@ class QueryHistoryStore {
       const content = fileReader.result;
 
       try {
-        const parsed = parseQueryHistoryExport(content);
+        const parsed = parseStateExport(content);
         this.root.initByImport(parsed);
       } catch (err) {
         this.root.handleError({ error: err, title: 'Import failed' });

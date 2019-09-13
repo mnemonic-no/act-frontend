@@ -12,7 +12,7 @@ import QueryHistoryStore from './QueryHistory/QueryHistoryStore';
 import RefineryOptionsStore from './RefineryOptions/RefineryOptionsStore';
 import RefineryStore from './RefineryStore';
 import SearchStore from './Search/SearchStore';
-import { QueryHistoryExport } from './types';
+import { StateExport } from './types';
 import SelectionStore from './SelectionStore';
 import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
 
@@ -117,8 +117,9 @@ class MainPageStore {
   }
 
   @action.bound
-  initByImport(queryHistoryExport: QueryHistoryExport): void {
+  initByImport(queryHistoryExport: StateExport): void {
     this.backendStore.executeQueries(queryHistoryExport.queries);
+    this.refineryStore.setPrunedObjectIds(queryHistoryExport.prunedObjectIds || []);
   }
 
   @action.bound

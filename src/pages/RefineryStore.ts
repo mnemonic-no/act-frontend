@@ -156,9 +156,11 @@ class RefineryStore {
 
   @computed
   get prunedObjects(): Array<ActObject> {
-    return [...this.prunedObjectIds].map((objectId: string) => {
-      return this.root.queryHistory.result.objects[objectId];
-    });
+    return [...this.prunedObjectIds]
+      .map((objectId: string) => {
+        return this.root.queryHistory.result.objects[objectId];
+      })
+      .filter(x => x);
   }
 }
 

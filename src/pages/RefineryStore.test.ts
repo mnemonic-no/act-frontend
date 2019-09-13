@@ -1,6 +1,6 @@
 import {
-  filterByObjectTypes,
-  filterByPrunedObjects,
+  filterFactsByObjectTypes,
+  filterFactsByPrunedObjects,
   filterByTime,
   handleRetractions,
   refineResult
@@ -37,23 +37,27 @@ it('can filter by time', () => {
 });
 
 it('can filter by object types', () => {
-  expect(filterByObjectTypes({}, [])).toEqual({});
+  expect(filterFactsByObjectTypes({}, [])).toEqual({});
 
   const threatActorFact = fact({
     sourceObject: actObject({ value: 'Something', type: { id: 'tId', name: 'threatActor' } })
   });
 
   expect(
-    filterByObjectTypes({ [threatActorFact.id]: threatActorFact }, [{ id: 'tId', name: 'threatActor', checked: false }])
+    filterFactsByObjectTypes({ [threatActorFact.id]: threatActorFact }, [
+      { id: 'tId', name: 'threatActor', checked: false }
+    ])
   ).toEqual({});
 
   expect(
-    filterByObjectTypes({ [threatActorFact.id]: threatActorFact }, [{ id: 'tId', name: 'threatActor', checked: true }])
+    filterFactsByObjectTypes({ [threatActorFact.id]: threatActorFact }, [
+      { id: 'tId', name: 'threatActor', checked: true }
+    ])
   ).toEqual({ [threatActorFact.id]: threatActorFact });
 });
 
 it('can prune by objectIds', () => {
-  expect(filterByPrunedObjects({}, new Set())).toEqual({});
+  expect(filterFactsByPrunedObjects({}, new Set())).toEqual({});
 
   const shouldBePrunedFact = fact({
     id: 'toBePruned',
@@ -66,7 +70,7 @@ it('can prune by objectIds', () => {
   });
 
   expect(
-    filterByPrunedObjects(
+    filterFactsByPrunedObjects(
       { [threatActorFact.id]: threatActorFact, [shouldBePrunedFact.id]: shouldBePrunedFact },
       new Set(['pruneMe'])
     )
@@ -98,6 +102,45 @@ it('can refine query results', () => {
     objects: {
       [someFact.sourceObject ? someFact.sourceObject.id : '']: someFact.sourceObject,
       [someFact.destinationObject ? someFact.destinationObject.id : '']: someFact.destinationObject
+    }
+  });
+});
+
+it('can refine query results with objects', () => {
+  const someFact = fact({
+    id: 'someFact',
+    type: { id: 'alias', name: 'alias' },
+    timestamp: new Date(2018, 10, 1),
+    sourceObject: actObject({ id: 'theSource', value: 'Something', type: { id: 'tId', name: 'threatActor' } }),
+    destinationObject: actObject({ id: 'theDest', value: 'Something', type: { id: 'tId', name: 'threatActor' } })
+  });
+
+  const stayObject = actObject({ id: 'shouldStay', value: 'Something', type: { id: 'tId', name: 'threatActor' } });
+
+  expect(
+    refineResult(
+      {
+        facts: { [someFact.id]: someFact },
+        objects: {
+          shouldStay: stayObject,
+          shouldBePruned: actObject({
+            id: 'shouldBePruned',
+            value: 'Something',
+            type: { id: 'tId', name: 'threatActor' }
+          })
+        }
+      },
+      [],
+      'Any time',
+      false,
+      new Set(['shouldBePruned'])
+    )
+  ).toEqual({
+    facts: { [someFact.id]: someFact },
+    objects: {
+      theSource: someFact.sourceObject,
+      theDest: someFact.destinationObject,
+      shouldStay: stayObject
     }
   });
 });

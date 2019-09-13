@@ -93,10 +93,7 @@ export const objectFactsTraverseDataLoader = ({ objectType, objectValue, query }
       const isFact = (maybeFact: any) => maybeFact.hasOwnProperty('bidirectionalBinding');
 
       const facts: { [id: string]: ActFact } = arrayToObjectWithIds(data.filter(isFact));
-
-      const objectsFromJson: { [id: string]: ActObject } = arrayToObjectWithIds(data.filter(_.negate(isFact)));
-      const objectsFromFacts: { [id: string]: ActObject } = factMapToObjectMap(facts);
-      const objects: { [id: string]: ActObject } = { ...objectsFromFacts, ...objectsFromJson };
+      const objects: { [id: string]: ActObject } = arrayToObjectWithIds(data.filter(_.negate(isFact)));
 
       return {
         facts,
@@ -173,10 +170,13 @@ export const autoResolveDataLoader = ({
   facts: { [id: string]: ActFact };
   objects: { [id: string]: ActObject };
 }) => {
+  const objectsFromFacts: { [id: string]: ActObject } = factMapToObjectMap(facts);
+  const allObjects = [...Object.values(objects), ...Object.values(objectsFromFacts)];
+
   const factTypesToSearchFor: Array<{
     objectIds: Array<string>;
     factTypes: Array<string>;
-  }> = factTypesToResolveByObjectId(config.autoResolveFacts, Object.values(objects));
+  }> = factTypesToResolveByObjectId(config.autoResolveFacts, allObjects);
 
   if (!factTypesToSearchFor || factTypesToSearchFor.length === 0) {
     return Promise.resolve({ facts, objects });
@@ -195,11 +195,10 @@ export const autoResolveDataLoader = ({
       const flattenedData = _.flatten(data);
 
       const newFacts: { [id: string]: ActFact } = arrayToObjectWithIds(flattenedData);
-      const newObjects: { [id: string]: ActObject } = factMapToObjectMap(newFacts);
 
       return {
         facts: { ...newFacts, ...facts },
-        objects: { ...newObjects, ...objects }
+        objects
       };
     })
     .catch(handleError);

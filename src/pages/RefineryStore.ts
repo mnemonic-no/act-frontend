@@ -24,7 +24,10 @@ export const filterByTime = (facts: { [id: string]: ActFact }, endTimestamp: Dat
   return facts;
 };
 
-export const filterByObjectTypes = (facts: { [id: string]: ActFact }, objectTypeFilters: Array<ObjectTypeFilter>) => {
+export const filterFactsByObjectTypes = (
+  facts: { [id: string]: ActFact },
+  objectTypeFilters: Array<ObjectTypeFilter>
+) => {
   const excludedObjectTypeIds = Object.values(objectTypeFilters)
     .filter(({ checked }) => !checked)
     .map(({ id }) => id);
@@ -34,12 +37,21 @@ export const filterByObjectTypes = (facts: { [id: string]: ActFact }, objectType
   })(facts);
 };
 
-export const filterByPrunedObjects = (facts: { [id: string]: ActFact }, prunedObjectIds: Set<string>) => {
+export const filterFactsByPrunedObjects = (facts: { [id: string]: ActFact }, prunedObjectIds: Set<string>) => {
   return _.pickBy((fact: ActFact) => {
-    return factsToObjects([fact]).every((object: ActObject) => {
-      return !prunedObjectIds.has(object.id);
-    });
+    return factsToObjects([fact]).every((object: ActObject) => !prunedObjectIds.has(object.id));
   })(facts);
+};
+
+export const filterObjectsByObjectTypes = (
+  objects: { [id: string]: ActObject },
+  objectTypeFilters: Array<ObjectTypeFilter>
+) => {
+  const excludedObjectTypeIds = Object.values(objectTypeFilters)
+    .filter(({ checked }) => !checked)
+    .map(({ id }) => id);
+
+  return _.pickBy((object: ActObject) => !excludedObjectTypeIds.includes(object.type.id))(objects);
 };
 
 export const handleRetractions = (facts: { [id: string]: ActFact }, showRetractions: boolean) => {
@@ -55,14 +67,19 @@ export const refineResult = (
 ): QueryResult => {
   const filteredFacts = _.pipe(
     facts => handleRetractions(facts, showRetractions),
-    facts => filterByObjectTypes(facts, objectTypeFilters),
-    facts => filterByPrunedObjects(facts, prunedObjectIds),
+    facts => filterFactsByObjectTypes(facts, objectTypeFilters),
+    facts => filterFactsByPrunedObjects(facts, prunedObjectIds),
     facts => filterByTime(facts, endTimestamp)
   )(queryResult.facts);
 
-  let filteredObjects = factMapToObjectMap(filteredFacts);
+  let objectsFromFacts = factMapToObjectMap(filteredFacts);
 
-  return { facts: filteredFacts, objects: filteredObjects };
+  let filteredObjects = _.pipe(
+    objects => filterObjectsByObjectTypes(objects, objectTypeFilters),
+    objects => _.pickBy((object: ActObject) => !prunedObjectIds.has(object.id))(objects)
+  )(queryResult.objects);
+
+  return { facts: filteredFacts, objects: { ...filteredObjects, ...objectsFromFacts } };
 };
 
 class RefineryStore {

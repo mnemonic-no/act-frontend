@@ -1,5 +1,16 @@
 import { ActFact, ActObject, FactType } from '../pages/types';
 
+export const objectTypes = {
+  threatActor: { id: 'threatActorId', name: 'threatActor' },
+  report: { id: 'reportId', name: 'report' }
+};
+
+export const factTypes = {
+  alias: { id: 'aliasId', name: 'alias' },
+  mentions: { id: 'mentionsId', name: 'mentions' },
+  retraction: { id: 'retractionId', name: 'Retraction' }
+};
+
 export const actObject = (args: { [key: string]: any }): ActObject => {
   return { ...{ id: 'changeme', type: { id: 'x', name: 'something' }, value: '123' }, ...args };
 };

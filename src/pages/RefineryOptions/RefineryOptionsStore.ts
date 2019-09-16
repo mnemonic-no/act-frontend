@@ -1,6 +1,6 @@
 import { computed } from 'mobx';
-import { ObjectTypeFilter } from '../RefineryStore';
 import MainPageStore from '../MainPageStore';
+import { ObjectTypeFilter } from '../types';
 
 class RefineryOptionsStore {
   root: MainPageStore;
@@ -11,10 +11,12 @@ class RefineryOptionsStore {
 
   @computed get graphOptions() {
     return {
+      showOrphans: this.root.refineryStore.showOrphans,
       showFactEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels,
       showRetractions: this.root.ui.cytoscapeLayoutStore.graphOptions.showRetractions,
       toggleShowFactEdgeLabels: () => this.root.ui.cytoscapeLayoutStore.toggleShowFactEdgeLabels(),
-      toggleShowRetractions: () => this.root.ui.cytoscapeLayoutStore.toggleShowRetractions()
+      toggleShowRetractions: () => this.root.ui.cytoscapeLayoutStore.toggleShowRetractions(),
+      toggleShowOrphans: this.root.refineryStore.toggleShowOrphans
     };
   }
 

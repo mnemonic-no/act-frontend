@@ -1,17 +1,8 @@
 import React from 'react';
-import { compose } from 'recompose';
-import { Theme, WithStyles, withStyles, createStyles } from '@material-ui/core/styles/index';
-import Grid from '@material-ui/core/Grid/index';
-import List from '@material-ui/core/List/index';
-import ListItem from '@material-ui/core/ListItem/index';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction/index';
-import ListItemText from '@material-ui/core/ListItemText/index';
-import Switch from '@material-ui/core/Switch/index';
+import { Grid, List, ListItem, ListItemSecondaryAction, ListItemText, Switch } from '@material-ui/core';
 import { observer } from 'mobx-react';
 
-const styles = (theme: Theme) => createStyles({});
-
-const GraphOptionsComp = ({ classes, graphOptions }: IGraphOptionsComp) => (
+const GraphOptionsComp = ({ graphOptions }: IGraphOptionsComp) => (
   <Grid container spacing={2}>
     <Grid item xs={12}>
       <List dense>
@@ -32,16 +23,31 @@ const GraphOptionsComp = ({ classes, graphOptions }: IGraphOptionsComp) => (
             />
           </ListItemSecondaryAction>
         </ListItem>
+        <ListItem disableGutters>
+          <ListItemText primary="Orphans" secondary="Show orphans" />
+          <ListItemSecondaryAction>
+            <Switch
+              onClick={() => {
+                graphOptions.toggleShowOrphans();
+              }}
+              checked={graphOptions.showOrphans}
+            />
+          </ListItemSecondaryAction>
+        </ListItem>
       </List>
     </Grid>
   </Grid>
 );
 
-interface IGraphOptionsComp extends WithStyles {
-  graphOptions: any;
+interface IGraphOptionsComp {
+  graphOptions: {
+    showOrphans: boolean;
+    showFactEdgeLabels: boolean;
+    showRetractions: boolean;
+    toggleShowOrphans: () => void;
+    toggleShowFactEdgeLabels: () => void;
+    toggleShowRetractions: () => void;
+  };
 }
 
-export default compose<IGraphOptionsComp, Omit<IGraphOptionsComp, 'classes'>>(
-  withStyles(styles),
-  observer
-)(GraphOptionsComp);
+export default observer(GraphOptionsComp);

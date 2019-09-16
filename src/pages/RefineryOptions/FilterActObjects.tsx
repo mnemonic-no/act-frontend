@@ -8,7 +8,7 @@ import { createStyles, Theme, WithStyles, withStyles } from '@material-ui/core/s
 import { observer } from 'mobx-react';
 
 import config from '../../config';
-import { ObjectTypeFilter } from '../RefineryStore';
+import { ObjectTypeFilter } from '../types';
 
 const styles = (theme: Theme) =>
   createStyles({

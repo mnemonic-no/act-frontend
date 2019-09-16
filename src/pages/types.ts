@@ -89,6 +89,12 @@ export type ActSelection = {
   kind: 'fact' | 'object';
 };
 
+export type ObjectTypeFilter = {
+  id: string;
+  name: string;
+  checked: boolean;
+};
+
 export const searchId = (search: Search) => {
   if (isObjectSearch(search)) {
     return [search.objectType, search.objectValue, search.query, search.factTypes].filter(x => x).join(':');

@@ -76,3 +76,7 @@ export const setUnion = <T>(a: Set<T>, b: Set<T>): Set<T> => {
   }
   return unionized;
 };
+
+export function notUndefined<T>(x: T | undefined): x is T {
+  return x !== undefined;
+}

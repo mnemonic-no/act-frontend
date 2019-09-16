@@ -3,18 +3,12 @@ import { isBefore } from 'date-fns';
 import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { isRetracted, isRetraction } from '../core/domain';
-import { ActFact, ActObject, QueryResult } from './types';
+import { isRetracted, isRetraction, objectIdToFacts } from '../core/domain';
+import { ActFact, ActObject, ObjectTypeFilter, QueryResult } from './types';
 import MainPageStore from './MainPageStore';
 import { relativeStringToDate } from '../components/RelativeDateSelector';
-import { factMapToObjectMap, factsToObjects } from '../core/transformers';
+import { factMapToObjectMap, factsToObjects, isOneLegged } from '../core/transformers';
 import { setUnion } from '../util/util';
-
-export type ObjectTypeFilter = {
-  id: string;
-  name: string;
-  checked: boolean;
-};
 
 export const filterByTime = (facts: { [id: string]: ActFact }, endTimestamp: Date | string) => {
   if (endTimestamp !== 'Any time') {
@@ -24,7 +18,10 @@ export const filterByTime = (facts: { [id: string]: ActFact }, endTimestamp: Dat
   return facts;
 };
 
-export const filterByObjectTypes = (facts: { [id: string]: ActFact }, objectTypeFilters: Array<ObjectTypeFilter>) => {
+export const filterFactsByObjectTypes = (
+  facts: { [id: string]: ActFact },
+  objectTypeFilters: Array<ObjectTypeFilter>
+) => {
   const excludedObjectTypeIds = Object.values(objectTypeFilters)
     .filter(({ checked }) => !checked)
     .map(({ id }) => id);
@@ -34,35 +31,78 @@ export const filterByObjectTypes = (facts: { [id: string]: ActFact }, objectType
   })(facts);
 };
 
-export const filterByPrunedObjects = (facts: { [id: string]: ActFact }, prunedObjectIds: Set<string>) => {
+export const filterFactsByPrunedObjects = (facts: { [id: string]: ActFact }, prunedObjectIds: Set<string>) => {
   return _.pickBy((fact: ActFact) => {
-    return factsToObjects([fact]).every((object: ActObject) => {
-      return !prunedObjectIds.has(object.id);
-    });
+    return factsToObjects([fact]).every((object: ActObject) => !prunedObjectIds.has(object.id));
   })(facts);
+};
+
+export const filterObjectsByObjectTypes = (
+  objects: { [id: string]: ActObject },
+  objectTypeFilters: Array<ObjectTypeFilter>
+) => {
+  const excludedObjectTypeIds = Object.values(objectTypeFilters)
+    .filter(({ checked }) => !checked)
+    .map(({ id }) => id);
+
+  return _.pickBy((object: ActObject) => !excludedObjectTypeIds.includes(object.type.id))(objects);
+};
+
+export const filterOrphans = (
+  objects: { [id: string]: ActObject },
+  facts: { [id: string]: ActFact },
+  showOrphans: boolean
+) => {
+  if (showOrphans) {
+    return objects;
+  }
+
+  // Only care about two-legged facts since we are removing orphans
+  const objIdToFacts = objectIdToFacts(Object.values(facts).filter(f => !isOneLegged(f)));
+  const withoutOrphans = _.pickBy((o: ActObject) => Boolean(objIdToFacts[o.id] && objIdToFacts[o.id].length > 0));
+  return withoutOrphans(objects);
 };
 
 export const handleRetractions = (facts: { [id: string]: ActFact }, showRetractions: boolean) => {
   return showRetractions ? facts : _.omitBy((f: ActFact) => isRetraction(f) || isRetracted(f))(facts);
 };
 
-export const refineResult = (
-  queryResult: QueryResult,
-  objectTypeFilters: Array<ObjectTypeFilter>,
-  endTimestamp: Date | string,
-  showRetractions: boolean,
-  prunedObjectIds: Set<string>
-): QueryResult => {
-  const filteredFacts = _.pipe(
+interface IRefineResult {
+  queryResult: QueryResult;
+  objectTypeFilters: Array<ObjectTypeFilter>;
+  endTimestamp: Date | string;
+  prunedObjectIds: Set<string>;
+  showRetractions?: boolean;
+  showOrphans?: boolean;
+}
+
+export const refineResult = ({
+  queryResult,
+  objectTypeFilters,
+  endTimestamp,
+  prunedObjectIds,
+  showRetractions = true,
+  showOrphans = true
+}: IRefineResult): QueryResult => {
+  const refinedFacts = _.pipe(
     facts => handleRetractions(facts, showRetractions),
-    facts => filterByObjectTypes(facts, objectTypeFilters),
-    facts => filterByPrunedObjects(facts, prunedObjectIds),
+    facts => filterFactsByObjectTypes(facts, objectTypeFilters),
+    facts => filterFactsByPrunedObjects(facts, prunedObjectIds),
     facts => filterByTime(facts, endTimestamp)
   )(queryResult.facts);
 
-  let filteredObjects = factMapToObjectMap(filteredFacts);
+  let objectsFromFacts = factMapToObjectMap(refinedFacts);
 
-  return { facts: filteredFacts, objects: filteredObjects };
+  let refinedObjects = _.pipe(
+    objects => filterObjectsByObjectTypes(objects, objectTypeFilters),
+    objects => _.pickBy((object: ActObject) => !prunedObjectIds.has(object.id))(objects),
+    objects => {
+      return { ...objects, ...objectsFromFacts };
+    },
+    objects => filterOrphans(objects, refinedFacts, showOrphans)
+  )(queryResult.objects);
+
+  return { facts: refinedFacts, objects: refinedObjects };
 };
 
 class RefineryStore {
@@ -71,6 +111,7 @@ class RefineryStore {
   @observable prunedObjectIds: Set<string> = new Set();
   @observable objectTypeFilters: Array<ObjectTypeFilter> = [];
   @observable endTimestamp: Date | string = 'Any time';
+  @observable showOrphans = true;
 
   constructor(root: MainPageStore) {
     this.root = root;
@@ -96,14 +137,16 @@ class RefineryStore {
       }
     );
   }
+
   @computed get refined(): QueryResult {
-    return refineResult(
-      this.root.queryHistory.result,
-      this.objectTypeFilters,
-      this.endTimestamp,
-      this.root.ui.refineryOptionsStore.graphOptions.showRetractions,
-      this.prunedObjectIds
-    );
+    return refineResult({
+      queryResult: this.root.queryHistory.result,
+      objectTypeFilters: this.objectTypeFilters,
+      endTimestamp: this.endTimestamp,
+      prunedObjectIds: this.prunedObjectIds,
+      showRetractions: this.root.ui.refineryOptionsStore.graphOptions.showRetractions,
+      showOrphans: this.showOrphans
+    });
   }
 
   @action
@@ -161,6 +204,11 @@ class RefineryStore {
         return this.root.queryHistory.result.objects[objectId];
       })
       .filter(x => x);
+  }
+
+  @action.bound
+  toggleShowOrphans() {
+    this.showOrphans = !this.showOrphans;
   }
 }
 

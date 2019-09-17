@@ -1,7 +1,7 @@
-import { parseStateExport, stateExport } from './QueryHistoryStore';
-import { Query } from '../types';
+import { parseStateExport, stateExport } from './WorkingHistoryStore';
+import { SearchItem } from '../types';
 
-const query = (args: { [key: string]: any }): Query => {
+const searchItem = (args: { [key: string]: any }): SearchItem => {
   return {
     ...{
       id: '123',
@@ -13,20 +13,20 @@ const query = (args: { [key: string]: any }): Query => {
 };
 
 it('can export query history', () => {
-  expect(stateExport([query({ id: 'Axiom', factTypeName: 'alias' })], new Set())).toEqual({
+  expect(stateExport([searchItem({ id: 'Axiom', factTypeName: 'alias' })], new Set())).toEqual({
     version: '1.0.0',
     queries: [],
     prunedObjectIds: []
   });
 
-  const objectTypeQuery = { objectType: 'threatActor', objectValue: 'Axiom' };
-  const graphQuery = {
+  const objectTypeSearch = { objectType: 'threatActor', objectValue: 'Axiom' };
+  const graphSearch = {
     objectType: 'threatActor',
     objectValue: 'Sofacy',
     query:
       "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().where(outE().has('value','malware')).where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).not(where(outE().has('value','sinkhole'))).path().unfold()"
   };
-  const filteredQuery = {
+  const filteredSearch = {
     objectType: 'report',
     objectValue: 'abcdef',
     factTypes: ['mentions']
@@ -34,19 +34,23 @@ it('can export query history', () => {
 
   expect(
     stateExport(
-      [query({ search: objectTypeQuery }), query({ search: graphQuery }), query({ search: filteredQuery })],
+      [
+        searchItem({ search: objectTypeSearch }),
+        searchItem({ search: graphSearch }),
+        searchItem({ search: filteredSearch })
+      ],
       new Set(['abcd', 'efgh'])
     )
   ).toEqual({
     version: '1.0.0',
-    queries: [objectTypeQuery, graphQuery, filteredQuery],
+    queries: [objectTypeSearch, graphSearch, filteredSearch],
     prunedObjectIds: ['abcd', 'efgh']
   });
 });
 
-it('can import query history', () => {
+it('can import working history', () => {
   expect(() => parseStateExport(JSON.stringify({ version: '1.0.0', queries: [] }))).toThrow(
-    "Validation failed: query history export has no 'queries'"
+    "Validation failed: history export has no 'queries'"
   );
 
   expect(() => parseStateExport(JSON.stringify({ version: '1.0.0', queries: [{ bad: 'data' }] }))).toThrow(

@@ -10,7 +10,7 @@ import {
 } from '../../core/transformers';
 import * as _ from 'lodash/fp';
 import { addMessage } from '../../util/SnackbarProvider';
-import QueryHistory from '../../pages/QueryHistory';
+import WorkingHistory from '../../pages/WorkingHistory';
 
 type FactTypeCategory = 'oneLegged' | 'uniDirectional' | 'biDirectional' | null;
 
@@ -117,11 +117,11 @@ class CreateFactForDialog {
   @observable formBidirectional: FormBiDirectional | null = null;
 
   selectedObject: ActObject;
-  queryHistory: QueryHistory;
+  workingHistory: WorkingHistory;
 
-  constructor(selectedObject: ActObject, queryHistory: QueryHistory, factTypes: Array<FactType>) {
+  constructor(selectedObject: ActObject, workingHistory: WorkingHistory, factTypes: Array<FactType>) {
     this.selectedObject = selectedObject;
-    this.queryHistory = queryHistory;
+    this.workingHistory = workingHistory;
 
     if (_.isEmpty(factTypes)) {
       factTypesDataLoader().then((factTypes: Array<FactType>) => {
@@ -249,7 +249,7 @@ class CreateFactForDialog {
 
       const facts = { [resultFact.id]: resultFact };
 
-      this.queryHistory.addQuery({
+      this.workingHistory.addItem({
         id: search.id,
         search: search,
         result: {

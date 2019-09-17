@@ -53,7 +53,7 @@ export type FactComment = {
   timestamp: any;
 };
 
-export type QueryResult = {
+export type SearchResult = {
   facts: { [id: string]: ActFact };
   objects: { [id: string]: ActObject };
 };
@@ -72,10 +72,10 @@ export type ObjectFactsSearch = {
 
 export type Search = SingleFactSearch | ObjectFactsSearch;
 
-export type Query = {
+export type SearchItem = {
   id: string;
-  result: QueryResult;
   search: Search;
+  result: SearchResult;
 };
 
 export type StateExport = {

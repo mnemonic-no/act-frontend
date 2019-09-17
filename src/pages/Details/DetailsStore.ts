@@ -75,7 +75,7 @@ class DetailsStore {
 
   @action.bound
   onSearchSubmit(search: Search) {
-    this.root.backendStore.executeQuery(search);
+    this.root.backendStore.executeSearch(search);
   }
 
   @computed get endTimestamp() {
@@ -86,7 +86,7 @@ class DetailsStore {
     const selected = Object.values(this.root.selectionStore.currentlySelected)[0];
 
     if (selected && selected.kind === 'object') {
-      return this.root.queryHistory.result.objects[selected.id];
+      return this.root.workingHistory.result.objects[selected.id];
     } else {
       return null;
     }
@@ -96,7 +96,7 @@ class DetailsStore {
   onPredefinedObjectQueryClick(q: PredefinedObjectQuery): void {
     const obj = this.selectedObject;
     if (obj) {
-      this.root.backendStore.executeQuery({ objectType: obj.type.name, objectValue: obj.value, query: q.query });
+      this.root.backendStore.executeSearch({ objectType: obj.type.name, objectValue: obj.value, query: q.query });
     }
   }
 
@@ -241,7 +241,7 @@ class DetailsStore {
       id: 'testing',
       title: `${selectedObjects.length} selected objects`,
       objects: selectedObjects
-        .map(selection => this.root.queryHistory.result.objects[selection.id])
+        .map(selection => this.root.workingHistory.result.objects[selection.id])
         .filter(x => x !== undefined && x !== null)
         .sort(byTypeThenName),
       onObjectClick: (object: ActObject) => {
@@ -273,7 +273,7 @@ class DetailsStore {
   @action.bound
   onCreateFactClick() {
     if (this.selectedObject) {
-      this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.queryHistory, []);
+      this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.workingHistory, []);
     }
   }
 

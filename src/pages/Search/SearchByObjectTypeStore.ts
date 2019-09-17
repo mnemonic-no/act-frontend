@@ -45,7 +45,7 @@ class SearchByObjectTypeStore {
   @action
   submitSearch() {
     const { objectType, objectValue, query } = this;
-    this.root.backendStore.executeQuery({ objectType: objectType, objectValue: objectValue, query: query });
+    this.root.backendStore.executeSearch({ objectType: objectType, objectValue: objectValue, query: query });
   }
 
   @action.bound

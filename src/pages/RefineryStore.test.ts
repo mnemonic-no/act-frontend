@@ -77,10 +77,10 @@ it('can prune by objectIds', () => {
   ).toEqual({ [threatActorFact.id]: threatActorFact });
 });
 
-it('can refine query results', () => {
+it('can refine search results', () => {
   expect(
     refineResult({
-      queryResult: { facts: {}, objects: {} },
+      searchResult: { facts: {}, objects: {} },
       objectTypeFilters: [],
       endTimestamp: 'Any time',
       prunedObjectIds: new Set()
@@ -98,7 +98,7 @@ it('can refine query results', () => {
 
   expect(
     refineResult({
-      queryResult: { facts: { [nowFact.id]: nowFact, [someFact.id]: someFact }, objects: {} },
+      searchResult: { facts: { [nowFact.id]: nowFact, [someFact.id]: someFact }, objects: {} },
       objectTypeFilters: [],
       endTimestamp: '24 hours ago',
       prunedObjectIds: new Set()
@@ -112,7 +112,7 @@ it('can refine query results', () => {
   });
 });
 
-it('can refine query results with objects', () => {
+it('can refine search results with objects', () => {
   const someFact = fact({
     id: 'someFact',
     type: factTypes.alias,
@@ -125,7 +125,7 @@ it('can refine query results with objects', () => {
 
   expect(
     refineResult({
-      queryResult: {
+      searchResult: {
         facts: { [someFact.id]: someFact },
         objects: {
           shouldStay: stayObject,
@@ -161,7 +161,7 @@ it('can filter orphans', () => {
 
   const refineResultArgs = {
     showOrphans: false,
-    queryResult: { facts: { [alias.id]: alias }, objects: { [orphan.id]: orphan } },
+    searchResult: { facts: { [alias.id]: alias }, objects: { [orphan.id]: orphan } },
     objectTypeFilters: [],
     endTimestamp: 'Any time',
     prunedObjectIds: new Set([])

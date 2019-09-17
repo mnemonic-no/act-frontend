@@ -1,10 +1,10 @@
 import { action, computed } from 'mobx';
 import MainPageStore from '../MainPageStore';
-import { isObjectSearch, Query, StateExport, searchId } from '../types';
+import { isObjectSearch, SearchItem, StateExport, searchId } from '../types';
 import { exportToJson } from '../../util/util';
 import * as _ from 'lodash/fp';
 
-export type QueryItem = {
+export type WorkingHistoryItem = {
   id: string;
   title: string;
   isSelected: boolean;
@@ -13,14 +13,14 @@ export type QueryItem = {
   onRemoveClick: () => void;
 };
 
-const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
+const queryItem = (q: SearchItem, store: WorkingHistoryStore): WorkingHistoryItem => {
   const search = q.search;
   const id = searchId(search);
 
   const common = {
     id: id,
-    isSelected: id === store.selectedQueryId,
-    onClick: () => store.setSelectedQuery(q),
+    isSelected: id === store.selectedItemId,
+    onClick: () => store.setSelectedSearchItem(q),
     onRemoveClick: () => store.removeQuery(q)
   };
 
@@ -47,8 +47,8 @@ const queryItem = (q: Query, store: QueryHistoryStore): QueryItem => {
   }
 };
 
-export const stateExport = (queries: Array<Query>, prunedObjectIds: Set<string>): StateExport => {
-  const searches = queries.map((q: any) => ({ ...q.search })).filter(isObjectSearch);
+export const stateExport = (items: Array<SearchItem>, prunedObjectIds: Set<string>): StateExport => {
+  const searches = items.map((q: any) => ({ ...q.search })).filter(isObjectSearch);
   return { version: '1.0.0', queries: searches, prunedObjectIds: [...prunedObjectIds] };
 };
 
@@ -60,7 +60,7 @@ export const parseStateExport = (contentJson: any): StateExport => {
   const parsed = JSON.parse(contentJson);
 
   if (!parsed.queries || parsed.queries.length < 1) {
-    throw new Error("Validation failed: query history export has no 'queries'");
+    throw new Error("Validation failed: history export has no 'queries'");
   }
 
   parsed.queries.forEach((q: any) => {
@@ -80,7 +80,7 @@ export const parseStateExport = (contentJson: any): StateExport => {
   return parsed;
 };
 
-class QueryHistoryStore {
+class WorkingHistoryStore {
   root: MainPageStore;
 
   constructor(root: MainPageStore) {
@@ -88,50 +88,50 @@ class QueryHistoryStore {
   }
 
   @computed get mergePrevious(): boolean {
-    return this.root.queryHistory.mergePrevious;
+    return this.root.workingHistory.mergePrevious;
   }
 
-  @computed get queries(): Array<Query> {
-    return this.root.queryHistory.queries.filter(q => {
+  @computed get queries(): Array<SearchItem> {
+    return this.root.workingHistory.historyItems.filter(q => {
       return q.result !== null;
     });
   }
 
-  @computed get queryItems(): Array<QueryItem> {
-    return this.root.queryHistory.queries.filter(q => q.result !== null).map(q => queryItem(q, this));
+  @computed get queryItems(): Array<WorkingHistoryItem> {
+    return this.root.workingHistory.historyItems.filter(q => q.result !== null).map(q => queryItem(q, this));
   }
 
   @computed get isEmpty(): boolean {
-    return this.root.queryHistory.isEmpty;
+    return this.root.workingHistory.isEmpty;
   }
 
-  @computed get selectedQueryId(): string {
-    return this.root.queryHistory.selectedQueryId;
+  @computed get selectedItemId(): string {
+    return this.root.workingHistory.selectedItemId;
   }
 
   @action
-  setSelectedQuery(query: Query | undefined) {
-    if (query) {
-      this.root.queryHistory.selectedQueryId = query.id;
+  setSelectedSearchItem(item: SearchItem | undefined) {
+    if (item) {
+      this.root.workingHistory.selectedItemId = item.id;
     }
   }
 
   @action
-  removeQuery(query: Query) {
-    this.root.queryHistory.removeQuery(query);
-    if (query.id === this.selectedQueryId) {
-      this.setSelectedQuery(_.last(this.root.queryHistory.queries));
+  removeQuery(item: SearchItem) {
+    this.root.workingHistory.removeItem(item);
+    if (item.id === this.selectedItemId) {
+      this.setSelectedSearchItem(_.last(this.root.workingHistory.historyItems));
     }
   }
 
   @action
   flipMergePrevious() {
-    this.root.queryHistory.mergePrevious = !this.root.queryHistory.mergePrevious;
+    this.root.workingHistory.mergePrevious = !this.root.workingHistory.mergePrevious;
   }
 
   @action.bound
   onExport() {
-    const data = stateExport(this.root.queryHistory.queries, this.root.refineryStore.prunedObjectIds);
+    const data = stateExport(this.root.workingHistory.historyItems, this.root.refineryStore.prunedObjectIds);
     const nowTimeString = new Date()
       .toISOString()
       .replace(/:/g, '-')
@@ -162,8 +162,8 @@ class QueryHistoryStore {
 
   @action.bound
   onClear() {
-    this.root.queryHistory.removeAllQueries();
+    this.root.workingHistory.removeAllItems();
   }
 }
 
-export default QueryHistoryStore;
+export default WorkingHistoryStore;

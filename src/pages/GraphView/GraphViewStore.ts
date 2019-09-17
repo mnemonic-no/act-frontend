@@ -1,7 +1,7 @@
 import { action, computed, observable } from 'mobx';
 import MainPageStore from '../MainPageStore';
 import getStyle from '../../core/cytoscapeStyle';
-import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, QueryResult, Search } from '../types';
+import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, SearchResult, Search } from '../types';
 import * as _ from 'lodash/fp';
 import { objectFactsToElements } from '../../core/cytoscapeTransformers';
 import config from '../../config';
@@ -38,7 +38,7 @@ class GraphViewStore {
   }
 
   @computed get cytoscapeElements() {
-    const res: QueryResult = this.root.refineryStore.refined;
+    const res: SearchResult = this.root.refineryStore.refined;
 
     return objectFactsToElements({
       facts: Object.values(res.facts),
@@ -69,7 +69,7 @@ class GraphViewStore {
       },
       onNodeDoubleClick: (node: any) => {
         if (node.data('isFact')) return;
-        this.root.backendStore.executeQuery({ objectType: node.data('type'), objectValue: node.data('value') });
+        this.root.backendStore.executeSearch({ objectType: node.data('type'), objectValue: node.data('value') });
       },
       onSelect: (selection: Array<any>) => {
         this.root.selectionStore.setCurrentlySelected(

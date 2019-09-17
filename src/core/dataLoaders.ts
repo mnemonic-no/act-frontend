@@ -34,7 +34,7 @@ const handleError = (error: any) => {
   throw newError;
 };
 
-const handleForbiddenQueryResults = (error: any) => {
+const handleForbiddenSearchResults = (error: any) => {
   const originalMessage = error.json.messages && error.json.messages[0].message;
 
   // TODO: Better error text
@@ -65,7 +65,7 @@ export const objectFactsDataLoader = ({ objectType, objectValue, factTypes }: Ob
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}/facts`)
     .json(requestBody)
     .post()
-    .forbidden(handleForbiddenQueryResults)
+    .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => {
       const facts: { [id: string]: ActFact } = arrayToObjectWithIds(data);
       const objects: { [id: string]: ActObject } = factMapToObjectMap(facts);
@@ -88,7 +88,7 @@ export const objectFactsTraverseDataLoader = ({ objectType, objectValue, query }
       query
     })
     .post()
-    .forbidden(handleForbiddenQueryResults)
+    .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => {
       const isFact = (maybeFact: any) => maybeFact.hasOwnProperty('bidirectionalBinding');
 
@@ -143,7 +143,7 @@ export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: numb
   const totalCount = await actWretch
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}`)
     .get()
-    .forbidden(handleForbiddenQueryResults)
+    .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => {
       return resultCount(search, data.statistics);
     })
@@ -242,7 +242,7 @@ export const factTypesDataLoader = memoizeDataLoader(
     return actWretch
       .url('/v1/factType')
       .get()
-      .forbidden(handleForbiddenQueryResults)
+      .forbidden(handleForbiddenSearchResults)
       .json(({ data }) => data)
       .catch(handleError);
   }
@@ -252,7 +252,7 @@ export const objectStatsDataLoader = (id: string) => {
   return actWretch
     .url(`/v1/object/uuid/${id}`)
     .get()
-    .forbidden(handleForbiddenQueryResults)
+    .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => data)
     .catch(handleError);
 };
@@ -268,7 +268,7 @@ export const factDataLoader = (objectId: string, factTypes: Array<String>): Prom
     .url(`/v1/object/uuid/${objectId}/facts`)
     .json(requestBody)
     .post()
-    .forbidden(handleForbiddenQueryResults)
+    .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => data)
     .catch(handleError);
 };
@@ -278,7 +278,7 @@ export const createFact = (request: any) => {
     .url('/v1/fact')
     .json(request)
     .post()
-    .forbidden(handleForbiddenQueryResults)
+    .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => data)
     .catch(handleError);
 };

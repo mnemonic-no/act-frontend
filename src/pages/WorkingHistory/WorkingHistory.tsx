@@ -17,7 +17,7 @@ import {
 } from '@material-ui/core';
 import { observer } from 'mobx-react';
 
-import QueryHistoryStore from './QueryHistoryStore';
+import WorkingHistoryStore from './WorkingHistoryStore';
 
 const useStyles = makeStyles((theme: Theme) => ({
   listItem: {
@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const QueryHistory = ({ store }: IQueryHistory) => {
+const WorkingHistory = ({ store }: IWorkingHistory) => {
   const classes = useStyles();
 
   return (
@@ -132,8 +132,8 @@ const QueryHistory = ({ store }: IQueryHistory) => {
   );
 };
 
-interface IQueryHistory {
-  store: QueryHistoryStore;
+interface IWorkingHistory {
+  store: WorkingHistoryStore;
 }
 
-export default observer(QueryHistory);
+export default observer(WorkingHistory);

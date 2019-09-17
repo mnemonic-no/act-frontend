@@ -4,7 +4,7 @@ import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import { isRetracted, isRetraction, objectIdToFacts } from '../core/domain';
-import { ActFact, ActObject, ObjectTypeFilter, QueryResult } from './types';
+import { ActFact, ActObject, ObjectTypeFilter, SearchResult } from './types';
 import MainPageStore from './MainPageStore';
 import { relativeStringToDate } from '../components/RelativeDateSelector';
 import { factMapToObjectMap, factsToObjects, isOneLegged } from '../core/transformers';
@@ -68,7 +68,7 @@ export const handleRetractions = (facts: { [id: string]: ActFact }, showRetracti
 };
 
 interface IRefineResult {
-  queryResult: QueryResult;
+  searchResult: SearchResult;
   objectTypeFilters: Array<ObjectTypeFilter>;
   endTimestamp: Date | string;
   prunedObjectIds: Set<string>;
@@ -77,19 +77,19 @@ interface IRefineResult {
 }
 
 export const refineResult = ({
-  queryResult,
+  searchResult,
   objectTypeFilters,
   endTimestamp,
   prunedObjectIds,
   showRetractions = true,
   showOrphans = true
-}: IRefineResult): QueryResult => {
+}: IRefineResult): SearchResult => {
   const refinedFacts = _.pipe(
     facts => handleRetractions(facts, showRetractions),
     facts => filterFactsByObjectTypes(facts, objectTypeFilters),
     facts => filterFactsByPrunedObjects(facts, prunedObjectIds),
     facts => filterByTime(facts, endTimestamp)
-  )(queryResult.facts);
+  )(searchResult.facts);
 
   let objectsFromFacts = factMapToObjectMap(refinedFacts);
 
@@ -100,7 +100,7 @@ export const refineResult = ({
       return { ...objects, ...objectsFromFacts };
     },
     objects => filterOrphans(objects, refinedFacts, showOrphans)
-  )(queryResult.objects);
+  )(searchResult.objects);
 
   return { facts: refinedFacts, objects: refinedObjects };
 };
@@ -117,7 +117,7 @@ class RefineryStore {
     this.root = root;
 
     reaction(
-      () => this.root.queryHistory.result.objects,
+      () => this.root.workingHistory.result.objects,
       resultObjects => {
         if (Object.values(resultObjects).length === 0) {
           this.objectTypeFilters = [];
@@ -138,9 +138,9 @@ class RefineryStore {
     );
   }
 
-  @computed get refined(): QueryResult {
+  @computed get refined(): SearchResult {
     return refineResult({
-      queryResult: this.root.queryHistory.result,
+      searchResult: this.root.workingHistory.result,
       objectTypeFilters: this.objectTypeFilters,
       endTimestamp: this.endTimestamp,
       prunedObjectIds: this.prunedObjectIds,
@@ -161,7 +161,7 @@ class RefineryStore {
 
   @computed
   get timeRange(): [Date, Date] {
-    const res: QueryResult = this.refined;
+    const res: SearchResult = this.refined;
 
     const facts = Object.values(res.facts);
 
@@ -201,7 +201,7 @@ class RefineryStore {
   get prunedObjects(): Array<ActObject> {
     return [...this.prunedObjectIds]
       .map((objectId: string) => {
-        return this.root.queryHistory.result.objects[objectId];
+        return this.root.workingHistory.result.objects[objectId];
       })
       .filter(x => x);
   }

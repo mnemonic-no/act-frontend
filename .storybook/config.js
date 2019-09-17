@@ -1,7 +1,9 @@
 import { configure, addParameters } from '@storybook/react';
 
+const req = require.context('../src/stories', true, /\.story\.tsx$/);
+
 function loadStories() {
-  require('../stories/index');
+  req.keys().forEach(filename => req(filename));
 }
 
 addParameters({

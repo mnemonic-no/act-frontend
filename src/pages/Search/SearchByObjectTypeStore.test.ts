@@ -1,4 +1,4 @@
-import { suggestions } from './SearchStore';
+import { suggestions } from './SearchByObjectTypeStore';
 import { PredefinedObjectQuery } from '../Details/DetailsStore';
 
 export const query = (args: { [key: string]: any }): PredefinedObjectQuery => {

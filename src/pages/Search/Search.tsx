@@ -1,70 +1,41 @@
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core';
-import { observer } from 'mobx-react';
 import React from 'react';
-import { compose } from 'recompose';
+import { observer } from 'mobx-react';
+import { Link, makeStyles, Theme } from '@material-ui/core';
 
-import ObjectType from '../../components/ObjectType';
-import ObjectValueAutosuggest from '../../components/ObjectValueAutosuggest';
+import SearchByObjectType from './SearchByObjectType';
+import SearchSimple from './SearchSimple';
 import SearchStore from './SearchStore';
-import QueryAutoSuggest from './QueryAutoSuggest';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    buttonContainer: {
-      display: 'flex',
-      justifyContent: 'space-between'
-    }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  toggle: {
+    display: 'flex',
+    flexDirection: 'row-reverse'
+  }
+}));
 
-const Search = ({ store, classes }: ISearch) => (
-  <form
-    onSubmit={e => {
-      e.preventDefault();
-      store.submitSearch();
-    }}>
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <ObjectType fullWidth value={store.objectType} onChange={(value: string) => (store.objectType = value)} />
-      </Grid>
-      <Grid item xs={12}>
-        <ObjectValueAutosuggest
-          required
-          autoFocus={store.objectValue === ''}
-          fullWidth
-          label={'Object value'}
-          value={store.objectValue}
-          onChange={(value: string) => (store.objectValue = value)}
-          objectType={store.objectType}
-        />
-      </Grid>
+const Search = ({ store }: ISearch) => {
+  const classes = useStyles();
 
-      <Grid item xs={12}>
-        <QueryAutoSuggest
-          required={false}
-          fullWidth
-          placeholder="Query"
-          label="Graph query"
-          helperText={'A Graph query, like g.outE()'}
-          {...store.queryInput}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <div className={classes.buttonContainer}>
-          <Button type="submit">Search</Button>
-          <Button onClick={store.onClear}>Clear</Button>
+  return (
+    <div>
+      {store.isSimpleSearchEnabled && (
+        <div className={classes.toggle}>
+          <Link component="button" color="primary" variant="button" onClick={() => store.toggleSelection()}>
+            {store.isSimpleSearch ? 'Advanced' : 'Simple'}
+          </Link>
         </div>
-      </Grid>
-    </Grid>
-  </form>
-);
+      )}
+      {store.isSimpleSearch ? (
+        <SearchSimple {...store.searchSimpleStore.prepared} />
+      ) : (
+        <SearchByObjectType store={store.searchByObjectTypeStore} />
+      )}
+    </div>
+  );
+};
 
-interface ISearch extends WithStyles<typeof styles> {
+interface ISearch {
   store: SearchStore;
 }
 
-export default compose<ISearch, Omit<ISearch, 'classes'>>(
-  withStyles(styles),
-  observer
-)(Search);
+export default observer(Search);

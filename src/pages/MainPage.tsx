@@ -21,7 +21,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import GraphEmpty from './GraphView/GraphEmpty';
 import MainPageStore from './MainPageStore';
 import Details from './Details/Details';
-import QueryHistory from './QueryHistory/QueryHistory';
+import WorkingHistory from './WorkingHistory/WorkingHistory';
 import RefineryOptions from './RefineryOptions/RefineryOptions';
 import Search from './Search/Search';
 import Content from './Content';
@@ -218,7 +218,7 @@ const MainPage = () => {
               data-container-id="searchContainer"
               onTransitionEnd={(event: any) => {
                 if (event.target.getAttribute('data-container-id') === 'searchContainer') {
-                  store.ui.cytoscapeStore.rerender();
+                  store.ui.graphViewStore.rerender();
                 }
               }}
               className={`${classes.searchContainer} ${
@@ -245,7 +245,7 @@ const MainPage = () => {
                     </Paper>
 
                     <Paper className={classes.paperNoPadding}>
-                      <QueryHistory store={store.ui.queryHistoryStore} />
+                      <WorkingHistory store={store.ui.workingHistoryStore} />
                     </Paper>
 
                     <Paper className={classes.paper}>
@@ -261,14 +261,18 @@ const MainPage = () => {
             </div>
 
             {/* Content */}
-            {!store.queryHistory.isEmpty ? <Content {...store.content} rootClass={classes.content} /> : <GraphEmpty />}
+            {!store.workingHistory.isEmpty ? (
+              <Content {...store.content} rootClass={classes.content} />
+            ) : (
+              <GraphEmpty />
+            )}
 
             {/* Details drawer */}
             <div
               data-container-id="detailsContainer"
               onTransitionEnd={(event: any) => {
                 if (event.target.getAttribute('data-container-id') === 'detailsContainer') {
-                  store.ui.cytoscapeStore.rerender();
+                  store.ui.graphViewStore.rerender();
                 }
               }}
               className={`${classes.detailsContainer} ${

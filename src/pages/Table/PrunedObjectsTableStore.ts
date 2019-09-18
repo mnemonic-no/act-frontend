@@ -1,10 +1,10 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
 import { ActObject } from '../types';
-import { ColumnKind, IPrunedObjectRow, SortOrder } from './PrunedObjectsTable';
+import { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';
 
-const sortBy = (sortOrder: SortOrder, objects: Array<IPrunedObjectRow>) => {
-  return objects.slice().sort((a: any, b: any) => {
+export const sortRowsBy = (sortOrder: SortOrder, rows: Array<IObjectRow>) => {
+  return rows.slice().sort((a: any, b: any) => {
     let aa;
     let bb;
     if (sortOrder.orderBy === 'objectType') {
@@ -26,9 +26,8 @@ const sortBy = (sortOrder: SortOrder, objects: Array<IPrunedObjectRow>) => {
   });
 };
 
-const toObjectRow = (object: ActObject): IPrunedObjectRow => {
+const toObjectRow = (object: ActObject): IObjectRow => {
   return {
-    title: object.type.name,
     actObject: object
   };
 };
@@ -61,12 +60,15 @@ class PrunedObjectsTableStore {
     const rows = Object.values(this.root.refineryStore.prunedObjects).map(o => toObjectRow(o));
 
     return {
-      sortOrder: this.sortOrder,
-      onSortChange: this.onSortChange,
-      columns: this.columns,
-      rows: sortBy(this.sortOrder, rows),
-      onRowClick: (actObject: ActObject) => {
-        this.root.refineryStore.unpruneObjectId(actObject.id);
+      rowCount: rows.length,
+      objectTable: {
+        sortOrder: this.sortOrder,
+        onSortChange: this.onSortChange,
+        columns: this.columns,
+        rows: sortRowsBy(this.sortOrder, rows),
+        onRowClick: (actObject: ActObject) => {
+          this.root.refineryStore.unpruneObjectId(actObject.id);
+        }
       },
       onClearButtonClick: () => {
         this.root.refineryStore.clearPrunedObjectIds();

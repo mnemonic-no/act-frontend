@@ -1,7 +1,7 @@
-import { queryHistoryToPath } from './QueryHistory';
-import { Query } from './types';
+import { workingHistoryToPath } from './WorkingHistory';
+import { SearchItem } from './types';
 
-const query = (args: { [key: string]: any }): Query => {
+const searchItem = (args: { [key: string]: any }): SearchItem => {
   const defaults = {
     id: 'defaultId',
     result: { facts: {}, objects: {} },
@@ -14,15 +14,15 @@ const query = (args: { [key: string]: any }): Query => {
   return { ...defaults, ...args };
 };
 
-it('can convert query history to path', () => {
-  expect(queryHistoryToPath([query({})])).toEqual('');
-  expect(queryHistoryToPath([query({ search: { objectType: 'threatActor', objectValue: 'Axiom' } })])).toEqual(
+it('can convert working history to path', () => {
+  expect(workingHistoryToPath([searchItem({})])).toEqual('');
+  expect(workingHistoryToPath([searchItem({ search: { objectType: 'threatActor', objectValue: 'Axiom' } })])).toEqual(
     '/object-fact-query/threatActor/Axiom'
   );
 
   expect(
-    queryHistoryToPath([
-      query({
+    workingHistoryToPath([
+      searchItem({
         search: {
           objectType: 'threatActor',
           objectValue: 'Axiom',

@@ -1,7 +1,7 @@
 import { action, observable, runInAction } from 'mobx';
 import { autoResolveDataLoader, checkObjectStats, postJson, searchCriteriadataLoader } from '../core/dataLoaders';
 import MainPageStore from './MainPageStore';
-import { isObjectSearch, Query, Search, searchId } from './types';
+import { isObjectSearch, SearchItem, Search, searchId } from './types';
 import { addMessage } from '../util/SnackbarProvider';
 
 const maxFetchLimit = 2000;
@@ -16,15 +16,15 @@ class BackendStore {
   }
 
   @action
-  async executeQuery(search: Search) {
+  async executeSearch(search: Search) {
     if (!isObjectSearch(search)) {
       throw Error('Search of this type is not supported ' + search);
     }
 
     const id = searchId(search);
 
-    // Skip for existing queries
-    if (this.root.queryHistory.queries.some(q => q.id === id)) {
+    // Skip for existing historyItems
+    if (this.root.workingHistory.historyItems.some(q => q.id === id)) {
       return;
     }
 
@@ -36,7 +36,7 @@ class BackendStore {
 
       const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
 
-      const q: Query = {
+      const item: SearchItem = {
         id: id,
         search: search,
         result: {
@@ -44,7 +44,7 @@ class BackendStore {
           objects: result.objects
         }
       };
-      this.root.queryHistory.addQuery(q);
+      this.root.workingHistory.addItem(item);
     } catch (err) {
       runInAction(() => {
         this.root.handleError({ error: err });
@@ -57,7 +57,7 @@ class BackendStore {
   }
 
   @action
-  async executeQueries(searches: Array<Search>) {
+  async executeSearches(searches: Array<Search>) {
     try {
       this.isLoading = true;
 
@@ -68,10 +68,10 @@ class BackendStore {
         };
       });
       await Promise.all(all).then(results => {
-        this.root.queryHistory.removeAllQueries();
+        this.root.workingHistory.removeAllItems();
 
         for (let { search, result } of results) {
-          const q: Query = {
+          const q: SearchItem = {
             id: searchId(search),
             search: search,
             result: {
@@ -79,7 +79,7 @@ class BackendStore {
               objects: result.objects
             }
           };
-          this.root.queryHistory.addQuery(q);
+          this.root.workingHistory.addItem(q);
         }
       });
     } catch (err) {

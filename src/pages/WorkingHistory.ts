@@ -1,10 +1,10 @@
 import { action, computed, observable } from 'mobx';
 import MainPageStore from './MainPageStore';
-import { isFactSearch, isObjectSearch, Query, QueryResult } from './types';
+import { isFactSearch, isObjectSearch, SearchItem, SearchResult } from './types';
 import * as _ from 'lodash/fp';
 
-export const queryHistoryToPath = (queries: Array<Query>) => {
-  const latest = _.last(queries);
+export const workingHistoryToPath = (historyItems: Array<SearchItem>) => {
+  const latest = _.last(historyItems);
   const search = latest ? latest.search : '';
 
   if (!search || isFactSearch(search)) {
@@ -30,42 +30,42 @@ export const queryHistoryToPath = (queries: Array<Query>) => {
   return '';
 };
 
-class QueryHistory {
+class WorkingHistory {
   root: MainPageStore;
 
-  @observable.shallow queries: Array<Query> = [];
+  @observable.shallow historyItems: Array<SearchItem> = [];
 
   @observable mergePrevious: boolean = true;
-  @observable selectedQueryId: string = '';
+  @observable selectedItemId: string = '';
 
   constructor(root: MainPageStore) {
     this.root = root;
   }
 
   @computed get isEmpty(): boolean {
-    return this.queries.length === 0;
+    return this.historyItems.length === 0;
   }
 
-  @computed get result(): QueryResult {
+  @computed get result(): SearchResult {
     if (!this.mergePrevious) {
-      const selectedQuery = this.queries.find((query: Query) => query.id === this.selectedQueryId);
-      return selectedQuery ? selectedQuery.result : { facts: {}, objects: {} };
+      const selectedItem = this.historyItems.find((item: SearchItem) => item.id === this.selectedItemId);
+      return selectedItem ? selectedItem.result : { facts: {}, objects: {} };
     }
 
-    const uptoSelectedQuery = [];
-    for (let q of this.queries) {
-      if (q.id !== this.selectedQueryId) {
-        uptoSelectedQuery.push(q);
+    const uptoSelectedItem = [];
+    for (let item of this.historyItems) {
+      if (item.id !== this.selectedItemId) {
+        uptoSelectedItem.push(item);
       } else {
-        uptoSelectedQuery.push(q);
+        uptoSelectedItem.push(item);
         break;
       }
     }
 
-    return uptoSelectedQuery
-      .map(query => query.result)
+    return uptoSelectedItem
+      .map(item => item.result)
       .reduce(
-        (acc: QueryResult, x: QueryResult) => {
+        (acc: SearchResult, x: SearchResult) => {
           return {
             facts: { ...acc.facts, ...x.facts },
             objects: { ...acc.objects, ...x.objects }
@@ -76,29 +76,29 @@ class QueryHistory {
   }
 
   @action
-  addQuery(query: Query) {
-    const selectedIndex = this.queries.findIndex((q: Query) => q.id === this.selectedQueryId);
-    this.queries.splice(selectedIndex + 1, 0, query);
-    this.selectedQueryId = query.id;
-    this.root.ui.cytoscapeStore.setSelectedNodeBasedOnSearch(query.search);
+  addItem(item: SearchItem) {
+    const selectedIndex = this.historyItems.findIndex((i: SearchItem) => i.id === this.selectedItemId);
+    this.historyItems.splice(selectedIndex + 1, 0, item);
+    this.selectedItemId = item.id;
+    this.root.ui.graphViewStore.setSelectedNodeBasedOnSearch(item.search);
   }
 
   @action
-  removeQuery(query: Query) {
+  removeItem(searchItem: SearchItem) {
     // @ts-ignore
-    this.queries.remove(query);
+    this.historyItems.remove(searchItem);
   }
 
   @action
-  removeAllQueries() {
+  removeAllItems() {
     // @ts-ignore
-    this.queries.clear();
+    this.historyItems.clear();
     this.root.selectionStore.clearSelection();
   }
 
   asPathname(): string {
-    return queryHistoryToPath(this.queries);
+    return workingHistoryToPath(this.historyItems);
   }
 }
 
-export default QueryHistory;
+export default WorkingHistory;

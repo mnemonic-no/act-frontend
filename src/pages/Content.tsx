@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) => {
 });
 
 const ContentComp = ({
-  cytoscapeStore,
+  graphViewStore,
   factsTableStore,
   objectsTableStore,
   prunedObjectsTableStore,
@@ -37,16 +37,16 @@ const ContentComp = ({
         <Tab label="Graph" value="graph" />
         <Tab label={`Table (${factsTableStore.facts.length})`} value="tableOfFacts" />
         <Tab label={`Objects (${objectsTableStore.objects.length})`} value="tableOfObjects" />
-        <Tab label={`Pruned objects (${prunedObjectsTableStore.prepared.rows.length})`} value="tableOfPrunedObjects" />
+        <Tab label={`Pruned objects (${prunedObjectsTableStore.prepared.rowCount})`} value="tableOfPrunedObjects" />
       </Tabs>
 
       {selectedTab === 'graph' && (
         <div className={classes.graphRoot}>
           <div className={classes.graph}>
-            <GraphView store={cytoscapeStore} />
+            <GraphView store={graphViewStore} />
           </div>
           <div className={classes.timeline}>
-            <Timeline {...cytoscapeStore.timeline} />
+            <Timeline {...graphViewStore.timeline} />
           </div>
         </div>
       )}
@@ -58,7 +58,7 @@ const ContentComp = ({
 };
 
 interface IContentComp {
-  cytoscapeStore: GraphViewStore;
+  graphViewStore: GraphViewStore;
   factsTableStore: FactsTableStore;
   objectsTableStore: ObjectsTableStore;
   prunedObjectsTableStore: PrunedObjectsTableStore;

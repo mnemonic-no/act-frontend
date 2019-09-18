@@ -15,6 +15,7 @@ import SearchStore from './Search/SearchStore';
 import { StateExport } from './types';
 import SelectionStore from './SelectionStore';
 import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
+import SearchesStore from './Search/SearchesStore';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -44,6 +45,7 @@ class MainPageStore {
     factsTableStore: FactsTableStore;
     objectsTableStore: ObjectsTableStore;
     prunedObjectsTableStore: PrunedObjectsTableStore;
+    searchesStore: SearchesStore;
   };
 
   @observable isSearchDrawerOpen = true;
@@ -69,7 +71,8 @@ class MainPageStore {
       searchStore: new SearchStore(this, config),
       workingHistoryStore: new WorkingHistoryStore(this),
       factsTableStore: new FactsTableStore(this),
-      objectsTableStore: new ObjectsTableStore(this)
+      objectsTableStore: new ObjectsTableStore(this),
+      searchesStore: new SearchesStore(this)
     };
 
     // Make the URL reflect the last item in the working history
@@ -107,7 +110,9 @@ class MainPageStore {
       graphViewStore: this.ui.graphViewStore,
       factsTableStore: this.ui.factsTableStore,
       objectsTableStore: this.ui.objectsTableStore,
-      prunedObjectsTableStore: this.ui.prunedObjectsTableStore
+      prunedObjectsTableStore: this.ui.prunedObjectsTableStore,
+      searchesStore: this.ui.searchesStore,
+      isSimpleSearchEnabled: Boolean(config.isSimpleSearchEnabled) || false
     };
   }
 

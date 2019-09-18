@@ -37,7 +37,7 @@ const ContentComp = ({
         <Tab label="Graph" value="graph" />
         <Tab label={`Table (${factsTableStore.facts.length})`} value="tableOfFacts" />
         <Tab label={`Objects (${objectsTableStore.objects.length})`} value="tableOfObjects" />
-        <Tab label={`Pruned objects (${prunedObjectsTableStore.prepared.rows.length})`} value="tableOfPrunedObjects" />
+        <Tab label={`Pruned objects (${prunedObjectsTableStore.prepared.rowCount})`} value="tableOfPrunedObjects" />
       </Tabs>
 
       {selectedTab === 'graph' && (

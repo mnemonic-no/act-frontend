@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { observer } from 'mobx-react';
 import { makeStyles, Tab, Tabs, Theme } from '@material-ui/core';
 
-import FactsTable from './Table/FactsTable';
-import FactsTableStore from './Table/FactsTableStore';
-import GraphView from './GraphView/GraphView';
-import GraphViewStore from './GraphView/GraphViewStore';
-import ObjectsTable from './Table/ObjectsTable';
-import ObjectsTableStore from './Table/ObjectsTableStore';
-import PrunedObjectsTable from './Table/PrunedObjectsTable';
-import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
-import Searches from './Search/Searches';
-import SearchesStore from './Search/SearchesStore';
-import Timeline from '../components/Timeline/Timeline';
+import FactsTable from '../Table/FactsTable';
+import FactsTableStore from '../Table/FactsTableStore';
+import GraphView from '../GraphView/GraphView';
+import GraphViewStore from '../GraphView/GraphViewStore';
+import ObjectsTable from '../Table/ObjectsTable';
+import ObjectsTableStore from '../Table/ObjectsTableStore';
+import PrunedObjectsTable from '../Table/PrunedObjectsTable';
+import PrunedObjectsTableStore from '../Table/PrunedObjectsTableStore';
+import Searches from '../Search/Searches';
+import SearchesStore from '../Search/SearchesStore';
+import Timeline from '../../components/Timeline/Timeline';
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -23,6 +23,8 @@ const useStyles = makeStyles((theme: Theme) => {
 });
 
 const ContentComp = ({
+  selectedTab,
+  onTabSelected,
   graphViewStore,
   factsTableStore,
   objectsTableStore,
@@ -31,13 +33,11 @@ const ContentComp = ({
   isSimpleSearchEnabled,
   rootClass
 }: IContentComp) => {
-  const [selectedTab, setSelectedTab] = useState('graph');
-
   const classes = useStyles();
 
   return (
     <main className={rootClass}>
-      <Tabs value={selectedTab} onChange={(e: any, value: string) => setSelectedTab(value)} indicatorColor="primary">
+      <Tabs value={selectedTab} onChange={(e: any, value: ContentTab) => onTabSelected(value)} indicatorColor="primary">
         <Tab label="Graph" value="graph" />
         <Tab label={`Table (${factsTableStore.facts.length})`} value="tableOfFacts" />
         <Tab label={`Objects (${objectsTableStore.objects.length})`} value="tableOfObjects" />
@@ -63,7 +63,11 @@ const ContentComp = ({
   );
 };
 
+export type ContentTab = 'tableOfFacts' | 'tableOfObjects' | 'tableOfPrunedObjects' | 'searches' | 'graph';
+
 interface IContentComp {
+  selectedTab: ContentTab;
+  onTabSelected: (newTab: ContentTab) => void;
   graphViewStore: GraphViewStore;
   factsTableStore: FactsTableStore;
   objectsTableStore: ObjectsTableStore;

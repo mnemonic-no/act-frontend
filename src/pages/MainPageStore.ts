@@ -16,6 +16,7 @@ import { StateExport } from './types';
 import SelectionStore from './SelectionStore';
 import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
 import SearchesStore from './Search/SearchesStore';
+import ContentStore from './Content/ContentStore';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -36,6 +37,7 @@ const locationDefinitions = (routeDefinitions: any) => {
 
 class MainPageStore {
   ui: {
+    contentStore: ContentStore;
     cytoscapeLayoutStore: CytoscapeLayoutStore;
     graphViewStore: GraphViewStore;
     detailsStore: DetailsStore;
@@ -62,6 +64,7 @@ class MainPageStore {
     this.refineryStore = new RefineryStore(this);
     this.selectionStore = new SelectionStore();
     this.ui = {
+      contentStore: new ContentStore(this, config),
       cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
       graphViewStore: new GraphViewStore(this),
 
@@ -102,18 +105,6 @@ class MainPageStore {
     });
 
     locationMatcher(location);
-  }
-
-  @computed
-  get content() {
-    return {
-      graphViewStore: this.ui.graphViewStore,
-      factsTableStore: this.ui.factsTableStore,
-      objectsTableStore: this.ui.objectsTableStore,
-      prunedObjectsTableStore: this.ui.prunedObjectsTableStore,
-      searchesStore: this.ui.searchesStore,
-      isSimpleSearchEnabled: Boolean(config.isSimpleSearchEnabled) || false
-    };
   }
 
   @action.bound

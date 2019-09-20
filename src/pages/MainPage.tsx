@@ -24,7 +24,7 @@ import Details from './Details/Details';
 import WorkingHistory from './WorkingHistory/WorkingHistory';
 import RefineryOptions from './RefineryOptions/RefineryOptions';
 import Search from './Search/Search';
-import Content from './Content';
+import Content from './Content/Content';
 
 const drawerWidth = 380;
 const detailsDrawerWidth = 360;
@@ -261,8 +261,8 @@ const MainPage = () => {
             </div>
 
             {/* Content */}
-            {!store.workingHistory.isEmpty ? (
-              <Content {...store.content} rootClass={classes.content} />
+            {store.hasContent ? (
+              <Content {...store.ui.contentStore.prepared} rootClass={classes.content} />
             ) : (
               <GraphEmpty />
             )}

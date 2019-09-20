@@ -16,11 +16,11 @@ class SearchSimpleStore {
   @computed
   get prepared() {
     return {
-      label: 'Search',
+      label: 'Search for objects',
       value: this.simpleSearchValue,
       onChange: this.onSimpleSearchInputChange,
       onClear: () => (this.simpleSearchValue = ''),
-      onSearch: () => console.log('Show the search result page')
+      onSearch: () => this.root.backendStore.executeSimpleSearch(this.simpleSearchValue)
     };
   }
 }

@@ -35,11 +35,6 @@ const toObjectRow = (object: ActObject): IObjectRow => {
 class PrunedObjectsTableStore {
   root: MainPageStore;
 
-  columns: Array<{ label: string; kind: ColumnKind }> = [
-    { label: 'Type', kind: 'objectType' },
-    { label: 'Value', kind: 'objectValue' }
-  ];
-
   @observable
   sortOrder: SortOrder = { order: 'asc', orderBy: 'objectType' };
 
@@ -64,7 +59,6 @@ class PrunedObjectsTableStore {
       objectTable: {
         sortOrder: this.sortOrder,
         onSortChange: this.onSortChange,
-        columns: this.columns,
         rows: sortRowsBy(this.sortOrder, rows),
         onRowClick: (actObject: ActObject) => {
           this.root.refineryStore.unpruneObjectId(actObject.id);

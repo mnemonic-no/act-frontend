@@ -15,6 +15,8 @@ import SearchStore from './Search/SearchStore';
 import { StateExport } from './types';
 import SelectionStore from './SelectionStore';
 import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
+import SearchesStore from './Search/SearchesStore';
+import ContentStore from './Content/ContentStore';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -35,6 +37,7 @@ const locationDefinitions = (routeDefinitions: any) => {
 
 class MainPageStore {
   ui: {
+    contentStore: ContentStore;
     cytoscapeLayoutStore: CytoscapeLayoutStore;
     graphViewStore: GraphViewStore;
     detailsStore: DetailsStore;
@@ -44,6 +47,7 @@ class MainPageStore {
     factsTableStore: FactsTableStore;
     objectsTableStore: ObjectsTableStore;
     prunedObjectsTableStore: PrunedObjectsTableStore;
+    searchesStore: SearchesStore;
   };
 
   @observable isSearchDrawerOpen = true;
@@ -60,6 +64,7 @@ class MainPageStore {
     this.refineryStore = new RefineryStore(this);
     this.selectionStore = new SelectionStore();
     this.ui = {
+      contentStore: new ContentStore(this),
       cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
       graphViewStore: new GraphViewStore(this),
 
@@ -69,7 +74,8 @@ class MainPageStore {
       searchStore: new SearchStore(this, config),
       workingHistoryStore: new WorkingHistoryStore(this),
       factsTableStore: new FactsTableStore(this),
-      objectsTableStore: new ObjectsTableStore(this)
+      objectsTableStore: new ObjectsTableStore(this),
+      searchesStore: new SearchesStore(this)
     };
 
     // Make the URL reflect the last item in the working history
@@ -101,16 +107,6 @@ class MainPageStore {
     locationMatcher(location);
   }
 
-  @computed
-  get content() {
-    return {
-      graphViewStore: this.ui.graphViewStore,
-      factsTableStore: this.ui.factsTableStore,
-      objectsTableStore: this.ui.objectsTableStore,
-      prunedObjectsTableStore: this.ui.prunedObjectsTableStore
-    };
-  }
-
   @action.bound
   toggleSearchDrawer() {
     this.isSearchDrawerOpen = !this.isSearchDrawerOpen;
@@ -118,7 +114,7 @@ class MainPageStore {
 
   @action.bound
   initByImport(stateExport: StateExport): void {
-    this.backendStore.executeSearches(stateExport.queries);
+    this.backendStore.executeSearches({ searches: stateExport.queries, replace: true });
     this.refineryStore.setPrunedObjectIds(stateExport.prunedObjectIds || []);
   }
 
@@ -129,6 +125,11 @@ class MainPageStore {
       error.title = title;
     }
     this.error = error;
+  }
+
+  @computed
+  get hasContent() {
+    return !this.workingHistory.isEmpty || this.ui.contentStore.selectedTab === 'searches';
   }
 
   @computed

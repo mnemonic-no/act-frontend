@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme, Tooltip } from '@material-ui/core';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -21,6 +21,7 @@ export type SortOrder = {
 export interface IObjectRow {
   actObject: ActObject;
   isSelected?: boolean;
+  label?: string;
   onRowClick?: (object: ActObject) => void;
 }
 
@@ -34,8 +35,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ObjectRowComp = ({ actObject, onRowClick, isSelected }: IObjectRow) => {
+const ObjectRowComp = ({ actObject, label, onRowClick, isSelected }: IObjectRow) => {
   const classes = useStyles();
+
+  const objectValueString = renderObjectValue(actObject, 256);
 
   return (
     <TableRow
@@ -47,7 +50,13 @@ const ObjectRowComp = ({ actObject, onRowClick, isSelected }: IObjectRow) => {
         <span style={{ color: objectTypeToColor(actObject.type.name) }}>{actObject.type.name}</span>
       </TableCell>
       <TableCell classes={{ root: classes.cell }} size="small">
-        {renderObjectValue(actObject, 256)}
+        {label ? (
+          <Tooltip title={'Value: ' + objectValueString}>
+            <span>{label}</span>
+          </Tooltip>
+        ) : (
+          <span>{objectValueString}</span>
+        )}
       </TableCell>
     </TableRow>
   );

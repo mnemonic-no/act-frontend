@@ -24,6 +24,8 @@ yarn install
 ```
 
 ### Run the development server
+Before you can run the app, you have to configure it. During development, the app reads in a config file in 
+`src/config.override.json` where you can override settings found in `config.json`.
 
 Copy the `config.override.json.template` to  `config.override.json` and set the relevant API URL for your development 
 environment. 

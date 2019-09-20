@@ -3,6 +3,8 @@ import { action, computed, observable } from 'mobx';
 import { ActObject } from '../types';
 import { sortRowsBy } from '../Table/PrunedObjectsTableStore';
 import { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';
+import { getObjectLabelFromFact } from '../../core/transformers';
+import config from '../../config';
 
 class SearchesStore {
   root: MainPageStore;
@@ -34,11 +36,11 @@ class SearchesStore {
   @action.bound
   onAddSelectedObjects() {
     const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.selectedSimpleSearch;
-    if (!activeSimpleSearch || !activeSimpleSearch.result) {
+    if (!activeSimpleSearch || !activeSimpleSearch.objects) {
       return;
     }
 
-    const selectedObjects = activeSimpleSearch.result.filter((obj: ActObject) => this.selectedObjectIds.has(obj.id));
+    const selectedObjects = activeSimpleSearch.objects.filter((obj: ActObject) => this.selectedObjectIds.has(obj.id));
     this.root.backendStore.executeSearches({
       searches: selectedObjects.map((obj: ActObject) => ({ objectType: obj.type.name, objectValue: obj.value })),
       replace: false
@@ -54,15 +56,16 @@ class SearchesStore {
     const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.selectedSimpleSearch;
 
     const rows: Array<IObjectRow> =
-      activeSimpleSearch && activeSimpleSearch.status === 'done'
-        ? activeSimpleSearch.result.map((x: ActObject) => ({
+      activeSimpleSearch && activeSimpleSearch.status === 'done' && activeSimpleSearch.objects
+        ? activeSimpleSearch.objects.map((x: ActObject) => ({
             actObject: x,
+            label: getObjectLabelFromFact(x, config.objectLabelFromFactType, activeSimpleSearch.facts),
             isSelected: this.selectedObjectIds.has(x.id)
           }))
         : [];
     return {
       title: activeSimpleSearch ? 'Results for: ' + activeSimpleSearch.searchString : 'n/a',
-      subTitle: activeSimpleSearch && activeSimpleSearch.result ? activeSimpleSearch.result.length + ' objects' : '',
+      subTitle: activeSimpleSearch && activeSimpleSearch.objects ? activeSimpleSearch.objects.length + ' objects' : '',
       isLoading: activeSimpleSearch ? activeSimpleSearch.status === 'pending' : false,
       onAddSelectedObjects: this.onAddSelectedObjects,
       resultTable: {

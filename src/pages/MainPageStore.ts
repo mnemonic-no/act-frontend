@@ -59,7 +59,7 @@ class MainPageStore {
   selectionStore: SelectionStore;
 
   constructor() {
-    this.backendStore = new BackendStore(this);
+    this.backendStore = new BackendStore(this, config);
     this.workingHistory = new WorkingHistory(this);
     this.refineryStore = new RefineryStore(this);
     this.selectionStore = new SelectionStore();

@@ -3,17 +3,24 @@ import * as _ from 'lodash/fp';
 
 import { factKeywordSearch, objectKeywordSearch } from '../core/dataLoaders';
 import { factsToObjects } from '../core/transformers';
-import { ActObject } from './types';
+import { ActFact, ActObject } from './types';
 
 type SimpleSearch = {
   searchString: string;
   status: 'pending' | 'rejected' | 'done';
-  result?: any;
+  objects?: Array<ActObject>;
+  facts?: Array<ActFact>;
 };
 
 class SimpleSearchBackendStore {
   @observable selectedSearchString = '';
   @observable searches: { [query: string]: SimpleSearch } = {};
+
+  config: any;
+
+  constructor(config: any) {
+    this.config = config;
+  }
 
   @action.bound
   async execute(searchString: string) {
@@ -31,14 +38,16 @@ class SimpleSearchBackendStore {
     try {
       const [objectsByValue, factsByNameResult] = await Promise.all([
         objectKeywordSearch(searchString),
-        factKeywordSearch(searchString)
+        this.config.objectLabelFromFactType
+          ? factKeywordSearch(searchString, [this.config.objectLabelFromFactType])
+          : Promise.resolve([])
       ]);
 
       const objectsFromFacts = factsToObjects(factsByNameResult);
 
       const result = _.uniqBy((x: ActObject) => x.id)([...objectsByValue, ...objectsFromFacts]);
 
-      this.searches[searchString] = { ...search, status: 'done', result: result };
+      this.searches[searchString] = { ...search, status: 'done', objects: result, facts: factsByNameResult };
     } catch (err) {
       this.searches[searchString] = { ...search, status: 'rejected' };
     }

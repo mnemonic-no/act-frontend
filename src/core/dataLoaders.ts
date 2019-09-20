@@ -306,11 +306,11 @@ export const objectKeywordSearch = (keywords: string): Promise<Array<ActObject>>
     .catch(handleError);
 };
 
-export const factKeywordSearch = (keywords: string): Promise<Array<ActObject>> => {
+export const factKeywordSearch = (keywords: string, factTypes: Array<string>): Promise<Array<ActFact>> => {
   const requestBody = {
     limit: 300,
     keywords: keywords,
-    factType: ['name']
+    factType: factTypes
   };
 
   return actWretch

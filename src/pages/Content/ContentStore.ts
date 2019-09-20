@@ -1,6 +1,5 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
-import config from '../../config';
 import { ContentTab } from './Content';
 
 class ContentStore {

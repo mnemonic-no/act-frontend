@@ -1,18 +1,33 @@
 import { action, observable, runInAction } from 'mobx';
 import { autoResolveDataLoader, checkObjectStats, postJson, searchCriteriadataLoader } from '../core/dataLoaders';
+
 import MainPageStore from './MainPageStore';
 import { isObjectSearch, SearchItem, Search, searchId } from './types';
 import { addMessage } from '../util/SnackbarProvider';
+import SimpleSearchBackendStore from './SimpleSearchBackendStore';
 
 const maxFetchLimit = 2000;
 
+const isInHistory = (search: Search, historyItems: Array<SearchItem>) => {
+  const id = searchId(search);
+  return historyItems.some(q => q.id === id);
+};
+
 class BackendStore {
   root: MainPageStore;
+  simpleSearchBackendStore: SimpleSearchBackendStore;
 
   @observable isLoading: boolean = false;
 
   constructor(root: MainPageStore) {
     this.root = root;
+    this.simpleSearchBackendStore = new SimpleSearchBackendStore();
+  }
+
+  @action
+  async executeSimpleSearch(query: string) {
+    this.simpleSearchBackendStore.execute(query);
+    this.root.ui.contentStore.onTabSelected('searches');
   }
 
   @action
@@ -21,10 +36,7 @@ class BackendStore {
       throw Error('Search of this type is not supported ' + search);
     }
 
-    const id = searchId(search);
-
-    // Skip for existing historyItems
-    if (this.root.workingHistory.historyItems.some(q => q.id === id)) {
+    if (isInHistory(search, this.root.workingHistory.historyItems)) {
       return;
     }
 
@@ -37,7 +49,7 @@ class BackendStore {
       const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
 
       const item: SearchItem = {
-        id: id,
+        id: searchId(search),
         search: search,
         result: {
           facts: result.facts,
@@ -57,19 +69,24 @@ class BackendStore {
   }
 
   @action
-  async executeSearches(searches: Array<Search>) {
+  async executeSearches({ searches, replace = true }: { searches: Array<Search>; replace: boolean }) {
     try {
       this.isLoading = true;
 
-      const all = searches.filter(isObjectSearch).map(async search => {
-        return {
-          search: search,
-          result: await searchCriteriadataLoader(search).then(autoResolveDataLoader)
-        };
-      });
-      await Promise.all(all).then(results => {
+      if (replace) {
         this.root.workingHistory.removeAllItems();
+      }
 
+      const all = searches
+        .filter(isObjectSearch)
+        .filter(search => !isInHistory(search, this.root.workingHistory.historyItems))
+        .map(async search => {
+          return {
+            search: search,
+            result: await searchCriteriadataLoader(search).then(autoResolveDataLoader)
+          };
+        });
+      await Promise.all(all).then(results => {
         for (let { search, result } of results) {
           const q: SearchItem = {
             id: searchId(search),

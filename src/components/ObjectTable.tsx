@@ -20,6 +20,7 @@ export type SortOrder = {
 
 export interface IObjectRow {
   actObject: ActObject;
+  isSelected?: boolean;
   onRowClick?: (object: ActObject) => void;
 }
 
@@ -33,11 +34,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ObjectRowComp = ({ actObject, onRowClick }: IObjectRow) => {
+const ObjectRowComp = ({ actObject, onRowClick, isSelected }: IObjectRow) => {
   const classes = useStyles();
 
   return (
-    <TableRow hover classes={{ root: classes.row }} onClick={onRowClick && (() => onRowClick(actObject))}>
+    <TableRow
+      hover
+      selected={isSelected}
+      classes={{ root: classes.row }}
+      onClick={onRowClick && (() => onRowClick(actObject))}>
       <TableCell classes={{ root: classes.cell }} size="small">
         <span style={{ color: objectTypeToColor(actObject.type.name) }}>{actObject.type.name}</span>
       </TableCell>
@@ -81,7 +86,7 @@ const ObjectTableComp = ({ rows, sortOrder, onRowClick, onSortChange }: IObjectT
   );
 };
 
-interface IObjectTableComp {
+export interface IObjectTableComp {
   rows: Array<IObjectRow>;
   sortOrder: SortOrder;
   onSortChange: (ck: ColumnKind) => void;

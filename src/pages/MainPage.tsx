@@ -261,7 +261,7 @@ const MainPage = () => {
             </div>
 
             {/* Content */}
-            {!store.workingHistory.isEmpty ? (
+            {store.hasContent ? (
               <Content {...store.ui.contentStore.prepared} rootClass={classes.content} />
             ) : (
               <GraphEmpty />

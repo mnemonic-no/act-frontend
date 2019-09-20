@@ -114,7 +114,7 @@ class MainPageStore {
 
   @action.bound
   initByImport(stateExport: StateExport): void {
-    this.backendStore.executeSearches(stateExport.queries);
+    this.backendStore.executeSearches({ searches: stateExport.queries, replace: true });
     this.refineryStore.setPrunedObjectIds(stateExport.prunedObjectIds || []);
   }
 
@@ -125,6 +125,11 @@ class MainPageStore {
       error.title = title;
     }
     this.error = error;
+  }
+
+  @computed
+  get hasContent() {
+    return !this.workingHistory.isEmpty || this.ui.contentStore.selectedTab === 'searches';
   }
 
   @computed

@@ -291,3 +291,17 @@ export const postJson = (url: string, jsonRequest: any) => {
     .res(result => result)
     .catch(handleError);
 };
+
+export const objectSearch = (keywords: string): Promise<Array<ActObject>> => {
+  const requestBody = {
+    keywords: keywords,
+    limit: 300
+  };
+
+  return actWretch
+    .url('/v1/object/search')
+    .json(requestBody)
+    .post()
+    .json(({ data }: any) => data)
+    .catch(handleError);
+};

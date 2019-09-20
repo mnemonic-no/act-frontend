@@ -53,6 +53,8 @@ class SearchesStore {
 
   @computed
   get prepared() {
+    const searchHistory = Object.keys(this.root.backendStore.simpleSearchBackendStore.searches);
+
     const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.selectedSimpleSearch;
 
     const rows: Array<IObjectRow> =
@@ -68,6 +70,7 @@ class SearchesStore {
       subTitle: activeSimpleSearch && activeSimpleSearch.objects ? activeSimpleSearch.objects.length + ' objects' : '',
       isLoading: activeSimpleSearch ? activeSimpleSearch.status === 'pending' : false,
       onAddSelectedObjects: this.onAddSelectedObjects,
+      searchHistory: searchHistory,
       resultTable: {
         sortOrder: this.sortOrder,
         onSortChange: this.onSortChange,

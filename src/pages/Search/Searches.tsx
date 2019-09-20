@@ -6,6 +6,10 @@ import ObjectTable, { ColumnKind, IObjectRow, SortOrder } from '../../components
 import { ActObject } from '../types';
 
 const useStyles = makeStyles((theme: Theme) => ({
+  noSearches: {
+    textAlign: 'center',
+    padding: theme.spacing(10)
+  },
   root: { overflowY: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' },
   header: { marginLeft: theme.spacing(8), padding: '16px 10px 18px 0' },
   titleContainer: { display: 'flex', alignItems: 'center' },
@@ -16,10 +20,28 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const SearchesComp = ({ isLoading, title, subTitle, resultTable, onAddSelectedObjects }: ISearchesComp) => {
+const NoSearchesComp = ({ classes }: any) => {
+  return (
+    <div className={classes.noSearches}>
+      <Typography variant="h5">You have no simple searches</Typography>
+      <Typography variant="subtitle1">Try to run a simple search from the search box</Typography>
+    </div>
+  );
+};
+
+const SearchesComp = ({
+  isLoading,
+  title,
+  subTitle,
+  resultTable,
+  onAddSelectedObjects,
+  searchHistory
+}: ISearchesComp) => {
   const classes = useStyles();
 
-  return (
+  return searchHistory.length === 0 ? (
+    <NoSearchesComp classes={classes} />
+  ) : (
     <div className={classes.root}>
       <div className={classes.header}>
         <div className={classes.titleContainer}>
@@ -49,6 +71,7 @@ interface ISearchesComp {
   subTitle: string;
   isLoading: boolean;
   onAddSelectedObjects: () => void;
+  searchHistory: Array<string>;
   resultTable: {
     rows: Array<IObjectRow>;
     sortOrder: SortOrder;

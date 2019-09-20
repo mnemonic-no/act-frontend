@@ -6,12 +6,10 @@ import { ContentTab } from './Content';
 class ContentStore {
   root: MainPageStore;
 
-  @observable isSimpleSearchEnabled: boolean = false;
   @observable selectedTab: ContentTab = 'graph';
 
-  constructor(root: MainPageStore, config: any) {
+  constructor(root: MainPageStore) {
     this.root = root;
-    this.isSimpleSearchEnabled = Boolean(config.isSimpleSearchEnabled) || false;
   }
 
   @action.bound
@@ -28,8 +26,7 @@ class ContentStore {
       factsTableStore: this.root.ui.factsTableStore,
       objectsTableStore: this.root.ui.objectsTableStore,
       prunedObjectsTableStore: this.root.ui.prunedObjectsTableStore,
-      searchesStore: this.root.ui.searchesStore,
-      isSimpleSearchEnabled: Boolean(config.isSimpleSearchEnabled) || false
+      searchesStore: this.root.ui.searchesStore
     };
   }
 }

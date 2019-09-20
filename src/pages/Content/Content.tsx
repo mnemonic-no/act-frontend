@@ -30,7 +30,6 @@ const ContentComp = ({
   objectsTableStore,
   prunedObjectsTableStore,
   searchesStore,
-  isSimpleSearchEnabled,
   rootClass
 }: IContentComp) => {
   const classes = useStyles();
@@ -42,7 +41,7 @@ const ContentComp = ({
         <Tab label={`Table (${factsTableStore.facts.length})`} value="tableOfFacts" />
         <Tab label={`Objects (${objectsTableStore.objects.length})`} value="tableOfObjects" />
         <Tab label={`Pruned objects (${prunedObjectsTableStore.prepared.rowCount})`} value="tableOfPrunedObjects" />
-        {isSimpleSearchEnabled && <Tab label={`Searches`} value="searches" />}
+        <Tab label={`Searches`} value="searches" />
       </Tabs>
 
       {selectedTab === 'graph' && (
@@ -73,7 +72,6 @@ interface IContentComp {
   objectsTableStore: ObjectsTableStore;
   prunedObjectsTableStore: PrunedObjectsTableStore;
   searchesStore: SearchesStore;
-  isSimpleSearchEnabled: boolean;
   rootClass: any;
 }
 

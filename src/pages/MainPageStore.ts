@@ -64,7 +64,7 @@ class MainPageStore {
     this.refineryStore = new RefineryStore(this);
     this.selectionStore = new SelectionStore();
     this.ui = {
-      contentStore: new ContentStore(this, config),
+      contentStore: new ContentStore(this),
       cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
       graphViewStore: new GraphViewStore(this),
 

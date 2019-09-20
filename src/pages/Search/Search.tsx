@@ -18,13 +18,11 @@ const Search = ({ store }: ISearch) => {
 
   return (
     <div>
-      {store.isSimpleSearchEnabled && (
-        <div className={classes.toggle}>
-          <Link component="button" color="primary" variant="button" onClick={() => store.toggleSelection()}>
-            {store.isSimpleSearch ? 'Advanced' : 'Simple'}
-          </Link>
-        </div>
-      )}
+      <div className={classes.toggle}>
+        <Link component="button" color="primary" variant="button" onClick={() => store.toggleSelection()}>
+          {store.isSimpleSearch ? 'Advanced' : 'Simple'}
+        </Link>
+      </div>
       {store.isSimpleSearch ? (
         <SearchSimple {...store.searchSimpleStore.prepared} />
       ) : (

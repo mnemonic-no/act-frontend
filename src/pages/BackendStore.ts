@@ -19,9 +19,9 @@ class BackendStore {
 
   @observable isLoading: boolean = false;
 
-  constructor(root: MainPageStore) {
+  constructor(root: MainPageStore, config: any) {
     this.root = root;
-    this.simpleSearchBackendStore = new SimpleSearchBackendStore();
+    this.simpleSearchBackendStore = new SimpleSearchBackendStore(config);
   }
 
   @action

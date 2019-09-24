@@ -63,15 +63,15 @@ export const objectValueText = (object: ActObject) => {
 export const getObjectLabelFromFact = (
   obj: ActObject,
   objectLabelFromFactType: string | null,
-  facts: Array<ActFact>
+  facts: Array<ActFact> | undefined
 ) => {
-  if (objectLabelFromFactType) {
-    const found = facts.find(
-      f => f.type.name === objectLabelFromFactType && f.sourceObject !== undefined && f.sourceObject.id === obj.id
-    );
-    return found ? found.value : null;
+  if (!objectLabelFromFactType || !facts) {
+    return '';
   }
-  return null;
+  const found = facts.find(
+    f => f.type.name === objectLabelFromFactType && f.sourceObject !== undefined && f.sourceObject.id === obj.id
+  );
+  return found ? found.value : '';
 };
 
 export const objectLabel = (obj: ActObject, objectLabelFromFactType: string | null, facts: Array<ActFact>) => {

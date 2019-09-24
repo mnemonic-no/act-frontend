@@ -10,11 +10,23 @@ const useStyles = makeStyles((theme: Theme) => ({
     textAlign: 'center',
     padding: theme.spacing(10)
   },
-  root: { overflowY: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' },
+  root: {
+    overflowY: 'hidden',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  },
   header: { marginLeft: theme.spacing(8), padding: '16px 10px 18px 0' },
+  footer: {
+    padding: theme.spacing(1),
+    borderTop: `1px solid ${theme.palette.divider}`,
+    display: 'flex',
+    flexDirection: 'row-reverse'
+  },
+  tableContainer: { overflowY: 'auto', flex: '1 1 auto' },
   titleContainer: { display: 'flex', alignItems: 'center' },
   progress: { padding: theme.spacing(1) },
-  tableContainer: { overflowY: 'auto', flex: '0 1 auto' },
   selectButton: {
     padding: `${theme.spacing(1)}px 0`
   }
@@ -49,6 +61,13 @@ const SearchesComp = ({
           {isLoading && <CircularProgress className={classes.progress} size={20} />}
         </div>
         <Typography variant="body1">{subTitle}</Typography>
+      </div>
+      {!isLoading && (
+        <div className={classes.tableContainer}>
+          <ObjectTable {...resultTable} />
+        </div>
+      )}
+      <div className={classes.footer}>
         <div className={classes.selectButton}>
           <Tooltip title="Add to working history">
             <Button size="small" color="secondary" variant="contained" onClick={onAddSelectedObjects}>
@@ -57,11 +76,6 @@ const SearchesComp = ({
           </Tooltip>
         </div>
       </div>
-      {!isLoading && (
-        <div className={classes.tableContainer}>
-          <ObjectTable {...resultTable} />
-        </div>
-      )}
     </div>
   );
 };

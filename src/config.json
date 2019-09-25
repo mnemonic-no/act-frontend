@@ -264,6 +264,24 @@
       "description": "Find threat actors that use tools that implement this technique.",
       "query": "g.inE('implements').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
       "objects": ["technique"]
+    },
+    {
+      "name": "targets",
+      "description": "Find organizations targeted using this tool",
+      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().hasLabel('content').outE('observedIn').otherV().hasLabel('event').outE('attributedTo').otherV().hasLabel('incident').outE('targets').otherV().path().unfold()",
+      "objects": ["tool"]
+    },
+    {
+      "name": "incidents",
+      "description": "Find incidents related to this country",
+      "query": "g.inE('locatedIn').otherV().hasLabel('organization').inE('targets').otherV().hasLabel('incident').path().unfold()",
+      "objects": ["country"]
+    },
+    {
+      "name": "tools",
+      "description": "Find tools related to this campaign",
+      "query": "g.inE('attributedTo').otherV().inE('attributedTo').otherV().inE('observedIn').otherV().outE('classifiedAs').otherV().path().unfold()",
+      "objects": ["campaign"]
     }
   ]
 }

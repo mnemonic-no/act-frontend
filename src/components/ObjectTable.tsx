@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles, Theme, Tooltip } from '@material-ui/core';
+import { Checkbox, makeStyles, Theme, Tooltip } from '@material-ui/core';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -23,6 +23,7 @@ export interface IObjectRow {
   isSelected?: boolean;
   label?: string;
   onRowClick?: (object: ActObject) => void;
+  onCheckboxClick?: (obj: ActObject) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -35,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ObjectRowComp = ({ actObject, label, onRowClick, isSelected }: IObjectRow) => {
+const ObjectRowComp = ({ actObject, label, onRowClick, onCheckboxClick, isSelected }: IObjectRow) => {
   const classes = useStyles();
 
   const objectValueString = renderObjectValue(actObject, 256);
@@ -46,6 +47,18 @@ const ObjectRowComp = ({ actObject, label, onRowClick, isSelected }: IObjectRow)
       selected={isSelected}
       classes={{ root: classes.row }}
       onClick={onRowClick && (() => onRowClick(actObject))}>
+      <TableCell padding="checkbox">
+        <Checkbox
+          checked={Boolean(isSelected)}
+          onClick={
+            onCheckboxClick &&
+            (e => {
+              e.stopPropagation();
+              onCheckboxClick(actObject);
+            })
+          }
+        />
+      </TableCell>
       <TableCell classes={{ root: classes.cell }} size="small">
         <span style={{ color: objectTypeToColor(actObject.type.name) }}>{actObject.type.name}</span>
       </TableCell>
@@ -67,13 +80,26 @@ const columns: Array<{ label: string; kind: ColumnKind }> = [
   { label: 'Value', kind: 'objectValue' }
 ];
 
-const ObjectTableComp = ({ rows, sortOrder, onRowClick, onSortChange }: IObjectTableComp) => {
+const ObjectTableComp = ({
+  rows,
+  sortOrder,
+  onRowClick,
+  onCheckboxClick,
+  onSelectAllClick,
+  onSortChange
+}: IObjectTableComp) => {
   const classes = useStyles();
+  const isSelectAll = rows.length === rows.filter(x => x.isSelected).length;
 
   return (
-    <Table>
+    <Table size="small">
       <TableHead>
         <TableRow classes={{ root: classes.row }}>
+          <TableCell padding="checkbox">
+            {onSelectAllClick && (
+              <Checkbox checked={isSelectAll} onClick={onSelectAllClick} inputProps={{ 'aria-label': 'Select all' }} />
+            )}
+          </TableCell>
           {columns.map(({ label, kind }) => (
             <TableCell key={kind} classes={{ root: classes.cell }} size="small">
               <TableSortLabel
@@ -88,7 +114,7 @@ const ObjectTableComp = ({ rows, sortOrder, onRowClick, onSortChange }: IObjectT
       </TableHead>
       <TableBody>
         {rows.map((row: IObjectRow) => (
-          <ObjectRowComp key={row.actObject.id} {...row} onRowClick={onRowClick} />
+          <ObjectRowComp key={row.actObject.id} {...row} onRowClick={onRowClick} onCheckboxClick={onCheckboxClick} />
         ))}
       </TableBody>
     </Table>
@@ -100,6 +126,8 @@ export interface IObjectTableComp {
   sortOrder: SortOrder;
   onSortChange: (ck: ColumnKind) => void;
   onRowClick: (obj: ActObject) => void;
+  onSelectAllClick?: () => void;
+  onCheckboxClick?: (obj: ActObject) => void;
 }
 
 export default observer(ObjectTableComp);

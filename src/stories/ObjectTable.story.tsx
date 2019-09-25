@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
+import * as _ from 'lodash/fp';
 
-import ObjectTable, { ColumnKind, IObjectTableComp } from '../components/ObjectTable';
+import ObjectTable, { ColumnKind, IObjectRow, IObjectTableComp } from '../components/ObjectTable';
 import { actTheme } from '../App';
 import { sortRowsBy } from '../pages/Table/PrunedObjectsTableStore';
 import { ActObject } from '../pages/types';
@@ -13,7 +14,8 @@ storiesOf('ObjectTable', module)
       rows: [],
       sortOrder: { order: 'asc', orderBy: 'objectValue' },
       onRowClick: () => {},
-      onSortChange: (ck: ColumnKind) => {}
+      onSortChange: (ck: ColumnKind) => {},
+      onSelectAllClick: () => {}
     };
 
     return (
@@ -26,7 +28,8 @@ storiesOf('ObjectTable', module)
     let initialState: IObjectTableComp = {
       rows: [
         {
-          actObject: { id: '1', value: 'Axiom', type: { id: 'x', name: 'threatActor' } }
+          actObject: { id: '1', value: 'Axiom', type: { id: 'x', name: 'threatActor' } },
+          isSelected: true
         },
         {
           actObject: { id: '2', value: 'Sofacy', type: { id: 'x', name: 'threatActor' } }
@@ -36,10 +39,9 @@ storiesOf('ObjectTable', module)
         }
       ],
       sortOrder: { order: 'asc', orderBy: 'objectValue' },
-      onRowClick: (obj: ActObject) => {
-        alert('Row clicked: ' + JSON.stringify(obj));
-      },
-      onSortChange: (ck: ColumnKind) => {}
+      onRowClick: (obj: ActObject) => {},
+      onSortChange: (ck: ColumnKind) => {},
+      onSelectAllClick: () => {}
     };
 
     const [s, setS] = useState(initialState);
@@ -56,9 +58,33 @@ storiesOf('ObjectTable', module)
 
     const sortedRows = sortRowsBy(s.sortOrder, s.rows);
 
+    const onRowClick = (obj: ActObject) => {
+      const updatedRows = s.rows.map(row => {
+        if (obj.id === row.actObject.id) {
+          return { ...row, isSelected: !Boolean(row.isSelected) };
+        }
+        return row;
+      });
+
+      setS({ ...s, rows: updatedRows });
+    };
+
+    const onSelectAllClick = () => {
+      const isAllSelected = _.every((x: IObjectRow) => Boolean(x.isSelected))(s.rows);
+
+      setS({ ...s, rows: s.rows.map(row => ({ ...row, isSelected: !isAllSelected })) });
+    };
+
     return (
       <MuiThemeProvider theme={actTheme}>
-        <ObjectTable {...s} rows={sortedRows} onSortChange={onSortChange} />
+        <ObjectTable
+          {...s}
+          rows={sortedRows}
+          onSortChange={onSortChange}
+          onRowClick={onRowClick}
+          onCheckboxClick={onRowClick}
+          onSelectAllClick={onSelectAllClick}
+        />
       </MuiThemeProvider>
     );
   });

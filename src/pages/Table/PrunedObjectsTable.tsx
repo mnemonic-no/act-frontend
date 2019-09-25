@@ -1,9 +1,8 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { ActObject } from '../types';
 import { makeStyles, Theme } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import ObjectTable, { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';
+import ObjectTable, { IObjectTableComp } from '../../components/ObjectTable';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -33,12 +32,7 @@ const PrunedObjectsTableComp = ({ objectTable, onClearButtonClick }: IPrunedObje
 };
 
 interface IPrunedObjectsTableComp {
-  objectTable: {
-    rows: Array<IObjectRow>;
-    sortOrder: SortOrder;
-    onSortChange: (ck: ColumnKind) => void;
-    onRowClick: (obj: ActObject) => void;
-  };
+  objectTable: IObjectTableComp;
   onClearButtonClick: () => void;
 }
 

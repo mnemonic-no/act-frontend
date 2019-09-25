@@ -2,8 +2,7 @@ import React from 'react';
 import { Button, CircularProgress, makeStyles, Theme, Tooltip, Typography } from '@material-ui/core';
 import { observer } from 'mobx-react';
 
-import ObjectTable, { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';
-import { ActObject } from '../types';
+import ObjectTable, { IObjectTableComp } from '../../components/ObjectTable';
 import MultiSelect, { IMultiSelect } from '../../components/MultiSelect';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -92,12 +91,7 @@ interface ISearchesComp {
     onAddSelectedObjects: () => void;
     searchHistory: Array<string>;
     objectTypeFilter: IMultiSelect;
-    resultTable: {
-      rows: Array<IObjectRow>;
-      sortOrder: SortOrder;
-      onSortChange: (ck: ColumnKind) => void;
-      onRowClick: (obj: ActObject) => void;
-    };
+    resultTable: IObjectTableComp;
   };
 }
 

@@ -10,6 +10,7 @@ export type SimpleSearch = {
   status: 'pending' | 'rejected' | 'done';
   objects?: Array<ActObject>;
   facts?: Array<ActFact>;
+  errorDetails?: string;
 };
 
 class SimpleSearchBackendStore {
@@ -25,7 +26,7 @@ class SimpleSearchBackendStore {
   @action.bound
   async execute(searchString: string) {
     this.selectedSearchString = searchString;
-    if (this.searches[searchString]) {
+    if (this.searches[searchString] && this.searches[searchString].status !== 'rejected') {
       return;
     }
 
@@ -49,13 +50,18 @@ class SimpleSearchBackendStore {
 
       this.searches[searchString] = { ...search, status: 'done', objects: result, facts: factsByNameResult };
     } catch (err) {
-      this.searches[searchString] = { ...search, status: 'rejected' };
+      this.searches[searchString] = { ...search, status: 'rejected', errorDetails: err.message };
     }
   }
 
   @computed
   get selectedSimpleSearch(): SimpleSearch | undefined {
     return this.searches[this.selectedSearchString];
+  }
+
+  @action.bound
+  retry(search: SimpleSearch) {
+    this.execute(search.searchString);
   }
 }
 

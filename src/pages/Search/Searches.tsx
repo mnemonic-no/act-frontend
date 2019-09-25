@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, CircularProgress, makeStyles, Theme, Tooltip, Typography } from '@material-ui/core';
 import { observer } from 'mobx-react';
+import WarnIcon from '@material-ui/icons/Warning';
 
 import ObjectTable, { IObjectTableComp } from '../../components/ObjectTable';
 import MultiSelect, { IMultiSelect } from '../../components/MultiSelect';
@@ -30,6 +31,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   progress: { padding: theme.spacing(1) },
   selectButton: {
     padding: `${theme.spacing(1)}px 0`
+  },
+  errorRetry: {
+    paddingTop: theme.spacing(2)
   }
 }));
 
@@ -42,8 +46,37 @@ const NoSearchesComp = ({ classes }: any) => {
   );
 };
 
-const SearchesComp = ({ searchResult }: ISearchesComp) => {
+const SearchErrorComp = ({ classes, title, subTitle, onRetryClick }: ISearchError & { classes: any }) => {
+  return (
+    <div className={classes.root}>
+      <div className={classes.header}>
+        <div className={classes.titleContainer}>
+          <Typography variant="h6">{title}</Typography>
+          <WarnIcon color="error" />
+        </div>
+
+        <Typography variant="subtitle1" color={'error'}>
+          {subTitle}
+        </Typography>
+
+        <div className={classes.errorRetry}>
+          <Tooltip title={'Retry the current search'}>
+            <Button variant="outlined" size="small" onClick={onRetryClick}>
+              Retry
+            </Button>
+          </Tooltip>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SearchesComp = ({ searchResult, searchError }: ISearchesComp) => {
   const classes = useStyles();
+
+  if (searchError) {
+    return <SearchErrorComp {...searchError} classes={classes} />;
+  }
 
   if (!searchResult) {
     return <NoSearchesComp classes={classes} />;
@@ -83,7 +116,14 @@ const SearchesComp = ({ searchResult }: ISearchesComp) => {
   );
 };
 
+interface ISearchError {
+  title: string;
+  subTitle: string;
+  onRetryClick: () => void;
+}
+
 interface ISearchesComp {
+  searchError?: ISearchError;
   searchResult?: {
     title: string;
     subTitle: string;
@@ -94,5 +134,4 @@ interface ISearchesComp {
     resultTable: IObjectTableComp;
   };
 }
-
 export default observer(SearchesComp);

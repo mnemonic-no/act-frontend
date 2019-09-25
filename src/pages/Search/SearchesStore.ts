@@ -124,6 +124,18 @@ class SearchesStore {
       };
     }
 
+    if (activeSimpleSearch.status === 'rejected') {
+      return {
+        searchError: {
+          title: 'Results for: ' + activeSimpleSearch.searchString,
+          subTitle: 'Search failed. ' + (activeSimpleSearch.errorDetails ? activeSimpleSearch.errorDetails : ''),
+          onRetryClick: () => {
+            this.root.backendStore.simpleSearchBackendStore.retry(activeSimpleSearch);
+          }
+        }
+      };
+    }
+
     const rows = resultToRows({
       simpleSearch: activeSimpleSearch,
       selectedObjectIds: this.selectedObjectIds,
@@ -132,7 +144,6 @@ class SearchesStore {
     });
 
     return {
-      isEmpty: false,
       searchResult: {
         title: 'Results for: ' + activeSimpleSearch.searchString,
         subTitle: activeSimpleSearch.objects ? activeSimpleSearch.objects.length + ' objects' : '',

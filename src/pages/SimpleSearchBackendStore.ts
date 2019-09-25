@@ -5,7 +5,7 @@ import { factKeywordSearch, objectKeywordSearch } from '../core/dataLoaders';
 import { factsToObjects } from '../core/transformers';
 import { ActFact, ActObject } from './types';
 
-type SimpleSearch = {
+export type SimpleSearch = {
   searchString: string;
   status: 'pending' | 'rejected' | 'done';
   objects?: Array<ActObject>;

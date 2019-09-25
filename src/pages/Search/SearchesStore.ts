@@ -66,6 +66,17 @@ class SearchesStore {
   }
 
   @action.bound
+  onSelectAllClick(rows: Array<IObjectRow>) {
+    const isAllSelected = rows.length === this.selectedObjectIds.size;
+
+    if (isAllSelected) {
+      this.selectedObjectIds = new Set();
+    } else {
+      this.selectedObjectIds = new Set(rows.map(row => row.actObject.id));
+    }
+  }
+
+  @action.bound
   onAddSelectedObjects() {
     const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.selectedSimpleSearch;
     if (!activeSimpleSearch || !activeSimpleSearch.objects) {
@@ -140,6 +151,12 @@ class SearchesStore {
           sortOrder: this.sortOrder,
           onSortChange: this.onSortChange,
           rows: rows,
+          onSelectAllClick: () => {
+            this.onSelectAllClick(rows);
+          },
+          onCheckboxClick: (actObject: ActObject) => {
+            this.toggleSelection(actObject.id);
+          },
           onRowClick: (actObject: ActObject) => {
             this.toggleSelection(actObject.id);
           }

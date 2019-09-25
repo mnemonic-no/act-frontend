@@ -19,9 +19,9 @@ const MultiSelect = ({ id, label, values, selectedValues, onChange, emptyValue }
 
           return (
             <div>
-              {(selected as string[]).map(s => {
-                return <Chip size="small" label={s} />;
-              })}
+              {(selected as string[]).map(s => (
+                <Chip key={s} size="small" label={s} />
+              ))}
             </div>
           );
         }}

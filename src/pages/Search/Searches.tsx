@@ -34,6 +34,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   errorRetry: {
     paddingTop: theme.spacing(2)
+  },
+  warningContainer: {
+    display: 'flex',
+    color: theme.palette.secondary.dark
   }
 }));
 
@@ -82,7 +86,7 @@ const SearchesComp = ({ searchResult, searchError }: ISearchesComp) => {
     return <NoSearchesComp classes={classes} />;
   }
 
-  const { isLoading, title, subTitle, resultTable, onAddSelectedObjects, objectTypeFilter } = searchResult;
+  const { isLoading, title, subTitle, resultTable, warningText, onAddSelectedObjects, objectTypeFilter } = searchResult;
 
   return (
     <div className={classes.root}>
@@ -92,6 +96,12 @@ const SearchesComp = ({ searchResult, searchError }: ISearchesComp) => {
           {isLoading && <CircularProgress className={classes.progress} size={20} />}
         </div>
         <Typography variant="body1">{subTitle}</Typography>
+        {warningText && (
+          <div className={classes.warningContainer}>
+            <WarnIcon color="secondary" />
+            <Typography variant="subtitle1">{warningText}</Typography>
+          </div>
+        )}
         {!isLoading && (
           <div className={classes.objectTypeFilter}>
             <MultiSelect {...objectTypeFilter} />
@@ -128,6 +138,7 @@ interface ISearchesComp {
     title: string;
     subTitle: string;
     isLoading: boolean;
+    warningText?: string;
     onAddSelectedObjects: () => void;
     searchHistory: Array<string>;
     objectTypeFilter: IMultiSelect;

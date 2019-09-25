@@ -10,8 +10,11 @@ export type SimpleSearch = {
   status: 'pending' | 'rejected' | 'done';
   objects?: Array<ActObject>;
   facts?: Array<ActFact>;
+  limitExceeded?: boolean;
   errorDetails?: string;
 };
+
+const resultLimit = 300;
 
 class SimpleSearchBackendStore {
   @observable selectedSearchString = '';
@@ -38,9 +41,9 @@ class SimpleSearchBackendStore {
 
     try {
       const [objectsByValue, factsByNameResult] = await Promise.all([
-        objectKeywordSearch(searchString),
+        objectKeywordSearch(searchString, resultLimit),
         this.config.objectLabelFromFactType
-          ? factKeywordSearch(searchString, [this.config.objectLabelFromFactType])
+          ? factKeywordSearch(searchString, [this.config.objectLabelFromFactType], resultLimit)
           : Promise.resolve([])
       ]);
 
@@ -48,7 +51,13 @@ class SimpleSearchBackendStore {
 
       const result = _.uniqBy((x: ActObject) => x.id)([...objectsByValue, ...objectsFromFacts]);
 
-      this.searches[searchString] = { ...search, status: 'done', objects: result, facts: factsByNameResult };
+      this.searches[searchString] = {
+        ...search,
+        status: 'done',
+        objects: result,
+        facts: factsByNameResult,
+        limitExceeded: resultLimit <= objectsByValue.length || resultLimit <= objectsFromFacts.length
+      };
     } catch (err) {
       this.searches[searchString] = { ...search, status: 'rejected', errorDetails: err.message };
     }

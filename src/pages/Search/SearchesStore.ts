@@ -143,10 +143,15 @@ class SearchesStore {
       sortOrder: this.sortOrder
     });
 
+    const warningText = activeSimpleSearch.limitExceeded
+      ? 'Result set exceeds limit. Try to constrain your search or use the advanced search if you want to see more'
+      : '';
+
     return {
       searchResult: {
         title: 'Results for: ' + activeSimpleSearch.searchString,
         subTitle: activeSimpleSearch.objects ? activeSimpleSearch.objects.length + ' objects' : '',
+        warningText: warningText,
         isLoading: activeSimpleSearch.status === 'pending',
         onAddSelectedObjects: this.onAddSelectedObjects,
         searchHistory: searchHistory,

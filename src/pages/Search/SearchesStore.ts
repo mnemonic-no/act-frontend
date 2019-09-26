@@ -124,6 +124,18 @@ class SearchesStore {
       };
     }
 
+    if (activeSimpleSearch.status === 'rejected') {
+      return {
+        searchError: {
+          title: 'Results for: ' + activeSimpleSearch.searchString,
+          subTitle: 'Search failed. ' + (activeSimpleSearch.errorDetails ? activeSimpleSearch.errorDetails : ''),
+          onRetryClick: () => {
+            this.root.backendStore.simpleSearchBackendStore.retry(activeSimpleSearch);
+          }
+        }
+      };
+    }
+
     const rows = resultToRows({
       simpleSearch: activeSimpleSearch,
       selectedObjectIds: this.selectedObjectIds,
@@ -131,11 +143,15 @@ class SearchesStore {
       sortOrder: this.sortOrder
     });
 
+    const warningText = activeSimpleSearch.limitExceeded
+      ? 'Result set exceeds limit. Try to constrain your search or use the advanced search if you want to see more'
+      : '';
+
     return {
-      isEmpty: false,
       searchResult: {
         title: 'Results for: ' + activeSimpleSearch.searchString,
         subTitle: activeSimpleSearch.objects ? activeSimpleSearch.objects.length + ' objects' : '',
+        warningText: warningText,
         isLoading: activeSimpleSearch.status === 'pending',
         onAddSelectedObjects: this.onAddSelectedObjects,
         searchHistory: searchHistory,

@@ -1,10 +1,14 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles, Theme } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
+import { Button, makeStyles, Theme, Typography } from '@material-ui/core';
+
 import ObjectTable, { IObjectTableComp } from '../../components/ObjectTable';
 
 const useStyles = makeStyles((theme: Theme) => ({
+  empty: {
+    textAlign: 'center',
+    padding: theme.spacing(10)
+  },
   root: {
     height: '100%',
     overflowY: 'auto'
@@ -17,6 +21,17 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const PrunedObjectsTableComp = ({ objectTable, onClearButtonClick }: IPrunedObjectsTableComp) => {
   const classes = useStyles();
+
+  if (objectTable.rows.length === 0) {
+    return (
+      <div className={classes.empty}>
+        <Typography variant="h5">Nothing is pruned</Typography>
+        <Typography variant="subtitle1">
+          Select one or more objects in the graph or in one of the tables in order to prune
+        </Typography>
+      </div>
+    );
+  }
 
   return (
     <div className={classes.root}>

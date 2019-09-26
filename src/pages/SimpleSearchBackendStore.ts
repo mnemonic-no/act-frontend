@@ -18,7 +18,7 @@ const resultLimit = 300;
 
 class SimpleSearchBackendStore {
   @observable selectedSearchString = '';
-  @observable searches: { [query: string]: SimpleSearch } = {};
+  @observable searches: { [searchString: string]: SimpleSearch } = {};
 
   config: any;
 
@@ -66,6 +66,11 @@ class SimpleSearchBackendStore {
   @computed
   get selectedSimpleSearch(): SimpleSearch | undefined {
     return this.searches[this.selectedSearchString];
+  }
+
+  @action.bound
+  setSelectedSimpleSearch(s: SimpleSearch) {
+    return (this.selectedSearchString = s.searchString);
   }
 
   @action.bound

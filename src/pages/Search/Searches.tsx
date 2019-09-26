@@ -1,5 +1,18 @@
-import React from 'react';
-import { Button, CircularProgress, makeStyles, Theme, Tooltip, Typography } from '@material-ui/core';
+import React, { useState } from 'react';
+import {
+  Button,
+  CircularProgress,
+  ClickAwayListener,
+  List,
+  ListItem,
+  ListItemText,
+  makeStyles,
+  Paper,
+  Popper,
+  Theme,
+  Tooltip,
+  Typography
+} from '@material-ui/core';
 import { observer } from 'mobx-react';
 import WarnIcon from '@material-ui/icons/Warning';
 
@@ -18,7 +31,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'column',
     justifyContent: 'space-between'
   },
-  header: { marginLeft: theme.spacing(8), padding: '16px 10px 18px 0' },
+  header: {
+    marginLeft: theme.spacing(8),
+    padding: '16px 10px 18px 0',
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
   footer: {
     padding: theme.spacing(1),
     borderTop: `1px solid ${theme.palette.divider}`,
@@ -40,6 +58,71 @@ const useStyles = makeStyles((theme: Theme) => ({
     color: theme.palette.secondary.dark
   }
 }));
+
+const useHistoryStyles = makeStyles((theme: Theme) => ({
+  root: {
+    position: 'relative'
+  },
+  popperRoot: {
+    maxWidth: '350px',
+    minWidth: '300px'
+  },
+  ellipsisText: {
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden'
+  },
+  labelSecondary: {
+    paddingLeft: theme.spacing(1)
+  },
+  spacedOut: {
+    display: 'flex',
+    justifyContent: 'space-between'
+  }
+}));
+
+const HistoryComp = ({ historyItems }: { historyItems: Array<SearchHistoryItem> }) => {
+  const classes = useHistoryStyles();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  return (
+    <div
+      className={classes.root}
+      ref={node => {
+        setAnchorEl(node);
+      }}>
+      <Tooltip title="Show search history">
+        <span>
+          <ClickAwayListener onClickAway={() => setHistoryOpen(false)}>
+            <Button variant="outlined" onClick={() => setHistoryOpen(!historyOpen)}>
+              Search History
+            </Button>
+          </ClickAwayListener>
+        </span>
+      </Tooltip>
+
+      <Popper disablePortal={true} container={anchorEl} open={historyOpen} anchorEl={anchorEl} placement="left-start">
+        <Paper classes={{ root: classes.popperRoot }}>
+          <List dense>
+            {historyItems.map((item: any) => {
+              return (
+                <ListItem button onClick={item.onClick} key={item.label}>
+                  <ListItemText>
+                    <div className={classes.spacedOut}>
+                      <div className={classes.ellipsisText}>{item.label}</div>
+                      <div className={classes.labelSecondary}>{item.labelSecondary}</div>
+                    </div>
+                  </ListItemText>
+                </ListItem>
+              );
+            })}
+          </List>
+        </Paper>
+      </Popper>
+    </div>
+  );
+};
 
 const NoSearchesComp = ({ classes }: any) => {
   return (
@@ -91,22 +174,25 @@ const SearchesComp = ({ searchResult, searchError }: ISearchesComp) => {
   return (
     <div className={classes.root}>
       <div className={classes.header}>
-        <div className={classes.titleContainer}>
-          <Typography variant="h6">{title}</Typography>
-          {isLoading && <CircularProgress className={classes.progress} size={20} />}
+        <div>
+          <div className={classes.titleContainer}>
+            <Typography variant="h6">{title}</Typography>
+            {isLoading && <CircularProgress className={classes.progress} size={20} />}
+          </div>
+          <Typography variant="body1">{subTitle}</Typography>
+          {warningText && (
+            <div className={classes.warningContainer}>
+              <WarnIcon color="secondary" />
+              <Typography variant="subtitle1">{warningText}</Typography>
+            </div>
+          )}
+          {!isLoading && (
+            <div className={classes.objectTypeFilter}>
+              <MultiSelect {...objectTypeFilter} />
+            </div>
+          )}
         </div>
-        <Typography variant="body1">{subTitle}</Typography>
-        {warningText && (
-          <div className={classes.warningContainer}>
-            <WarnIcon color="secondary" />
-            <Typography variant="subtitle1">{warningText}</Typography>
-          </div>
-        )}
-        {!isLoading && (
-          <div className={classes.objectTypeFilter}>
-            <MultiSelect {...objectTypeFilter} />
-          </div>
-        )}
+        <HistoryComp historyItems={searchResult.historyItems} />
       </div>
       {!isLoading && (
         <div className={classes.tableContainer}>
@@ -132,6 +218,12 @@ interface ISearchError {
   onRetryClick: () => void;
 }
 
+interface SearchHistoryItem {
+  label: string;
+  labelSecondary: string;
+  onClick: () => void;
+}
+
 interface ISearchesComp {
   searchError?: ISearchError;
   searchResult?: {
@@ -140,7 +232,7 @@ interface ISearchesComp {
     isLoading: boolean;
     warningText?: string;
     onAddSelectedObjects: () => void;
-    searchHistory: Array<string>;
+    historyItems: Array<SearchHistoryItem>;
     objectTypeFilter: IMultiSelect;
     resultTable: IObjectTableComp;
   };

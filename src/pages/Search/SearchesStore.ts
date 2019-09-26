@@ -7,9 +7,21 @@ import MainPageStore from '../MainPageStore';
 import { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';
 import { sortRowsBy } from '../Table/PrunedObjectsTableStore';
 import { getObjectLabelFromFact } from '../../core/transformers';
-import { SimpleSearch } from '../SimpleSearchBackendStore';
+import SimpleSearchBackendStore, { SimpleSearch } from '../SimpleSearchBackendStore';
 
 const emptyFilterValue = 'Show all';
+
+const toHistoryItems = (searchHistory: Array<SimpleSearch>, simpleSearchBackendStore: SimpleSearchBackendStore) => {
+  return searchHistory
+    .map(s => ({
+      label: s.searchString,
+      labelSecondary: s.objects ? `(${s.objects.length})` : '',
+      onClick: () => {
+        simpleSearchBackendStore.setSelectedSimpleSearch(s);
+      }
+    }))
+    .sort((a: { label: string }, b: { label: string }) => (a.label > b.label ? 1 : -1));
+};
 
 export const resultToRows = ({
   simpleSearch,
@@ -114,8 +126,6 @@ class SearchesStore {
 
   @computed
   get prepared() {
-    const searchHistory = Object.keys(this.root.backendStore.simpleSearchBackendStore.searches);
-
     const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.selectedSimpleSearch;
 
     if (!activeSimpleSearch) {
@@ -154,7 +164,10 @@ class SearchesStore {
         warningText: warningText,
         isLoading: activeSimpleSearch.status === 'pending',
         onAddSelectedObjects: this.onAddSelectedObjects,
-        searchHistory: searchHistory,
+        historyItems: toHistoryItems(
+          Object.values(this.root.backendStore.simpleSearchBackendStore.searches),
+          this.root.backendStore.simpleSearchBackendStore
+        ),
         objectTypeFilter: {
           id: 'object-type-filter',
           label: 'Filter',

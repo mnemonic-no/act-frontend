@@ -65,7 +65,9 @@ const useHistoryStyles = makeStyles((theme: Theme) => ({
   },
   popperRoot: {
     maxWidth: '350px',
-    minWidth: '300px'
+    minWidth: '300px',
+    overflowY: 'auto',
+    maxHeight: '60vh'
   },
   ellipsisText: {
     textOverflow: 'ellipsis',

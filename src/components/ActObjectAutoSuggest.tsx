@@ -10,7 +10,7 @@ import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
-import { objectTypeToColor, renderObjectValue } from '../util/utils';
+import { objectTypeToColor, truncateText } from '../util/utils';
 import { ActObject } from '../pages/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -42,7 +42,7 @@ const renderSuggestion = (
   { query, isHighlighted }: { query: string; isHighlighted: boolean }
 ) => {
   const objectType = suggestion.actObject.type.name;
-  const objectValue = renderObjectValue(suggestion.actObject, 20);
+  const objectValue = truncateText(suggestion.objectLabel, 24);
 
   const matches = match(objectValue, query);
   const parts = parse(objectValue, matches);
@@ -142,6 +142,7 @@ const ActObjectAutoSuggest = ({
 
 type Suggestion = {
   actObject: ActObject;
+  objectLabel: string;
   [key: string]: any;
 };
 

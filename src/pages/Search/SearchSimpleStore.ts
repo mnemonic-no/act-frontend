@@ -1,6 +1,8 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
 import { byTypeThenName } from '../../util/util';
+import { getObjectLabelFromFact } from '../../core/transformers';
+import config from '../../config';
 
 class SearchSimpleStore {
   root: MainPageStore;
@@ -35,7 +37,10 @@ class SearchSimpleStore {
               .slice() // Don't mutate the underlying array
               .sort(byTypeThenName)
               .map(actObject => ({
-                actObject: actObject
+                actObject: actObject,
+                objectLabel:
+                  getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.facts) ||
+                  actObject.value
               }))
               .slice(0, this.suggestionLimit)
           : [],

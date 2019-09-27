@@ -7,21 +7,9 @@ import MainPageStore from '../MainPageStore';
 import { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';
 import { sortRowsBy } from '../Table/PrunedObjectsTableStore';
 import { getObjectLabelFromFact } from '../../core/transformers';
-import SimpleSearchBackendStore, { SimpleSearch } from '../SimpleSearchBackendStore';
+import { SimpleSearch } from '../SimpleSearchBackendStore';
 
 const emptyFilterValue = 'Show all';
-
-const toHistoryItems = (searchHistory: Array<SimpleSearch>, simpleSearchBackendStore: SimpleSearchBackendStore) => {
-  return searchHistory
-    .map(s => ({
-      label: s.searchString,
-      labelSecondary: s.objects ? `(${s.objects.length})` : '',
-      onClick: () => {
-        simpleSearchBackendStore.setSelectedSimpleSearch(s);
-      }
-    }))
-    .sort((a: { label: string }, b: { label: string }) => (a.label > b.label ? 1 : -1));
-};
 
 export const resultToRows = ({
   simpleSearch,
@@ -52,6 +40,7 @@ export const resultToRows = ({
 class SearchesStore {
   root: MainPageStore;
 
+  @observable activeSearchString = '';
   @observable sortOrder: SortOrder = { order: 'asc', orderBy: 'objectType' };
   @observable selectedObjectIds: Set<string> = new Set();
   @observable objectTypeFilter: Set<string> = new Set();
@@ -90,7 +79,7 @@ class SearchesStore {
 
   @action.bound
   onAddSelectedObjects() {
-    const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.selectedSimpleSearch;
+    const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.getSimpleSearch(this.activeSearchString);
     if (!activeSimpleSearch || !activeSimpleSearch.objects) {
       return;
     }
@@ -124,9 +113,15 @@ class SearchesStore {
     this.objectTypeFilter = new Set();
   }
 
+  @action.bound
+  setActiveSearchString(searchString: string) {
+    this.activeSearchString = searchString;
+    this.clearObjectTypeFilter();
+  }
+
   @computed
   get prepared() {
-    const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.selectedSimpleSearch;
+    const activeSimpleSearch = this.root.backendStore.simpleSearchBackendStore.getSimpleSearch(this.activeSearchString);
 
     if (!activeSimpleSearch) {
       return {
@@ -157,6 +152,16 @@ class SearchesStore {
       ? 'Result set exceeds limit. Try to constrain your search or use the advanced search if you want to see more'
       : '';
 
+    const historyItems = Object.values(this.root.backendStore.simpleSearchBackendStore.searches)
+      .map(s => ({
+        label: s.searchString,
+        labelSecondary: s.objects ? `(${s.objects.length})` : '',
+        onClick: () => {
+          this.setActiveSearchString(s.searchString);
+        }
+      }))
+      .sort((a: { label: string }, b: { label: string }) => (a.label > b.label ? 1 : -1));
+
     return {
       searchResult: {
         title: 'Results for: ' + activeSimpleSearch.searchString,
@@ -164,10 +169,7 @@ class SearchesStore {
         warningText: warningText,
         isLoading: activeSimpleSearch.status === 'pending',
         onAddSelectedObjects: this.onAddSelectedObjects,
-        historyItems: toHistoryItems(
-          Object.values(this.root.backendStore.simpleSearchBackendStore.searches),
-          this.root.backendStore.simpleSearchBackendStore
-        ),
+        historyItems: historyItems,
         objectTypeFilter: {
           id: 'object-type-filter',
           label: 'Filter',

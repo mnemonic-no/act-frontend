@@ -30,7 +30,7 @@ const styles = (theme: any) =>
       listStyleType: 'none'
     },
     progress: {
-      color: theme.palette.common.minBlack
+      color: theme.palette.common.black
     }
   });
 

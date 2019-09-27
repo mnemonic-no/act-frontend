@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx';
+import { action, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import { factKeywordSearch, objectKeywordSearch } from '../core/dataLoaders';
@@ -14,21 +14,19 @@ export type SimpleSearch = {
   errorDetails?: string;
 };
 
-const resultLimit = 300;
-
 class SimpleSearchBackendStore {
-  @observable selectedSearchString = '';
   @observable searches: { [searchString: string]: SimpleSearch } = {};
+  resultLimit: number;
 
   config: any;
 
-  constructor(config: any) {
+  constructor(config: any, limit: number) {
     this.config = config;
+    this.resultLimit = limit;
   }
 
   @action.bound
   async execute(searchString: string) {
-    this.selectedSearchString = searchString;
     if (this.searches[searchString] && this.searches[searchString].status !== 'rejected') {
       return;
     }
@@ -41,9 +39,9 @@ class SimpleSearchBackendStore {
 
     try {
       const [objectsByValue, factsByNameResult] = await Promise.all([
-        objectKeywordSearch(searchString, resultLimit),
+        objectKeywordSearch(searchString, this.resultLimit),
         this.config.objectLabelFromFactType
-          ? factKeywordSearch(searchString, [this.config.objectLabelFromFactType], resultLimit)
+          ? factKeywordSearch(searchString, [this.config.objectLabelFromFactType], this.resultLimit)
           : Promise.resolve([])
       ]);
 
@@ -56,21 +54,15 @@ class SimpleSearchBackendStore {
         status: 'done',
         objects: result,
         facts: factsByNameResult,
-        limitExceeded: resultLimit <= objectsByValue.length || resultLimit <= objectsFromFacts.length
+        limitExceeded: this.resultLimit <= objectsByValue.length || this.resultLimit <= objectsFromFacts.length
       };
     } catch (err) {
       this.searches[searchString] = { ...search, status: 'rejected', errorDetails: err.message };
     }
   }
 
-  @computed
-  get selectedSimpleSearch(): SimpleSearch | undefined {
-    return this.searches[this.selectedSearchString];
-  }
-
-  @action.bound
-  setSelectedSimpleSearch(s: SimpleSearch) {
-    return (this.selectedSearchString = s.searchString);
+  getSimpleSearch(searchString: string) {
+    return this.searches[searchString];
   }
 
   @action.bound

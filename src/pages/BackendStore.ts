@@ -16,18 +16,20 @@ const isInHistory = (search: Search, historyItems: Array<SearchItem>) => {
 class BackendStore {
   root: MainPageStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
+  autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
 
   @observable isLoading: boolean = false;
 
   constructor(root: MainPageStore, config: any) {
     this.root = root;
-    this.simpleSearchBackendStore = new SimpleSearchBackendStore(config);
+    this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, 300);
+    this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
   }
 
   @action
   async executeSimpleSearch(query: string) {
     this.simpleSearchBackendStore.execute(query);
-    this.root.ui.searchesStore.clearObjectTypeFilter();
+    this.root.ui.searchesStore.setActiveSearchString(query);
     this.root.ui.contentStore.onTabSelected('searches');
   }
 

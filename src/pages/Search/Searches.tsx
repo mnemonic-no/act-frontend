@@ -61,7 +61,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const useHistoryStyles = makeStyles((theme: Theme) => ({
   root: {
-    position: 'relative'
+    position: 'relative',
+    zIndex: 900
   },
   popperRoot: {
     maxWidth: '350px',
@@ -98,7 +99,7 @@ const HistoryComp = ({ historyItems }: { historyItems: Array<SearchHistoryItem> 
         <span>
           <ClickAwayListener onClickAway={() => setHistoryOpen(false)}>
             <Button variant="outlined" onClick={() => setHistoryOpen(!historyOpen)}>
-              Search History
+              {`Search History (${historyItems.length})`}
             </Button>
           </ClickAwayListener>
         </span>

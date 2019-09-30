@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, Grid, makeStyles, TextField, Theme, Tooltip } from '@material-ui/core';
+import { Button, Grid, makeStyles, Theme, Tooltip } from '@material-ui/core';
+import ActObjectAutoSuggest, { IActObjectAutoSuggestComp } from '../../components/ActObjectAutoSuggest';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: { outline: '1px solid pink' },
@@ -9,7 +10,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const SearchSimpleComp = ({ label, value, onChange, onClear, onSearch }: ISearchSimpleComp) => {
+const SearchSimpleComp = ({ autoSuggester, onClear, onSearch }: ISearchSimpleComp) => {
   const classes = useStyles();
 
   return (
@@ -20,12 +21,7 @@ const SearchSimpleComp = ({ label, value, onChange, onClear, onSearch }: ISearch
       }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <TextField
-            {...{ label, value, onChange: (event: any) => onChange(event.target.value) }}
-            required
-            fullWidth
-            autoFocus
-          />
+          <ActObjectAutoSuggest {...autoSuggester} fullWidth required placeholder="Search for objects" />
         </Grid>
         <Grid item xs={12}>
           <div className={classes.footer}>
@@ -43,9 +39,7 @@ const SearchSimpleComp = ({ label, value, onChange, onClear, onSearch }: ISearch
 };
 
 interface ISearchSimpleComp {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
+  autoSuggester: Omit<IActObjectAutoSuggestComp, 'fullWidth' | 'required' | 'helperText' | 'placeholder'>;
   onClear: () => void;
   onSearch: () => void;
 }

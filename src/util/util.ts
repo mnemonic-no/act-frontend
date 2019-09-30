@@ -1,5 +1,6 @@
 // @ts-ignore
 import { saveAs } from 'file-saver';
+import { ActObject } from '../pages/types';
 
 export const sanitizeCsvValue = (v: any): string => {
   const input = v === null ? '' : v.toString();
@@ -80,3 +81,6 @@ export const setUnion = <T>(a: Set<T>, b: Set<T>): Set<T> => {
 export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
+
+export const byTypeThenName = (a: ActObject, b: ActObject) =>
+  a.type.name + '' + a.value > b.type.name + '' + b.value ? 1 : -1;

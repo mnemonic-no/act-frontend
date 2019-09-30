@@ -3,6 +3,7 @@ import { action, computed, observable, reaction } from 'mobx';
 import { ActFact, ActObject, Search } from '../types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
 import * as R from 'ramda';
+import { byTypeThenName } from '../../util/util';
 
 export type PredefinedObjectQuery = {
   name: string;
@@ -37,10 +38,6 @@ export type ObjectDetails = {
 };
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
-
-// TODO instead take a concatenated string instead of act objects. Because the value should be value or the name (if report e.g)
-const byTypeThenName = (a: ActObject, b: ActObject) =>
-  a.type.name + '' + a.value > b.type.name + '' + b.value ? 1 : -1;
 
 const replaceAll = (s: string, replacements: { [key: string]: string }) => {
   return Object.entries(replacements).reduce((acc: string, [searchFor, replaceWith]: [string, string]) => {

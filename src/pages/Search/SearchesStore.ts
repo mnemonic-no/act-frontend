@@ -166,6 +166,7 @@ class SearchesStore {
       searchResult: {
         title: 'Results for: ' + activeSimpleSearch.searchString,
         subTitle: activeSimpleSearch.objects ? activeSimpleSearch.objects.length + ' objects' : '',
+        isResultEmpty: Boolean(activeSimpleSearch.objects && activeSimpleSearch.objects.length === 0),
         warningText: warningText,
         isLoading: activeSimpleSearch.status === 'pending',
         onAddSelectedObjects: this.onAddSelectedObjects,

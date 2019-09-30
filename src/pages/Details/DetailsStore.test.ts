@@ -1,4 +1,4 @@
-import DetailsStore, { ContextActionTemplate } from './DetailsStore';
+import DetailsStore, { ContextActionTemplate, replaceAllInObject } from './DetailsStore';
 
 const noopFn = () => {};
 
@@ -75,4 +75,19 @@ it('can get context actions for postAndForget', () => {
   expect(actions[0].name).toBe(template.action.name);
   expect(actions[0].description).toBe(template.action.description);
   expect(actions[0].onClick).toBeDefined();
+});
+
+it('can replace items in an object', () => {
+  expect(replaceAllInObject({}, {})).toEqual({});
+
+  expect(
+    replaceAllInObject(
+      {
+        typeOfObject: ':objectType',
+        valueOfObject: ':objectValue',
+        doNotReplace: 1234
+      },
+      { ':objectType': 'threatActor', ':objectValue': 'replacementValue' }
+    )
+  ).toEqual({ typeOfObject: 'threatActor', valueOfObject: 'replacementValue', doNotReplace: 1234 });
 });

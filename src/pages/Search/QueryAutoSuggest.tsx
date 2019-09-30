@@ -5,34 +5,30 @@ import parse from 'autosuggest-highlight/parse';
 // @ts-ignore
 import match from 'autosuggest-highlight/match';
 
-import { createStyles, Typography, WithStyles, withStyles } from '@material-ui/core';
-import TextField from '@material-ui/core/TextField';
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
+import { makeStyles, MenuItem, Paper, TextField, Typography } from '@material-ui/core';
 
-const styles = (theme: any) =>
-  createStyles({
-    container: {
-      position: 'relative'
-    },
-    suggestionsContainerOpen: {
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      zIndex: 2
-    },
-    suggestion: {
-      display: 'block'
-    },
-    suggestionsList: {
-      margin: 0,
-      padding: 0,
-      listStyleType: 'none'
-    },
-    progress: {
-      color: theme.palette.common.black
-    }
-  });
+const useStyles = makeStyles((theme: any) => ({
+  container: {
+    position: 'relative'
+  },
+  suggestionsContainerOpen: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 2
+  },
+  suggestion: {
+    display: 'block'
+  },
+  suggestionsList: {
+    margin: 0,
+    padding: 0,
+    listStyleType: 'none'
+  },
+  progress: {
+    color: theme.palette.common.black
+  }
+}));
 
 const renderInput = ({ classes, label, helperText, required, autoFocus, fullWidth, value, ref, ...other }: any) => {
   return (
@@ -86,7 +82,6 @@ type Suggestion = {
 };
 
 const QueryAutoSuggest = ({
-  classes,
   value,
   suggestions,
   required,
@@ -96,6 +91,8 @@ const QueryAutoSuggest = ({
   onChange,
   placeholder
 }: IQueryAutoSuggest) => {
+  const classes = useStyles();
+
   const onChangeWrapper: (event: FormEvent<any>, params: ChangeEvent) => void = (event, params) => {
     const { newValue, method } = params;
     // Avoid updating the input field when the user is navigating the suggestion list.
@@ -136,7 +133,7 @@ const QueryAutoSuggest = ({
   );
 };
 
-interface IQueryAutoSuggest extends WithStyles<typeof styles> {
+interface IQueryAutoSuggest {
   value: string;
   suggestions: Array<Suggestion>;
   onChange: Function;
@@ -147,4 +144,4 @@ interface IQueryAutoSuggest extends WithStyles<typeof styles> {
   placeholder: string;
 }
 
-export default withStyles(styles)(QueryAutoSuggest);
+export default QueryAutoSuggest;

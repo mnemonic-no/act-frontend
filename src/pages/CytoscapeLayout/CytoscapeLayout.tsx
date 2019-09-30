@@ -1,22 +1,25 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { compose } from 'recompose';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import MenuItem from '@material-ui/core/MenuItem';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import IconButton from '@material-ui/core/IconButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Collapse from '@material-ui/core/Collapse';
-import Divider from '@material-ui/core/Divider';
-import Typography from '@material-ui/core/Typography';
-import { withStyles, createStyles, Theme, WithStyles } from '@material-ui/core';
-import Switch from '@material-ui/core/Switch';
-import Tooltip from '@material-ui/core/Tooltip';
-import Input from '@material-ui/core/Input';
+import {
+  Collapse,
+  Divider,
+  Grid,
+  Input,
+  MenuItem,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  makeStyles,
+  Switch,
+  TextField,
+  Tooltip,
+  Theme,
+  Typography
+} from '@material-ui/core';
+
 // TODO check if package supports types
 // @ts-ignore
 import classnames from 'classnames';
@@ -25,18 +28,17 @@ import LAYOUTS, { types } from '../../Cytoscape/layouts';
 import ListItemControl from '../../components/ListItemControl';
 import CytoscapeLayoutStore from './CytoscapeLayoutStore';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    expand: {
-      transform: 'rotate(0deg)',
-      transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest
-      })
-    },
-    expandOpen: {
-      transform: 'rotate(180deg)'
-    }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  expand: {
+    transform: 'rotate(0deg)',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest
+    })
+  },
+  expandOpen: {
+    transform: 'rotate(180deg)'
+  }
+}));
 
 const LayoutOptionControl = ({ onChange, value, type, min, max }: any) => {
   switch (type) {
@@ -125,72 +127,73 @@ const LayoutOptionsList = ({ layoutConfig, layoutName, onChange }: any) => {
   );
 };
 
-const CytoscapeLayout = ({ store, classes }: ICytoscapeLayout) => (
-  <Grid container spacing={2}>
-    <Grid item xs={12}>
-      <TextField
-        fullWidth
-        label="Layout"
-        select
-        value={store.graphOptions.layout.layoutName}
-        onChange={e => {
-          // Dirty hack to get it to work...
-          store.setLayout(
-            // @ts-ignore
-            LAYOUTS[Object.keys(LAYOUTS).find(x => LAYOUTS[x].layoutName === e.target.value)]
-          );
-        }}>
-        {Object.keys(LAYOUTS).map(layout => (
-          <MenuItem
-            dense
-            // @ts-ignore
-            key={LAYOUTS[layout].layoutName}
-            // @ts-ignore
-            value={LAYOUTS[layout].layoutName}>
-            {
+const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
+  const classes = useStyles();
+
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Layout"
+          select
+          value={store.graphOptions.layout.layoutName}
+          onChange={e => {
+            // Dirty hack to get it to work...
+            store.setLayout(
               // @ts-ignore
-              LAYOUTS[layout].layoutName
-            }
-          </MenuItem>
-        ))}
-      </TextField>
-    </Grid>
-    <Grid item xs={12}>
-      <List dense>
-        <ListItem disableGutters>
-          <ListItemText secondary={'Layout options'} />
-          <ListItemSecondaryAction>
-            <IconButton
-              onClick={() => store.toggleShowLayoutOptions()}
-              className={classnames(classes.expand, {
-                [classes.expandOpen]: store.showLayoutOptions
-              })}>
-              <ExpandMoreIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
-        </ListItem>
-      </List>
+              LAYOUTS[Object.keys(LAYOUTS).find(x => LAYOUTS[x].layoutName === e.target.value)]
+            );
+          }}>
+          {Object.keys(LAYOUTS).map(layout => (
+            <MenuItem
+              dense
+              // @ts-ignore
+              key={LAYOUTS[layout].layoutName}
+              // @ts-ignore
+              value={LAYOUTS[layout].layoutName}>
+              {
+                // @ts-ignore
+                LAYOUTS[layout].layoutName
+              }
+            </MenuItem>
+          ))}
+        </TextField>
+      </Grid>
+      <Grid item xs={12}>
+        <List dense>
+          <ListItem disableGutters>
+            <ListItemText secondary={'Layout options'} />
+            <ListItemSecondaryAction>
+              <IconButton
+                onClick={() => store.toggleShowLayoutOptions()}
+                className={classnames(classes.expand, {
+                  [classes.expandOpen]: store.showLayoutOptions
+                })}>
+                <ExpandMoreIcon />
+              </IconButton>
+            </ListItemSecondaryAction>
+          </ListItem>
+        </List>
 
-      <Collapse in={store.showLayoutOptions} unmountOnExit>
-        <Divider />
-        <LayoutOptionsList
-          layoutConfig={store.graphOptions.layout.layoutConfig}
-          layoutName={store.graphOptions.layout.layoutName}
-          onChange={(layout: any) => store.onLayoutConfigChange(layout)}
-        />
-        <a href={store.graphOptions.layout.layoutUrl}>
-          <Typography>Reference</Typography>
-        </a>
-      </Collapse>
+        <Collapse in={store.showLayoutOptions} unmountOnExit>
+          <Divider />
+          <LayoutOptionsList
+            layoutConfig={store.graphOptions.layout.layoutConfig}
+            layoutName={store.graphOptions.layout.layoutName}
+            onChange={(layout: any) => store.onLayoutConfigChange(layout)}
+          />
+          <a href={store.graphOptions.layout.layoutUrl}>
+            <Typography>Reference</Typography>
+          </a>
+        </Collapse>
+      </Grid>
     </Grid>
-  </Grid>
-);
+  );
+};
 
-interface ICytoscapeLayout extends WithStyles<typeof styles> {
+interface ICytoscapeLayout {
   store: CytoscapeLayoutStore;
 }
 
-export default compose<ICytoscapeLayout, Omit<ICytoscapeLayout, 'classes'>>(
-  withStyles(styles),
-  observer
-)(CytoscapeLayout);
+export default observer(CytoscapeLayout);

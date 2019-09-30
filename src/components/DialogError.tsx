@@ -1,23 +1,18 @@
 import React from 'react';
-import { compose } from 'recompose';
-import Typography from '@material-ui/core/Typography';
-import { withStyles, WithStyles, createStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme, Typography } from '@material-ui/core';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    error: {
-      padding: theme.spacing(3),
+const useStyles = makeStyles((theme: Theme) => ({
+  error: {
+    padding: theme.spacing(3),
+    backgroundColor: theme.palette.grey[200],
 
-      backgroundColor: theme.palette.grey[200],
-
-      marginBottom: theme.spacing(2),
-
-      // Negeate dialog padding
-      marginTop: -theme.spacing(3),
-      marginLeft: -theme.spacing(3),
-      marginRight: -theme.spacing(3)
-    }
-  });
+    marginBottom: theme.spacing(2),
+    // Negate dialog padding
+    marginTop: -theme.spacing(3),
+    marginLeft: -theme.spacing(3),
+    marginRight: -theme.spacing(3)
+  }
+}));
 
 const toErrorMessage = (error: any) => {
   if (error instanceof Error) {
@@ -27,7 +22,8 @@ const toErrorMessage = (error: any) => {
   return JSON.stringify(error);
 };
 
-const DialogErrorComp = ({ classes, error }: IDialogErrorComp) => {
+const DialogErrorComp = ({ error }: IDialogErrorComp) => {
+  const classes = useStyles();
   return (
     <div className={classes.error}>
       <Typography color="error" variant="body1">
@@ -40,8 +36,8 @@ const DialogErrorComp = ({ classes, error }: IDialogErrorComp) => {
   );
 };
 
-interface IDialogErrorComp extends WithStyles<typeof styles> {
+interface IDialogErrorComp {
   error: any;
 }
 
-export default compose<IDialogErrorComp, Omit<IDialogErrorComp, 'classes'>>(withStyles(styles))(DialogErrorComp);
+export default DialogErrorComp;

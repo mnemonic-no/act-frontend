@@ -5,7 +5,7 @@ import parse from 'autosuggest-highlight/parse';
 // @ts-ignore
 import match from 'autosuggest-highlight/match';
 
-import { makeStyles, MenuItem, Paper, TextField, Typography } from '@material-ui/core';
+import { makeStyles, MenuItem, Paper, TextField, Tooltip, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: any) => ({
   container: {
@@ -49,15 +49,17 @@ const renderSuggestion = (
   const parts = parse(suggestion.uiText, matches);
 
   return (
-    <MenuItem selected={isHighlighted} component="div">
-      <div>
-        {parts.map((part: any, index: number) => (
-          <span key={index} style={{ fontWeight: part.highlight ? 500 : 300 }}>
-            {part.text}
-          </span>
-        ))}
-      </div>
-    </MenuItem>
+    <Tooltip title={suggestion.toolTip}>
+      <MenuItem selected={isHighlighted} component="div">
+        <div>
+          {parts.map((part: any, index: number) => (
+            <span key={index} style={{ fontWeight: part.highlight ? 500 : 300 }}>
+              {part.text}
+            </span>
+          ))}
+        </div>
+      </MenuItem>
+    </Tooltip>
   );
 };
 
@@ -78,6 +80,7 @@ const getSuggestionValue = (suggestion: Suggestion) => {
 
 type Suggestion = {
   uiText: string;
+  toolTip: string;
   [key: string]: any;
 };
 

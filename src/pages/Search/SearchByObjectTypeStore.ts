@@ -69,10 +69,13 @@ class SearchByObjectTypeStore {
     return {
       value: this.query,
       onChange: this.onQueryInputChange,
-      suggestions: suggestions(this.query, this.objectType, this.predefinedObjectQueries).map((x: any) => ({
-        ...x,
-        uiText: x.name
-      }))
+      suggestions: suggestions(this.query, this.objectType, this.predefinedObjectQueries).map(
+        (x: PredefinedObjectQuery) => ({
+          ...x,
+          uiText: x.name,
+          toolTip: x.description
+        })
+      )
     };
   }
 
@@ -116,7 +119,7 @@ class SearchByObjectTypeStore {
         this.objectValue = s.actObject.value;
       },
       value: this.objectValue,
-      label: 'Search for objects'
+      label: 'Object value'
     };
   }
 }

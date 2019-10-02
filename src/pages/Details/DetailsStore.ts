@@ -1,8 +1,9 @@
-import MainPageStore from '../MainPageStore';
 import { action, computed, observable, reaction } from 'mobx';
+import * as _ from 'lodash/fp';
+
+import MainPageStore from '../MainPageStore';
 import { ActFact, ActObject, Search } from '../types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
-import * as R from 'ramda';
 import { byTypeThenName } from '../../util/util';
 
 export type PredefinedObjectQuery = {
@@ -43,6 +44,17 @@ const replaceAll = (s: string, replacements: { [key: string]: string }) => {
   return Object.entries(replacements).reduce((acc: string, [searchFor, replaceWith]: [string, string]) => {
     return acc.replace(searchFor, replaceWith);
   }, s);
+};
+
+export const replaceAllInObject = (
+  obj: { [key: string]: any } | undefined,
+  replacements: { [key: string]: string }
+) => {
+  if (!obj) {
+    return obj;
+  }
+
+  return _.mapValues(v => (typeof v === 'string' ? replaceAll(v, replacements) : v))(obj);
 };
 
 class DetailsStore {
@@ -135,14 +147,6 @@ class DetailsStore {
           href: replaceAll(template.action.urlPattern || '', replacements)
         };
       case 'postAndForget':
-        const jsonBody = R.fromPairs(
-          Object.entries(template.action.jsonBody || {}).map(([k, v]: any) => {
-            return [k, replaceAll(v, replacements)];
-          })
-        );
-
-        const url = replaceAll(template.action.pathPattern || '', replacements);
-
         return {
           name: template.action.name,
           description: template.action.description,
@@ -151,6 +155,8 @@ class DetailsStore {
               template.action.confirmation === undefined ||
               (template.action.confirmation && window.confirm(template.action.confirmation))
             ) {
+              const url = replaceAll(template.action.pathPattern || '', replacements);
+              const jsonBody = replaceAllInObject(template.action.jsonBody, replacements);
               postAndForgetFn(url, jsonBody, 'Success: ' + template.action.name);
             }
           }

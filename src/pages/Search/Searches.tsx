@@ -20,9 +20,12 @@ import ObjectTable, { IObjectTableComp } from '../../components/ObjectTable';
 import MultiSelect, { IMultiSelect } from '../../components/MultiSelect';
 
 const useStyles = makeStyles((theme: Theme) => ({
-  noSearches: {
+  warning: {
     textAlign: 'center',
     padding: theme.spacing(10)
+  },
+  fillFlex: {
+    flex: '1 0 auto'
   },
   root: {
     overflowY: 'hidden',
@@ -127,11 +130,11 @@ const HistoryComp = ({ historyItems }: { historyItems: Array<SearchHistoryItem> 
   );
 };
 
-const NoSearchesComp = ({ classes }: any) => {
+const CenteredWarningComp = ({ classes, title, subTitle }: { classes: any; title: string; subTitle: string }) => {
   return (
-    <div className={classes.noSearches}>
-      <Typography variant="h5">You have no simple searches</Typography>
-      <Typography variant="subtitle1">Try to run a simple search from the search box</Typography>
+    <div className={classes.warning}>
+      <Typography variant="h5">{title}</Typography>
+      <Typography variant="subtitle1">{subTitle}</Typography>
     </div>
   );
 };
@@ -169,10 +172,25 @@ const SearchesComp = ({ searchResult, searchError }: ISearchesComp) => {
   }
 
   if (!searchResult) {
-    return <NoSearchesComp classes={classes} />;
+    return (
+      <CenteredWarningComp
+        classes={classes}
+        title="You have no simple searches"
+        subTitle="Try to run a simple search from the search box"
+      />
+    );
   }
 
-  const { isLoading, title, subTitle, resultTable, warningText, onAddSelectedObjects, objectTypeFilter } = searchResult;
+  const {
+    isLoading,
+    title,
+    subTitle,
+    isResultEmpty,
+    resultTable,
+    warningText,
+    onAddSelectedObjects,
+    objectTypeFilter
+  } = searchResult;
 
   return (
     <div className={classes.root}>
@@ -189,7 +207,7 @@ const SearchesComp = ({ searchResult, searchError }: ISearchesComp) => {
               <Typography variant="subtitle1">{warningText}</Typography>
             </div>
           )}
-          {!isLoading && (
+          {!isLoading && !isResultEmpty && (
             <div className={classes.objectTypeFilter}>
               <MultiSelect {...objectTypeFilter} />
             </div>
@@ -197,7 +215,12 @@ const SearchesComp = ({ searchResult, searchError }: ISearchesComp) => {
         </div>
         <HistoryComp historyItems={searchResult.historyItems} />
       </div>
-      {!isLoading && (
+      {!isLoading && isResultEmpty && (
+        <div className={classes.fillFlex}>
+          <CenteredWarningComp classes={classes} title="There were no result" subTitle="Try to refine your search" />
+        </div>
+      )}
+      {!isLoading && !isResultEmpty && (
         <div className={classes.tableContainer}>
           <ObjectTable {...resultTable} />
         </div>
@@ -237,6 +260,7 @@ interface ISearchesComp {
     onAddSelectedObjects: () => void;
     historyItems: Array<SearchHistoryItem>;
     objectTypeFilter: IMultiSelect;
+    isResultEmpty: boolean;
     resultTable: IObjectTableComp;
   };
 }

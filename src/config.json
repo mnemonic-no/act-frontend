@@ -17,8 +17,6 @@
   "autoResolveFacts": {
     "asn": ["name"],
     "incident": ["name"],
-    "ipv4": ["sinkhole"],
-    "ipv6": ["sinkhole"],
     "path": ["basename"],
     "report": ["name"],
     "uri": ["port", "scheme"]

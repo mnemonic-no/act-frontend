@@ -1,27 +1,22 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { makeStyles, TableCell, TableRow, Theme } from '@material-ui/core';
 
 import { objectTypeToColor, renderObjectValue } from '../../util/utils';
 import { ActObject } from '../../pages/types';
-import { Theme } from '@material-ui/core';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    cell: {
-      paddingLeft: theme.spacing(2)
-    },
-    cellValue: {
-      wordBreak: 'break-word'
-    },
-    row: {
-      cursor: 'pointer',
-      height: theme.spacing(4)
-    }
-  })
-);
+const useStyles = makeStyles((theme: Theme) => ({
+  cell: {
+    paddingLeft: theme.spacing(2)
+  },
+  cellValue: {
+    wordBreak: 'break-word'
+  },
+  row: {
+    cursor: 'pointer',
+    height: theme.spacing(4)
+  }
+}));
 
 const ObjectRowComp = ({ onRowClick, object }: IOBjectRowComp) => {
   const classes = useStyles();

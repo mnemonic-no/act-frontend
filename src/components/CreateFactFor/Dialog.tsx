@@ -1,27 +1,29 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fab,
+  makeStyles,
+  TextField,
+  Theme,
+  Typography
+} from '@material-ui/core';
+import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
 
 import DialogStore, { FormUniDirectional } from './DialogStore';
-import Button from '@material-ui/core/Button';
 import DialogLoadingOverlay from '../DialogLoadingOverlay';
 import DialogError from '../DialogError';
-import { createStyles, Theme, Typography, WithStyles, withStyles } from '@material-ui/core';
-import TextField from '@material-ui/core/TextField';
 import { ActObject, NamedId } from '../../pages/types';
-import { compose } from 'recompose';
 import ObjectValueAutosuggest from '../ObjectValueAutosuggest';
-import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
-import Fab from '@material-ui/core/Fab';
 import AccessModeSelector from '../AccessModeSelector';
 
-const styles = (theme: Theme) =>
-  createStyles({
-    dialogContentRoot: { paddingBottom: '20px' }
-  });
+const useStyles = makeStyles((theme: Theme) => ({
+  dialogContentRoot: { paddingBottom: '20px' }
+}));
 
 const ObjectComp = ({ title, actObject }: { title: string; actObject: ActObject }) => {
   return (
@@ -360,7 +362,9 @@ const FactComp = observer(({ store }: { store: DialogStore }) => {
   }
 });
 
-const DialogComp = ({ store, classes }: IDialogComp) => {
+const DialogComp = ({ store }: IDialogComp) => {
+  const classes = useStyles();
+
   return (
     <Dialog open={store.isOpen} onClose={() => store.onClose()} disableBackdropClick maxWidth="sm" fullWidth>
       <form
@@ -419,11 +423,8 @@ const DialogComp = ({ store, classes }: IDialogComp) => {
   );
 };
 
-interface IDialogComp extends WithStyles<typeof styles> {
+interface IDialogComp {
   store: DialogStore;
 }
 
-export default compose<IDialogComp, Pick<IDialogComp, 'store'>>(
-  withStyles(styles),
-  observer
-)(DialogComp);
+export default observer(DialogComp);

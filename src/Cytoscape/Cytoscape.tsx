@@ -262,10 +262,12 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
         style={{ height: 'calc(100% - 10px)', width: 'calc(100% - 20px)', marginLeft: '10px' }}
       />
       <Toolbar
-        onZoomIn={cy && (() => zoomIn(cy))}
-        onZoomOut={cy && (() => zoomOut(cy))}
-        onFit={cy && (() => fit(cy))}
-        onFocusOnSelection={cy && (() => focusOnSelection(cy))}
+        onZoomIn={() => cy && zoomIn(cy)}
+        onZoomOut={() => cy && zoomOut(cy)}
+        onFit={() => cy && fit(cy)}
+        onFocusOnSelection={() => {
+          cy && focusOnSelection(cy);
+        }}
       />
     </div>
   );

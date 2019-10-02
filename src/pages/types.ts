@@ -97,7 +97,9 @@ export type ObjectTypeFilter = {
 
 export const searchId = (search: Search) => {
   if (isObjectSearch(search)) {
-    return [search.objectType, search.objectValue, search.query, search.factTypes].filter(x => x).join(':');
+    return [search.objectType, search.objectValue, search.query, search.factTypes && search.factTypes.sort()]
+      .filter(x => x)
+      .join(':');
   } else {
     return search.id;
   }

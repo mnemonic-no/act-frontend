@@ -1,6 +1,9 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
 import { PredefinedObjectQuery } from '../Details/DetailsStore';
+import { byTypeThenName } from '../../util/util';
+import { getObjectLabelFromFact } from '../../core/transformers';
+import config from '../../config';
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
 
@@ -35,6 +38,8 @@ class SearchByObjectTypeStore {
   @observable objectValue: string = '';
   @observable query: string = '';
 
+  suggestionLimit = 20;
+
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
 
   constructor(root: MainPageStore, config: any) {
@@ -68,6 +73,50 @@ class SearchByObjectTypeStore {
         ...x,
         uiText: x.name
       }))
+    };
+  }
+
+  @action.bound
+  onObjectTypeChange(value: string) {
+    this.objectType = value;
+  }
+
+  @action.bound
+  onObjectValueChange(value: string) {
+    this.objectValue = value ? value : '';
+
+    if (this.objectValue.length >= 2) {
+      this.root.backendStore.autoCompleteSimpleSearchBackendStore.execute(this.objectValue, [this.objectType]);
+    }
+  }
+
+  @computed
+  get autoSuggester() {
+    const simpleSearch = this.root.backendStore.autoCompleteSimpleSearchBackendStore.getSimpleSearch(this.objectValue, [
+      this.objectType
+    ]);
+
+    return {
+      isLoading: simpleSearch && simpleSearch.status === 'pending',
+      suggestions:
+        simpleSearch && simpleSearch.objects
+          ? simpleSearch.objects
+              .slice() // Don't mutate the underlying array
+              .sort(byTypeThenName)
+              .map(actObject => ({
+                actObject: actObject,
+                objectLabel:
+                  getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.facts) ||
+                  actObject.value
+              }))
+              .slice(0, this.suggestionLimit)
+          : [],
+      onChange: this.onObjectValueChange,
+      onSuggestionSelected: (s: any) => {
+        this.objectValue = s.actObject.value;
+      },
+      value: this.objectValue,
+      label: 'Search for objects'
     };
   }
 }

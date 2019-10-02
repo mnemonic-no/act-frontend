@@ -152,7 +152,7 @@ class SearchesStore {
       ? 'Result set exceeds limit. Try to constrain your search or use the advanced search if you want to see more'
       : '';
 
-    const historyItems = Object.values(this.root.backendStore.simpleSearchBackendStore.searches)
+    const historyItems = this.root.backendStore.simpleSearchBackendStore.searchList
       .map(s => ({
         label: s.searchString,
         labelSecondary: s.objects ? `(${s.objects.length})` : '',

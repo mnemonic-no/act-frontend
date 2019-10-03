@@ -292,9 +292,18 @@ export const postJson = (url: string, jsonRequest: any) => {
     .catch(handleError);
 };
 
-export const objectKeywordSearch = (keywords: string, limit: number): Promise<Array<ActObject>> => {
+export const objectKeywordSearch = ({
+  keywords,
+  objectTypes,
+  limit
+}: {
+  keywords: string;
+  objectTypes: Array<string>;
+  limit: number;
+}): Promise<Array<ActObject>> => {
   const requestBody = {
     keywords: keywords,
+    objectType: objectTypes,
     limit: limit
   };
 
@@ -306,15 +315,22 @@ export const objectKeywordSearch = (keywords: string, limit: number): Promise<Ar
     .catch(handleError);
 };
 
-export const factKeywordSearch = (
-  keywords: string,
-  factTypes: Array<string>,
-  limit: number
-): Promise<Array<ActFact>> => {
+export const factKeywordSearch = ({
+  keywords,
+  factTypes,
+  objectTypes,
+  limit
+}: {
+  keywords: string;
+  factTypes: Array<string>;
+  objectTypes: Array<string>;
+  limit: number;
+}): Promise<Array<ActFact>> => {
   const requestBody = {
     limit: limit,
     keywords: keywords,
-    factType: factTypes
+    factType: factTypes,
+    objectType: objectTypes
   };
 
   return actWretch

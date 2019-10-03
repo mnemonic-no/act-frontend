@@ -1,6 +1,9 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
 import { PredefinedObjectQuery } from '../Details/DetailsStore';
+import { byTypeThenName } from '../../util/util';
+import { getObjectLabelFromFact } from '../../core/transformers';
+import config from '../../config';
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
 
@@ -8,6 +11,10 @@ const predefinedObjectQueriesFor = (objectTypeName: string, predefinedObjectQuer
   if (!objectTypeName) return [];
 
   return predefinedObjectQueries.filter(x => x.objects.find(otName => otName === objectTypeName)).sort(byName);
+};
+
+export const toSearchString = (s: string) => {
+  return s.trim() + '' + (s.endsWith('*') ? '' : '*');
 };
 
 export const suggestions = (
@@ -34,6 +41,8 @@ class SearchByObjectTypeStore {
   @observable objectType: string = '';
   @observable objectValue: string = '';
   @observable query: string = '';
+
+  suggestionLimit = 20;
 
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
 
@@ -64,10 +73,60 @@ class SearchByObjectTypeStore {
     return {
       value: this.query,
       onChange: this.onQueryInputChange,
-      suggestions: suggestions(this.query, this.objectType, this.predefinedObjectQueries).map((x: any) => ({
-        ...x,
-        uiText: x.name
-      }))
+      suggestions: suggestions(this.query, this.objectType, this.predefinedObjectQueries).map(
+        (x: PredefinedObjectQuery) => ({
+          ...x,
+          uiText: x.name,
+          toolTip: x.description
+        })
+      )
+    };
+  }
+
+  @action.bound
+  onObjectTypeChange(value: string) {
+    this.objectType = value;
+  }
+
+  @action.bound
+  onObjectValueChange(value: string) {
+    this.objectValue = value ? value : '';
+
+    if (this.objectValue.length >= 2) {
+      this.root.backendStore.autoCompleteSimpleSearchBackendStore.execute(toSearchString(this.objectValue), [
+        this.objectType
+      ]);
+    }
+  }
+
+  @computed
+  get autoSuggester() {
+    const simpleSearch = this.root.backendStore.autoCompleteSimpleSearchBackendStore.getSimpleSearch(
+      toSearchString(this.objectValue),
+      [this.objectType]
+    );
+
+    return {
+      isLoading: simpleSearch && simpleSearch.status === 'pending',
+      suggestions:
+        simpleSearch && simpleSearch.objects
+          ? simpleSearch.objects
+              .slice() // Don't mutate the underlying array
+              .sort(byTypeThenName)
+              .map(actObject => ({
+                actObject: actObject,
+                objectLabel:
+                  getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.facts) ||
+                  actObject.value
+              }))
+              .slice(0, this.suggestionLimit)
+          : [],
+      onChange: this.onObjectValueChange,
+      onSuggestionSelected: (s: any) => {
+        this.objectValue = s.actObject.value;
+      },
+      value: this.objectValue,
+      label: 'Object value'
     };
   }
 }

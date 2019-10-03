@@ -3,9 +3,9 @@ import { observer } from 'mobx-react';
 import React from 'react';
 
 import ObjectType from '../../components/ObjectType';
-import ObjectValueAutosuggest from '../../components/ObjectValueAutosuggest';
 import QueryAutoSuggest from './QueryAutoSuggest';
 import SearchByObjectTypeStore from './SearchByObjectTypeStore';
+import ActObjectAutoSuggest from '../../components/ActObjectAutoSuggest';
 
 const useStyles = makeStyles((theme: Theme) => ({
   buttonContainer: {
@@ -25,20 +25,11 @@ const SearchByObjectTypeComp = ({ store }: ISearch) => {
       }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <ObjectType fullWidth value={store.objectType} onChange={(value: string) => (store.objectType = value)} />
+          <ObjectType fullWidth value={store.objectType} onChange={store.onObjectTypeChange} />
         </Grid>
         <Grid item xs={12}>
-          <ObjectValueAutosuggest
-            required
-            autoFocus={store.objectValue === ''}
-            fullWidth
-            label={'Object value'}
-            value={store.objectValue}
-            onChange={(value: string) => (store.objectValue = value)}
-            objectType={store.objectType}
-          />
+          <ActObjectAutoSuggest {...store.autoSuggester} fullWidth required placeholder="Object value" />
         </Grid>
-
         <Grid item xs={12}>
           <QueryAutoSuggest
             required={false}

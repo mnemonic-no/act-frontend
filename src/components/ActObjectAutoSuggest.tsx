@@ -128,7 +128,7 @@ const ActObjectAutoSuggest = ({
         )
       }}
       suggestions={suggestions}
-      shouldRenderSuggestions={() => Boolean(value && value.length > 2)}
+      shouldRenderSuggestions={() => Boolean(value)}
       renderInputComponent={renderInput}
       renderSuggestion={renderSuggestion}
       renderSuggestionsContainer={renderSuggestionsContainer}

@@ -13,6 +13,10 @@ const predefinedObjectQueriesFor = (objectTypeName: string, predefinedObjectQuer
   return predefinedObjectQueries.filter(x => x.objects.find(otName => otName === objectTypeName)).sort(byName);
 };
 
+export const toSearchString = (s: string) => {
+  return s.trim() + '' + (s.endsWith('*') ? '' : '*');
+};
+
 export const suggestions = (
   inputValue: string,
   objectTypeName: string,
@@ -89,15 +93,18 @@ class SearchByObjectTypeStore {
     this.objectValue = value ? value : '';
 
     if (this.objectValue.length >= 2) {
-      this.root.backendStore.autoCompleteSimpleSearchBackendStore.execute(this.objectValue, [this.objectType]);
+      this.root.backendStore.autoCompleteSimpleSearchBackendStore.execute(toSearchString(this.objectValue), [
+        this.objectType
+      ]);
     }
   }
 
   @computed
   get autoSuggester() {
-    const simpleSearch = this.root.backendStore.autoCompleteSimpleSearchBackendStore.getSimpleSearch(this.objectValue, [
-      this.objectType
-    ]);
+    const simpleSearch = this.root.backendStore.autoCompleteSimpleSearchBackendStore.getSimpleSearch(
+      toSearchString(this.objectValue),
+      [this.objectType]
+    );
 
     return {
       isLoading: simpleSearch && simpleSearch.status === 'pending',

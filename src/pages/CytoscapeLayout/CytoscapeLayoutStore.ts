@@ -9,30 +9,21 @@ type Layout = {
   layoutObject: any;
 };
 
-type GraphOptions = {
-  layout: Layout;
-  showFactEdgeLabels: boolean;
-  showRetractions: boolean;
-};
-
 class CytoscapeLayoutStore {
-  @observable graphOptions: GraphOptions;
+  @observable layout: Layout;
   @observable showLayoutOptions: boolean = false;
+  localStorage: Pick<Storage, 'getItem' | 'setItem'>;
+  @observable showFactEdgeLabels: boolean;
 
-  constructor(localStorage: { getItem: Function }) {
-    this.graphOptions = {
-      layout: layouts.euler,
-      showFactEdgeLabels: Boolean(JSON.parse(localStorage.getItem('options.showFactEdgeLabels'))),
-      showRetractions:
-        localStorage.getItem('options.showRetractions') === null
-          ? true
-          : Boolean(JSON.parse(localStorage.getItem('options.showRetractions')))
-    };
+  constructor(localStorage: Pick<Storage, 'getItem' | 'setItem'>) {
+    this.localStorage = localStorage;
+    this.showFactEdgeLabels = Boolean(JSON.parse(localStorage.getItem('options.showFactEdgeLabels') || 'false'));
+    this.layout = layouts.euler;
   }
 
   @action
   setLayout(newLayout: Layout) {
-    this.graphOptions.layout = newLayout;
+    this.layout = newLayout;
   }
 
   @action
@@ -42,24 +33,18 @@ class CytoscapeLayoutStore {
 
   @action
   toggleShowFactEdgeLabels() {
-    this.graphOptions.showFactEdgeLabels = !this.graphOptions.showFactEdgeLabels;
-    window.localStorage.setItem('options.showFactEdgeLabels', JSON.stringify(this.graphOptions.showFactEdgeLabels));
-  }
-
-  @action
-  toggleShowRetractions() {
-    this.graphOptions.showRetractions = !this.graphOptions.showRetractions;
-    window.localStorage.setItem('options.showRetractions', JSON.stringify(this.graphOptions.showRetractions));
+    this.showFactEdgeLabels = !this.showFactEdgeLabels;
+    localStorage.setItem('options.showFactEdgeLabels', JSON.stringify(this.showFactEdgeLabels));
   }
 
   @action
   onLayoutConfigChange(layoutConfig: any) {
     const newLayout = {
-      layoutName: this.graphOptions.layout.layoutName,
-      layoutUrl: this.graphOptions.layout.layoutUrl,
+      layoutName: this.layout.layoutName,
+      layoutUrl: this.layout.layoutUrl,
       layoutConfig,
       layoutObject: layoutConfigToObject({
-        layoutName: this.graphOptions.layout.layoutName,
+        layoutName: this.layout.layoutName,
         layoutConfig
       })
     };

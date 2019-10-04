@@ -58,9 +58,11 @@ class GraphViewStore {
         Object.values(this.root.selectionStore.currentlySelected).map(selectionToCytoscapeNodeId)
       ),
       elements: this.cytoscapeElements,
-      layout: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
-      layoutConfig: this.root.ui.cytoscapeLayoutStore.graphOptions.layout.layoutObject,
-      style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels }),
+      layout: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
+      layoutConfig: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
+      cytoscapeLayoutStore: this.root.ui.cytoscapeLayoutStore,
+
+      style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels }),
       onNodeClick: (node: any) => {
         node.select();
       },

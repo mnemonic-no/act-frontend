@@ -51,9 +51,9 @@ export const filterObjectsByObjectTypes = (
 export const filterOrphans = (
   objects: { [id: string]: ActObject },
   facts: { [id: string]: ActFact },
-  showOrphans: boolean
+  includeOrphans: boolean
 ) => {
-  if (showOrphans) {
+  if (includeOrphans) {
     return objects;
   }
 
@@ -63,8 +63,8 @@ export const filterOrphans = (
   return withoutOrphans(objects);
 };
 
-export const handleRetractions = (facts: { [id: string]: ActFact }, showRetractions: boolean) => {
-  return showRetractions ? facts : _.omitBy((f: ActFact) => isRetraction(f) || isRetracted(f))(facts);
+export const handleRetractions = (facts: { [id: string]: ActFact }, includeRetractions: boolean) => {
+  return includeRetractions ? facts : _.omitBy((f: ActFact) => isRetraction(f) || isRetracted(f))(facts);
 };
 
 interface IRefineResult {
@@ -72,8 +72,8 @@ interface IRefineResult {
   objectTypeFilters: Array<ObjectTypeFilter>;
   endTimestamp: Date | string;
   prunedObjectIds: Set<string>;
-  showRetractions?: boolean;
-  showOrphans?: boolean;
+  includeRetractions?: boolean;
+  includeOrphans?: boolean;
 }
 
 export const refineResult = ({
@@ -81,11 +81,11 @@ export const refineResult = ({
   objectTypeFilters,
   endTimestamp,
   prunedObjectIds,
-  showRetractions = true,
-  showOrphans = true
+  includeRetractions = true,
+  includeOrphans = true
 }: IRefineResult): SearchResult => {
   const refinedFacts = _.pipe(
-    facts => handleRetractions(facts, showRetractions),
+    facts => handleRetractions(facts, includeRetractions),
     facts => filterFactsByObjectTypes(facts, objectTypeFilters),
     facts => filterFactsByPrunedObjects(facts, prunedObjectIds),
     facts => filterByTime(facts, endTimestamp)
@@ -99,7 +99,7 @@ export const refineResult = ({
     objects => {
       return { ...objects, ...objectsFromFacts };
     },
-    objects => filterOrphans(objects, refinedFacts, showOrphans)
+    objects => filterOrphans(objects, refinedFacts, includeOrphans)
   )(searchResult.objects);
 
   return { facts: refinedFacts, objects: refinedObjects };
@@ -111,10 +111,17 @@ class RefineryStore {
   @observable prunedObjectIds: Set<string> = new Set();
   @observable objectTypeFilters: Array<ObjectTypeFilter> = [];
   @observable endTimestamp: Date | string = 'Any time';
-  @observable showOrphans = true;
+  @observable includeOrphans = true;
+  @observable includeRetractions = true;
 
-  constructor(root: MainPageStore) {
+  localStorage: Storage;
+
+  constructor(root: MainPageStore, localStorage: Storage) {
     this.root = root;
+
+    this.localStorage = localStorage;
+    this.includeRetractions = Boolean(JSON.parse(localStorage.getItem('options.includeRetractions') || 'true'));
+    this.includeOrphans = Boolean(JSON.parse(localStorage.getItem('options.includeOrphans') || 'true'));
 
     reaction(
       () => this.root.workingHistory.result.objects,
@@ -144,8 +151,8 @@ class RefineryStore {
       objectTypeFilters: this.objectTypeFilters,
       endTimestamp: this.endTimestamp,
       prunedObjectIds: this.prunedObjectIds,
-      showRetractions: this.root.ui.refineryOptionsStore.graphOptions.showRetractions,
-      showOrphans: this.showOrphans
+      includeRetractions: this.includeRetractions,
+      includeOrphans: this.includeOrphans
     });
   }
 
@@ -154,7 +161,7 @@ class RefineryStore {
     this.endTimestamp = newEnd;
   }
 
-  @action
+  @action.bound
   toggleObjectTypeFilter(x: ObjectTypeFilter) {
     x.checked = !x.checked;
   }
@@ -207,8 +214,15 @@ class RefineryStore {
   }
 
   @action.bound
-  toggleShowOrphans() {
-    this.showOrphans = !this.showOrphans;
+  toggleIncludeOrphans() {
+    this.includeOrphans = !this.includeOrphans;
+    this.localStorage.setItem('options.includeOrphans', JSON.stringify(this.includeOrphans));
+  }
+
+  @action.bound
+  toggleIncludeRetractions() {
+    this.includeRetractions = !this.includeRetractions;
+    this.localStorage.setItem('options.includeRetractions', JSON.stringify(this.includeRetractions));
   }
 }
 

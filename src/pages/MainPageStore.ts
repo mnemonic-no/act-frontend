@@ -61,7 +61,7 @@ class MainPageStore {
   constructor() {
     this.backendStore = new BackendStore(this, config);
     this.workingHistory = new WorkingHistory(this);
-    this.refineryStore = new RefineryStore(this);
+    this.refineryStore = new RefineryStore(this, window.localStorage);
     this.selectionStore = new SelectionStore();
     this.ui = {
       contentStore: new ContentStore(this),

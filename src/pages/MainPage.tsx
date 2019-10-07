@@ -15,7 +15,6 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import AboutButton from '../components/About';
-import CytoscapeLayout from './CytoscapeLayout/CytoscapeLayout';
 import ErrorSnackbar from '../components/ErrorSnackbar';
 import ErrorBoundary from '../components/ErrorBoundary';
 import GraphEmpty from './GraphView/GraphEmpty';
@@ -149,15 +148,15 @@ const useStyles = makeStyles((theme: Theme) => {
     },
 
     paper: {
-      padding: theme.spacing(2),
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(2),
-      marginTop: theme.spacing(2)
+      padding: theme.spacing(1.5),
+      marginLeft: theme.spacing(1.5),
+      marginRight: theme.spacing(1.5),
+      marginTop: theme.spacing(1.5)
     },
     paperNoPadding: {
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(2),
-      marginTop: theme.spacing(2)
+      marginLeft: theme.spacing(1.5),
+      marginRight: theme.spacing(1.5),
+      marginTop: theme.spacing(1.5)
     },
 
     toggleButton: {
@@ -246,10 +245,6 @@ const MainPage = () => {
 
                     <Paper className={classes.paperNoPadding}>
                       <WorkingHistory store={store.ui.workingHistoryStore} />
-                    </Paper>
-
-                    <Paper className={classes.paper}>
-                      <CytoscapeLayout store={store.ui.cytoscapeLayoutStore} />
                     </Paper>
 
                     <Paper className={classes.paper}>

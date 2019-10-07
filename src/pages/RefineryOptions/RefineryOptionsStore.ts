@@ -1,6 +1,5 @@
 import { computed } from 'mobx';
 import MainPageStore from '../MainPageStore';
-import { ObjectTypeFilter } from '../types';
 
 class RefineryOptionsStore {
   root: MainPageStore;
@@ -9,24 +8,17 @@ class RefineryOptionsStore {
     this.root = root;
   }
 
-  @computed get graphOptions() {
-    return {
-      showOrphans: this.root.refineryStore.showOrphans,
-      showFactEdgeLabels: this.root.ui.cytoscapeLayoutStore.graphOptions.showFactEdgeLabels,
-      showRetractions: this.root.ui.cytoscapeLayoutStore.graphOptions.showRetractions,
-      toggleShowFactEdgeLabels: () => this.root.ui.cytoscapeLayoutStore.toggleShowFactEdgeLabels(),
-      toggleShowRetractions: () => this.root.ui.cytoscapeLayoutStore.toggleShowRetractions(),
-      toggleShowOrphans: this.root.refineryStore.toggleShowOrphans
-    };
-  }
-
   @computed get filterOptions() {
     return {
+      includeRetractions: this.root.refineryStore.includeRetractions,
       objectTypeFilters: this.root.refineryStore.objectTypeFilters,
       endTimestamp: this.root.refineryStore.endTimestamp,
+      includeOrphans: this.root.refineryStore.includeOrphans,
+
       setEndTimestamp: (newEnd: Date) => this.root.refineryStore.setEndTimestamp(newEnd),
-      toggleObjectTypeFilter: (objectTypeFilter: ObjectTypeFilter) =>
-        this.root.refineryStore.toggleObjectTypeFilter(objectTypeFilter)
+      toggleObjectTypeFilter: this.root.refineryStore.toggleObjectTypeFilter,
+      toggleIncludeOrphans: this.root.refineryStore.toggleIncludeOrphans,
+      toggleIncludeRetractions: this.root.refineryStore.toggleIncludeRetractions
     };
   }
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { makeStyles } from '@material-ui/core';
 import * as _ from 'lodash/fp';
 import Cytoscape from 'cytoscape';
 // @ts-ignore
@@ -22,6 +23,7 @@ import betterGrid from './betterGrid';
 import { usePrevious } from '../hooks';
 import { createBatcherFn, modifierKeysUsed } from '../util/util';
 import Toolbar from './Toolbar';
+import CytoscapeLayoutStore from '../pages/CytoscapeLayout/CytoscapeLayoutStore';
 
 Cytoscape.use(CytoscapeDagre);
 CytoscapeCoseBilkent(Cytoscape);
@@ -132,13 +134,21 @@ const syncSelection = (cy: Cytoscape.Core, selectedNodeIds: Set<string>) => {
   });
 };
 
+const useStyles = makeStyles(() => ({
+  root: { height: '100%', width: '100%', position: 'relative' },
+  cytoscapeContainer: { height: 'calc(100% - 10px)', width: 'calc(100% - 20px)', marginLeft: '10px' }
+}));
+
 const CytoscapeComp = (input: ICytoscapeComp) => {
+  const classes = useStyles();
+
   const {
     elements,
     selectedNodeIds,
     resizeEvent,
     style,
     layoutConfig,
+    cytoscapeLayoutStore,
     onNodeClick,
     onNodeDoubleClick,
     onSelect,
@@ -256,18 +266,14 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
   }, [elements, selectedNodeIds, style, resizeEvent]);
 
   return (
-    <div style={{ height: '100%', width: '100%', position: 'relative' }}>
-      <div
-        id="cytoscape-container"
-        style={{ height: 'calc(100% - 10px)', width: 'calc(100% - 20px)', marginLeft: '10px' }}
-      />
+    <div className={classes.root}>
+      <div id="cytoscape-container" className={classes.cytoscapeContainer} />
       <Toolbar
+        cytoscapeLayoutStore={cytoscapeLayoutStore}
         onZoomIn={() => cy && zoomIn(cy)}
         onZoomOut={() => cy && zoomOut(cy)}
         onFit={() => cy && fit(cy)}
-        onFocusOnSelection={() => {
-          cy && focusOnSelection(cy);
-        }}
+        onFocusOnSelection={() => cy && focusOnSelection(cy)}
       />
     </div>
   );
@@ -279,6 +285,7 @@ interface ICytoscapeComp {
   resizeEvent: number;
   style: any;
   layoutConfig: any;
+  cytoscapeLayoutStore: CytoscapeLayoutStore;
   onNodeClick: (target: any) => void;
   onNodeDoubleClick: (target: any) => void;
   onNodeCtxClick?: (target: any) => void;

@@ -160,7 +160,7 @@ it('can filter orphans', () => {
   });
 
   const refineResultArgs = {
-    showOrphans: false,
+    includeOrphans: false,
     searchResult: { facts: { [alias.id]: alias }, objects: { [orphan.id]: orphan } },
     objectTypeFilters: [],
     endTimestamp: 'Any time',
@@ -172,7 +172,7 @@ it('can filter orphans', () => {
     objects: { x: alias.sourceObject, y: alias.destinationObject }
   });
 
-  expect(refineResult({ ...refineResultArgs, showOrphans: true })).toEqual({
+  expect(refineResult({ ...refineResultArgs, includeOrphans: true })).toEqual({
     facts: { [alias.id]: alias },
     objects: {
       [orphan.id]: orphan,

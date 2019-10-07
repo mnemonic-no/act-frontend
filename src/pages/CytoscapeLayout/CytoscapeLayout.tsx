@@ -137,7 +137,7 @@ const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
           fullWidth
           label="Layout"
           select
-          value={store.graphOptions.layout.layoutName}
+          value={store.layout.layoutName}
           onChange={e => {
             // Dirty hack to get it to work...
             store.setLayout(
@@ -179,11 +179,11 @@ const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
         <Collapse in={store.showLayoutOptions} unmountOnExit>
           <Divider />
           <LayoutOptionsList
-            layoutConfig={store.graphOptions.layout.layoutConfig}
-            layoutName={store.graphOptions.layout.layoutName}
+            layoutConfig={store.layout.layoutConfig}
+            layoutName={store.layout.layoutName}
             onChange={(layout: any) => store.onLayoutConfigChange(layout)}
           />
-          <a href={store.graphOptions.layout.layoutUrl}>
+          <a href={store.layout.layoutUrl}>
             <Typography>Reference</Typography>
           </a>
         </Collapse>

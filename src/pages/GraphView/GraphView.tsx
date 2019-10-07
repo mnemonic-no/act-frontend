@@ -1,13 +1,16 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles, Theme, Typography } from '@material-ui/core';
+import { Button, makeStyles, Theme, Typography } from '@material-ui/core';
 import WarnIcon from '@material-ui/icons/Warning';
-import Button from '@material-ui/core/Button';
 
 import CytoscapeComp from '../../Cytoscape/Cytoscape';
 import GraphViewStore from './GraphViewStore';
+import Timeline from '../../components/Timeline/Timeline';
 
 const useStyles = makeStyles((theme: Theme) => ({
+  root: { flex: '1 0 auto', display: 'flex', flexDirection: 'column' },
+  graph: { flex: '1 0 auto' },
+  timeline: { flex: '0 0 auto', borderTop: `1px solid ${theme.palette.divider}` },
   warning: {
     padding: '20px',
     display: 'flex',
@@ -38,11 +41,20 @@ const RenderWarning = ({ classes, onClick }: { classes: any; onClick: Function }
 const GraphView = ({ store }: IGraphView) => {
   const classes = useStyles();
 
-  if (store.prepared.canRender) {
-    return <CytoscapeComp {...store.prepared} />;
-  } else {
-    return <RenderWarning classes={classes} onClick={() => store.acceptRenderWarningOnClick()} />;
-  }
+  return (
+    <div className={classes.root}>
+      <div className={classes.graph}>
+        {store.prepared.canRender ? (
+          <CytoscapeComp {...store.prepared} />
+        ) : (
+          <RenderWarning classes={classes} onClick={() => store.acceptRenderWarningOnClick()} />
+        )}
+      </div>
+      <div className={classes.timeline}>
+        <Timeline {...store.timeline} />
+      </div>
+    </div>
+  );
 };
 
 interface IGraphView {

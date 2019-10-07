@@ -8,7 +8,8 @@ import { ObjectTypeFilter } from '../types';
 const useStyles = makeStyles((theme: Theme) => ({
   checkbox: {
     height: '36px',
-    width: '48px'
+    width: '48px',
+    padding: theme.spacing(0.5)
   },
   ...Object.keys(config.objectColors)
     .map(name => ({

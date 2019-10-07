@@ -9,6 +9,8 @@ import RefineryOptionsStore from './RefineryOptionsStore';
 import RelativeDateSelector from '../../components/RelativeDateSelector';
 import { ObjectTypeFilter } from '../types';
 
+const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
+
 const RefineryOptions = ({ store }: { store: RefineryOptionsStore }) => (
   <Grid container spacing={2}>
     <Grid item xs={12}>
@@ -44,7 +46,7 @@ const RefineryOptions = ({ store }: { store: RefineryOptionsStore }) => (
       </List>
 
       <FilterActObjects
-        objectTypeFilters={store.filterOptions.objectTypeFilters}
+        objectTypeFilters={store.filterOptions.objectTypeFilters.slice().sort(byName)}
         onChange={(x: ObjectTypeFilter) => store.filterOptions.toggleObjectTypeFilter(x)}
       />
     </Grid>

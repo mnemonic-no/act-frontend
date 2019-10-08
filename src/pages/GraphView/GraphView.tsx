@@ -1,6 +1,8 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Button, makeStyles, Theme, Typography } from '@material-ui/core';
+import { Button, IconButton, makeStyles, Theme, Typography } from '@material-ui/core';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import WarnIcon from '@material-ui/icons/Warning';
 
 import CytoscapeComp from '../../Cytoscape/Cytoscape';
@@ -9,7 +11,7 @@ import Timeline from '../../components/Timeline/Timeline';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: { flex: '1 0 auto', display: 'flex', flexDirection: 'column' },
-  graph: { flex: '1 0 auto' },
+  graph: { flex: '1 0 auto', position: 'relative' },
   timeline: { flex: '0 0 auto', borderTop: `1px solid ${theme.palette.divider}` },
   warning: {
     padding: '20px',
@@ -22,6 +24,17 @@ const useStyles = makeStyles((theme: Theme) => ({
 
   warningButton: {
     paddingTop: '20px'
+  },
+  toggleButton: {
+    background: theme.palette.common.white,
+    borderColor: theme.palette.divider,
+    borderStyle: 'solid',
+    position: 'absolute',
+    bottom: '-1px',
+    left: '10px',
+    borderTopLeftRadius: '10px',
+    borderTopRightRadius: '10px',
+    borderWidth: '1px 1px 0 1px'
   }
 }));
 
@@ -49,10 +62,17 @@ const GraphView = ({ store }: IGraphView) => {
         ) : (
           <RenderWarning classes={classes} onClick={() => store.acceptRenderWarningOnClick()} />
         )}
+        <div className={classes.toggleButton}>
+          <IconButton onClick={store.toggleShowTimeline}>
+            {store.showTimeline ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
+          </IconButton>
+        </div>
       </div>
-      <div className={classes.timeline}>
-        <Timeline {...store.timeline} />
-      </div>
+      {store.showTimeline && (
+        <div className={classes.timeline}>
+          <Timeline {...store.timeline} />
+        </div>
+      )}
     </div>
   );
 };

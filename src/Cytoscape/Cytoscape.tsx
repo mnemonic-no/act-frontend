@@ -77,8 +77,7 @@ const clickHandlerFn = (singleClickHandler: (event: any) => void, doubleClickHan
 
 // Actions
 const fit = (cy: Cytoscape.Core) => {
-  // @ts-ignore
-  cy.animate({ fit: true, duration: 150 });
+  cy.animate({ fit: { eles: '*', padding: 10 }, duration: 150 });
 };
 
 const focusOnSelection = (cy: Cytoscape.Core) => {
@@ -136,7 +135,7 @@ const syncSelection = (cy: Cytoscape.Core, selectedNodeIds: Set<string>) => {
 
 const useStyles = makeStyles(() => ({
   root: { height: '100%', width: '100%', position: 'relative' },
-  cytoscapeContainer: { height: 'calc(100% - 10px)', width: 'calc(100% - 20px)', marginLeft: '10px' }
+  cytoscapeContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }
 }));
 
 const CytoscapeComp = (input: ICytoscapeComp) => {
@@ -217,7 +216,6 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
     // Cleanup when the component unmounts
     return () => {
       if (cy !== undefined && cy !== null) {
-        // @ts-ignore
         cy.destroy();
       }
     };
@@ -233,7 +231,6 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
     // Force the cytoscape container to resize itself when the container changes size
     // @ts-ignore
     if (previousProps && resizeEvent !== previousProps.resizeEvent) {
-      // @ts-ignore
       cy.invalidateDimensions();
     }
 

@@ -7,7 +7,7 @@ import { makeStyles, Theme } from '@material-ui/core';
 import { useOnResize, usePrevious } from '../../hooks';
 import { pluralize } from '../../util/util';
 
-const defaultContainerSize = { width: 900, height: 200 };
+const defaultContainerSize = { width: 900, height: 180 };
 const margin = { top: 20, right: 30, bottom: 30, left: 40 };
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   root: {
     width: '100%',
-    height: '200px',
+    height: '180px',
     position: 'relative',
 
     '& .tooltip': {

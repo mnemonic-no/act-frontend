@@ -1,10 +1,11 @@
 import { action, computed, observable } from 'mobx';
-import MainPageStore from '../MainPageStore';
-import getStyle from '../../core/cytoscapeStyle';
-import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, SearchResult, Search } from '../types';
 import * as _ from 'lodash/fp';
-import { objectFactsToElements } from '../../core/cytoscapeTransformers';
+
 import config from '../../config';
+import getStyle from '../../core/cytoscapeStyle';
+import { objectFactsToElements } from '../../core/cytoscapeTransformers';
+import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, SearchResult, Search } from '../types';
+import MainPageStore from '../MainPageStore';
 
 const cytoscapeNodeToSelection = (node: any): ActSelection => {
   return {
@@ -23,6 +24,7 @@ class GraphViewStore {
   renderThreshold: number = 2000;
   @observable resizeEvent = 0; // Used to trigger rerendering of the cytoscape element when it changes
   @observable acceptRenderWarning = false;
+  @observable showTimeline = true;
 
   constructor(root: MainPageStore) {
     this.root = root;
@@ -45,6 +47,11 @@ class GraphViewStore {
       objects: Object.values(res.objects),
       objectLabelFromFactType: config.objectLabelFromFactType
     });
+  }
+
+  @action.bound
+  toggleShowTimeline() {
+    this.showTimeline = !this.showTimeline;
   }
 
   @computed

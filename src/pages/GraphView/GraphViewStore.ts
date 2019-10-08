@@ -18,6 +18,19 @@ const selectionToCytoscapeNodeId = (selection: ActSelection) => {
   return selection.kind === 'fact' ? 'edge-' + selection.id : selection.id;
 };
 
+export const highlights = (factIds: Array<string>, facts: { [factId: string]: ActFact }) => {
+  if (factIds.length !== 1 || !facts[factIds[0]]) {
+    return [];
+  }
+
+  const selectedFact = facts[factIds[0]];
+
+  if (selectedFact.timestamp === selectedFact.lastSeenTimestamp) {
+    return [{ value: new Date(selectedFact.timestamp) }];
+  }
+  return [{ value: new Date(selectedFact.timestamp) }, { value: new Date(selectedFact.lastSeenTimestamp) }];
+};
+
 class GraphViewStore {
   root: MainPageStore;
 
@@ -122,6 +135,7 @@ class GraphViewStore {
     return {
       resizeEvent: this.resizeEvent,
       timeRange: this.root.refineryStore.timeRange,
+      highlights: highlights(this.root.selectionStore.currentlySelectedFactIds, this.root.workingHistory.result.facts),
       data: timeData
     };
   }

@@ -84,6 +84,10 @@ const focusOnSelection = (cy: Cytoscape.Core) => {
   cy.fit(cy.$(':selected'), 50);
 };
 
+const centerOnSelection = (cy: Cytoscape.Core) => {
+  cy.center(cy.$(':selected'));
+};
+
 const zoomIn = (cy: Cytoscape.Core) => {
   const zoom = {
     level: cy.zoom() * (1 + 0.25),
@@ -239,8 +243,9 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
     if (previousProps && !shallowEqual(previousProps.elements, elements)) {
       // Sync element changes with cytoscape state
       cy.json({ elements: elements });
-      runLayout(cy, layoutConfig, layout, setLayout);
-      focusOnSelection(cy);
+      runLayout(cy, { ...layoutConfig, fit: false }, layout, setLayout);
+      syncSelection(cy, selectedNodeIds);
+      centerOnSelection(cy);
       // @ts-ignore
     } else if (previousProps.layoutConfig !== layoutConfig) {
       runLayout(cy, layoutConfig, layout, setLayout);

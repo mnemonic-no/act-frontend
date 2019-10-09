@@ -25,6 +25,10 @@ const useStyles = makeStyles((theme: Theme) => ({
       strokeWidth: 0.5,
       stroke: theme.palette.grey['600'],
       fill: theme.palette.grey['300']
+    },
+    '& .highlights': {
+      fill: theme.palette.secondary.light,
+      stroke: theme.palette.secondary.light
     }
   },
   root: {
@@ -264,10 +268,7 @@ const drawHighlights = (
 
   groups.exit().remove();
 
-  const enterGroups = groups
-    .enter()
-    .append('g')
-    .attr('fill', 'darkorange');
+  const enterGroups = groups.enter().append('g');
 
   enterGroups
     .append('circle')
@@ -287,7 +288,6 @@ const drawHighlights = (
 
   enterGroups
     .append('line')
-    .attr('stroke', 'darkorange')
     .merge(groups.select('line'))
     .attr('x1', (d: any) => xScale(d.value))
     .attr('x2', (d: any) => xScale(d.value))

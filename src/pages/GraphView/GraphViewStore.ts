@@ -84,7 +84,7 @@ class GraphViewStore {
       layoutConfig: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
       cytoscapeLayoutStore: this.root.ui.cytoscapeLayoutStore,
 
-      style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels }),
+      style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels, fadeNonSelected: false }),
       onNodeClick: (node: any) => {
         node.select();
       },

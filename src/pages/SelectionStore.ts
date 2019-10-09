@@ -1,4 +1,4 @@
-import { action, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import { ActSelection } from './types';
 
 class SelectionStore {
@@ -38,6 +38,13 @@ class SelectionStore {
     } else {
       this.setCurrentlySelected({ ...this.currentlySelected, [selection.id]: selection });
     }
+  }
+
+  @computed
+  get currentlySelectedFactIds() {
+    return Object.values(this.currentlySelected)
+      .filter(x => x.kind === 'fact')
+      .map(x => x.id);
   }
 }
 

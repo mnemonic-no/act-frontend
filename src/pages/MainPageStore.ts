@@ -1,4 +1,4 @@
-import { action, computed, observable, onReactionError, reaction } from 'mobx';
+import { action, computed, observable, reaction } from 'mobx';
 
 import BackendStore from './BackendStore';
 import config from '../config';

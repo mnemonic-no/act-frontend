@@ -6,6 +6,7 @@ import getStyle from '../../core/cytoscapeStyle';
 import { objectFactsToElements } from '../../core/cytoscapeTransformers';
 import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, SearchResult, Search } from '../types';
 import MainPageStore from '../MainPageStore';
+import { notUndefined } from '../../util/util';
 
 const cytoscapeNodeToSelection = (node: any): ActSelection => {
   return {
@@ -18,17 +19,18 @@ const selectionToCytoscapeNodeId = (selection: ActSelection) => {
   return selection.kind === 'fact' ? 'edge-' + selection.id : selection.id;
 };
 
-export const highlights = (factIds: Array<string>, facts: { [factId: string]: ActFact }) => {
-  if (factIds.length !== 1 || !facts[factIds[0]]) {
-    return [];
-  }
+export const highlights = (factIds: Array<string>, factIdToFact: { [factId: string]: ActFact }) => {
+  const facts: Array<ActFact> = factIds.map(fId => factIdToFact[fId]).filter(notUndefined);
 
-  const selectedFact = facts[factIds[0]];
+  if (facts.length === 0) return [];
 
-  if (selectedFact.timestamp === selectedFact.lastSeenTimestamp) {
-    return [{ value: new Date(selectedFact.timestamp) }];
+  const earliestFact = _.minBy((x: ActFact) => new Date(x.timestamp))(facts) || facts[0];
+  const latestLastSeenFact = _.maxBy((x: ActFact) => new Date(x.lastSeenTimestamp))(facts) || facts[0];
+
+  if (earliestFact.timestamp === latestLastSeenFact.lastSeenTimestamp) {
+    return [{ value: new Date(earliestFact.timestamp) }];
   }
-  return [{ value: new Date(selectedFact.timestamp) }, { value: new Date(selectedFact.lastSeenTimestamp) }];
+  return [{ value: new Date(earliestFact.timestamp) }, { value: new Date(latestLastSeenFact.lastSeenTimestamp) }];
 };
 
 class GraphViewStore {

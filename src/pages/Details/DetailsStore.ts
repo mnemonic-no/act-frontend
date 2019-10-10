@@ -4,7 +4,7 @@ import * as _ from 'lodash/fp';
 import MainPageStore from '../MainPageStore';
 import { ActFact, ActObject, Search } from '../types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
-import { byTypeThenName } from '../../util/util';
+import { byTypeThenName, pluralize } from '../../util/util';
 
 export type PredefinedObjectQuery = {
   name: string;
@@ -239,10 +239,13 @@ class DetailsStore {
   @computed
   get selectedMultipleObjectsDetails() {
     const selectedObjects = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'object');
+    const selectedFacts = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'fact');
 
     return {
       id: 'testing',
-      title: `${selectedObjects.length} selected objects`,
+      title: `Selection`,
+      factTitle: pluralize(selectedFacts.length, 'fact'),
+      objectTitle: pluralize(selectedObjects.length, 'object'),
       objects: selectedObjects
         .map(selection => this.root.workingHistory.result.objects[selection.id])
         .filter(x => x !== undefined && x !== null)

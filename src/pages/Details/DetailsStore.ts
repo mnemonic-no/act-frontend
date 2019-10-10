@@ -239,10 +239,13 @@ class DetailsStore {
   @computed
   get selectedMultipleObjectsDetails() {
     const selectedObjects = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'object');
+    const selectedFacts = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'fact');
 
     return {
       id: 'testing',
-      title: `${selectedObjects.length} selected objects`,
+      title: `Selection`,
+      factTitle: `${selectedFacts.length} facts`,
+      objectTitle: `${selectedObjects.length} objects`,
       objects: selectedObjects
         .map(selection => this.root.workingHistory.result.objects[selection.id])
         .filter(x => x !== undefined && x !== null)

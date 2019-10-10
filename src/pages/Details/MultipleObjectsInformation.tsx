@@ -29,7 +29,8 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
   titleContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingRight: theme.spacing(2)
+    paddingRight: theme.spacing(2),
+    paddingBottom: theme.spacing(1)
   },
   objectList: {
     minHeight: 0,
@@ -45,6 +46,8 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
 
 const MultipleObjectsInformationComp = ({
   title,
+  factTitle,
+  objectTitle,
   objects,
   onObjectClick,
   onPruneObjectsClick,
@@ -62,9 +65,10 @@ const MultipleObjectsInformationComp = ({
           </Button>
         </Tooltip>
       </div>
-
+      <Typography variant="subtitle1">{factTitle}</Typography>
+      <Typography variant="subtitle1">{objectTitle}</Typography>
       <div className={classes.objectList}>
-        <List>
+        <List disablePadding>
           {objects.map((object: ActObject) => {
             return (
               <ListItem
@@ -106,6 +110,8 @@ const MultipleObjectsInformationComp = ({
 export interface IMultipleObjectsInformationComp {
   id: string;
   title: string;
+  factTitle: string;
+  objectTitle: string;
   objects: Array<ActObject>;
   onObjectClick: (obj: ActObject) => void;
   onPruneObjectsClick: () => void;

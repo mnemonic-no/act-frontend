@@ -1,13 +1,13 @@
 import config from '../config';
 
-export default ({ showEdgeLabels, fadeNonSelected } = {}) => [
+export default ({ showEdgeLabels, fadeUnselected } = {}) => [
   {
     selector: 'node',
     style: {
       label: 'data(label)',
       'background-color': '#000000',
       'font-family': 'Roboto, sans-serif',
-      opacity: fadeNonSelected ? 0.5 : 1
+      opacity: fadeUnselected ? 0.5 : 1
     }
   },
   {
@@ -32,7 +32,8 @@ export default ({ showEdgeLabels, fadeNonSelected } = {}) => [
       'font-family': 'Roboto, sans-serif',
       color: '#AAA',
       'text-outline-color': 'white',
-      'text-outline-width': 2
+      'text-outline-width': 2,
+      opacity: fadeUnselected ? 0.5 : 1
     }
   },
   {
@@ -41,7 +42,8 @@ export default ({ showEdgeLabels, fadeNonSelected } = {}) => [
       'line-color': '#f4a34d',
       'target-arrow-color': '#f4a34d',
       width: 4,
-      'z-index': 9999
+      'z-index': 9999,
+      opacity: 1
     }
   },
   {

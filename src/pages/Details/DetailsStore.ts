@@ -4,7 +4,7 @@ import * as _ from 'lodash/fp';
 import MainPageStore from '../MainPageStore';
 import { ActFact, ActObject, Search } from '../types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
-import { byTypeThenName } from '../../util/util';
+import { byTypeThenName, pluralize } from '../../util/util';
 
 export type PredefinedObjectQuery = {
   name: string;
@@ -244,8 +244,8 @@ class DetailsStore {
     return {
       id: 'testing',
       title: `Selection`,
-      factTitle: `${selectedFacts.length} facts`,
-      objectTitle: `${selectedObjects.length} objects`,
+      factTitle: pluralize(selectedFacts.length, 'fact'),
+      objectTitle: pluralize(selectedObjects.length, 'object'),
       objects: selectedObjects
         .map(selection => this.root.workingHistory.result.objects[selection.id])
         .filter(x => x !== undefined && x !== null)

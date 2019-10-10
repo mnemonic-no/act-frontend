@@ -91,21 +91,27 @@ const multiFormat = (date: Date): string => {
     : formatYear)(date);
 };
 
-const mouseOver = (targetSelector: string, tooltipEl: any) => {
+const mouseOver = (children: Array<{ selector: string; opacity: number }>, tooltipEl: any) => {
   return (d: any, i: number, nodes: any) => {
     tooltipEl.style('opacity', 0.9);
-    d3.select(nodes[i])
-      .select(targetSelector)
-      .style('opacity', '0.6');
+
+    for (let { selector, opacity } of children) {
+      d3.select(nodes[i])
+        .select(selector)
+        .style('opacity', opacity);
+    }
   };
 };
 
-const mouseLeave = (targetSelector: string, tooltipEl: any) => {
+const mouseLeave = (children: Array<{ selector: string; opacity: number }>, tooltipEl: any) => {
   return (d: any, i: number, nodes: any) => {
     tooltipEl.style('opacity', 0);
-    d3.select(nodes[i])
-      .select(targetSelector)
-      .style('opacity', '1');
+
+    for (let { selector, opacity } of children) {
+      d3.select(nodes[i])
+        .select(selector)
+        .style('opacity', opacity);
+    }
   };
 };
 
@@ -220,8 +226,20 @@ function drawHistogram(
   const binGroupEnter = binGroup
     .enter()
     .append('g')
-    .on('mouseover', mouseOver('.bin', container.select('.tooltip')))
-    .on('mouseleave', mouseLeave('.bin', container.select('.tooltip')))
+    .on(
+      'mouseover',
+      mouseOver(
+        [{ selector: '.bin', opacity: 0.6 }, { selector: '.mouseCatcher', opacity: 0.3 }],
+        container.select('.tooltip')
+      )
+    )
+    .on(
+      'mouseleave',
+      mouseLeave(
+        [{ selector: '.bin', opacity: 1 }, { selector: '.mouseCatcher', opacity: 0 }],
+        container.select('.tooltip')
+      )
+    )
     .on('mousemove', mouseMove('.bin', container.select('.tooltip')));
 
   // The bin

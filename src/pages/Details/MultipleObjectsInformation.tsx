@@ -3,12 +3,14 @@ import { observer } from 'mobx-react';
 import CloseIcon from '@material-ui/icons/Close';
 import {
   Button,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
   makeStyles,
+  Switch,
   Theme,
   Tooltip,
   Typography
@@ -25,6 +27,9 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
     paddingTop: theme.spacing(2),
     paddingBottom: 0,
     height: `calc(100% - ${theme.spacing(3)}px)`
+  },
+  title: {
+    paddingTop: '2px'
   },
   titleContainer: {
     display: 'flex',
@@ -49,6 +54,8 @@ const MultipleObjectsInformationComp = ({
   factTitle,
   objectTitle,
   objects,
+  fadeUnselected,
+  onToggleFadeUnselected,
   onObjectClick,
   onPruneObjectsClick,
   onClearSelectionClick
@@ -58,7 +65,14 @@ const MultipleObjectsInformationComp = ({
   return (
     <div className={classes.root}>
       <div className={classes.titleContainer}>
-        <Typography variant="h6">{title}</Typography>
+        <Typography variant="h6" className={classes.title}>
+          {title}
+        </Typography>
+        <FormControlLabel
+          label="Highlight"
+          labelPlacement="start"
+          control={<Switch onClick={onToggleFadeUnselected} checked={fadeUnselected} />}
+        />
         <Tooltip title="Clear selection">
           <Button size="small" variant="outlined" onClick={onClearSelectionClick}>
             Clear
@@ -110,6 +124,8 @@ const MultipleObjectsInformationComp = ({
 export interface IMultipleObjectsInformationComp {
   id: string;
   title: string;
+  fadeUnselected: boolean;
+  onToggleFadeUnselected: () => void;
   factTitle: string;
   objectTitle: string;
   objects: Array<ActObject>;

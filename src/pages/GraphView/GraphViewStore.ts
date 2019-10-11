@@ -89,19 +89,24 @@ class GraphViewStore {
   get prepared() {
     const canRender = this.acceptRenderWarning || this.cytoscapeElements.length < this.renderThreshold;
 
+    const selected = selectedNodeIds(
+      Object.values(this.root.selectionStore.currentlySelected),
+      this.root.refineryStore.refined
+    );
+
     return {
       canRender: canRender,
       resizeEvent: this.resizeEvent,
-      selectedNodeIds: selectedNodeIds(
-        Object.values(this.root.selectionStore.currentlySelected),
-        this.root.refineryStore.refined
-      ),
+      selectedNodeIds: selected,
       elements: this.cytoscapeElements,
       layout: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
       layoutConfig: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
       cytoscapeLayoutStore: this.root.ui.cytoscapeLayoutStore,
 
-      style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels, fadeNonSelected: false }),
+      style: getStyle({
+        showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels,
+        fadeUnselected: selected.size > 1 && this.root.ui.detailsStore.fadeUnselected
+      }),
       onNodeClick: (node: any) => {
         node.select();
       },

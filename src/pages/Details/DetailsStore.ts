@@ -64,8 +64,8 @@ class DetailsStore {
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
 
   @observable createFactDialog: CreateFactForDialog | null = null;
-
   @observable _isOpen = false;
+  @observable fadeUnselected = false;
 
   constructor(root: MainPageStore, config: any) {
     this.root = root;
@@ -127,6 +127,11 @@ class DetailsStore {
   @computed
   get isOpen() {
     return this._isOpen && Boolean(this.selectedObjectDetails || this.selectedFactDetails);
+  }
+
+  @action.bound
+  toggleFadeUnselected(): void {
+    this.fadeUnselected = !this.fadeUnselected;
   }
 
   static toContextAction(
@@ -244,6 +249,8 @@ class DetailsStore {
     return {
       id: 'testing',
       title: `Selection`,
+      fadeUnselected: this.fadeUnselected,
+      onToggleFadeUnselected: this.toggleFadeUnselected,
       factTitle: pluralize(selectedFacts.length, 'fact'),
       objectTitle: pluralize(selectedObjects.length, 'object'),
       objects: selectedObjects

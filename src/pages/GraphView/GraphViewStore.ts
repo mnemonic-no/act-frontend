@@ -7,6 +7,7 @@ import { objectFactsToElements } from '../../core/cytoscapeTransformers';
 import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, SearchResult, Search } from '../types';
 import MainPageStore from '../MainPageStore';
 import { notUndefined } from '../../util/util';
+import { isOneLegged } from '../../core/transformers';
 
 const cytoscapeNodeToSelection = (node: any): ActSelection => {
   return {
@@ -15,8 +16,23 @@ const cytoscapeNodeToSelection = (node: any): ActSelection => {
   };
 };
 
-const selectionToCytoscapeNodeId = (selection: ActSelection) => {
+export const selectionToCytoscapeNodeId = (selection: ActSelection) => {
   return selection.kind === 'fact' ? 'edge-' + selection.id : selection.id;
+};
+
+export const selectedNodeIds = (selection: Array<ActSelection>, searchResult: SearchResult) => {
+  const selected = selection.map(selectionToCytoscapeNodeId);
+
+  // Include any objects that one-legged-facts are referring to
+  const objectIdsWithOneLeggedFacts = selection
+    .filter(x => x.kind === 'fact')
+    .map(f => searchResult.facts[f.id])
+    .filter(notUndefined)
+    .filter(isOneLegged)
+    .map(f => f.sourceObject && f.sourceObject.id)
+    .filter(notUndefined);
+
+  return new Set([...selected, ...objectIdsWithOneLeggedFacts]);
 };
 
 export const highlights = (factIds: Array<string>, factIdToFact: { [factId: string]: ActFact }) => {
@@ -76,15 +92,16 @@ class GraphViewStore {
     return {
       canRender: canRender,
       resizeEvent: this.resizeEvent,
-      selectedNodeIds: new Set(
-        Object.values(this.root.selectionStore.currentlySelected).map(selectionToCytoscapeNodeId)
+      selectedNodeIds: selectedNodeIds(
+        Object.values(this.root.selectionStore.currentlySelected),
+        this.root.refineryStore.refined
       ),
       elements: this.cytoscapeElements,
       layout: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
       layoutConfig: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
       cytoscapeLayoutStore: this.root.ui.cytoscapeLayoutStore,
 
-      style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels }),
+      style: getStyle({ showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels, fadeNonSelected: false }),
       onNodeClick: (node: any) => {
         node.select();
       },

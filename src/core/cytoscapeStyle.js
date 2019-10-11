@@ -1,38 +1,22 @@
 import config from '../config';
 
-export default ({ showEdgeLabels } = {}) => [
+export default ({ showEdgeLabels, fadeNonSelected } = {}) => [
   {
     selector: 'node',
     style: {
       label: 'data(label)',
-
-      // Display label in center of node:
-      // 'content': 'data(label)',
-      // 'text-valign': 'center',
-      // 'color': 'white',
-      // 'text-outline-width': 2,
-      // 'text-outline-color': '#888',
-
-      // 'text-outline-color': 'white',
-      // 'text-outline-width': 2,
       'background-color': '#000000',
-      'font-family': 'Roboto, sans-serif'
+      'font-family': 'Roboto, sans-serif',
+      opacity: fadeNonSelected ? 0.5 : 1
     }
   },
   {
     selector: 'node:selected',
     style: {
-      'border-width': 8,
-      'border-color': '#AAA' // TODO: Get from config.json theme
-    }
-  },
-
-  {
-    selector: 'node.fact',
-    style: {
-      'background-color': '#F84',
-      'text-outline-color': '#F84',
-      shape: 'diamond'
+      'border-width': 6,
+      color: '#f4a34d',
+      'border-color': '#f4a34d',
+      opacity: 1
     }
   },
 
@@ -54,7 +38,10 @@ export default ({ showEdgeLabels } = {}) => [
   {
     selector: 'edge:selected',
     style: {
-      width: 4
+      'line-color': '#f4a34d',
+      'target-arrow-color': '#f4a34d',
+      width: 4,
+      'z-index': 9999
     }
   },
   {
@@ -93,7 +80,6 @@ export default ({ showEdgeLabels } = {}) => [
     selector: `node.${objectType}`,
     style: {
       'background-color': config.objectColors[objectType]
-      // 'text-outline-color': config.objectColors[objectType]
     }
   }))
 ];

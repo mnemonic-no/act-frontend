@@ -78,6 +78,18 @@ export const setUnion = <T>(a: Set<T>, b: Set<T>): Set<T> => {
   return unionized;
 };
 
+export const setSymmetricDifference = <T>(a: Set<T>, b: Set<T>) => {
+  let diff = new Set(a);
+  for (let elem of b) {
+    if (diff.has(elem)) {
+      diff.delete(elem);
+    } else {
+      diff.add(elem);
+    }
+  }
+  return diff;
+};
+
 export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }

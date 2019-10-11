@@ -21,7 +21,7 @@ import { shallowEqual } from 'recompose';
 
 import betterGrid from './betterGrid';
 import { usePrevious } from '../hooks';
-import { createBatcherFn, modifierKeysUsed } from '../util/util';
+import { createBatcherFn, modifierKeysUsed, setSymmetricDifference } from '../util/util';
 import Toolbar from './Toolbar';
 import CytoscapeLayoutStore from '../pages/CytoscapeLayout/CytoscapeLayoutStore';
 
@@ -253,7 +253,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
 
     // Keep the selection state up to date (sadly not handled by cy.json({elements: elements} above,
     // so we have to fix it ourselves))
-    if (previousProps && _.difference([...previousProps.selectedNodeIds], [...selectedNodeIds]).length > 0) {
+    if (previousProps && setSymmetricDifference(previousProps.selectedNodeIds, selectedNodeIds).size > 0) {
       syncSelection(cy, selectedNodeIds);
     }
 

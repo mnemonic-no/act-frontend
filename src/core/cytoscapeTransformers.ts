@@ -20,8 +20,29 @@ export const objectToCytoscapeNode = (object: ActObject, label: string) => {
   };
 };
 
-// Treat facts as edges, assumes facts has EXACTLY two connected objects
-export const factToSingleCytoscapeEdge = (fact: ActFact) => {
+export const oneLeggedFactToCytoscapeEdge = (fact: ActFact) => {
+  const source = fact.sourceObject && fact.sourceObject.id;
+  const target = fact.destinationObject && fact.destinationObject.id;
+
+  return {
+    group: 'edges',
+    data: {
+      id: `edge-${fact.id}`,
+      isBiDirectional: false,
+      source: source || target,
+      target: target || source,
+      label:
+        fact.value && fact.value.startsWith('-')
+          ? fact.type.name
+          : `${fact.type.name}: ${truncateText(fact.value, 20)}`,
+      isFact: true,
+      factId: fact.id,
+      oneLegged: true
+    }
+  };
+};
+
+export const twoLeggedFactToCytoscapeEdge = (fact: ActFact) => {
   const source = fact.sourceObject && fact.sourceObject.id;
   const target = fact.destinationObject && fact.destinationObject.id;
   const isBiDirectional = fact.bidirectionalBinding;
@@ -57,10 +78,9 @@ export const objectFactsToElements = ({
   objects: Array<ActObject>;
   objectLabelFromFactType: string | null;
 }) => {
-  const twoLeggedFacts = facts.filter(f => !isOneLegged(f));
-
+  // Put one legged facts in the graph in order to keep the currently selected elements in sync with the selectionStore
   return [
-    ...objects.map(o => objectToCytoscapeNode(o, objectLabel(o, objectLabelFromFactType, facts))),
-    ...twoLeggedFacts.map(factToSingleCytoscapeEdge)
+    ...facts.map(f => (isOneLegged(f) ? oneLeggedFactToCytoscapeEdge(f) : twoLeggedFactToCytoscapeEdge(f))),
+    ...objects.map(o => objectToCytoscapeNode(o, objectLabel(o, objectLabelFromFactType, facts)))
   ];
 };

@@ -209,8 +209,9 @@ function drawHistogram(
   container: any,
   xScale: d3.ScaleTime<number, number>,
   yScale: any,
-  data: Array<{ value: Date }>,
-  containerHeight: number
+  data: Array<{ value: Date; id: string }>,
+  containerHeight: number,
+  onBinClick?: (bin: Array<{ value: Date; id: string }>) => void
 ) {
   if (el.select('.histogram').empty()) {
     el.append('g').attr('class', 'histogram');
@@ -240,7 +241,8 @@ function drawHistogram(
         container.select('.tooltip')
       )
     )
-    .on('mousemove', mouseMove('.bin', container.select('.tooltip')));
+    .on('mousemove', mouseMove('.bin', container.select('.tooltip')))
+    .on('mousedown', onBinClick ? onBinClick : () => {});
 
   // The bin
   binGroupEnter
@@ -344,14 +346,14 @@ interface IDrawData {
   container: any;
   width: number;
   height: number;
-  data: Array<{ value: Date }>;
+  data: Array<{ value: Date; id: string }>;
   highlights: Array<{ value: Date }>;
   timeRange: [Date, Date];
+  onBinClick?: (bin: Array<{ value: Date; id: string }>) => void;
 }
 
-const d3Draw = ({ el, container, width, height, data, highlights, timeRange }: IDrawData) => {
+const d3Draw = ({ el, container, width, height, data, highlights, timeRange, onBinClick }: IDrawData) => {
   const xScale = xScaleFn(timeRange, [0, width]);
-
   const histogram = d3
     .histogram()
     .value((d: any) => d.value)
@@ -366,14 +368,14 @@ const d3Draw = ({ el, container, width, height, data, highlights, timeRange }: I
   const yScale = linearScaleFn([0, maxY === 0 ? 1 : maxY], [height, 0]);
 
   drawGrid(el, xScale, yScale, width, height);
-  drawHistogram(el, container, xScale, yScale, bins, height);
+  drawHistogram(el, container, xScale, yScale, bins, height, onBinClick);
   drawHighlights(el, xScale, yScale, highlights, height);
   drawYAxis(el, yScale);
   drawXAxis(el, xScale, height);
 };
 
 const TimelineComp = (inputProps: IProps) => {
-  const { data, timeRange, resizeEvent, highlights = [] } = inputProps;
+  const { data, timeRange, resizeEvent, highlights = [], onBinClick } = inputProps;
   const classes = useStyles();
 
   const [containerSize, setContainerState] = useState(defaultContainerSize);
@@ -408,7 +410,17 @@ const TimelineComp = (inputProps: IProps) => {
     const width = containerSize.width - margin.left - margin.right;
     const height = containerSize.height - margin.top - margin.bottom;
 
-    d3Draw({ el: chart, container: container, width: width, height: height, data, highlights, timeRange });
+    d3Draw({
+      el: chart,
+      container: container,
+      width: width,
+      height: height,
+      data,
+      highlights,
+      timeRange,
+      onBinClick
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputProps, previousProps, classes, data, timeRange, highlights, resizeEvent, containerSize]);
 
   // Render
@@ -424,8 +436,9 @@ const TimelineComp = (inputProps: IProps) => {
 interface IProps {
   resizeEvent: any;
   timeRange: [Date, Date];
-  data: Array<{ value: Date }>;
+  data: Array<{ value: Date; id: string }>;
   highlights?: Array<{ value: Date }>;
+  onBinClick?: (bin: Array<{ value: Date; id: string }>) => void;
 }
 
 export default observer(TimelineComp);

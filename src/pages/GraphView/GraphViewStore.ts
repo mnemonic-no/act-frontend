@@ -150,9 +150,18 @@ class GraphViewStore {
     }
   }
 
+  @action.bound
+  onBinClick(bin: Array<{ id: string }>) {
+    const selection = bin.reduce((acc: any, { id }: { id: string }) => {
+      acc[id] = { kind: 'fact', id: id };
+      return acc;
+    }, {});
+    this.root.selectionStore.setCurrentlySelected(selection);
+  }
+
   @computed
   get timeline() {
-    const timeData = _.map((f: ActFact) => ({ value: new Date(f.timestamp) }))(
+    const timeData = _.map((f: ActFact) => ({ value: new Date(f.timestamp), id: f.id }))(
       Object.values(this.root.refineryStore.refined.facts)
     );
 
@@ -160,7 +169,8 @@ class GraphViewStore {
       resizeEvent: this.resizeEvent,
       timeRange: this.root.refineryStore.timeRange,
       highlights: highlights(this.root.selectionStore.currentlySelectedFactIds, this.root.workingHistory.result.facts),
-      data: timeData
+      data: timeData,
+      onBinClick: this.onBinClick
     };
   }
 }

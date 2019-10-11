@@ -4,7 +4,7 @@ import * as _ from 'lodash/fp';
 import MainPageStore from '../MainPageStore';
 import { ActFact, ActObject, Search } from '../types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
-import { byTypeThenName, pluralize } from '../../util/util';
+import { byTypeThenName, notUndefined, pluralize } from '../../util/util';
 
 export type PredefinedObjectQuery = {
   name: string;
@@ -255,7 +255,7 @@ class DetailsStore {
       objectTitle: pluralize(selectedObjects.length, 'object'),
       objects: selectedObjects
         .map(selection => this.root.workingHistory.result.objects[selection.id])
-        .filter(x => x !== undefined && x !== null)
+        .filter(notUndefined)
         .sort(byTypeThenName),
       onObjectClick: (object: ActObject) => {
         this.root.selectionStore.removeFromSelection({ id: object.id, kind: 'object' });

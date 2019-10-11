@@ -1,4 +1,4 @@
-import { pluralize, sanitizeCsvValue } from './util';
+import { pluralize, sanitizeCsvValue, setSymmetricDifference } from './util';
 
 it('can santize CSV value', () => {
   expect(sanitizeCsvValue('some;with;commas')).toEqual('"some;with;commas"');
@@ -11,4 +11,12 @@ it('can pluralize', () => {
   expect(pluralize(1, 'fact')).toEqual('1 fact');
   expect(pluralize(1, 'object')).toEqual('1 object');
   expect(pluralize(2, 'object')).toEqual('2 objects');
+});
+
+it('can find symmetric difference between sets', () => {
+  expect(setSymmetricDifference(new Set(), new Set())).toEqual(new Set());
+  expect(setSymmetricDifference(new Set([1, 2]), new Set([2, 1]))).toEqual(new Set([]));
+  expect(setSymmetricDifference(new Set([1, 2]), new Set([]))).toEqual(new Set([1, 2]));
+  expect(setSymmetricDifference(new Set([]), new Set([1, 2]))).toEqual(new Set([1, 2]));
+  expect(setSymmetricDifference(new Set([1, 2]), new Set([2, 3]))).toEqual(new Set([1, 3]));
 });

@@ -70,10 +70,12 @@ export default ({ showEdgeLabels, fadeUnselected } = {}) => [
       'source-arrow-color': '#e47f7f'
     }
   },
+
+  // Do not show one legged facts in the graph
   {
-    selector: 'node.fact[?retracted]',
+    selector: 'edge[?oneLegged]',
     style: {
-      'background-color': '#FF4F4F'
+      display: 'none'
     }
   },
 

@@ -9,7 +9,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { makeStyles, Theme } from '@material-ui/core';
 
-import { objectTypeToColor, renderObjectValue, factColor } from '../../util/utils';
+import { objectTypeToColor, renderObjectValue, factColor } from '../../util/util';
 import { ActObject } from '../types';
 
 export type ColumnKind = 'objectType' | 'objectValue' | 'properties';

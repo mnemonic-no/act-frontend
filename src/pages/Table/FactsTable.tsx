@@ -11,7 +11,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { makeStyles, Theme } from '@material-ui/core';
 
 import { ActFact } from '../types';
-import { factColor } from '../../util/utils';
+import { factColor } from '../../util/util';
 import config from '../../config';
 
 export type ColumnKind =

@@ -17,7 +17,7 @@ import {
 } from '@material-ui/core';
 
 import { ActObject } from '../types';
-import { objectTypeToColor, renderObjectValue } from '../../util/utils';
+import { objectTypeToColor, renderObjectValue } from '../../util/util';
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   root: {

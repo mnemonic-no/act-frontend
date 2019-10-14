@@ -10,7 +10,7 @@ import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
-import { objectTypeToColor, truncateText } from '../util/utils';
+import { objectTypeToColor, truncateText } from '../util/util';
 import { ActObject } from '../pages/types';
 
 const useStyles = makeStyles((theme: Theme) => ({

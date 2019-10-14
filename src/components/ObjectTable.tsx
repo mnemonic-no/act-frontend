@@ -9,7 +9,7 @@ import TableBody from '@material-ui/core/TableBody';
 import Table from '@material-ui/core/Table';
 
 import { ActObject } from '../pages/types';
-import { objectTypeToColor, renderObjectValue } from '../util/utils';
+import { objectTypeToColor, renderObjectValue } from '../util/util';
 
 export type ColumnKind = 'objectType' | 'objectValue';
 

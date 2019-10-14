@@ -9,7 +9,7 @@ import config from '../../config';
 import withDataLoader from '../../util/withDataLoader';
 import memoizeDataLoader from '../../util/memoizeDataLoader';
 import CenteredCircularProgress from '../CenteredCircularProgress';
-import { objectTypeToColor } from '../../util/utils';
+import { objectTypeToColor } from '../../util/util';
 import { ObjectDetails, PredefinedObjectQuery } from '../../pages/Details/DetailsStore';
 import PredefinedObjectQueries from './PredefinedObjectQueries';
 import ContextActions from './ContextActions';

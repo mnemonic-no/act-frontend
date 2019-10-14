@@ -8,7 +8,7 @@ import { useOnResize, usePrevious } from '../../hooks';
 import { pluralize } from '../../util/util';
 
 const defaultContainerSize = { width: 900, height: 180 };
-const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+const margin = { top: 20, right: 70, bottom: 30, left: 40 };
 
 const useStyles = makeStyles((theme: Theme) => ({
   chartRoot: {
@@ -23,10 +23,18 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     '& .histogram': {
       strokeWidth: 0.5,
-      stroke: theme.palette.grey['600'],
-      fill: theme.palette.grey['300']
+      stroke: theme.palette.grey['400'],
+      fill: theme.palette.grey['200']
     },
+    '& .scatterplot': {
+      fill: theme.palette.grey['700']
+    },
+    '& .highlighted': {
+      fill: theme.palette.secondary.light
+    },
+
     '& .halo': {
+      fill: theme.palette.secondary.light,
       animation: '$hideshow 1s ease-in-out infinite alternate'
     }
   },
@@ -51,6 +59,10 @@ const useStyles = makeStyles((theme: Theme) => ({
       fontSize: '1.1rem',
       fontWeight: 'bold',
       margin: 0
+    },
+
+    '& .halo': {
+      animation: '$hideshow 0.7s ease-in-out infinite alternate'
     }
   },
   '@keyframes hideshow': {
@@ -182,7 +194,24 @@ const drawYAxis = (el: any, scaleFn: any) => {
     .call(yAxis);
 };
 
-const drawGrid = (el: any, xScale: any, yScale: any, width: number, height: number) => {
+const drawScatterPlotAxis = (el: any, scaleFn: any, width: number) => {
+  if (el.select('.yAxisScatter').empty()) {
+    el.append('g').attr('class', 'yAxisScatter');
+  }
+
+  const numberOfTicks = _.min([scaleFn.domain()[1], 10]);
+
+  const yAxis = d3
+    .axisRight(scaleFn)
+    .ticks(numberOfTicks)
+    .tickSizeOuter(0);
+
+  el.select('.yAxisScatter')
+    .attr('transform', `translate(${width} 0)`)
+    .call(yAxis);
+};
+
+const drawGrid = (el: any, xScale: any, yScale: any, width: number) => {
   if (el.select('.grid').empty()) {
     const grid = el.append('g').attr('class', 'grid');
     grid.append('g').attr('class', 'yGrid');
@@ -195,8 +224,7 @@ const drawGrid = (el: any, xScale: any, yScale: any, width: number, height: numb
     .tickFormat('')
     .ticks(5);
 
-  const updateY = el.select('.yGrid');
-  updateY.call(yAxisGrid);
+  el.select('.yGrid').call(yAxisGrid);
 };
 
 function drawHistogram(
@@ -204,7 +232,7 @@ function drawHistogram(
   container: any,
   xScale: d3.ScaleTime<number, number>,
   yScale: any,
-  data: Array<{ value: Date; id: string }>,
+  data: Array<BinPoint>,
   containerHeight: number,
   onBinClick?: (bin: Array<{ value: Date; id: string }>) => void
 ) {
@@ -225,7 +253,7 @@ function drawHistogram(
     .on(
       'mouseover',
       mouseOver(
-        [{ selector: '.bin', opacity: 0.6 }, { selector: '.mouseCatcher', opacity: 0.3 }],
+        [{ selector: '.bin', opacity: 0.6 }, { selector: '.mouseCatcher', opacity: 0.4 }],
         container.select('.tooltip')
       )
     )
@@ -263,6 +291,68 @@ function drawHistogram(
     .attr('width', (d: any) => xScale(d.x1) - xScale(d.x0));
 }
 
+const drawScatterPlot = (
+  el: any,
+  xScale: d3.ScaleTime<number, number>,
+  yScale: any,
+  scatterPlot: Array<ScatterPoint>
+) => {
+  if (el.select('.scatterplot').empty()) {
+    const sel = el
+      .append('g')
+      .attr('pointer-events', 'none')
+      .attr('class', 'scatterplot');
+
+    sel.append('g').attr('class', 'non-highlighted');
+    sel.append('g').attr('class', 'highlighted');
+  }
+
+  const highlighted = el
+    .select('.scatterplot')
+    .select('.highlighted')
+    .selectAll('g')
+    .data(scatterPlot.filter(x => x.isHighlighted), (d: any) => {
+      return d && d.id;
+    });
+
+  highlighted.exit().remove();
+
+  const enterHighligted = highlighted.enter().append('g');
+
+  enterHighligted
+    .append('circle')
+    .attr('class', 'halo')
+    .attr('r', 4.5)
+    .attr('cx', 0)
+    .attr('cy', 0);
+
+  enterHighligted
+    .append('circle')
+    .attr('r', 3.5)
+    .attr('cx', 0)
+    .attr('cy', 0);
+
+  enterHighligted
+    .merge(highlighted)
+    .attr('transform', (d: any) => `translate(${xScale(d.value)} ${yScale(d.kind) + yScale.bandwidth() / 2})`);
+
+  const nonHighlighted = el
+    .select('.scatterplot')
+    .select('.non-highlighted')
+    .selectAll('circle')
+    .data(scatterPlot.filter(x => !x.isHighlighted), (d: any) => d.id);
+
+  nonHighlighted.exit().remove();
+
+  nonHighlighted
+    .enter()
+    .append('circle')
+    .merge(nonHighlighted)
+    .attr('r', 2.5)
+    .attr('cx', (d: any) => xScale(d.value))
+    .attr('cy', (d: any) => yScale(d.kind) + yScale.bandwidth() / 2);
+};
+
 const secondsInYear = 60 * 60 * 24 * 365;
 const secondsInMonth = 60 * 60 * 24 * 31;
 const secondsInWeek = 60 * 60 * 24 * 7;
@@ -294,34 +384,47 @@ interface IDrawData {
   container: any;
   width: number;
   height: number;
-  data: Array<{ value: Date; id: string }>;
+  histogram: Array<BinPoint>;
+  scatterPlot?: {
+    groups: Array<string>;
+    data: Array<ScatterPoint>;
+  };
   timeRange: [Date, Date];
   onBinClick?: (bin: Array<{ value: Date; id: string }>) => void;
 }
 
-const d3Draw = ({ el, container, width, height, data, timeRange, onBinClick }: IDrawData) => {
+const d3Draw = ({ el, container, width, height, histogram, scatterPlot, timeRange, onBinClick }: IDrawData) => {
   const xScale = xScaleFn(timeRange, [0, width]);
-  const histogram = d3
+  const histogramFn = d3
     .histogram()
     .value((d: any) => d.value)
     // @ts-ignore
     .domain(xScale.domain())
     .thresholds(xScale.ticks(binSize(timeRange)));
 
-  const bins = histogram(data).filter((bin: Array<{ value: Date }>) => bin.length > 0);
+  const bins = histogramFn(histogram).filter((bin: Array<{ value: Date }>) => bin.length > 0);
 
   // @ts-ignore
   const maxY: number = d3.max(bins, (x: Array) => x.length);
   const yScale = linearScaleFn([0, maxY === 0 ? 1 : maxY], [height, 0]);
 
-  drawGrid(el, xScale, yScale, width, height);
+  drawGrid(el, xScale, yScale, width);
   drawHistogram(el, container, xScale, yScale, bins, height, onBinClick);
+  if (scatterPlot) {
+    const yScaleScatter = d3
+      .scaleBand()
+      .domain(scatterPlot.groups)
+      .range([height, 0]);
+
+    drawScatterPlot(el, xScale, yScaleScatter, scatterPlot.data);
+    drawScatterPlotAxis(el, yScaleScatter, width);
+  }
   drawYAxis(el, yScale);
   drawXAxis(el, xScale, height);
 };
 
 const TimelineComp = (inputProps: IProps) => {
-  const { data, timeRange, resizeEvent, onBinClick } = inputProps;
+  const { histogram, timeRange, resizeEvent, scatterPlot, onBinClick } = inputProps;
   const classes = useStyles();
 
   const [containerSize, setContainerState] = useState(defaultContainerSize);
@@ -361,12 +464,13 @@ const TimelineComp = (inputProps: IProps) => {
       container: container,
       width: width,
       height: height,
-      data,
+      histogram,
+      scatterPlot,
       timeRange,
       onBinClick
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputProps, previousProps, classes, data, timeRange, resizeEvent, containerSize]);
+  }, [inputProps, previousProps, classes, histogram, timeRange, scatterPlot, resizeEvent, containerSize]);
 
   // Render
   return (
@@ -378,10 +482,24 @@ const TimelineComp = (inputProps: IProps) => {
   );
 };
 
+type BinPoint = {
+  id: string;
+  value: Date;
+};
+
+type ScatterPoint = BinPoint & {
+  kind: string;
+  isHighlighted?: boolean;
+};
+
 interface IProps {
   resizeEvent: any;
   timeRange: [Date, Date];
-  data: Array<{ value: Date; id: string }>;
+  histogram: Array<BinPoint>;
+  scatterPlot?: {
+    groups: Array<string>;
+    data: Array<ScatterPoint>;
+  };
   onBinClick?: (bin: Array<{ value: Date; id: string }>) => void;
 }
 

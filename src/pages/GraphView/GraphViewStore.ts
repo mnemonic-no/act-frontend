@@ -1,5 +1,4 @@
 import { action, computed, observable } from 'mobx';
-import * as _ from 'lodash/fp';
 
 import config from '../../config';
 import getStyle from '../../core/cytoscapeStyle';
@@ -147,14 +146,19 @@ class GraphViewStore {
 
   @computed
   get timeline() {
-    const timeData = _.map((f: ActFact) => ({ value: new Date(f.timestamp), id: f.id }))(
-      Object.values(this.root.refineryStore.refined.facts)
-    );
+    const selected = new Set(this.root.selectionStore.currentlySelectedFactIds);
+    const timeData = Object.values(this.root.refineryStore.refined.facts).map((f: ActFact) => ({
+      value: new Date(f.timestamp),
+      id: f.id,
+      kind: f.type.name,
+      isHighlighted: selected.has(f.id)
+    }));
 
     return {
       resizeEvent: this.resizeEvent,
       timeRange: this.root.refineryStore.timeRange,
-      data: timeData,
+      scatterPlot: { groups: [...new Set(timeData.map(x => x.kind))].sort().reverse(), data: timeData },
+      histogram: timeData,
       onBinClick: this.onBinClick
     };
   }

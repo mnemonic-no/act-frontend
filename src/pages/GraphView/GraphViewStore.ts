@@ -35,20 +35,6 @@ export const selectedNodeIds = (selection: Array<ActSelection>, searchResult: Se
   return new Set([...selected, ...objectIdsWithOneLeggedFacts]);
 };
 
-export const highlights = (factIds: Array<string>, factIdToFact: { [factId: string]: ActFact }) => {
-  const facts: Array<ActFact> = factIds.map(fId => factIdToFact[fId]).filter(notUndefined);
-
-  if (facts.length === 0) return [];
-
-  const earliestFact = _.minBy((x: ActFact) => new Date(x.timestamp))(facts) || facts[0];
-  const latestLastSeenFact = _.maxBy((x: ActFact) => new Date(x.lastSeenTimestamp))(facts) || facts[0];
-
-  if (earliestFact.timestamp === latestLastSeenFact.lastSeenTimestamp) {
-    return [{ value: new Date(earliestFact.timestamp) }];
-  }
-  return [{ value: new Date(earliestFact.timestamp) }, { value: new Date(latestLastSeenFact.lastSeenTimestamp) }];
-};
-
 class GraphViewStore {
   root: MainPageStore;
 
@@ -168,7 +154,6 @@ class GraphViewStore {
     return {
       resizeEvent: this.resizeEvent,
       timeRange: this.root.refineryStore.timeRange,
-      highlights: highlights(this.root.selectionStore.currentlySelectedFactIds, this.root.workingHistory.result.facts),
       data: timeData,
       onBinClick: this.onBinClick
     };

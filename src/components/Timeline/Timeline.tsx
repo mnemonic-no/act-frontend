@@ -26,9 +26,8 @@ const useStyles = makeStyles((theme: Theme) => ({
       stroke: theme.palette.grey['600'],
       fill: theme.palette.grey['300']
     },
-    '& .highlights': {
-      fill: theme.palette.secondary.light,
-      stroke: theme.palette.secondary.light
+    '& .halo': {
+      animation: '$hideshow 1s ease-in-out infinite alternate'
     }
   },
   root: {
@@ -52,10 +51,6 @@ const useStyles = makeStyles((theme: Theme) => ({
       fontSize: '1.1rem',
       fontWeight: 'bold',
       margin: 0
-    },
-
-    '& .halo': {
-      animation: '$hideshow 1s ease-in-out infinite alternate'
     }
   },
   '@keyframes hideshow': {
@@ -268,53 +263,6 @@ function drawHistogram(
     .attr('width', (d: any) => xScale(d.x1) - xScale(d.x0));
 }
 
-const drawHighlights = (
-  el: any,
-  xScale: d3.ScaleTime<number, number>,
-  yScale: any,
-  highlights: Array<{ value: Date }>,
-  containerHeight: number
-) => {
-  if (el.select('.highlights').empty()) {
-    el.append('g')
-      .attr('pointer-events', 'none')
-      .attr('class', 'highlights');
-  }
-
-  const groups = d3
-    .select('.highlights')
-    .selectAll('g')
-    .data(highlights, (d: any) => d.value);
-
-  groups.exit().remove();
-
-  const enterGroups = groups.enter().append('g');
-
-  enterGroups
-    .append('circle')
-    .attr('class', 'halo')
-    .merge(groups.select('.halo'))
-    .attr('r', 5)
-    .attr('cx', (d: any) => xScale(d.value))
-    .attr('cy', (d: any) => containerHeight * 0.2);
-
-  enterGroups
-    .append('circle')
-    .attr('class', 'head')
-    .merge(groups.select('.head'))
-    .attr('r', 3)
-    .attr('cx', (d: any) => xScale(d.value))
-    .attr('cy', (d: any) => containerHeight * 0.2);
-
-  enterGroups
-    .append('line')
-    .merge(groups.select('line'))
-    .attr('x1', (d: any) => xScale(d.value))
-    .attr('x2', (d: any) => xScale(d.value))
-    .attr('y1', (d: any) => containerHeight * 0.2)
-    .attr('y2', (d: any) => containerHeight);
-};
-
 const secondsInYear = 60 * 60 * 24 * 365;
 const secondsInMonth = 60 * 60 * 24 * 31;
 const secondsInWeek = 60 * 60 * 24 * 7;
@@ -347,12 +295,11 @@ interface IDrawData {
   width: number;
   height: number;
   data: Array<{ value: Date; id: string }>;
-  highlights: Array<{ value: Date }>;
   timeRange: [Date, Date];
   onBinClick?: (bin: Array<{ value: Date; id: string }>) => void;
 }
 
-const d3Draw = ({ el, container, width, height, data, highlights, timeRange, onBinClick }: IDrawData) => {
+const d3Draw = ({ el, container, width, height, data, timeRange, onBinClick }: IDrawData) => {
   const xScale = xScaleFn(timeRange, [0, width]);
   const histogram = d3
     .histogram()
@@ -369,13 +316,12 @@ const d3Draw = ({ el, container, width, height, data, highlights, timeRange, onB
 
   drawGrid(el, xScale, yScale, width, height);
   drawHistogram(el, container, xScale, yScale, bins, height, onBinClick);
-  drawHighlights(el, xScale, yScale, highlights, height);
   drawYAxis(el, yScale);
   drawXAxis(el, xScale, height);
 };
 
 const TimelineComp = (inputProps: IProps) => {
-  const { data, timeRange, resizeEvent, highlights = [], onBinClick } = inputProps;
+  const { data, timeRange, resizeEvent, onBinClick } = inputProps;
   const classes = useStyles();
 
   const [containerSize, setContainerState] = useState(defaultContainerSize);
@@ -416,12 +362,11 @@ const TimelineComp = (inputProps: IProps) => {
       width: width,
       height: height,
       data,
-      highlights,
       timeRange,
       onBinClick
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputProps, previousProps, classes, data, timeRange, highlights, resizeEvent, containerSize]);
+  }, [inputProps, previousProps, classes, data, timeRange, resizeEvent, containerSize]);
 
   // Render
   return (
@@ -437,7 +382,6 @@ interface IProps {
   resizeEvent: any;
   timeRange: [Date, Date];
   data: Array<{ value: Date; id: string }>;
-  highlights?: Array<{ value: Date }>;
   onBinClick?: (bin: Array<{ value: Date; id: string }>) => void;
 }
 

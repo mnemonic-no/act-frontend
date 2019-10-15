@@ -1,4 +1,12 @@
-import { isMetaFact, isRetracted, isRetraction, objectIdToFacts } from './domain';
+import {
+  countByFactType,
+  idsToFacts,
+  idsToObjects,
+  isMetaFact,
+  isRetracted,
+  isRetraction,
+  objectIdToFacts
+} from './domain';
 import { actObject, fact, factTypes, objectTypes } from './testHelper';
 
 it('can check if fact is retracted', () => {
@@ -46,4 +54,26 @@ it('can create objectIdToFacts mapping', () => {
     threatActor2: [alias],
     report1: [mentions]
   });
+});
+
+it('can map ids to facts', () => {
+  expect(idsToFacts([], {})).toEqual([]);
+  const mentionFact = fact({ id: 'a', type: factTypes.mentions });
+  const aliasFact = fact({ id: 'c', type: factTypes.alias });
+  expect(idsToFacts(['a', 'b', 'c'], { a: mentionFact, c: aliasFact })).toEqual([mentionFact, aliasFact]);
+});
+
+it('can map ids to objects', () => {
+  expect(idsToObjects([], {})).toEqual([]);
+  const reportObject = actObject({ id: 'a' });
+  expect(idsToObjects(['a', 'b'], { a: reportObject })).toEqual([reportObject]);
+});
+
+it('count by fact type', () => {
+  expect(countByFactType([])).toEqual({});
+  const mentionFact = fact({ id: 'a', type: factTypes.mentions });
+  const aliasFact1 = fact({ id: 'b', type: factTypes.alias });
+  const aliasFact2 = fact({ id: 'c', type: factTypes.alias });
+
+  expect(countByFactType([mentionFact, aliasFact1, aliasFact2])).toEqual({ alias: 2, mentions: 1 });
 });

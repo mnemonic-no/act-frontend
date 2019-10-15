@@ -37,6 +37,9 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(1)
   },
+  factTitle: {
+    cursor: 'pointer'
+  },
   objectList: {
     minHeight: 0,
     flex: '1 0 300px',
@@ -52,6 +55,7 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
 const MultiSelectInformationComp = ({
   title,
   factTitle,
+  factTypeLinks,
   objectTitle,
   objects,
   fadeUnselected,
@@ -79,19 +83,24 @@ const MultiSelectInformationComp = ({
           </Button>
         </Tooltip>
       </div>
-      <Typography variant="subtitle1">{factTitle}</Typography>
+      <Typography variant="subtitle1" onClick={factTitle.onClick} className={classes.factTitle}>
+        {factTitle.text}
+      </Typography>
+      <List dense disablePadding>
+        {factTypeLinks.map(({ text, onClick }) => {
+          return (
+            <ListItem key={text} button onClick={onClick}>
+              <ListItemText primary={<div>{text}</div>} />
+            </ListItem>
+          );
+        })}
+      </List>
       <Typography variant="subtitle1">{objectTitle}</Typography>
       <div className={classes.objectList}>
         <List disablePadding>
           {objects.map((object: ActObject) => {
             return (
-              <ListItem
-                key={object.id}
-                dense
-                button
-                onClick={() => {
-                  onObjectClick(object);
-                }}>
+              <ListItem key={object.id} dense>
                 <ListItemText
                   primary={
                     <div>
@@ -122,11 +131,11 @@ const MultiSelectInformationComp = ({
 };
 
 export interface IMultiSelectInformationComp {
-  id: string;
   title: string;
   fadeUnselected: boolean;
   onToggleFadeUnselected: () => void;
-  factTitle: string;
+  factTitle: { text: string; onClick: () => void };
+  factTypeLinks: Array<{ text: string; onClick: () => void }>;
   objectTitle: string;
   objects: Array<ActObject>;
   onObjectClick: (obj: ActObject) => void;

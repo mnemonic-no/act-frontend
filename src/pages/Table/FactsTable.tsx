@@ -1,14 +1,19 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import Button from '@material-ui/core/Button';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Tooltip from '@material-ui/core/Tooltip';
-import { makeStyles, Theme } from '@material-ui/core';
+import {
+  Button,
+  FormControlLabel,
+  makeStyles,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  Theme,
+  Tooltip
+} from '@material-ui/core';
 
 import { ActFact } from '../types';
 import { factColor } from '../../util/util';
@@ -43,9 +48,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '100%'
   },
   header: {
-    padding: '16px 10px 18px 0',
+    padding: '16px 10px 18px 55px',
     display: 'flex',
-    flexDirection: 'row-reverse'
+    justifyContent: 'space-between'
   },
   tableContainer: {
     overflowY: 'auto'
@@ -124,12 +129,28 @@ interface IFactRowComp extends FactRow {
 
 export const ActFactRow = observer(FactRowComp);
 
-const FactsTableComp = ({ rows, columns, sortOrder, onSortChange, onRowClick, onExportClick }: IFactsTableComp) => {
+const FactsTableComp = ({
+  rows,
+  columns,
+  sortOrder,
+  onToggleFilterSelected,
+  filterSelected,
+  onSortChange,
+  onRowClick,
+  onExportClick
+}: IFactsTableComp) => {
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
       <div className={classes.header}>
+        <div>
+          <FormControlLabel
+            label="Only selected"
+            labelPlacement="start"
+            control={<Switch onClick={onToggleFilterSelected} checked={filterSelected} />}
+          />
+        </div>
         <Button variant="outlined" size="small" onClick={onExportClick}>
           Export to CSV
         </Button>
@@ -168,6 +189,8 @@ interface IFactsTableComp {
   rows: Array<FactRow>;
   columns: Array<{ label: string; kind: ColumnKind; tooltip?: string }>;
   sortOrder: SortOrder;
+  filterSelected: boolean;
+  onToggleFilterSelected: () => void;
   onSortChange: (n: ColumnKind) => void;
   onRowClick: (f: ActFact) => void;
   onExportClick: () => void;

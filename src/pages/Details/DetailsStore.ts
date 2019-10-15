@@ -4,7 +4,8 @@ import * as _ from 'lodash/fp';
 import MainPageStore from '../MainPageStore';
 import { ActFact, ActObject, Search } from '../types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
-import { byTypeThenName, notUndefined, pluralize } from '../../util/util';
+import { byTypeThenName, pluralize } from '../../util/util';
+import { countByFactType, idsToFacts, idsToObjects } from '../../core/domain';
 
 export type PredefinedObjectQuery = {
   name: string;
@@ -241,30 +242,47 @@ class DetailsStore {
     };
   }
 
+  @action.bound
+  showSelectedFactsTable() {
+    this.root.ui.factsTableStore.filterSelected = true;
+    this.root.ui.contentStore.onTabSelected('tableOfFacts');
+  }
+
   @computed
   get multiSelectInfo() {
-    const selectedObjects = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'object');
-    const selectedFacts = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'fact');
+    const selectedObjects = idsToObjects(
+      this.root.selectionStore.currentlySelectedObjectIds,
+      this.root.workingHistory.result.objects
+    );
+    const selectedFacts = idsToFacts(
+      this.root.selectionStore.currentlySelectedFactIds,
+      this.root.workingHistory.result.facts
+    );
 
     return {
-      id: 'testing',
       title: `Selection`,
       fadeUnselected: this.fadeUnselected,
       onToggleFadeUnselected: this.toggleFadeUnselected,
-      factTitle: pluralize(selectedFacts.length, 'fact'),
+      factTitle: {
+        text: pluralize(selectedFacts.length, 'fact'),
+        onClick: this.showSelectedFactsTable
+      },
+      factTypeLinks: _.pipe(
+        countByFactType,
+        _.entries,
+        _.sortBy(([factType, count]) => factType),
+        _.map(([factType, count]) => ({
+          text: count + ' ' + factType,
+          onClick: this.showSelectedFactsTable
+        }))
+      )(selectedFacts),
       objectTitle: pluralize(selectedObjects.length, 'object'),
-      objects: selectedObjects
-        .map(selection => this.root.workingHistory.result.objects[selection.id])
-        .filter(notUndefined)
-        .sort(byTypeThenName),
+      objects: selectedObjects.sort(byTypeThenName),
       onObjectClick: (object: ActObject) => {
         this.root.selectionStore.removeFromSelection({ id: object.id, kind: 'object' });
       },
       onPruneObjectsClick: () => {
-        const selectedObjectIds = Object.values(this.root.selectionStore.currentlySelected)
-          .filter(x => x.kind === 'object')
-          .map(x => x.id);
-        this.root.refineryStore.addToPrunedObjectIds(selectedObjectIds);
+        this.root.refineryStore.addToPrunedObjectIds(this.root.selectionStore.currentlySelectedObjectIds);
         this.root.selectionStore.clearSelection();
       },
       onClearSelectionClick: () => {

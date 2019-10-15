@@ -31,3 +31,18 @@ export function objectIdToFacts(facts: Array<ActFact>): { [objectId: string]: Ar
     return acc;
   }, {});
 }
+
+export const idsToFacts = (factIds: Array<string>, factMap: { [factId: string]: ActFact }) => {
+  return factIds.map(id => factMap[id]).filter(notUndefined);
+};
+
+export const idsToObjects = (objectIds: Array<string>, objectMap: { [objectId: string]: ActObject }) => {
+  return objectIds.map(id => objectMap[id]).filter(notUndefined);
+};
+
+export const countByFactType = (facts: Array<ActFact>) => {
+  return facts.reduce((acc: any, curr: any) => {
+    acc[curr.type.name] = (acc[curr.type.name] || 0) + 1;
+    return acc;
+  }, {});
+};

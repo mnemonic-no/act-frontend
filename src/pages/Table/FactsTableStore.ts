@@ -1,4 +1,5 @@
 import { action, computed, observable } from 'mobx';
+import * as _ from 'lodash/fp';
 
 import { ActFact, ActSelection } from '../types';
 import MainPageStore from '../MainPageStore';
@@ -73,6 +74,8 @@ const toFactRow = (
 class FactsTableStore {
   root: MainPageStore;
 
+  @observable filterSelected = false;
+
   @observable
   sortOrder: SortOrder = { order: 'asc', orderBy: 'factType' };
 
@@ -116,11 +119,13 @@ class FactsTableStore {
 
   @action.bound
   onExportClick() {
-    const factRows = Object.values(this.root.refineryStore.refined.facts).map(fact =>
-      toFactRow(fact, this.columns, this.root.selectionStore.currentlySelected, true)
-    );
-
-    const rows = sortBy(this.sortOrder, this.columns, factRows).map(row => row.cells.map(({ text }) => text));
+    const rows = _.pipe(
+      _.values,
+      _.map((f: ActFact) => toFactRow(f, this.columns, this.root.selectionStore.currentlySelected, true)),
+      factRows => (this.filterSelected ? factRows.filter(r => r.isSelected) : factRows),
+      factRows => sortBy(this.sortOrder, this.columns, factRows),
+      _.map(row => row.cells.map(({ text }) => text))
+    )(this.root.refineryStore.refined.facts);
 
     const headerRow = [this.columns.map(c => c.exportLabel || c.label)];
 
@@ -133,14 +138,21 @@ class FactsTableStore {
 
   @computed
   get prepared() {
-    const rows = Object.values(this.root.refineryStore.refined.facts).map(f =>
-      toFactRow(f, this.columns, this.root.selectionStore.currentlySelected, false)
-    );
+    const rows = _.pipe(
+      _.values,
+      _.map((f: ActFact) => toFactRow(f, this.columns, this.root.selectionStore.currentlySelected, false)),
+      factRows => (this.filterSelected ? factRows.filter(r => r.isSelected) : factRows),
+      factRows => sortBy(this.sortOrder, this.columns, factRows)
+    )(this.root.refineryStore.refined.facts);
 
     return {
-      rows: sortBy(this.sortOrder, this.columns, rows),
+      rows: rows,
       columns: this.columns,
       sortOrder: this.sortOrder,
+      filterSelected: this.filterSelected,
+      onToggleFilterSelected: () => {
+        this.filterSelected = !this.filterSelected;
+      },
       onSortChange: this.onSortChange,
       onRowClick: this.setSelectedFact,
       onExportClick: this.onExportClick

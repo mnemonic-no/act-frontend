@@ -46,6 +46,13 @@ class SelectionStore {
       .filter(x => x.kind === 'fact')
       .map(x => x.id);
   }
+
+  @computed
+  get currentlySelectedObjectIds() {
+    return Object.values(this.currentlySelected)
+      .filter(x => x.kind === 'object')
+      .map(x => x.id);
+  }
 }
 
 export default SelectionStore;

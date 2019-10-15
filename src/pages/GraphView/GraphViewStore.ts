@@ -1,5 +1,4 @@
 import { action, computed, observable } from 'mobx';
-import * as _ from 'lodash/fp';
 
 import config from '../../config';
 import getStyle from '../../core/cytoscapeStyle';
@@ -33,20 +32,6 @@ export const selectedNodeIds = (selection: Array<ActSelection>, searchResult: Se
     .filter(notUndefined);
 
   return new Set([...selected, ...objectIdsWithOneLeggedFacts]);
-};
-
-export const highlights = (factIds: Array<string>, factIdToFact: { [factId: string]: ActFact }) => {
-  const facts: Array<ActFact> = factIds.map(fId => factIdToFact[fId]).filter(notUndefined);
-
-  if (facts.length === 0) return [];
-
-  const earliestFact = _.minBy((x: ActFact) => new Date(x.timestamp))(facts) || facts[0];
-  const latestLastSeenFact = _.maxBy((x: ActFact) => new Date(x.lastSeenTimestamp))(facts) || facts[0];
-
-  if (earliestFact.timestamp === latestLastSeenFact.lastSeenTimestamp) {
-    return [{ value: new Date(earliestFact.timestamp) }];
-  }
-  return [{ value: new Date(earliestFact.timestamp) }, { value: new Date(latestLastSeenFact.lastSeenTimestamp) }];
 };
 
 class GraphViewStore {
@@ -161,15 +146,19 @@ class GraphViewStore {
 
   @computed
   get timeline() {
-    const timeData = _.map((f: ActFact) => ({ value: new Date(f.timestamp), id: f.id }))(
-      Object.values(this.root.refineryStore.refined.facts)
-    );
+    const selected = new Set(this.root.selectionStore.currentlySelectedFactIds);
+    const timeData = Object.values(this.root.refineryStore.refined.facts).map((f: ActFact) => ({
+      value: new Date(f.timestamp),
+      id: f.id,
+      kind: f.type.name,
+      isHighlighted: selected.has(f.id)
+    }));
 
     return {
       resizeEvent: this.resizeEvent,
       timeRange: this.root.refineryStore.timeRange,
-      highlights: highlights(this.root.selectionStore.currentlySelectedFactIds, this.root.workingHistory.result.facts),
-      data: timeData,
+      scatterPlot: { groups: [...new Set(timeData.map(x => x.kind))].sort().reverse(), data: timeData },
+      histogram: timeData,
       onBinClick: this.onBinClick
     };
   }

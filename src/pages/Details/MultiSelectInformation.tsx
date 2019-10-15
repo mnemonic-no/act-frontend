@@ -49,7 +49,7 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
   }
 }));
 
-const MultipleObjectsInformationComp = ({
+const MultiSelectInformationComp = ({
   title,
   factTitle,
   objectTitle,
@@ -59,7 +59,7 @@ const MultipleObjectsInformationComp = ({
   onObjectClick,
   onPruneObjectsClick,
   onClearSelectionClick
-}: IMultipleObjectsInformationComp) => {
+}: IMultiSelectInformationComp) => {
   const classes = useStyles();
 
   return (
@@ -121,7 +121,7 @@ const MultipleObjectsInformationComp = ({
   );
 };
 
-export interface IMultipleObjectsInformationComp {
+export interface IMultiSelectInformationComp {
   id: string;
   title: string;
   fadeUnselected: boolean;
@@ -134,4 +134,4 @@ export interface IMultipleObjectsInformationComp {
   onClearSelectionClick: () => void;
 }
 
-export default observer(MultipleObjectsInformationComp);
+export default observer(MultiSelectInformationComp);

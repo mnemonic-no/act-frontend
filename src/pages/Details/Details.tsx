@@ -1,13 +1,13 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Theme, makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 
 import DetailsStore from './DetailsStore';
 import FactInformation, { IFactInformationComp } from '../../components/FactInformation/FactInformation';
 import ObjectInformation, { IObjectInformationComp } from '../../components/ObjectInformation/ObjectInformation';
-import MultipleObjectsInformation, { IMultipleObjectsInformationComp } from './MultipleObjectsInformation';
+import MultipleObjectsInformation, { IMultiSelectInformationComp } from './MultiSelectInformation';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     position: 'relative',
     overflowY: 'auto',
@@ -22,9 +22,7 @@ const content = (store: DetailsStore) => {
     case 'fact':
       return <FactInformation {...(store.selectedFactDetails as IFactInformationComp)} />;
     case 'objects':
-      return (
-        <MultipleObjectsInformation {...(store.selectedMultipleObjectsDetails as IMultipleObjectsInformationComp)} />
-      );
+      return <MultipleObjectsInformation {...(store.multiSelectInfo as IMultiSelectInformationComp)} />;
     default:
       return null;
   }

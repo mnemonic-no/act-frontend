@@ -242,7 +242,7 @@ class DetailsStore {
   }
 
   @computed
-  get selectedMultipleObjectsDetails() {
+  get multiSelectInfo() {
     const selectedObjects = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'object');
     const selectedFacts = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'fact');
 

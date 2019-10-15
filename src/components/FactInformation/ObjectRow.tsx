@@ -2,7 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { makeStyles, TableCell, TableRow, Theme } from '@material-ui/core';
 
-import { objectTypeToColor, renderObjectValue } from '../../util/utils';
+import { objectTypeToColor, renderObjectValue } from '../../util/util';
 import { ActObject } from '../../pages/types';
 
 const useStyles = makeStyles((theme: Theme) => ({

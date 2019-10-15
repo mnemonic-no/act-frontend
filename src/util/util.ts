@@ -1,6 +1,26 @@
 // @ts-ignore
 import { saveAs } from 'file-saver';
 import { ActObject } from '../pages/types';
+import config from '../config';
+
+export const objectTypeToColor = (objectType: string) => config.objectColors[objectType] || 'inherit';
+
+export const factColor = '#F84';
+
+export const truncateText = (text: string, maxLength = 16) => {
+  if (text.length > maxLength) {
+    return `${text.substring(0, maxLength)}…`;
+  }
+  return text;
+};
+
+// If object.value is <sha256sum> (placeholder), show <object type>
+export const renderObjectValue = (object: ActObject, maxLength = 16) => {
+  if (object.value.match(/^\[placeholder\[[a-z0-9]{64}\]\]$/)) {
+    return `<${object.type.name}>`;
+  }
+  return truncateText(object.value, maxLength);
+};
 
 export const sanitizeCsvValue = (v: any): string => {
   const input = v === null ? '' : v.toString();

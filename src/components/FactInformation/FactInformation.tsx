@@ -17,7 +17,7 @@ import memoizeDataLoader from '../../util/memoizeDataLoader';
 import { ObjectRow } from './ObjectRow';
 import RetractFactDialog, { retractFact } from '../RetractFact/Dialog';
 import withDataLoader, { combineDataLoaders } from '../../util/withDataLoader';
-import { factColor } from '../../util/utils';
+import { factColor } from '../../util/util';
 import { ActFact, ActObject, FactComment } from '../../pages/types';
 import { FactRow } from './FactsRow';
 import { pluralize } from '../../util/util';

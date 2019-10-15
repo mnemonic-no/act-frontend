@@ -1,4 +1,4 @@
-import { truncateText } from '../util/utils';
+import { truncateText } from '../util/util';
 import { isOneLegged, objectLabel } from './transformers';
 import { ActFact, ActObject } from '../pages/types';
 import { isRetracted } from './domain';
@@ -34,7 +34,7 @@ export const oneLeggedFactToCytoscapeEdge = (fact: ActFact) => {
       label:
         fact.value && fact.value.startsWith('-')
           ? fact.type.name
-          : `${fact.type.name}: ${truncateText(fact.value, 20)}`,
+          : `${fact.type.name}: ${truncateText(fact.value || '', 20)}`,
       isFact: true,
       factId: fact.id,
       oneLegged: true
@@ -59,7 +59,7 @@ export const twoLeggedFactToCytoscapeEdge = (fact: ActFact) => {
       label:
         fact.value && fact.value.startsWith('-')
           ? fact.type.name
-          : `${fact.type.name}: ${truncateText(fact.value, 20)}`,
+          : `${fact.type.name}: ${truncateText(fact.value || '', 20)}`,
 
       isFact: true,
       factId: fact.id,

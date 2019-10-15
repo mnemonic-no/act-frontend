@@ -5,7 +5,7 @@ import MainPageStore from '../MainPageStore';
 import { ColumnKind, FactRow, SortOrder } from './FactsTable';
 import { isOneLegged } from '../../core/transformers';
 import { exportToCsv } from '../../util/util';
-import { renderObjectValue } from '../../util/utils';
+import { renderObjectValue } from '../../util/util';
 import { isRetracted } from '../../core/domain';
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string; kind: ColumnKind }>, objects: Array<FactRow>) => {
@@ -65,7 +65,7 @@ const toFactRow = (
     isSelected: Boolean(currentlySelected[fact.id]),
     cells: columns.map(({ kind }) => ({
       kind: kind,
-      text: cellText(kind, fact, isExport)
+      text: cellText(kind, fact, isExport) || ''
     }))
   };
 };

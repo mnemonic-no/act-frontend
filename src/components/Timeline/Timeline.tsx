@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) => ({
       zIndex: 9999,
       backgroundColor: theme.palette.grey.A700,
       color: theme.palette.common.white,
-      padding: '8px',
+      padding: '6px',
       pointerEvents: 'none',
       transition: 'all 0.1s ease',
       opacity: 0
@@ -130,11 +130,23 @@ const mouseMove = (targetSelector: string, tooltipEl: any) => {
 
     const tooltipLeft = _.max([x - margin.left - margin.right, margin.left]);
 
-    tooltipEl.style('top', y - 60 + 'px').style('left', tooltipLeft + 'px');
+    const details = targetEl.attr('data-details')
+      ? targetEl
+          .attr('data-details')
+          .split(',')
+          .reduce((acc, detailStr) => {
+            return acc + `<div>${detailStr}</div>`;
+          }, '')
+      : '';
+
+    tooltipEl.style('top', y - 100 + 'px').style('left', tooltipLeft + 'px');
     tooltipEl.html(
       `<h1>${pluralize(parseInt(targetEl.attr('data-count')), 'fact')}</h1>` +
         `<div>${d3.timeFormat('%Y-%m-%d %H:%M:%S')(new Date(targetEl.attr('data-from')))}</div>` +
-        `<div>${d3.timeFormat('%Y-%m-%d %H:%M:%S')(new Date(targetEl.attr('data-to')))}</div>`
+        `<div style="padding-bottom: 2px">${d3.timeFormat('%Y-%m-%d %H:%M:%S')(
+          new Date(targetEl.attr('data-to'))
+        )}</div>` +
+        details
     );
   };
 };
@@ -227,7 +239,20 @@ const drawGrid = (el: any, xScale: any, yScale: any, width: number) => {
   el.select('.yGrid').call(yAxisGrid);
 };
 
-function drawHistogram(
+export const factTypeDetailsString = (bin: Array<{ kind: string }>) => {
+  return _.pipe(
+    _.reduce((acc: any, curr: any) => {
+      acc[curr.kind] = (acc[curr.kind] || 0) + 1;
+      return acc;
+    }, {}),
+    _.entries,
+    _.sortBy(([k, v]: [string, number]) => k),
+    _.map(([k, v]: [string, number]) => v + ' ' + k),
+    _.join(',')
+  )(bin);
+};
+
+const drawHistogram = (
   el: any,
   container: any,
   xScale: d3.ScaleTime<number, number>,
@@ -235,7 +260,7 @@ function drawHistogram(
   data: Array<BinPoint>,
   containerHeight: number,
   onBinClick?: (bin: Array<{ value: Date; id: string }>) => void
-) {
+) => {
   if (el.select('.histogram').empty()) {
     el.append('g').attr('class', 'histogram');
     container.append('div').attr('class', 'tooltip');
@@ -277,6 +302,7 @@ function drawHistogram(
     .attr('data-count', (d: any) => d.length)
     .attr('data-from', (d: any) => d.x0)
     .attr('data-to', (d: any) => d.x1)
+    .attr('data-details', (d: any) => factTypeDetailsString(d))
     .attr('y', (d: any) => yScale(d.length))
     .attr('width', (d: any) => xScale(d.x1) - xScale(d.x0));
 
@@ -289,7 +315,7 @@ function drawHistogram(
     .attr('x', (d: any) => xScale(d.x0))
     .attr('height', (d: any) => containerHeight)
     .attr('width', (d: any) => xScale(d.x1) - xScale(d.x0));
-}
+};
 
 const drawScatterPlot = (
   el: any,

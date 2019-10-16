@@ -18,6 +18,7 @@ import {
 import { ActFact } from '../types';
 import { factColor } from '../../util/util';
 import config from '../../config';
+import MultiSelect, { IMultiSelect } from '../../components/MultiSelect';
 
 export type ColumnKind =
   | 'sourceType'
@@ -50,16 +51,19 @@ const useStyles = makeStyles((theme: Theme) => ({
   header: {
     padding: '16px 10px 18px 55px',
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   tableContainer: {
     overflowY: 'auto'
   },
   headerCell: {
-    paddingLeft: theme.spacing(2)
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(0.5)
   },
   cell: {
-    paddingLeft: theme.spacing(2)
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(0.5)
   },
   row: {
     cursor: 'pointer',
@@ -133,8 +137,8 @@ const FactsTableComp = ({
   rows,
   columns,
   sortOrder,
-  onToggleFilterSelected,
-  filterSelected,
+  selectedFilter,
+  typeMultiSelect,
   onSortChange,
   onRowClick,
   onExportClick
@@ -147,13 +151,16 @@ const FactsTableComp = ({
         <div>
           <FormControlLabel
             label="Only selected"
-            labelPlacement="start"
-            control={<Switch onClick={onToggleFilterSelected} checked={filterSelected} />}
+            labelPlacement="top"
+            control={<Switch onClick={selectedFilter.onClick} checked={selectedFilter.checked} />}
           />
+          <MultiSelect {...typeMultiSelect} />
         </div>
-        <Button variant="outlined" size="small" onClick={onExportClick}>
-          Export to CSV
-        </Button>
+        <div>
+          <Button variant="outlined" size="small" onClick={onExportClick}>
+            Export to CSV
+          </Button>
+        </div>
       </div>
 
       <div className={classes.tableContainer}>
@@ -189,8 +196,8 @@ interface IFactsTableComp {
   rows: Array<FactRow>;
   columns: Array<{ label: string; kind: ColumnKind; tooltip?: string }>;
   sortOrder: SortOrder;
-  filterSelected: boolean;
-  onToggleFilterSelected: () => void;
+  selectedFilter: { checked: boolean; onClick: () => void };
+  typeMultiSelect: IMultiSelect;
   onSortChange: (n: ColumnKind) => void;
   onRowClick: (f: ActFact) => void;
   onExportClick: () => void;

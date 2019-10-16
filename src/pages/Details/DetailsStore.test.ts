@@ -8,8 +8,5 @@ it('fact type links', () => {
   const alias2 = fact({ id: 'b', type: factTypes.alias });
   const mentions = fact({ id: 'c', type: factTypes.mentions });
   const onClick = () => {};
-  expect(factTypeLinks([alias1, alias2, mentions], onClick)).toEqual([
-    { text: '2 alias', onClick: onClick },
-    { text: '1 mentions', onClick: onClick }
-  ]);
+  expect(factTypeLinks([alias1, alias2, mentions], onClick).map(x => x.text)).toEqual(['2 alias', '1 mentions']);
 });

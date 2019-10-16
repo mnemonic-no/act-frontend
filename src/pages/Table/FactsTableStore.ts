@@ -71,6 +71,8 @@ const toFactRow = (
   };
 };
 
+const emptyFilterValue = 'Show all';
+
 class FactsTableStore {
   root: MainPageStore;
 
@@ -86,15 +88,17 @@ class FactsTableStore {
     { label: 'Fact Value', kind: 'factValue' },
     { label: 'Destination Type', kind: 'destinationType' },
     { label: 'Destination Value', kind: 'destinationValue' },
-    { label: 'Retracted', kind: 'isRetracted', tooltip: 'Is fact retracted?' },
-    { label: 'Bi-dir.', exportLabel: 'Bidirectional?', kind: 'isBidirectional', tooltip: 'Is fact bidirectional?' },
+    { label: 'R', exportLabel: 'Retracted', kind: 'isRetracted', tooltip: 'Is fact retracted?' },
+    { label: 'B', exportLabel: 'Bidirectional?', kind: 'isBidirectional', tooltip: 'Is fact bidirectional?' },
     {
-      label: 'Object prop.',
+      label: 'P',
       exportLabel: 'Object property?',
       kind: 'isOneLegged',
       tooltip: 'Is fact a property of the object?'
     }
   ];
+
+  @observable factTypeFilter: Set<string> = new Set();
 
   constructor(root: MainPageStore) {
     this.root = root;
@@ -118,14 +122,33 @@ class FactsTableStore {
   }
 
   @action.bound
+  onFactTypeFilterChange(value: Array<string>) {
+    if (_.includes(emptyFilterValue)(value)) {
+      this.factTypeFilter = new Set();
+    } else {
+      this.factTypeFilter = new Set(value);
+    }
+  }
+
+  @action.bound
+  setFilters({ filterSelected, factTypeFilter }: { filterSelected: boolean; factTypeFilter?: Set<string> }) {
+    this.filterSelected = filterSelected;
+    if (factTypeFilter) {
+      this.factTypeFilter = factTypeFilter;
+    }
+  }
+
+  @action.bound
   onExportClick() {
+    const allFacts = Object.values(this.root.refineryStore.refined.facts);
+
     const rows = _.pipe(
-      _.values,
+      _.filter((f: ActFact) => this.factTypeFilter.size === 0 || this.factTypeFilter.has(f.type.name)),
       _.map((f: ActFact) => toFactRow(f, this.columns, this.root.selectionStore.currentlySelected, true)),
       factRows => (this.filterSelected ? factRows.filter(r => r.isSelected) : factRows),
       factRows => sortBy(this.sortOrder, this.columns, factRows),
       _.map(row => row.cells.map(({ text }) => text))
-    )(this.root.refineryStore.refined.facts);
+    )(allFacts);
 
     const headerRow = [this.columns.map(c => c.exportLabel || c.label)];
 
@@ -138,20 +161,32 @@ class FactsTableStore {
 
   @computed
   get prepared() {
+    const allFacts = Object.values(this.root.refineryStore.refined.facts);
+
     const rows = _.pipe(
-      _.values,
+      _.filter((f: ActFact) => this.factTypeFilter.size === 0 || this.factTypeFilter.has(f.type.name)),
       _.map((f: ActFact) => toFactRow(f, this.columns, this.root.selectionStore.currentlySelected, false)),
       factRows => (this.filterSelected ? factRows.filter(r => r.isSelected) : factRows),
       factRows => sortBy(this.sortOrder, this.columns, factRows)
-    )(this.root.refineryStore.refined.facts);
+    )(allFacts);
 
     return {
       rows: rows,
       columns: this.columns,
       sortOrder: this.sortOrder,
-      filterSelected: this.filterSelected,
-      onToggleFilterSelected: () => {
-        this.filterSelected = !this.filterSelected;
+      typeMultiSelect: {
+        id: 'typeMultiSelect',
+        label: 'Fact Type',
+        values: _.uniq(allFacts.map(f => f.type.name)).sort(),
+        selectedValues: [...this.factTypeFilter],
+        emptyValue: emptyFilterValue,
+        onChange: this.onFactTypeFilterChange
+      },
+      selectedFilter: {
+        checked: this.filterSelected,
+        onClick: () => {
+          this.filterSelected = !this.filterSelected;
+        }
       },
       onSortChange: this.onSortChange,
       onRowClick: this.setSelectedFact,

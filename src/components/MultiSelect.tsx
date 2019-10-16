@@ -1,43 +1,68 @@
-import { Checkbox, Chip, FormControl, Input, InputLabel, ListItemText, MenuItem, Select } from '@material-ui/core';
+import {
+  Checkbox,
+  Chip,
+  FormControl,
+  FormControlLabel,
+  Input,
+  ListItemText,
+  makeStyles,
+  MenuItem,
+  Select
+} from '@material-ui/core';
 import React from 'react';
 
-const MultiSelect = ({ id, label, values, selectedValues, onChange, emptyValue }: IMultiSelect) => {
-  return (
-    <FormControl>
-      <InputLabel htmlFor="id" shrink={true} disableAnimation={true}>
-        {label}
-      </InputLabel>
-      <Select
-        multiple
-        displayEmpty
-        value={selectedValues}
-        input={<Input id={id} />}
-        renderValue={selected => {
-          if ((selected as string[]).length === 0) {
-            return <em>Show all</em>;
-          }
+const useStyles = makeStyles(() => ({
+  root: {
+    minWidth: '100px'
+  },
+  selectLabel: {
+    alignItems: 'flex-start'
+  }
+}));
 
-          return (
-            <div>
-              {(selected as string[]).map(s => (
-                <Chip key={s} size="small" label={s} />
-              ))}
-            </div>
-          );
-        }}
-        onChange={(event: React.ChangeEvent<{ value: unknown }>) => onChange(event.target.value)}>
-        <MenuItem value={emptyValue}>
-          <em>Show all</em>
-        </MenuItem>
-        {values.map((otf: string) => {
-          return (
-            <MenuItem key={otf} value={otf}>
-              <Checkbox checked={selectedValues.indexOf(otf) > -1} />
-              <ListItemText primary={otf} />
+const MultiSelect = ({ id, label, values, selectedValues, onChange, emptyValue }: IMultiSelect) => {
+  const classes = useStyles();
+
+  return (
+    <FormControl classes={{ root: classes.root }}>
+      <FormControlLabel
+        classes={{ root: classes.selectLabel }}
+        label={label}
+        labelPlacement="top"
+        control={
+          <Select
+            multiple
+            displayEmpty
+            value={selectedValues}
+            input={<Input id={id} />}
+            renderValue={selected => {
+              if ((selected as string[]).length === 0) {
+                return <em>Show all</em>;
+              }
+
+              return (
+                <div>
+                  {(selected as string[]).map(s => (
+                    <Chip key={s} size="small" label={s} />
+                  ))}
+                </div>
+              );
+            }}
+            onChange={(event: React.ChangeEvent<{ value: unknown }>) => onChange(event.target.value)}>
+            <MenuItem value={emptyValue}>
+              <em>Show all</em>
             </MenuItem>
-          );
-        })}
-      </Select>
+            {values.map((otf: string) => {
+              return (
+                <MenuItem key={otf} value={otf}>
+                  <Checkbox checked={selectedValues.indexOf(otf) > -1} />
+                  <ListItemText primary={otf} />
+                </MenuItem>
+              );
+            })}
+          </Select>
+        }
+      />
     </FormControl>
   );
 };

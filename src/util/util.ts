@@ -2,6 +2,7 @@
 import { saveAs } from 'file-saver';
 import { ActObject } from '../pages/types';
 import config from '../config';
+import * as _ from 'lodash/fp';
 
 export const objectTypeToColor = (objectType: string) => config.objectColors[objectType] || 'inherit';
 
@@ -116,3 +117,20 @@ export function notUndefined<T>(x: T | undefined): x is T {
 
 export const byTypeThenName = (a: ActObject, b: ActObject) =>
   a.type.name + '' + a.value > b.type.name + '' + b.value ? 1 : -1;
+
+export const replaceAll = (s: string, replacements: { [key: string]: string }) => {
+  return Object.entries(replacements).reduce((acc: string, [searchFor, replaceWith]: [string, string]) => {
+    return acc.replace(searchFor, replaceWith);
+  }, s);
+};
+
+export const replaceAllInObject = (
+  obj: { [key: string]: any } | undefined,
+  replacements: { [key: string]: string }
+) => {
+  if (!obj) {
+    return obj;
+  }
+
+  return _.mapValues(v => (typeof v === 'string' ? replaceAll(v, replacements) : v))(obj);
+};

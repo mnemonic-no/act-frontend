@@ -1,4 +1,5 @@
 import {
+  contextActionsFor,
   countByFactType,
   idsToFacts,
   idsToObjects,
@@ -8,6 +9,7 @@ import {
   objectIdToFacts
 } from './domain';
 import { actObject, fact, factTypes, objectTypes } from './testHelper';
+import { ContextActionTemplate } from '../pages/types';
 
 it('can check if fact is retracted', () => {
   expect(isRetracted(fact({}))).toBeFalsy();
@@ -76,4 +78,81 @@ it('count by fact type', () => {
   const aliasFact2 = fact({ id: 'c', type: factTypes.alias });
 
   expect(countByFactType([mentionFact, aliasFact1, aliasFact2])).toEqual({ alias: 2, mentions: 1 });
+});
+
+const noopFn = () => {};
+
+it('can get context actions for links', () => {
+  const template: ContextActionTemplate = {
+    objects: ['content', 'hash'],
+    action: {
+      name: 'Somewhere',
+      description: 'Open somewhere',
+      type: 'link',
+      urlPattern: 'https://www.somewhere.com/hash/:objectValue'
+    }
+  };
+
+  expect(contextActionsFor(null, [], noopFn)).toEqual([]);
+
+  expect(
+    contextActionsFor(
+      {
+        id: '1',
+        type: { id: '2', name: 'content' },
+        value: 'testValue'
+      },
+      [template],
+      noopFn
+    )
+  ).toEqual([
+    {
+      name: template.action.name,
+      description: template.action.description,
+      href: 'https://www.somewhere.com/hash/testValue'
+    }
+  ]);
+
+  expect(
+    contextActionsFor(
+      {
+        id: '1',
+        type: { id: '2', name: 'report' },
+        value: 'testValue'
+      },
+      [template],
+      noopFn
+    )
+  ).toEqual([]);
+});
+
+it('can get context actions for postAndForget', () => {
+  const template: ContextActionTemplate = {
+    action: {
+      name: 'Somewhere',
+      description: 'Open somewhere',
+      type: 'postAndForget',
+      pathPattern: '/submit/:objectType/:objectValue',
+      jsonBody: {
+        'act.type': ':objectType',
+        'act.value': ':objectValue'
+      }
+    }
+  };
+
+  const actions = contextActionsFor(
+    {
+      id: '1',
+      type: { id: '2', name: 'content' },
+      value: 'testValue'
+    },
+    [template],
+    noopFn
+  );
+
+  expect(actions).toHaveLength(1);
+
+  expect(actions[0].name).toBe(template.action.name);
+  expect(actions[0].description).toBe(template.action.description);
+  expect(actions[0].onClick).toBeDefined();
 });

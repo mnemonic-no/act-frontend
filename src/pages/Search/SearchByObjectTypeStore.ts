@@ -1,9 +1,10 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
-import { PredefinedObjectQuery } from '../Details/DetailsStore';
+
 import { byTypeThenName } from '../../util/util';
 import { getObjectLabelFromFact } from '../../core/transformers';
 import config from '../../config';
+import { PredefinedObjectQuery } from '../types';
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
 

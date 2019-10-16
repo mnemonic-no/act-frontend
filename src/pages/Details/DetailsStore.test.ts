@@ -1,93 +1,15 @@
-import DetailsStore, { ContextActionTemplate, replaceAllInObject } from './DetailsStore';
+import { factTypeLinks } from './DetailsStore';
+import { fact, factTypes } from '../../core/testHelper';
 
-const noopFn = () => {};
+it('fact type links', () => {
+  expect(factTypeLinks([], () => {})).toEqual([]);
 
-it('can get context actions for links', () => {
-  const template: ContextActionTemplate = {
-    objects: ['content', 'hash'],
-    action: {
-      name: 'Somewhere',
-      description: 'Open somewhere',
-      type: 'link',
-      urlPattern: 'https://www.somewhere.com/hash/:objectValue'
-    }
-  };
-
-  expect(DetailsStore.contextActionsFor(null, [], noopFn)).toEqual([]);
-
-  expect(
-    DetailsStore.contextActionsFor(
-      {
-        id: '1',
-        type: { id: '2', name: 'content' },
-        value: 'testValue'
-      },
-      [template],
-      noopFn
-    )
-  ).toEqual([
-    {
-      name: template.action.name,
-      description: template.action.description,
-      href: 'https://www.somewhere.com/hash/testValue'
-    }
+  const alias1 = fact({ id: 'a', type: factTypes.alias });
+  const alias2 = fact({ id: 'b', type: factTypes.alias });
+  const mentions = fact({ id: 'c', type: factTypes.mentions });
+  const onClick = () => {};
+  expect(factTypeLinks([alias1, alias2, mentions], onClick)).toEqual([
+    { text: '2 alias', onClick: onClick },
+    { text: '1 mentions', onClick: onClick }
   ]);
-
-  expect(
-    DetailsStore.contextActionsFor(
-      {
-        id: '1',
-        type: { id: '2', name: 'report' },
-        value: 'testValue'
-      },
-      [template],
-      noopFn
-    )
-  ).toEqual([]);
-});
-
-it('can get context actions for postAndForget', () => {
-  const template: ContextActionTemplate = {
-    action: {
-      name: 'Somewhere',
-      description: 'Open somewhere',
-      type: 'postAndForget',
-      pathPattern: '/submit/:objectType/:objectValue',
-      jsonBody: {
-        'act.type': ':objectType',
-        'act.value': ':objectValue'
-      }
-    }
-  };
-
-  const actions = DetailsStore.contextActionsFor(
-    {
-      id: '1',
-      type: { id: '2', name: 'content' },
-      value: 'testValue'
-    },
-    [template],
-    noopFn
-  );
-
-  expect(actions).toHaveLength(1);
-
-  expect(actions[0].name).toBe(template.action.name);
-  expect(actions[0].description).toBe(template.action.description);
-  expect(actions[0].onClick).toBeDefined();
-});
-
-it('can replace items in an object', () => {
-  expect(replaceAllInObject({}, {})).toEqual({});
-
-  expect(
-    replaceAllInObject(
-      {
-        typeOfObject: ':objectType',
-        valueOfObject: ':objectValue',
-        doNotReplace: 1234
-      },
-      { ':objectType': 'threatActor', ':objectValue': 'replacementValue' }
-    )
-  ).toEqual({ typeOfObject: 'threatActor', valueOfObject: 'replacementValue', doNotReplace: 1234 });
 });

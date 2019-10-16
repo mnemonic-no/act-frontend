@@ -95,6 +95,33 @@ export type ObjectTypeFilter = {
   checked: boolean;
 };
 
+export type PredefinedObjectQuery = {
+  name: string;
+  description: string;
+  query: string;
+  objects: Array<string>;
+};
+
+export type ContextAction = {
+  name: string;
+  description: string;
+  href?: string;
+  onClick?: () => void;
+};
+
+export type ContextActionTemplate = {
+  objects?: Array<string>;
+  action: {
+    name: string;
+    type: 'link' | 'postAndForget';
+    description: string;
+    urlPattern?: string;
+    pathPattern?: string;
+    confirmation?: string;
+    jsonBody?: { [key: string]: any };
+  };
+};
+
 export const searchId = (search: Search) => {
   if (isObjectSearch(search)) {
     return [search.objectType, search.objectValue, search.query, search.factTypes && search.factTypes.sort()]

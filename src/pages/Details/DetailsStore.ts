@@ -2,59 +2,32 @@ import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import MainPageStore from '../MainPageStore';
-import { ActFact, ActObject, Search } from '../types';
+import { ActFact, ActObject, ContextAction, ContextActionTemplate, PredefinedObjectQuery, Search } from '../types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
-import { byTypeThenName, notUndefined, pluralize } from '../../util/util';
-
-export type PredefinedObjectQuery = {
-  name: string;
-  description: string;
-  query: string;
-  objects: Array<string>;
-};
-
-export type ContextAction = {
-  name: string;
-  description: string;
-  href?: string;
-  onClick?: () => void;
-};
-
-export type ContextActionTemplate = {
-  objects?: Array<string>;
-  action: {
-    name: string;
-    type: 'link' | 'postAndForget';
-    description: string;
-    urlPattern?: string;
-    pathPattern?: string;
-    confirmation?: string;
-    jsonBody?: { [key: string]: any };
-  };
-};
+import { byTypeThenName, pluralize } from '../../util/util';
+import {
+  contextActionsFor,
+  countByFactType,
+  idsToFacts,
+  idsToObjects,
+  predefinedObjectQueriesFor
+} from '../../core/domain';
 
 export type ObjectDetails = {
   contextActions: Array<ContextAction>;
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
 };
 
-const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
-
-const replaceAll = (s: string, replacements: { [key: string]: string }) => {
-  return Object.entries(replacements).reduce((acc: string, [searchFor, replaceWith]: [string, string]) => {
-    return acc.replace(searchFor, replaceWith);
-  }, s);
-};
-
-export const replaceAllInObject = (
-  obj: { [key: string]: any } | undefined,
-  replacements: { [key: string]: string }
-) => {
-  if (!obj) {
-    return obj;
-  }
-
-  return _.mapValues(v => (typeof v === 'string' ? replaceAll(v, replacements) : v))(obj);
+export const factTypeLinks = (selectedFacts: Array<ActFact>, onClick: () => void) => {
+  return _.pipe(
+    countByFactType,
+    _.entries,
+    _.sortBy(([factType, count]) => factType),
+    _.map(([factType, count]) => ({
+      text: count + ' ' + factType,
+      onClick: onClick
+    }))
+  )(selectedFacts);
 };
 
 class DetailsStore {
@@ -134,65 +107,6 @@ class DetailsStore {
     this.fadeUnselected = !this.fadeUnselected;
   }
 
-  static toContextAction(
-    template: ContextActionTemplate,
-    selected: ActObject,
-    postAndForgetFn: (url: string, jsonBody: any, successString: string) => void
-  ): ContextAction {
-    const replacements: { [key: string]: string } = {
-      ':objectValue': selected.value,
-      ':objectType': selected.type.name
-    };
-
-    switch (template.action.type) {
-      case 'link':
-        return {
-          name: template.action.name,
-          description: template.action.description,
-          href: replaceAll(template.action.urlPattern || '', replacements)
-        };
-      case 'postAndForget':
-        return {
-          name: template.action.name,
-          description: template.action.description,
-          onClick: () => {
-            if (
-              template.action.confirmation === undefined ||
-              (template.action.confirmation && window.confirm(template.action.confirmation))
-            ) {
-              const url = replaceAll(template.action.pathPattern || '', replacements);
-              const jsonBody = replaceAllInObject(template.action.jsonBody, replacements);
-              postAndForgetFn(url, jsonBody, 'Success: ' + template.action.name);
-            }
-          }
-        };
-
-      default:
-        throw Error('Unhandled case ' + template.action);
-    }
-  }
-
-  static contextActionsFor(
-    selected: ActObject | null,
-    contextActionTemplates: Array<ContextActionTemplate>,
-    postAndForgetFn: (url: string, jsonBody: any, successString: string) => void
-  ): Array<ContextAction> {
-    if (!selected) return [];
-
-    return contextActionTemplates
-      .filter((x: any) => !x.objects || x.objects.find((objectType: string) => objectType === selected.type.name))
-      .map((x: any) => this.toContextAction(x, selected, postAndForgetFn))
-      .sort(byName);
-  }
-
-  static predefinedObjectQueriesFor(selected: ActObject | null, predefinedObjectQueries: Array<PredefinedObjectQuery>) {
-    if (!selected) return [];
-
-    return predefinedObjectQueries
-      .filter(x => x.objects.find(objectType => objectType === selected.type.name))
-      .sort(byName);
-  }
-
   @computed
   get selectedObjectDetails() {
     const selected = this.selectedObject;
@@ -202,12 +116,12 @@ class DetailsStore {
     return {
       id: selected.id,
       details: {
-        contextActions: DetailsStore.contextActionsFor(
+        contextActions: contextActionsFor(
           selected,
           this.contextActionTemplates,
           this.root.backendStore.postAndForget.bind(this.root.backendStore)
         ),
-        predefinedObjectQueries: DetailsStore.predefinedObjectQueriesFor(selected, this.predefinedObjectQueries)
+        predefinedObjectQueries: predefinedObjectQueriesFor(selected, this.predefinedObjectQueries)
       },
       createFactDialog: this.createFactDialog,
       onSearchSubmit: this.onSearchSubmit,
@@ -241,30 +155,39 @@ class DetailsStore {
     };
   }
 
+  @action.bound
+  showSelectedFactsTable() {
+    this.root.ui.factsTableStore.filterSelected = true;
+    this.root.ui.contentStore.onTabSelected('tableOfFacts');
+  }
+
   @computed
-  get selectedMultipleObjectsDetails() {
-    const selectedObjects = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'object');
-    const selectedFacts = Object.values(this.root.selectionStore.currentlySelected).filter(s => s.kind === 'fact');
+  get multiSelectInfo() {
+    const selectedObjects = idsToObjects(
+      this.root.selectionStore.currentlySelectedObjectIds,
+      this.root.workingHistory.result.objects
+    );
+    const selectedFacts = idsToFacts(
+      this.root.selectionStore.currentlySelectedFactIds,
+      this.root.workingHistory.result.facts
+    );
 
     return {
-      id: 'testing',
       title: `Selection`,
       fadeUnselected: this.fadeUnselected,
       onToggleFadeUnselected: this.toggleFadeUnselected,
-      factTitle: pluralize(selectedFacts.length, 'fact'),
+      factTitle: {
+        text: pluralize(selectedFacts.length, 'fact'),
+        onClick: this.showSelectedFactsTable
+      },
+      factTypeLinks: factTypeLinks(selectedFacts, this.showSelectedFactsTable),
       objectTitle: pluralize(selectedObjects.length, 'object'),
-      objects: selectedObjects
-        .map(selection => this.root.workingHistory.result.objects[selection.id])
-        .filter(notUndefined)
-        .sort(byTypeThenName),
+      objects: selectedObjects.sort(byTypeThenName),
       onObjectClick: (object: ActObject) => {
         this.root.selectionStore.removeFromSelection({ id: object.id, kind: 'object' });
       },
       onPruneObjectsClick: () => {
-        const selectedObjectIds = Object.values(this.root.selectionStore.currentlySelected)
-          .filter(x => x.kind === 'object')
-          .map(x => x.id);
-        this.root.refineryStore.addToPrunedObjectIds(selectedObjectIds);
+        this.root.refineryStore.addToPrunedObjectIds(this.root.selectionStore.currentlySelectedObjectIds);
         this.root.selectionStore.clearSelection();
       },
       onClearSelectionClick: () => {

@@ -18,14 +18,17 @@ export type ObjectDetails = {
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
 };
 
-export const factTypeLinks = (selectedFacts: Array<ActFact>, onClick: () => void) => {
+export const factTypeLinks = (
+  selectedFacts: Array<ActFact>,
+  onClick: (factType: string) => void
+): Array<{ text: string; onClick: () => void }> => {
   return _.pipe(
     countByFactType,
     _.entries,
     _.sortBy(([factType, count]) => factType),
     _.map(([factType, count]) => ({
       text: count + ' ' + factType,
-      onClick: onClick
+      onClick: () => onClick(factType)
     }))
   )(selectedFacts);
 };
@@ -156,8 +159,11 @@ class DetailsStore {
   }
 
   @action.bound
-  showSelectedFactsTable() {
-    this.root.ui.factsTableStore.filterSelected = true;
+  showSelectedFactsTable(onlyFactType?: string) {
+    this.root.ui.factsTableStore.setFilters({
+      filterSelected: true,
+      factTypeFilter: onlyFactType ? new Set([onlyFactType]) : new Set()
+    });
     this.root.ui.contentStore.onTabSelected('tableOfFacts');
   }
 
@@ -178,7 +184,7 @@ class DetailsStore {
       onToggleFadeUnselected: this.toggleFadeUnselected,
       factTitle: {
         text: pluralize(selectedFacts.length, 'fact'),
-        onClick: this.showSelectedFactsTable
+        onClick: () => this.showSelectedFactsTable()
       },
       factTypeLinks: factTypeLinks(selectedFacts, this.showSelectedFactsTable),
       objectTitle: pluralize(selectedObjects.length, 'object'),

@@ -2,13 +2,14 @@ import * as _ from 'lodash/fp';
 import React from 'react';
 import { compose, withHandlers } from 'recompose';
 import format from 'date-fns/format';
-import Button from '@material-ui/core/Button/index';
+import { makeStyles, Theme } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid/index';
-import Table from '@material-ui/core/Table/index';
-import TableBody from '@material-ui/core/TableBody/index';
-import Typography from '@material-ui/core/Typography/index';
-import { Theme, makeStyles } from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 
 import actWretch from '../../util/actWretch';
 import { isMetaFact, isRetracted } from '../../core/domain';
@@ -98,6 +99,22 @@ const FactInformationComp = ({
           <Grid item xs={12} classes={{ item: classes.row }}>
             <Typography className={classes.left}>organization</Typography>
             <Typography className={classes.right}>{fact.organization.name}</Typography>
+          </Grid>
+          <Grid item xs={12} classes={{ item: classes.row }}>
+            <Typography className={classes.left}>origin</Typography>
+            <Typography className={classes.right}>{fact.origin.name}</Typography>
+          </Grid>
+          {fact.addedBy && (
+            <Grid item xs={12} classes={{ item: classes.row }}>
+              <Typography className={classes.left}>added by</Typography>
+              <Typography className={classes.right}>{fact.addedBy.name}</Typography>
+            </Grid>
+          )}
+          <Grid item xs={12} classes={{ item: classes.row }}>
+            <Typography className={classes.left}>certainty</Typography>
+            <Tooltip title={`Trust: ${fact.trust} Confidence: ${fact.confidence}`}>
+              <Typography className={classes.right}>{fact.certainty}</Typography>
+            </Tooltip>
           </Grid>
           <Grid item xs={12} classes={{ item: classes.row }}>
             <Typography className={classes.left}>access mode</Typography>

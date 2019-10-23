@@ -23,12 +23,16 @@ export const fact = (args: { [key: string]: any }): ActFact => {
     type: { id: 'a', name: 'alias' },
     organization: { id: 'o', name: 'dontknow' },
     source: { id: 'x', name: 'dontcare' },
+    origin: { id: 'z', name: 'the origin' },
     timestamp: '2019-05-14T12:12:30.000Z',
     lastSeenTimestamp: '2019-06-14T10:12:37.183Z',
     bidirectionalBinding: false,
     accessMode: '',
     value: 'changeme',
-    flags: []
+    flags: [],
+    trust: 1,
+    confidence: 0.8,
+    certainty: 0.8
   };
 
   return {

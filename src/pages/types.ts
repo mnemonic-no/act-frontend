@@ -23,6 +23,8 @@ export type ActFact = {
   value?: string;
   inReferenceTo?: { id: string; type: NamedId };
   organization: NamedId;
+  origin: NamedId;
+  addedBy?: NamedId;
   source: NamedId;
   accessMode: string;
   timestamp: string;
@@ -31,6 +33,9 @@ export type ActFact = {
   destinationObject?: ActObject;
   bidirectionalBinding: boolean;
   flags: Array<'Retracted' | string>;
+  certainty: number;
+  confidence: number;
+  trust: number;
 };
 
 export type FactType = {

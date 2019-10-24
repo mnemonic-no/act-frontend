@@ -50,6 +50,13 @@ export const exportToJson = (filename: string, data: any) => {
   saveAs(blob, filename);
 };
 
+export const fileTimeString = (dt: Date) => {
+  return dt
+    .toISOString()
+    .replace(/:/g, '-')
+    .substr(0, 19);
+};
+
 export const arrayToObjectWithIds = (inputArray: Array<any>) => {
   return inputArray.reduce(
     (acc, curr) => ({

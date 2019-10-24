@@ -5,7 +5,7 @@ import { ActFact, ActSelection } from '../types';
 import MainPageStore from '../MainPageStore';
 import { ColumnKind, FactRow, SortOrder } from './FactsTable';
 import { isOneLegged } from '../../core/transformers';
-import { exportToCsv } from '../../util/util';
+import { exportToCsv, fileTimeString } from '../../util/util';
 import { renderObjectValue } from '../../util/util';
 import { isRetracted } from '../../core/domain';
 
@@ -169,11 +169,7 @@ class FactsTableStore {
 
     const headerRow = [columns.map(c => c.exportLabel || c.label)];
 
-    const nowTimeString = new Date()
-      .toISOString()
-      .replace(/:/g, '-')
-      .substr(0, 19);
-    exportToCsv(nowTimeString + '-act-facts.csv', headerRow.concat(rows));
+    exportToCsv(fileTimeString(new Date()) + '-act-facts.csv', headerRow.concat(rows));
   }
 
   @computed

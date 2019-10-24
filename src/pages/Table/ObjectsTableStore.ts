@@ -5,7 +5,7 @@ import { ActFact, ActObject, ActSelection } from '../types';
 import { ColumnKind, ObjectRow, SortOrder } from './ObjectsTable';
 import MainPageStore from '../MainPageStore';
 import { oneLeggedFactsFor } from '../../core/transformers';
-import { exportToCsv } from '../../util/util';
+import { exportToCsv, fileTimeString } from '../../util/util';
 
 const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
   return objects.slice().sort((a: any, b: any) => {
@@ -135,11 +135,7 @@ class ObjectsTableStore {
 
     const headerRow = [this.columns.map(c => c.label)];
 
-    const nowTimeString = new Date()
-      .toISOString()
-      .replace(/:/g, '-')
-      .substr(0, 19);
-    exportToCsv(nowTimeString + '-act-objects.csv', headerRow.concat(rows));
+    exportToCsv(fileTimeString(new Date()) + '-act-objects.csv', headerRow.concat(rows));
   }
 
   @computed

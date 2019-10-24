@@ -21,6 +21,8 @@ import config from '../../config';
 import MultiSelect, { IMultiSelect } from '../../components/MultiSelect';
 
 export type ColumnKind =
+  | 'timestamp'
+  | 'lastSeenTimestamp'
   | 'sourceType'
   | 'sourceValue'
   | 'factType'
@@ -40,7 +42,7 @@ export type FactRow = {
   id: string;
   fact: ActFact;
   isSelected: boolean;
-  cells: Array<{ text: string; kind: ColumnKind }>;
+  cells: Array<{ text: string; kind: ColumnKind; isFaded?: boolean }>;
 };
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -65,6 +67,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(0.5)
   },
+  fade: {
+    opacity: 0.5
+  },
   row: {
     cursor: 'pointer',
     height: theme.spacing(4)
@@ -85,8 +90,15 @@ const useStyles = makeStyles((theme: Theme) => ({
     .reduce((acc, x) => Object.assign({}, acc, x), {})
 }));
 
-const cellClassNames = ({ kind, text }: { kind: ColumnKind; text: string }, classes: any) => {
+const cellClassNames = (
+  { kind, text, isFaded }: { kind: ColumnKind; text: string; isFaded: boolean },
+  classes: any
+) => {
   switch (kind) {
+    case 'timestamp':
+      return classes.cell;
+    case 'lastSeenTimestamp':
+      return `${classes.cell} ${isFaded ? classes.fade : ''}`;
     case 'sourceType':
       const sourceType = classes[text] ? classes[text] : '';
       return `${classes.cell} ${sourceType}`;

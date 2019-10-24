@@ -8,6 +8,7 @@ import { isOneLegged } from '../../core/transformers';
 import { exportToCsv, fileTimeString } from '../../util/util';
 import { renderObjectValue } from '../../util/util';
 import { isRetracted } from '../../core/domain';
+import { format } from 'date-fns';
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string; kind: ColumnKind }>, objects: Array<FactRow>) => {
   const cellIdx = columns.findIndex(({ kind }) => kind === sortOrder.orderBy);
@@ -26,6 +27,10 @@ const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string; kind: Colu
 
 const cellText = (kind: ColumnKind, fact: ActFact, isExport: boolean) => {
   switch (kind) {
+    case 'timestamp':
+      return isExport ? fact.timestamp : format(new Date(fact.timestamp), 'yyyy.MM.dd HH:mm');
+    case 'lastSeenTimestamp':
+      return isExport ? fact.lastSeenTimestamp : format(new Date(fact.lastSeenTimestamp), 'yyyy.MM.dd HH:mm');
     case 'sourceType':
       return fact.sourceObject ? fact.sourceObject.type.name : '';
     case 'sourceValue':
@@ -54,6 +59,9 @@ const cellText = (kind: ColumnKind, fact: ActFact, isExport: boolean) => {
   }
 };
 
+const isFaded = (kind: ColumnKind, fact: ActFact) =>
+  Boolean(kind === 'lastSeenTimestamp' && fact.timestamp === fact.lastSeenTimestamp);
+
 const toFactRow = (
   fact: ActFact,
   columns: Array<{ label: string; kind: ColumnKind }>,
@@ -66,7 +74,8 @@ const toFactRow = (
     isSelected: Boolean(currentlySelected[fact.id]),
     cells: columns.map(({ kind }) => ({
       kind: kind,
-      text: cellText(kind, fact, isExport) || ''
+      text: cellText(kind, fact, isExport) || '',
+      isFaded: isFaded(kind, fact)
     }))
   };
 };
@@ -78,11 +87,12 @@ export const factRows = (input: {
   factTypeFilter: Set<string>;
   filterSelected: boolean;
   sortOrder: SortOrder;
+  isExport: boolean;
 }) => {
   return _.pipe(
     _.filter((f: ActFact) => input.factTypeFilter.size === 0 || input.factTypeFilter.has(f.type.name)),
     fs => (input.filterSelected ? fs.filter(f => input.currentlySelected[f.id]) : fs),
-    _.map((f: ActFact) => toFactRow(f, input.columns, input.currentlySelected, false)),
+    _.map((f: ActFact) => toFactRow(f, input.columns, input.currentlySelected, input.isExport)),
     factRows => sortBy(input.sortOrder, input.columns, factRows)
   )(input.facts);
 };
@@ -90,6 +100,8 @@ export const factRows = (input: {
 const emptyFilterValue = 'Show all';
 
 export const columns: Array<{ label: string; exportLabel?: string; tooltip?: string; kind: ColumnKind }> = [
+  { label: 'TS', exportLabel: 'Timestamp', kind: 'timestamp', tooltip: 'Timestamp' },
+  { label: 'TS>', exportLabel: 'Last seen timestamp', kind: 'lastSeenTimestamp', tooltip: 'Last seen Timestamp' },
   { label: 'Source Type', kind: 'sourceType' },
   { label: 'Source Value', kind: 'sourceValue' },
   { label: 'Fact Type', kind: 'factType' },
@@ -159,6 +171,7 @@ class FactsTableStore {
     const allFacts = Object.values(this.root.refineryStore.refined.facts);
 
     const rows = factRows({
+      isExport: true,
       facts: allFacts,
       factTypeFilter: this.factTypeFilter,
       currentlySelected: this.root.selectionStore.currentlySelected,
@@ -177,6 +190,7 @@ class FactsTableStore {
     const allFacts = Object.values(this.root.refineryStore.refined.facts);
 
     const rows = factRows({
+      isExport: false,
       facts: allFacts,
       factTypeFilter: this.factTypeFilter,
       currentlySelected: this.root.selectionStore.currentlySelected,

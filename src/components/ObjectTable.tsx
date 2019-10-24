@@ -1,12 +1,14 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Checkbox, makeStyles, Theme, Tooltip } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core';
+import Checkbox from '@material-ui/core/Checkbox';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import TableBody from '@material-ui/core/TableBody';
-import Table from '@material-ui/core/Table';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { ActObject } from '../pages/types';
 import { objectTypeToColor, renderObjectValue } from '../util/util';
@@ -64,7 +66,7 @@ const ObjectRowComp = ({ actObject, label, onRowClick, onCheckboxClick, isSelect
       </TableCell>
       <TableCell classes={{ root: classes.cell }} size="small">
         {label ? (
-          <Tooltip title={'Value: ' + objectValueString}>
+          <Tooltip title={'Value: ' + objectValueString} enterDelay={500}>
             <span>{label}</span>
           </Tooltip>
         ) : (

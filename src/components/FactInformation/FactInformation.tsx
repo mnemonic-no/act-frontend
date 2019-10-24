@@ -49,7 +49,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   left: {
     flex: '0 0 100px',
     // Ensure left has the same line-height as right to make them align correctly
-    lineHeight: theme.typography.body1.lineHeight
+    lineHeight: theme.typography.body1.lineHeight,
+    paddingRight: theme.spacing(1)
   },
   right: {
     flex: '1 1 auto'
@@ -122,15 +123,19 @@ const FactInformationComp = ({
           </Grid>
           <Grid item xs={12} classes={{ item: classes.row }}>
             <Typography className={classes.left}>date</Typography>
-            <Typography className={classes.right}>{format(new Date(fact.timestamp), 'yyyy.MM.dd HH:mm')}</Typography>
+            <Tooltip title={fact.timestamp} enterDelay={500}>
+              <Typography className={classes.right}>{format(new Date(fact.timestamp), 'yyyy.MM.dd HH:mm')}</Typography>
+            </Tooltip>
           </Grid>
           <Grid item xs={12} classes={{ item: classes.row }}>
             <Typography gutterBottom className={classes.left}>
               last seen
             </Typography>
-            <Typography className={classes.right}>
-              {format(new Date(fact.lastSeenTimestamp), 'yyyy.MM.dd HH:mm')}
-            </Typography>
+            <Tooltip title={fact.lastSeenTimestamp} enterDelay={500}>
+              <Typography className={classes.right}>
+                {format(new Date(fact.lastSeenTimestamp), 'yyyy.MM.dd HH:mm')}
+              </Typography>
+            </Tooltip>
           </Grid>
         </Grid>
 

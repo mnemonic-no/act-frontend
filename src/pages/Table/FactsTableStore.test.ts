@@ -12,11 +12,17 @@ it('can make facts table', () => {
       columns: [],
       factTypeFilter: new Set(),
       filterSelected: false,
-      sortOrder: sortByFactType
+      sortOrder: sortByFactType,
+      isExport: true
     })
   ).toEqual([]);
 
-  const aliasFact = fact({ id: 'a', type: factTypes.alias });
+  const aliasFact = fact({
+    id: 'a',
+    type: factTypes.alias,
+    timestamp: '2019-05-14T12:12:30.000Z',
+    lastSeenTimestamp: '2019-05-14T12:12:30.000Z'
+  });
   const mentionsFact = fact({ id: 'b', type: factTypes.mentions });
 
   expect(
@@ -26,21 +32,24 @@ it('can make facts table', () => {
       columns: columns,
       factTypeFilter: new Set(),
       filterSelected: false,
-      sortOrder: sortByFactType
+      sortOrder: sortByFactType,
+      isExport: true
     })
   ).toEqual([
     {
       id: aliasFact.id,
       cells: [
-        { kind: 'sourceType', text: 'something' },
-        { kind: 'sourceValue', text: '123' },
-        { kind: 'factType', text: 'alias' },
-        { kind: 'factValue', text: 'changeme' },
-        { kind: 'destinationType', text: 'something' },
-        { kind: 'destinationValue', text: '123' },
-        { kind: 'isRetracted', text: '' },
-        { kind: 'isBidirectional', text: '' },
-        { kind: 'isOneLegged', text: '' }
+        { kind: 'timestamp', text: aliasFact.timestamp, isFaded: false },
+        { kind: 'lastSeenTimestamp', text: aliasFact.lastSeenTimestamp, isFaded: true },
+        { kind: 'sourceType', text: 'something', isFaded: false },
+        { kind: 'sourceValue', text: '123', isFaded: false },
+        { kind: 'factType', text: 'alias', isFaded: false },
+        { kind: 'factValue', text: 'changeme', isFaded: false },
+        { kind: 'destinationType', text: 'something', isFaded: false },
+        { kind: 'destinationValue', text: '123', isFaded: false },
+        { kind: 'isRetracted', text: '', isFaded: false },
+        { kind: 'isBidirectional', text: '', isFaded: false },
+        { kind: 'isOneLegged', text: '', isFaded: false }
       ],
       fact: aliasFact,
       isSelected: false
@@ -48,15 +57,17 @@ it('can make facts table', () => {
     {
       id: mentionsFact.id,
       cells: [
-        { kind: 'sourceType', text: 'something' },
-        { kind: 'sourceValue', text: '123' },
-        { kind: 'factType', text: 'mentions' },
-        { kind: 'factValue', text: 'changeme' },
-        { kind: 'destinationType', text: 'something' },
-        { kind: 'destinationValue', text: '123' },
-        { kind: 'isRetracted', text: '' },
-        { kind: 'isBidirectional', text: '' },
-        { kind: 'isOneLegged', text: '' }
+        { kind: 'timestamp', text: mentionsFact.timestamp, isFaded: false },
+        { kind: 'lastSeenTimestamp', text: mentionsFact.lastSeenTimestamp, isFaded: false },
+        { kind: 'sourceType', text: 'something', isFaded: false },
+        { kind: 'sourceValue', text: '123', isFaded: false },
+        { kind: 'factType', text: 'mentions', isFaded: false },
+        { kind: 'factValue', text: 'changeme', isFaded: false },
+        { kind: 'destinationType', text: 'something', isFaded: false },
+        { kind: 'destinationValue', text: '123', isFaded: false },
+        { kind: 'isRetracted', text: '', isFaded: false },
+        { kind: 'isBidirectional', text: '', isFaded: false },
+        { kind: 'isOneLegged', text: '', isFaded: false }
       ],
       fact: mentionsFact,
       isSelected: false

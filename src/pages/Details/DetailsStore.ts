@@ -167,6 +167,14 @@ class DetailsStore {
     this.root.ui.contentStore.onTabSelected('tableOfFacts');
   }
 
+  @action.bound
+  showSelectedObjectsTable() {
+    this.root.ui.objectsTableStore.setFilters({
+      filterSelected: true
+    });
+    this.root.ui.contentStore.onTabSelected('tableOfObjects');
+  }
+
   @computed
   get multiSelectInfo() {
     const selectedObjects = idsToObjects(
@@ -187,7 +195,10 @@ class DetailsStore {
         onClick: () => this.showSelectedFactsTable()
       },
       factTypeLinks: factTypeLinks(selectedFacts, this.showSelectedFactsTable),
-      objectTitle: pluralize(selectedObjects.length, 'object'),
+      objectTitle: {
+        text: pluralize(selectedObjects.length, 'object'),
+        onClick: this.showSelectedObjectsTable
+      },
       objects: selectedObjects.sort(byTypeThenName),
       onObjectClick: (object: ActObject) => {
         this.root.selectionStore.removeFromSelection({ id: object.id, kind: 'object' });

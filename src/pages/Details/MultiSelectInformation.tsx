@@ -1,25 +1,22 @@
 import React from 'react';
 import { observer } from 'mobx-react';
+import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
-import {
-  Button,
-  FormControlLabel,
-  IconButton,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  makeStyles,
-  Switch,
-  Theme,
-  Tooltip,
-  Typography
-} from '@material-ui/core';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import IconButton from '@material-ui/core/IconButton';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Switch from '@material-ui/core/Switch';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles, Theme } from '@material-ui/core';
 
 import { ActObject } from '../types';
 import { objectTypeToColor, renderObjectValue } from '../../util/util';
 
-const useStyles = makeStyles<Theme>((theme: Theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -37,7 +34,7 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(1)
   },
-  factTitle: {
+  titleLink: {
     cursor: 'pointer'
   },
   objectList: {
@@ -83,7 +80,7 @@ const MultiSelectInformationComp = ({
           </Button>
         </Tooltip>
       </div>
-      <Typography variant="subtitle1" onClick={factTitle.onClick} className={classes.factTitle}>
+      <Typography variant="subtitle1" onClick={factTitle.onClick} className={classes.titleLink}>
         {factTitle.text}
       </Typography>
       <List dense disablePadding>
@@ -95,7 +92,9 @@ const MultiSelectInformationComp = ({
           );
         })}
       </List>
-      <Typography variant="subtitle1">{objectTitle}</Typography>
+      <Typography variant="subtitle1" onClick={objectTitle.onClick} className={classes.titleLink}>
+        {objectTitle.text}
+      </Typography>
       <div className={classes.objectList}>
         <List disablePadding>
           {objects.map((object: ActObject) => {
@@ -136,7 +135,7 @@ export interface IMultiSelectInformationComp {
   onToggleFadeUnselected: () => void;
   factTitle: { text: string; onClick: () => void };
   factTypeLinks: Array<{ text: string; onClick: () => void }>;
-  objectTitle: string;
+  objectTitle: { text: string; onClick: () => void };
   objects: Array<ActObject>;
   onObjectClick: (obj: ActObject) => void;
   onPruneObjectsClick: () => void;

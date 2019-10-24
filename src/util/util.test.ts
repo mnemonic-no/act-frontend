@@ -1,4 +1,4 @@
-import { pluralize, replaceAllInObject, sanitizeCsvValue, setSymmetricDifference } from './util';
+import { fileTimeString, pluralize, replaceAllInObject, sanitizeCsvValue, setSymmetricDifference } from './util';
 
 it('can santize CSV value', () => {
   expect(sanitizeCsvValue('some;with;commas')).toEqual('"some;with;commas"');
@@ -34,4 +34,8 @@ it('can replace items in an object', () => {
       { ':objectType': 'threatActor', ':objectValue': 'replacementValue' }
     )
   ).toEqual({ typeOfObject: 'threatActor', valueOfObject: 'replacementValue', doNotReplace: 1234 });
+});
+
+it('can make file time string', () => {
+  expect(fileTimeString(new Date(2000, 1, 1, 10, 11, 12))).toEqual('2000-02-01T09-11-12');
 });

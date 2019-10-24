@@ -1,7 +1,7 @@
 import { action, computed } from 'mobx';
 import MainPageStore from '../MainPageStore';
 import { isObjectSearch, SearchItem, StateExport, searchId } from '../types';
-import { exportToJson } from '../../util/util';
+import { exportToJson, fileTimeString } from '../../util/util';
 import * as _ from 'lodash/fp';
 
 export type WorkingHistoryItem = {
@@ -132,11 +132,7 @@ class WorkingHistoryStore {
   @action.bound
   onExport() {
     const data = stateExport(this.root.workingHistory.historyItems, this.root.refineryStore.prunedObjectIds);
-    const nowTimeString = new Date()
-      .toISOString()
-      .replace(/:/g, '-')
-      .substr(0, 19);
-    exportToJson(nowTimeString + '-act-search-history.json', data);
+    exportToJson(fileTimeString(new Date()) + '-act-search-history.json', data);
   }
 
   @action.bound

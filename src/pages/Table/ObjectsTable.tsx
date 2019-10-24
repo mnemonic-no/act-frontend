@@ -1,6 +1,8 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import Button from '@material-ui/core/Button';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -11,6 +13,7 @@ import { makeStyles, Theme } from '@material-ui/core';
 
 import { objectTypeToColor, renderObjectValue, factColor } from '../../util/util';
 import { ActObject } from '../types';
+import MultiSelect, { IMultiSelect } from '../../components/MultiSelect';
 
 export type ColumnKind = 'objectType' | 'objectValue' | 'properties';
 
@@ -33,9 +36,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '100%'
   },
   header: {
-    padding: '16px 10px 18px 0',
+    padding: '16px 10px 18px 55px',
     display: 'flex',
-    flexDirection: 'row-reverse'
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   tableContainer: {
     overflowY: 'auto'
@@ -81,12 +85,30 @@ interface IObjectRowComp extends ObjectRow {
 
 export const ActObjectRow = observer(ObjectRowComp);
 
-const ObjectsTableComp = ({ rows, columns, sortOrder, onSortChange, onRowClick, onExportClick }: IObjectsTableComp) => {
+const ObjectsTableComp = ({
+  rows,
+  columns,
+  sortOrder,
+  selectedFilter,
+  typeMultiSelect,
+  onSortChange,
+  onRowClick,
+  onExportClick
+}: IObjectsTableComp) => {
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
       <div className={classes.header}>
+        <div>
+          <FormControlLabel
+            label="Only selected"
+            labelPlacement="top"
+            control={<Switch onClick={selectedFilter.onClick} checked={selectedFilter.checked} />}
+          />
+          <MultiSelect {...typeMultiSelect} />
+        </div>
+
         <Button variant="outlined" size="small" onClick={onExportClick}>
           Export to CSV
         </Button>
@@ -123,6 +145,8 @@ interface IObjectsTableComp {
   rows: Array<ObjectRow>;
   columns: Array<{ label: string; kind: ColumnKind }>;
   sortOrder: SortOrder;
+  selectedFilter: { checked: boolean; onClick: () => void };
+  typeMultiSelect: IMultiSelect;
   onSortChange: (ck: ColumnKind) => void;
   onRowClick: (obj: ActObject) => void;
   onExportClick: () => void;

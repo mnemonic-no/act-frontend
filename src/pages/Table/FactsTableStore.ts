@@ -71,7 +71,40 @@ const toFactRow = (
   };
 };
 
+export const factRows = (input: {
+  facts: Array<ActFact>;
+  currentlySelected: { [id: string]: ActSelection };
+  columns: Array<{ label: string; kind: ColumnKind }>;
+  factTypeFilter: Set<string>;
+  filterSelected: boolean;
+  sortOrder: SortOrder;
+}) => {
+  return _.pipe(
+    _.filter((f: ActFact) => input.factTypeFilter.size === 0 || input.factTypeFilter.has(f.type.name)),
+    fs => (input.filterSelected ? fs.filter(f => input.currentlySelected[f.id]) : fs),
+    _.map((f: ActFact) => toFactRow(f, input.columns, input.currentlySelected, false)),
+    factRows => sortBy(input.sortOrder, input.columns, factRows)
+  )(input.facts);
+};
+
 const emptyFilterValue = 'Show all';
+
+export const columns: Array<{ label: string; exportLabel?: string; tooltip?: string; kind: ColumnKind }> = [
+  { label: 'Source Type', kind: 'sourceType' },
+  { label: 'Source Value', kind: 'sourceValue' },
+  { label: 'Fact Type', kind: 'factType' },
+  { label: 'Fact Value', kind: 'factValue' },
+  { label: 'Destination Type', kind: 'destinationType' },
+  { label: 'Destination Value', kind: 'destinationValue' },
+  { label: 'R', exportLabel: 'Retracted', kind: 'isRetracted', tooltip: 'Is fact retracted?' },
+  { label: 'B', exportLabel: 'Bidirectional?', kind: 'isBidirectional', tooltip: 'Is fact bidirectional?' },
+  {
+    label: 'P',
+    exportLabel: 'Object property?',
+    kind: 'isOneLegged',
+    tooltip: 'Is fact a property of the object?'
+  }
+];
 
 class FactsTableStore {
   root: MainPageStore;
@@ -80,23 +113,6 @@ class FactsTableStore {
 
   @observable
   sortOrder: SortOrder = { order: 'asc', orderBy: 'factType' };
-
-  columns: Array<{ label: string; exportLabel?: string; tooltip?: string; kind: ColumnKind }> = [
-    { label: 'Source Type', kind: 'sourceType' },
-    { label: 'Source Value', kind: 'sourceValue' },
-    { label: 'Fact Type', kind: 'factType' },
-    { label: 'Fact Value', kind: 'factValue' },
-    { label: 'Destination Type', kind: 'destinationType' },
-    { label: 'Destination Value', kind: 'destinationValue' },
-    { label: 'R', exportLabel: 'Retracted', kind: 'isRetracted', tooltip: 'Is fact retracted?' },
-    { label: 'B', exportLabel: 'Bidirectional?', kind: 'isBidirectional', tooltip: 'Is fact bidirectional?' },
-    {
-      label: 'P',
-      exportLabel: 'Object property?',
-      kind: 'isOneLegged',
-      tooltip: 'Is fact a property of the object?'
-    }
-  ];
 
   @observable factTypeFilter: Set<string> = new Set();
 
@@ -142,15 +158,16 @@ class FactsTableStore {
   onExportClick() {
     const allFacts = Object.values(this.root.refineryStore.refined.facts);
 
-    const rows = _.pipe(
-      _.filter((f: ActFact) => this.factTypeFilter.size === 0 || this.factTypeFilter.has(f.type.name)),
-      _.map((f: ActFact) => toFactRow(f, this.columns, this.root.selectionStore.currentlySelected, true)),
-      factRows => (this.filterSelected ? factRows.filter(r => r.isSelected) : factRows),
-      factRows => sortBy(this.sortOrder, this.columns, factRows),
-      _.map(row => row.cells.map(({ text }) => text))
-    )(allFacts);
+    const rows = factRows({
+      facts: allFacts,
+      factTypeFilter: this.factTypeFilter,
+      currentlySelected: this.root.selectionStore.currentlySelected,
+      filterSelected: this.filterSelected,
+      sortOrder: this.sortOrder,
+      columns: columns
+    }).map(row => row.cells.map(({ text }) => text));
 
-    const headerRow = [this.columns.map(c => c.exportLabel || c.label)];
+    const headerRow = [columns.map(c => c.exportLabel || c.label)];
 
     const nowTimeString = new Date()
       .toISOString()
@@ -163,16 +180,18 @@ class FactsTableStore {
   get prepared() {
     const allFacts = Object.values(this.root.refineryStore.refined.facts);
 
-    const rows = _.pipe(
-      _.filter((f: ActFact) => this.factTypeFilter.size === 0 || this.factTypeFilter.has(f.type.name)),
-      _.map((f: ActFact) => toFactRow(f, this.columns, this.root.selectionStore.currentlySelected, false)),
-      factRows => (this.filterSelected ? factRows.filter(r => r.isSelected) : factRows),
-      factRows => sortBy(this.sortOrder, this.columns, factRows)
-    )(allFacts);
+    const rows = factRows({
+      facts: allFacts,
+      factTypeFilter: this.factTypeFilter,
+      currentlySelected: this.root.selectionStore.currentlySelected,
+      filterSelected: this.filterSelected,
+      sortOrder: this.sortOrder,
+      columns: columns
+    });
 
     return {
       rows: rows,
-      columns: this.columns,
+      columns: columns,
       sortOrder: this.sortOrder,
       typeMultiSelect: {
         id: 'typeMultiSelect',

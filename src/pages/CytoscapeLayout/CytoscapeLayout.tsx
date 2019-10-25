@@ -1,8 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import cc from 'clsx';
-import makeStyles from '@material-ui/core/styles/makeStyles';
-import { Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';

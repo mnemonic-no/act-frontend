@@ -1,8 +1,7 @@
 import * as _ from 'lodash/fp';
 import React from 'react';
 import { compose, withHandlers } from 'recompose';
-import format from 'date-fns/format';
-import { makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
@@ -122,20 +121,14 @@ const FactInformationComp = ({
             <Typography className={classes.right}>{fact.accessMode}</Typography>
           </Grid>
           <Grid item xs={12} classes={{ item: classes.row }}>
-            <Typography className={classes.left}>date</Typography>
-            <Tooltip title={fact.timestamp} enterDelay={500}>
-              <Typography className={classes.right}>{format(new Date(fact.timestamp), 'yyyy.MM.dd HH:mm')}</Typography>
-            </Tooltip>
+            <Typography className={classes.left}>time</Typography>
+            <Typography className={classes.right}>{fact.timestamp}</Typography>
           </Grid>
           <Grid item xs={12} classes={{ item: classes.row }}>
             <Typography gutterBottom className={classes.left}>
               last seen
             </Typography>
-            <Tooltip title={fact.lastSeenTimestamp} enterDelay={500}>
-              <Typography className={classes.right}>
-                {format(new Date(fact.lastSeenTimestamp), 'yyyy.MM.dd HH:mm')}
-              </Typography>
-            </Tooltip>
+            <Typography className={classes.right}>{fact.lastSeenTimestamp}</Typography>
           </Grid>
         </Grid>
 
@@ -191,7 +184,7 @@ const FactInformationComp = ({
             <div key={id} className={classes.comments}>
               <Typography>{replyTo}</Typography>
               <Typography>{comment}</Typography>
-              <Typography variant="caption">{format(new Date(timestamp), 'yyyy.MM.dd HH:mm')}</Typography>
+              <Typography variant="caption">{timestamp}</Typography>
             </div>
           ))}
       </div>

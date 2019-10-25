@@ -1,28 +1,23 @@
 import React from 'react';
 import { observer } from 'mobx-react';
+import cc from 'clsx';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@material-ui/core';
+import Collapse from '@material-ui/core/Collapse';
+import Divider from '@material-ui/core/Divider';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import {
-  Collapse,
-  Divider,
-  Grid,
-  Input,
-  MenuItem,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  makeStyles,
-  Switch,
-  TextField,
-  Tooltip,
-  Theme,
-  Typography
-} from '@material-ui/core';
-
-// TODO check if package supports types
-// @ts-ignore
-import classnames from 'classnames';
+import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
+import Input from '@material-ui/core/Input';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import Tooltip from '@material-ui/core/Tooltip';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
+import MenuItem from '@material-ui/core/MenuItem';
+import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 
 import LAYOUTS, { types } from '../../Cytoscape/layouts';
 import ListItemControl from '../../components/ListItemControl';
@@ -44,8 +39,6 @@ const LayoutOptionControl = ({ onChange, value, type, min, max }: any) => {
   switch (type) {
     case types.boolean:
       return <Switch checked={value} onClick={() => onChange(!value)} />;
-
-    // TODO
     case types.range:
       return <input type="range" value={value} />;
 
@@ -167,7 +160,7 @@ const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
             <ListItemSecondaryAction>
               <IconButton
                 onClick={() => store.toggleShowLayoutOptions()}
-                className={classnames(classes.expand, {
+                className={cc(classes.expand, {
                   [classes.expandOpen]: store.showLayoutOptions
                 })}>
                 <ExpandMoreIcon />

@@ -8,7 +8,6 @@ import { isOneLegged } from '../../core/transformers';
 import { exportToCsv, fileTimeString } from '../../util/util';
 import { renderObjectValue } from '../../util/util';
 import { isRetracted } from '../../core/domain';
-import { format } from 'date-fns';
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string; kind: ColumnKind }>, objects: Array<FactRow>) => {
   const cellIdx = columns.findIndex(({ kind }) => kind === sortOrder.orderBy);
@@ -28,9 +27,9 @@ const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string; kind: Colu
 const cellText = (kind: ColumnKind, fact: ActFact, isExport: boolean) => {
   switch (kind) {
     case 'timestamp':
-      return isExport ? fact.timestamp : format(new Date(fact.timestamp), 'yyyy.MM.dd HH:mm');
+      return fact.timestamp;
     case 'lastSeenTimestamp':
-      return isExport ? fact.lastSeenTimestamp : format(new Date(fact.lastSeenTimestamp), 'yyyy.MM.dd HH:mm');
+      return fact.lastSeenTimestamp;
     case 'sourceType':
       return fact.sourceObject ? fact.sourceObject.type.name : '';
     case 'sourceValue':
@@ -100,8 +99,8 @@ export const factRows = (input: {
 const emptyFilterValue = 'Show all';
 
 export const columns: Array<{ label: string; exportLabel?: string; tooltip?: string; kind: ColumnKind }> = [
-  { label: 'TS', exportLabel: 'Timestamp', kind: 'timestamp', tooltip: 'Timestamp' },
-  { label: 'TS>', exportLabel: 'Last seen timestamp', kind: 'lastSeenTimestamp', tooltip: 'Last seen Timestamp' },
+  { label: 'Time', exportLabel: 'Timestamp', kind: 'timestamp', tooltip: 'Timestamp' },
+  { label: 'Last seen', exportLabel: 'Last seen timestamp', kind: 'lastSeenTimestamp', tooltip: 'Last seen Timestamp' },
   { label: 'Source Type', kind: 'sourceType' },
   { label: 'Source Value', kind: 'sourceValue' },
   { label: 'Fact Type', kind: 'factType' },

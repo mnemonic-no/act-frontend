@@ -1,19 +1,18 @@
+import cc from 'clsx';
 import React from 'react';
 import { observer } from 'mobx-react';
-import {
-  Button,
-  FormControlLabel,
-  makeStyles,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  Theme,
-  Tooltip
-} from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Tooltip from '@material-ui/core/Tooltip';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import { Theme } from '@material-ui/core';
 
 import { ActFact } from '../types';
 import { factColor } from '../../util/util';
@@ -90,48 +89,22 @@ const useStyles = makeStyles((theme: Theme) => ({
     .reduce((acc, x) => Object.assign({}, acc, x), {})
 }));
 
-const cellClassNames = (
-  { kind, text, isFaded }: { kind: ColumnKind; text: string; isFaded: boolean },
-  classes: any
-) => {
-  switch (kind) {
-    case 'timestamp':
-      return classes.cell;
-    case 'lastSeenTimestamp':
-      return `${classes.cell} ${isFaded ? classes.fade : ''}`;
-    case 'sourceType':
-      const sourceType = classes[text] ? classes[text] : '';
-      return `${classes.cell} ${sourceType}`;
-    case 'sourceValue':
-      return `${classes.cell} ${classes.wordBreak}`;
-    case 'factType':
-      return `${classes.cell} ${classes.factType}`;
-    case 'factValue':
-      return classes.cell;
-    case 'destinationType':
-      const destinationType = classes[text] ? classes[text] : '';
-      return `${classes.cell} ${destinationType}`;
-    case 'destinationValue':
-      return `${classes.cell} ${classes.wordBreak}`;
-    case 'isRetracted':
-      return `${classes.cell}`;
-    case 'isBidirectional':
-      return classes.cell;
-    case 'isOneLegged':
-      return classes.cell;
-    default:
-      // eslint-disable-next-line
-      const _exhaustiveCheck: never = kind;
-  }
-};
-
 const FactRowComp = ({ fact, cells, isSelected, onRowClick }: IFactRowComp) => {
   const classes = useStyles();
 
   return (
     <TableRow hover selected={isSelected} classes={{ root: classes.row }} onClick={() => onRowClick(fact)}>
-      {cells.map((cell: any, idx: number) => (
-        <TableCell key={idx} className={cellClassNames(cell, classes)} size="small">
+      {cells.map((cell: { kind: ColumnKind; text: string; isFaded?: boolean }, idx: number) => (
+        <TableCell
+          key={idx}
+          className={cc(classes.cell, {
+            // @ts-ignore
+            [classes[cell.text]]: ['sourceType', 'destinationType'].some(k => k === cell.kind),
+            [classes.wordBreak]: ['sourceValue', 'destinationValue'].some(k => k === cell.kind),
+            [classes.factType]: cell.kind === 'factType',
+            [classes.fade]: cell.isFaded
+          })}
+          size="small">
           {cell.text}
         </TableCell>
       ))}

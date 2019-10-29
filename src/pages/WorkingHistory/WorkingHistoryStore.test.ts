@@ -1,4 +1,4 @@
-import { parseStateExport, stateExport } from './WorkingHistoryStore';
+import { itemActions, itemDetails, itemTitle, parseStateExport, stateExport } from './WorkingHistoryStore';
 import { SearchItem } from '../types';
 
 const searchItem = (args: { [key: string]: any }): SearchItem => {
@@ -65,4 +65,46 @@ it('can import working history', () => {
       })
     )
   ).toEqual({ version: '1.0.0', queries: [{ objectType: 'threatActor', objectValue: 'Axiom' }] });
+});
+
+it('working history item title', () => {
+  expect(itemTitle({ id: 'a', factTypeName: 'alias' })).toEqual('Fact: alias');
+  expect(itemTitle({ id: 'a', objectType: 'threatActor', objectValue: 'Sofacy' })).toEqual('threatActor: Sofacy');
+});
+
+it('working history item details', () => {
+  const predefinedQueryToName = { 'some query': 'tools' };
+  expect(
+    itemDetails(
+      searchItem({ search: { id: 'a', objectType: 'threatActor', objectValue: 'Sofacy', query: 'some query' } }),
+      predefinedQueryToName
+    )
+  ).toEqual({ kind: 'tag', label: 'Query:', text: 'tools' });
+
+  expect(
+    itemDetails(
+      searchItem({ search: { id: 'a', objectType: 'threatActor', objectValue: 'Sofacy', query: 'a custom query' } }),
+      predefinedQueryToName
+    )
+  ).toEqual({ kind: 'label-text', label: 'Query:', text: 'a custom query' });
+});
+
+it('working history item actions', () => {
+  const removeFn = () => {};
+  const copyFn = () => {};
+
+  expect(itemActions(searchItem({}), removeFn, copyFn)).toEqual([
+    { icon: 'remove', tooltip: 'Remove', onClick: removeFn }
+  ]);
+
+  expect(
+    itemActions(
+      searchItem({ search: { id: 'a', objectType: 'threatActor', objectValue: 'a', query: 'q' } }),
+      removeFn,
+      copyFn
+    )
+  ).toEqual([
+    { icon: 'copy', tooltip: 'Copy query to clipboard', onClick: copyFn },
+    { icon: 'remove', tooltip: 'Remove', onClick: removeFn }
+  ]);
 });

@@ -1,50 +1,105 @@
 import { action, computed } from 'mobx';
-import MainPageStore from '../MainPageStore';
-import { isObjectSearch, SearchItem, StateExport, searchId } from '../types';
-import { exportToJson, fileTimeString } from '../../util/util';
 import * as _ from 'lodash/fp';
 
-export type WorkingHistoryItem = {
+import {
+  isObjectSearch,
+  SearchItem,
+  StateExport,
+  PredefinedObjectQuery,
+  isFactSearch,
+  searchId,
+  Search
+} from '../types';
+import { exportToJson, fileTimeString, copyToClipBoard } from '../../util/util';
+import MainPageStore from '../MainPageStore';
+import { addMessage } from '../../util/SnackbarProvider';
+
+type TIcon = 'remove' | 'copy';
+export type TAction = { icon: TIcon; onClick: () => void; tooltip: string };
+export type TDetails = { kind: 'tag' | 'label-text'; label: string; text: string };
+
+export type TWorkingHistoryItem = {
   id: string;
   title: string;
   isSelected: boolean;
-  details: Array<string>;
+  details?: TDetails;
   onClick: () => void;
-  onRemoveClick: () => void;
+  actions: Array<TAction>;
 };
 
-const queryItem = (q: SearchItem, store: WorkingHistoryStore): WorkingHistoryItem => {
-  const search = q.search;
-  const id = searchId(search);
-
-  const common = {
-    id: id,
-    isSelected: id === store.selectedItemId,
-    onClick: () => store.setSelectedSearchItem(q),
-    onRemoveClick: () => store.removeQuery(q)
-  };
-
-  if (isObjectSearch(search)) {
-    const details = [];
-    if (search.factTypes) {
-      details.push('Fact types: ' + search.factTypes);
+const copy = (si: SearchItem) => {
+  if (isObjectSearch(si.search) && si.search.query) {
+    try {
+      copyToClipBoard(si.search.query);
+      addMessage('Query copied to clipboard');
+    } catch (err) {
+      console.log('Faile to copy to clipboard');
     }
-    if (search.query) {
-      details.push(search.query);
-    }
+  }
+};
 
+export const itemTitle = (s: Search) => {
+  if (isObjectSearch(s)) {
+    return s.objectType + ': ' + s.objectValue;
+  } else if (isFactSearch(s)) {
+    return 'Fact: ' + s.factTypeName;
+  }
+  return 'n/a';
+};
+
+export const itemDetails = (
+  si: SearchItem,
+  predefinedQueryToName: { [query: string]: string }
+): TDetails | undefined => {
+  if (isFactSearch(si.search)) {
     return {
-      ...common,
-      title: search.objectType + ': ' + search.objectValue,
-      details: details
-    };
-  } else {
-    return {
-      ...common,
-      title: 'Fact: ' + search.factTypeName,
-      details: ['Id: ' + id]
+      kind: 'label-text',
+      label: 'Id:',
+      text: si.id
     };
   }
+
+  if (isObjectSearch(si.search)) {
+    if (si.search.factTypes) {
+      return {
+        kind: 'label-text',
+        label: 'Fact types:',
+        text: si.search.factTypes.join(',')
+      };
+    }
+    if (si.search.query) {
+      const predefinedQueryName = predefinedQueryToName[si.search.query];
+      if (predefinedQueryName) {
+        return {
+          kind: 'tag',
+          label: 'Query:',
+          text: predefinedQueryName
+        };
+      }
+      return {
+        kind: 'label-text',
+        label: 'Query:',
+        text: si.search.query
+      };
+    }
+  }
+};
+
+export const itemActions = (si: SearchItem, onRemoveClick: () => void, onCopyClick: () => void) => {
+  const actions = [{ icon: 'remove' as TIcon, tooltip: 'Remove', onClick: onRemoveClick }];
+
+  if (isObjectSearch(si.search) && si.search.query) {
+    return [
+      {
+        icon: 'copy' as TIcon,
+        onClick: onCopyClick,
+        tooltip: 'Copy query to clipboard'
+      },
+      ...actions
+    ];
+  }
+
+  return actions;
 };
 
 export const stateExport = (items: Array<SearchItem>, prunedObjectIds: Set<string>): StateExport => {
@@ -83,8 +138,15 @@ export const parseStateExport = (contentJson: any): StateExport => {
 class WorkingHistoryStore {
   root: MainPageStore;
 
-  constructor(root: MainPageStore) {
+  predefinedQueryToName: { [queryString: string]: string };
+
+  constructor(root: MainPageStore, config: any) {
     this.root = root;
+
+    this.predefinedQueryToName = (config.predefinedObjectQueries || []).reduce((acc: any, q: PredefinedObjectQuery) => {
+      acc[q.query] = q.name;
+      return acc;
+    }, {});
   }
 
   @computed get mergePrevious(): boolean {
@@ -97,8 +159,19 @@ class WorkingHistoryStore {
     });
   }
 
-  @computed get queryItems(): Array<WorkingHistoryItem> {
-    return this.root.workingHistory.historyItems.filter(q => q.result !== null).map(q => queryItem(q, this));
+  @computed get historyItems(): Array<TWorkingHistoryItem> {
+    return this.root.workingHistory.historyItems
+      .filter(q => q.result !== null)
+      .map(item => {
+        return {
+          id: searchId(item.search),
+          title: itemTitle(item.search),
+          isSelected: item.id === this.selectedItemId,
+          details: itemDetails(item, this.predefinedQueryToName),
+          actions: itemActions(item, () => this.removeQuery(item), () => copy(item)),
+          onClick: () => this.setSelectedSearchItem(item)
+        };
+      });
   }
 
   @computed get isEmpty(): boolean {

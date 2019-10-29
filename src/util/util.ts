@@ -141,3 +141,26 @@ export const replaceAllInObject = (
 
   return _.mapValues(v => (typeof v === 'string' ? replaceAll(v, replacements) : v))(obj);
 };
+
+/**
+ * The new clipboard API is currently only supported in Firefox and Chrome, so use the old
+ * execCommand technique for now.
+ *
+ * @param text The text to copy to the clipboard
+ */
+export function copyToClipBoard(text: string) {
+  const tempTextArea = document.createElement('textarea');
+
+  tempTextArea.style.position = 'fixed';
+  tempTextArea.style.top = '0';
+  tempTextArea.style.left = '-10em';
+  tempTextArea.style.width = '1em';
+  tempTextArea.style.height = '1em';
+  tempTextArea.style.background = 'transparent';
+  tempTextArea.textContent = text;
+
+  document.body.appendChild(tempTextArea);
+  tempTextArea.select();
+  document.execCommand('copy');
+  document.body.removeChild(tempTextArea);
+}

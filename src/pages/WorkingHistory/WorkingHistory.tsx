@@ -1,21 +1,20 @@
 import React from 'react';
+import cc from 'clsx';
 import CloseIcon from '@material-ui/icons/Close';
-import {
-  Button,
-  Divider,
-  IconButton,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  Paper,
-  makeStyles,
-  Switch,
-  Theme,
-  Tooltip,
-  Typography
-} from '@material-ui/core';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 import { observer } from 'mobx-react';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
+import Paper from '@material-ui/core/Paper';
+import Switch from '@material-ui/core/Switch';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 
 import WorkingHistoryStore from './WorkingHistoryStore';
 
@@ -27,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   activeItem: {
     borderLeft: `2px solid ${theme.palette.primary.main}`
   },
-  removeButton: {
+  actionButton: {
     opacity: 0,
     '$item:hover &': {
       opacity: 1
@@ -47,6 +46,20 @@ const useStyles = makeStyles((theme: Theme) => ({
     overflowX: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis'
+  },
+  listItemSecondary: {
+    display: 'flex'
+  },
+  detailsText: {
+    display: 'inline-block',
+    marginLeft: '4px'
+  },
+  tag: {
+    padding: '0 8px',
+    borderRadius: '8px',
+    border: '0',
+    background: '#eaeaea',
+    textTransform: 'uppercase'
   }
 }));
 
@@ -72,7 +85,7 @@ const WorkingHistory = ({ store }: IWorkingHistory) => {
         <>
           <Divider />
           <List dense>
-            {store.queryItems.map(item => (
+            {store.historyItems.map(item => (
               <ListItem
                 classes={{
                   root: classes.listItem,
@@ -84,21 +97,29 @@ const WorkingHistory = ({ store }: IWorkingHistory) => {
                 key={item.id}
                 onClick={item.onClick}>
                 <ListItemText
-                  classes={{ root: classes.listItemText }}
+                  classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
                   secondaryTypographyProps={{ component: 'div' }}
                   primary={<span>{item.title}</span>}
                   secondary={
-                    <>
-                      {item.details.map((detail, idx) => (
-                        <div key={idx}>{detail}</div>
-                      ))}
-                    </>
+                    item.details && (
+                      <>
+                        <div>{item.details.label}</div>
+                        <div className={cc(classes.detailsText, { [classes.tag]: item.details.kind === 'tag' })}>
+                          {item.details.text}
+                        </div>
+                      </>
+                    )
                   }
                 />
                 <ListItemSecondaryAction>
-                  <IconButton onClick={item.onRemoveClick} classes={{ root: classes.removeButton }}>
-                    <CloseIcon />
-                  </IconButton>
+                  {item.actions.map((a, idx) => (
+                    <Tooltip key={idx} title={a.tooltip} enterDelay={800}>
+                      <IconButton onClick={a.onClick} classes={{ root: classes.actionButton }}>
+                        {a.icon === 'remove' && <CloseIcon />}
+                        {a.icon === 'copy' && <AssignmentIcon />}
+                      </IconButton>
+                    </Tooltip>
+                  ))}
                 </ListItemSecondaryAction>
               </ListItem>
             ))}

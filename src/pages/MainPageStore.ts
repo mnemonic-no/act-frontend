@@ -72,7 +72,7 @@ class MainPageStore {
       prunedObjectsTableStore: new PrunedObjectsTableStore(this),
       refineryOptionsStore: new RefineryOptionsStore(this),
       searchStore: new SearchStore(this, config),
-      workingHistoryStore: new WorkingHistoryStore(this),
+      workingHistoryStore: new WorkingHistoryStore(this, config),
       factsTableStore: new FactsTableStore(this),
       objectsTableStore: new ObjectsTableStore(this),
       searchesStore: new SearchesStore(this)

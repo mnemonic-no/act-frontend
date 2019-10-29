@@ -1,4 +1,5 @@
 import React from 'react';
+import cc from 'clsx';
 import CloseIcon from '@material-ui/icons/Close';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { observer } from 'mobx-react';
@@ -45,6 +46,20 @@ const useStyles = makeStyles((theme: Theme) => ({
     overflowX: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis'
+  },
+  listItemSecondary: {
+    display: 'flex'
+  },
+  detailsText: {
+    display: 'inline-block',
+    marginLeft: '4px'
+  },
+  tag: {
+    padding: '0 8px',
+    borderRadius: '8px',
+    border: '0',
+    background: '#eaeaea',
+    textTransform: 'uppercase'
   }
 }));
 
@@ -70,7 +85,7 @@ const WorkingHistory = ({ store }: IWorkingHistory) => {
         <>
           <Divider />
           <List dense>
-            {store.queryItems.map(item => (
+            {store.historyItems.map(item => (
               <ListItem
                 classes={{
                   root: classes.listItem,
@@ -82,15 +97,18 @@ const WorkingHistory = ({ store }: IWorkingHistory) => {
                 key={item.id}
                 onClick={item.onClick}>
                 <ListItemText
-                  classes={{ root: classes.listItemText }}
+                  classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
                   secondaryTypographyProps={{ component: 'div' }}
                   primary={<span>{item.title}</span>}
                   secondary={
-                    <>
-                      {item.details.map((detail, idx) => (
-                        <div key={idx}>{detail}</div>
-                      ))}
-                    </>
+                    item.details && (
+                      <>
+                        <div>{item.details.label}</div>
+                        <div className={cc(classes.detailsText, { [classes.tag]: item.details.kind === 'tag' })}>
+                          {item.details.text}
+                        </div>
+                      </>
+                    )
                   }
                 />
                 <ListItemSecondaryAction>

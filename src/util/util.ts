@@ -122,10 +122,6 @@ export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
-export function isTruthy<T>(x: T | undefined | null): x is T {
-  return Boolean(x);
-}
-
 export const byTypeThenName = (a: ActObject, b: ActObject) =>
   a.type.name + '' + a.value > b.type.name + '' + b.value ? 1 : -1;
 

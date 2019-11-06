@@ -60,6 +60,12 @@ export default ({ showEdgeLabels, fadeUnselected } = {}) => [
       'source-arrow-color': '#AAA'
     }
   },
+  {
+    selector: 'edge.bidirectional:selected',
+    style: {
+      'source-arrow-color': '#f4a34d'
+    }
+  },
 
   // Retractions
   {

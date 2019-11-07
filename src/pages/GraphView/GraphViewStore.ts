@@ -68,6 +68,7 @@ class GraphViewStore {
   @action.bound
   toggleShowTimeline() {
     this.showTimeline = !this.showTimeline;
+    this.rerender();
   }
 
   @computed

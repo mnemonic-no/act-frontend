@@ -1,35 +1,28 @@
 import React, { useState } from 'react';
-import {
-  IconButton,
-  makeStyles,
-  Paper,
-  Theme,
-  Tooltip,
-  Toolbar,
-  Popper,
-  ListItemText,
-  ListItemSecondaryAction,
-  Switch,
-  ListItem,
-  List,
-  ClickAwayListener
-} from '@material-ui/core';
-import FilterCenterFocusIcon from '@material-ui/icons/FilterCenterFocus';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import FilterCenterFocusIcon from '@material-ui/icons/FilterCenterFocus';
+import IconButton from '@material-ui/core/IconButton';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import List from '@material-ui/core/List';
+import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
 import RemoveIcon from '@material-ui/icons/Remove';
 import SettingsIcon from '@material-ui/icons/Settings';
+import Switch from '@material-ui/core/Switch';
+import Toolbar from '@material-ui/core/Toolbar';
+import Tooltip from '@material-ui/core/Tooltip';
 import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
+
 import CytoscapeLayout from '../pages/CytoscapeLayout/CytoscapeLayout';
 import CytoscapeLayoutStore from '../pages/CytoscapeLayout/CytoscapeLayoutStore';
 
 const useStyles = makeStyles((theme: Theme) => ({
   toolbar: {
     flexDirection: 'column'
-  },
-  toolbarPosition: {
-    position: 'absolute',
-    bottom: '8px',
-    right: '8px'
   },
   toolbarButtonPaper: {
     marginTop: '8px'
@@ -90,7 +83,7 @@ const ConfigButton = ({ cytoscapeLayoutStore }: any) => {
 const ToolbarComp = ({ onZoomIn, onZoomOut, onFit, onFocusOnSelection, cytoscapeLayoutStore }: IToolbarComp) => {
   const classes = useStyles();
   return (
-    <Toolbar disableGutters classes={{ root: classes.toolbar }} className={classes.toolbarPosition}>
+    <Toolbar disableGutters classes={{ root: classes.toolbar }}>
       <ConfigButton cytoscapeLayoutStore={cytoscapeLayoutStore} />
 
       <Tooltip title="Focus on selection" placement="top">

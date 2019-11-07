@@ -17,10 +17,22 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme: Theme) => ({
+  buttons: {
+    padding: theme.spacing(2),
+    paddingTop: theme.spacing(),
+    paddingBottom: theme.spacing(),
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  mergeItem: {
+    paddingLeft: theme.spacing(2)
+  }
+}));
+
+const useItemStyles = makeStyles((theme: Theme) => ({
   listItem: {
     paddingLeft: theme.spacing(2)
   },
-  item: {},
   activeItem: {
     borderLeft: `2px solid ${theme.palette.primary.main}`
   },
@@ -32,13 +44,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     transition: theme.transitions.create('opacity', {
       duration: theme.transitions.duration.shortest
     })
-  },
-  buttons: {
-    padding: theme.spacing(2),
-    paddingTop: theme.spacing(),
-    paddingBottom: theme.spacing(),
-    display: 'flex',
-    justifyContent: 'space-between'
   },
   listItemText: {
     overflowX: 'hidden',
@@ -61,6 +66,51 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
+const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
+  const classes = useItemStyles();
+
+  return (
+    <ListItem
+      classes={{
+        root: classes.listItem,
+        container: cc({ [classes.activeItem]: item.isSelected })
+      }}
+      button
+      disableGutters
+      dense
+      key={item.id}
+      onClick={item.onClick}>
+      <ListItemText
+        classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
+        secondaryTypographyProps={{ component: 'div' }}
+        primary={item.title.map(t => (
+          <span style={{ color: t.color || 'currentColor' }}>{t.text}</span>
+        ))}
+        secondary={
+          item.details && (
+            <>
+              <div>{item.details.label}</div>
+              <div className={cc(classes.detailsText, { [classes.tag]: item.details.kind === 'tag' })}>
+                {item.details.text}
+              </div>
+            </>
+          )
+        }
+      />
+      <ListItemSecondaryAction>
+        {item.actions.map((a, idx) => (
+          <Tooltip key={idx} title={a.tooltip} enterDelay={800}>
+            <IconButton onClick={a.onClick} classes={{ root: classes.actionButton }}>
+              {a.icon === 'remove' && <CloseIcon />}
+              {a.icon === 'copy' && <AssignmentIcon />}
+            </IconButton>
+          </Tooltip>
+        ))}
+      </ListItemSecondaryAction>
+    </ListItem>
+  );
+};
+
 const WorkingHistory = (props: IWorkingHistory) => {
   const classes = useStyles();
 
@@ -71,7 +121,7 @@ const WorkingHistory = (props: IWorkingHistory) => {
           <Typography variant="subtitle2">History</Typography>
         </ListItem>
         {!props.isEmpty && (
-          <ListItem dense disableGutters classes={{ root: classes.listItem }}>
+          <ListItem dense disableGutters classes={{ root: classes.mergeItem }}>
             <ListItemText primary="Merge previous" />
             <ListItemSecondaryAction>
               <Switch onClick={() => props.mergePrevious.onClick()} checked={props.mergePrevious.checked} />
@@ -84,42 +134,7 @@ const WorkingHistory = (props: IWorkingHistory) => {
           <Divider />
           <List dense>
             {props.historyItems.map(item => (
-              <ListItem
-                classes={{
-                  root: classes.listItem,
-                  container: `${item.isSelected ? classes.activeItem : ''} ${classes.item}`
-                }}
-                button
-                disableGutters
-                dense
-                key={item.id}
-                onClick={item.onClick}>
-                <ListItemText
-                  classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
-                  secondaryTypographyProps={{ component: 'div' }}
-                  primary={<span>{item.title}</span>}
-                  secondary={
-                    item.details && (
-                      <>
-                        <div>{item.details.label}</div>
-                        <div className={cc(classes.detailsText, { [classes.tag]: item.details.kind === 'tag' })}>
-                          {item.details.text}
-                        </div>
-                      </>
-                    )
-                  }
-                />
-                <ListItemSecondaryAction>
-                  {item.actions.map((a, idx) => (
-                    <Tooltip key={idx} title={a.tooltip} enterDelay={800}>
-                      <IconButton onClick={a.onClick} classes={{ root: classes.actionButton }}>
-                        {a.icon === 'remove' && <CloseIcon />}
-                        {a.icon === 'copy' && <AssignmentIcon />}
-                      </IconButton>
-                    </Tooltip>
-                  ))}
-                </ListItemSecondaryAction>
-              </ListItem>
+              <WorkingHistoryItem {...item} />
             ))}
           </List>
           <Divider />
@@ -157,7 +172,7 @@ export type TDetails = { kind: 'tag' | 'label-text'; label: string; text: string
 
 export type TWorkingHistoryItem = {
   id: string;
-  title: string;
+  title: Array<{ text: string; color?: string }>;
   isSelected: boolean;
   details?: TDetails;
   onClick: () => void;

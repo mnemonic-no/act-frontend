@@ -10,7 +10,7 @@ import {
   searchId,
   Search
 } from '../types';
-import { exportToJson, fileTimeString, copyToClipBoard } from '../../util/util';
+import { exportToJson, fileTimeString, copyToClipBoard, objectTypeToColor, factColor } from '../../util/util';
 import MainPageStore from '../MainPageStore';
 import { addMessage } from '../../util/SnackbarProvider';
 import { TDetails, TIcon } from './WorkingHistory';
@@ -28,11 +28,11 @@ const copy = (si: SearchItem) => {
 
 export const itemTitle = (s: Search) => {
   if (isObjectSearch(s)) {
-    return s.objectType + ': ' + s.objectValue;
+    return [{ text: s.objectType + ' ', color: objectTypeToColor(s.objectType) }, { text: s.objectValue }];
   } else if (isFactSearch(s)) {
-    return 'Fact: ' + s.factTypeName;
+    return [{ text: 'Fact ', color: factColor }, { text: s.factTypeName }];
   }
-  return 'n/a';
+  return [{ text: 'n/a', color: 'red' }];
 };
 
 export const itemDetails = (
@@ -151,14 +151,14 @@ class WorkingHistoryStore {
     return this.root.workingHistory.selectedItemId;
   }
 
-  @action
+  @action.bound
   setSelectedSearchItem(item: SearchItem | undefined) {
     if (item) {
       this.root.workingHistory.selectedItemId = item.id;
     }
   }
 
-  @action
+  @action.bound
   removeItem(item: SearchItem) {
     this.root.workingHistory.removeItem(item);
     if (item.id === this.selectedItemId) {
@@ -166,7 +166,7 @@ class WorkingHistoryStore {
     }
   }
 
-  @action
+  @action.bound
   flipMergePrevious() {
     this.root.workingHistory.mergePrevious = !this.root.workingHistory.mergePrevious;
   }

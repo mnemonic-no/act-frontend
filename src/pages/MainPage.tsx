@@ -1,29 +1,26 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import {
-  AppBar,
-  Button,
-  Drawer,
-  IconButton,
-  LinearProgress,
-  makeStyles,
-  Paper,
-  Theme,
-  Toolbar
-} from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
+import Details from './Details/Details';
+import Drawer from '@material-ui/core/Drawer';
+import GraphEmpty from './GraphView/GraphEmpty';
+import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Paper from '@material-ui/core/Paper';
+import Toolbar from '@material-ui/core/Toolbar';
 
 import AboutButton from '../components/About';
+import Content from './Content/Content';
 import ErrorSnackbar from '../components/ErrorSnackbar';
 import ErrorBoundary from '../components/ErrorBoundary';
-import GraphEmpty from './GraphView/GraphEmpty';
 import MainPageStore from './MainPageStore';
-import Details from './Details/Details';
-import WorkingHistory from './WorkingHistory/WorkingHistory';
 import RefineryOptions from './RefineryOptions/RefineryOptions';
 import Search from './Search/Search';
-import Content from './Content/Content';
+import WorkingHistory from './WorkingHistory/WorkingHistory';
 
 const drawerWidth = 380;
 const detailsDrawerWidth = 360;
@@ -242,7 +239,7 @@ const MainPage = () => {
                     </Paper>
 
                     <Paper className={classes.paperNoPadding}>
-                      <WorkingHistory store={store.ui.workingHistoryStore} />
+                      <WorkingHistory {...store.ui.workingHistoryStore.prepared} />
                     </Paper>
 
                     <Paper className={classes.paper}>

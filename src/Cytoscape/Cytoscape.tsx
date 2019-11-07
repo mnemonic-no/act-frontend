@@ -138,8 +138,9 @@ const syncSelection = (cy: Cytoscape.Core, selectedNodeIds: Set<string>) => {
 };
 
 const useStyles = makeStyles(() => ({
-  root: { height: '100%', width: '100%', position: 'relative' },
-  cytoscapeContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }
+  root: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  cytoscapeContainer: { width: '100%', height: '100%' },
+  toolbar: { position: 'absolute', bottom: '8px', right: '8px' }
 }));
 
 const CytoscapeComp = (input: ICytoscapeComp) => {
@@ -270,13 +271,15 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
   return (
     <div className={classes.root}>
       <div id="cytoscape-container" className={classes.cytoscapeContainer} />
-      <Toolbar
-        cytoscapeLayoutStore={cytoscapeLayoutStore}
-        onZoomIn={() => cy && zoomIn(cy)}
-        onZoomOut={() => cy && zoomOut(cy)}
-        onFit={() => cy && fit(cy)}
-        onFocusOnSelection={() => cy && focusOnSelection(cy)}
-      />
+      <div className={classes.toolbar}>
+        <Toolbar
+          cytoscapeLayoutStore={cytoscapeLayoutStore}
+          onZoomIn={() => cy && zoomIn(cy)}
+          onZoomOut={() => cy && zoomOut(cy)}
+          onFit={() => cy && fit(cy)}
+          onFocusOnSelection={() => cy && focusOnSelection(cy)}
+        />
+      </div>
     </div>
   );
 };

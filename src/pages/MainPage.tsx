@@ -29,6 +29,16 @@ const drawerWidth = 380;
 const detailsDrawerWidth = 360;
 
 const useStyles = makeStyles((theme: Theme) => {
+  const enterTransition = theme.transitions.create(['all'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen
+  });
+
+  const leaveTransition = theme.transitions.create(['all'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen
+  });
+
   const appBarHeight = theme.spacing(8);
   return {
     root: {
@@ -79,17 +89,11 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     searchContainerOpen: {
       flexBasis: drawerWidth + 'px',
-      transition: theme.transitions.create('flex-basis', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen
-      })
+      transition: enterTransition
     },
     searchContainerClosed: {
       flexBasis: 0,
-      transition: theme.transitions.create('flex-basis', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-      })
+      transition: leaveTransition
     },
     searchDrawerDocked: {
       overflowY: 'auto',
@@ -123,17 +127,11 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     detailsContainerOpen: {
       flexBasis: detailsDrawerWidth + 'px',
-      transition: theme.transitions.create('flex-basis', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.shortest
-      })
+      transition: enterTransition
     },
     detailsContainerClosed: {
       flexBasis: 0,
-      transition: theme.transitions.create('flex-basis', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen
-      })
+      transition: leaveTransition
     },
     detailsDrawerPaper: {
       marginTop: appBarHeight,

@@ -11,7 +11,7 @@ import withDataLoader from '../../util/withDataLoader';
 import memoizeDataLoader from '../../util/memoizeDataLoader';
 import CenteredCircularProgress from '../CenteredCircularProgress';
 import { objectTypeToColor } from '../../util/util';
-import { ObjectDetails } from '../../pages/Details/DetailsStore';
+import { ObjectDetails } from '../../pages/Main/Details/DetailsStore';
 import PredefinedObjectQueries from './PredefinedObjectQueries';
 import ContextActions from './ContextActions';
 import { factDataLoader, factTypesDataLoader, objectStatsDataLoader } from '../../core/dataLoaders';

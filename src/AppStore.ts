@@ -1,5 +1,5 @@
 import config from './config';
-import MainPageStore from './pages/MainPageStore';
+import MainPageStore from './pages/Main/MainPageStore';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {

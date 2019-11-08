@@ -23,7 +23,7 @@ import betterGrid from './betterGrid';
 import { usePrevious } from '../hooks';
 import { createBatcherFn, modifierKeysUsed, setSymmetricDifference } from '../util/util';
 import Toolbar from './Toolbar';
-import CytoscapeLayoutStore from '../pages/CytoscapeLayout/CytoscapeLayoutStore';
+import CytoscapeLayoutStore from '../pages/Main/CytoscapeLayout/CytoscapeLayoutStore';
 
 Cytoscape.use(CytoscapeDagre);
 CytoscapeCoseBilkent(Cytoscape);

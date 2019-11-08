@@ -2,9 +2,9 @@ import React from 'react';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 import SnackbarProvider from './util/SnackbarProvider';
-import MainPage from './pages/MainPage';
 import AppStore from './AppStore';
-import SearchPage from './pages/SearchPage/SearchPage';
+import MainPage from './pages/Main/MainPage';
+import SearchPage from './pages/Search/SearchPage';
 
 const Black = {
   50: '#9e9e9e',

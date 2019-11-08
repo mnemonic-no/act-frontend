@@ -17,8 +17,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
 
-import CytoscapeLayout from '../pages/CytoscapeLayout/CytoscapeLayout';
-import CytoscapeLayoutStore from '../pages/CytoscapeLayout/CytoscapeLayoutStore';
+import CytoscapeLayout from '../pages/Main/CytoscapeLayout/CytoscapeLayout';
+import CytoscapeLayoutStore from '../pages/Main/CytoscapeLayout/CytoscapeLayoutStore';
 
 const useStyles = makeStyles((theme: Theme) => ({
   toolbar: {

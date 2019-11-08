@@ -3,6 +3,8 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 import SnackbarProvider from './util/SnackbarProvider';
 import MainPage from './pages/MainPage';
+import AppStore from './AppStore';
+import SearchPage from './pages/SearchPage/SearchPage';
 
 const Black = {
   50: '#9e9e9e',
@@ -53,11 +55,15 @@ export const actTheme = createMuiTheme({
   }
 });
 
+const store = new AppStore();
+store.initByUrl(window.location);
+
 const App = () => (
   <>
     <MuiThemeProvider theme={actTheme}>
       <SnackbarProvider />
-      <MainPage />
+      {store.currentPage === 'mainPage' && <MainPage store={store.mainPageStore} />}
+      {store.currentPage === 'searchPage' && <SearchPage />}
     </MuiThemeProvider>
   </>
 );

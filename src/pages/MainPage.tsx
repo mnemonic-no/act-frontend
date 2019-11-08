@@ -178,10 +178,7 @@ const useStyles = makeStyles((theme: Theme) => {
   };
 });
 
-const store = new MainPageStore();
-store.initByUrl(window.location);
-
-const MainPage = () => {
+const MainPage = ({ store }: { store: MainPageStore }) => {
   const classes = useStyles();
 
   return (

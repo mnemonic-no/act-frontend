@@ -1,7 +1,6 @@
 import { action, computed, observable, reaction } from 'mobx';
 
 import BackendStore from './BackendStore';
-import config from '../config';
 import CytoscapeLayoutStore from './CytoscapeLayout/CytoscapeLayoutStore';
 import DetailsStore from './Details/DetailsStore';
 import FactsTableStore from './Table/FactsTableStore';
@@ -17,23 +16,6 @@ import SelectionStore from './SelectionStore';
 import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
 import SearchesStore from './Search/SearchesStore';
 import ContentStore from './Content/ContentStore';
-
-const locationDefinitions = (routeDefinitions: any) => {
-  return (location: Location) => {
-    Object.entries(routeDefinitions).forEach(([k, v]) => {
-      const re = RegExp(k);
-
-      const match = re.exec(location.pathname);
-
-      if (match && match.length > 1) {
-        const pathValues = match.slice(1).map(x => decodeURIComponent(x));
-        // @ts-ignore
-        v(...pathValues);
-        return;
-      }
-    });
-  };
-};
 
 class MainPageStore {
   ui: {
@@ -58,7 +40,7 @@ class MainPageStore {
   refineryStore: RefineryStore;
   selectionStore: SelectionStore;
 
-  constructor() {
+  constructor(config: any) {
     this.backendStore = new BackendStore(this, config);
     this.workingHistory = new WorkingHistory(this);
     this.refineryStore = new RefineryStore(this, window.localStorage);
@@ -89,22 +71,6 @@ class MainPageStore {
         }
       }
     );
-  }
-
-  initByUrl(location: Location): void {
-    const locationMatcher = locationDefinitions({
-      '/object-fact-query/(.+)/(.+?)(/)?$': (objectType: string, objectValue: string) => {
-        this.backendStore.executeSearch({ objectType: objectType, objectValue: objectValue });
-      },
-      '/gremlin/(.+)/(.+)/(.+?)(/)?$': (objectType: string, objectValue: string, query: string) => {
-        this.backendStore.executeSearch({ objectType: objectType, objectValue: objectValue, query: query });
-      },
-      '/graph-query/(.+)/(.+)/(.+?)(/)?$': (objectType: string, objectValue: string, query: string) => {
-        this.backendStore.executeSearch({ objectType: objectType, objectValue: objectValue, query: query });
-      }
-    });
-
-    locationMatcher(location);
   }
 
   @action.bound

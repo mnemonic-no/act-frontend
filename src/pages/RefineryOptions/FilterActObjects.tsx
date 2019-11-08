@@ -1,9 +1,13 @@
 import React from 'react';
-import { Checkbox, FormControlLabel, FormGroup, FormLabel, makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormLabel from '@material-ui/core/FormLabel';
 import { observer } from 'mobx-react';
 
 import config from '../../config';
-import { ObjectTypeFilter } from '../types';
+import { ObjectTypeFilter } from '../../core/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   checkbox: {

@@ -1,6 +1,6 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
-import { ActObject } from '../types';
+import { ActObject } from '../../core/types';
 import { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';
 
 export const sortRowsBy = (sortOrder: SortOrder, rows: Array<IObjectRow>) => {

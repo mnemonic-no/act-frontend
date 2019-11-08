@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Tab, Tabs } from '@material-ui/core';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
 
 import FactsTable from '../Table/FactsTable';
 import FactsTableStore from '../Table/FactsTableStore';

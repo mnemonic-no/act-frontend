@@ -1,6 +1,6 @@
 // @ts-ignore
 import { saveAs } from 'file-saver';
-import { ActObject } from '../pages/types';
+import { ActObject } from '../core/types';
 import config from '../config';
 import * as _ from 'lodash/fp';
 

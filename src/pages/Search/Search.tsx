@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Link, makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
 
 import SearchByObjectType from './SearchByObjectType';
 import SearchSimple from './SearchSimple';

@@ -1,6 +1,6 @@
 import * as sut from './domain';
 import { actObject, fact, factType, factTypes, objectTypes } from './testHelper';
-import { ActObject, ContextActionTemplate } from '../pages/types';
+import { ActObject, ContextActionTemplate } from './types';
 
 it('can check if fact is retracted', () => {
   expect(sut.isRetracted(fact({}))).toBeFalsy();

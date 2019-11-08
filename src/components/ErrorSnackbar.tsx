@@ -1,6 +1,9 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { IconButton, makeStyles, Snackbar, Theme, Typography } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import Snackbar from '@material-ui/core/Snackbar';
+import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 
 const useStyles = makeStyles((theme: Theme) => ({

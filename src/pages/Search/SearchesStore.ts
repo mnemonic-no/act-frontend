@@ -1,7 +1,7 @@
 import * as _ from 'lodash/fp';
 import { action, computed, observable } from 'mobx';
 
-import { ActObject } from '../types';
+import { ActObject } from '../../core/types';
 import config from '../../config';
 import MainPageStore from '../MainPageStore';
 import { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';

@@ -1,6 +1,7 @@
 import cc from 'clsx';
 import React from 'react';
 import { observer } from 'mobx-react';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
@@ -11,10 +12,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
-import makeStyles from '@material-ui/core/styles/makeStyles';
-import { Theme } from '@material-ui/core';
 
-import { ActFact } from '../types';
+import { ActFact } from '../../core/types';
 import { factColor } from '../../util/util';
 import config from '../../config';
 import MultiSelect, { IMultiSelect } from '../../components/MultiSelect';

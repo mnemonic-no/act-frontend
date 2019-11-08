@@ -11,7 +11,7 @@ import {
   isRetraction,
   objectIdToFacts
 } from '../core/domain';
-import { ActFact, ActObject, ObjectTypeFilter, SearchResult } from './types';
+import { ActFact, ActObject, ObjectTypeFilter, SearchResult } from '../core/types';
 import MainPageStore from './MainPageStore';
 import { relativeStringToDate } from '../components/RelativeDateSelector';
 import { setUnion } from '../util/util';

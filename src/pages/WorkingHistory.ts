@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx';
 import MainPageStore from './MainPageStore';
-import { isFactSearch, isObjectSearch, SearchItem, SearchResult } from './types';
+import { isFactSearch, isObjectSearch, SearchItem, SearchResult } from '../core/types';
 import * as _ from 'lodash/fp';
 
 export const workingHistoryToPath = (historyItems: Array<SearchItem>) => {

@@ -1,4 +1,4 @@
-import { MuiThemeProvider } from '@material-ui/core';
+import MuiThemeProvider from '@material-ui/styles/ThemeProvider';
 import { actTheme } from '../App';
 import TimelineComp from '../components/Timeline/Timeline';
 import React from 'react';

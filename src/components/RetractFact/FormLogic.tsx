@@ -1,10 +1,10 @@
 import { compose, withHandlers, withState, withPropsOnChange } from 'recompose';
-import { addMessage } from '../../util/SnackbarProvider';
 
+import { addMessage } from '../../util/SnackbarProvider';
 import actWretch from '../../util/actWretch';
 import deformed from '../../util/deformed';
 import CreateFactFormComp from './Form';
-import { ActFact } from '../../pages/types';
+import { ActFact } from '../../core/types';
 
 const Fields = {
   comment: '',

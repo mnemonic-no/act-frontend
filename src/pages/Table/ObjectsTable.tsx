@@ -1,5 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
@@ -9,10 +10,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import { makeStyles, Theme } from '@material-ui/core';
 
 import { objectTypeToColor, renderObjectValue, factColor } from '../../util/util';
-import { ActObject } from '../types';
+import { ActObject } from '../../core/types';
 import MultiSelect, { IMultiSelect } from '../../components/MultiSelect';
 
 export type ColumnKind = 'objectType' | 'objectValue' | 'properties';

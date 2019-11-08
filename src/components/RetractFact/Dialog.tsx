@@ -6,7 +6,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import RetractFactForm from './FormLogic';
-import { ActFact } from '../../pages/types';
+import { ActFact } from '../../core/types';
 
 const RetractFactDialog = ({ state: { open, close, fact, onSuccess } }: any) => (
   <Dialog open={open} onClose={close} disableBackdropClick disableEscapeKeyDown maxWidth="sm">

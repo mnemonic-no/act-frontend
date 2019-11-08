@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 import DetailsStore from './DetailsStore';
 import FactInformation, { IFactInformationComp } from '../../components/FactInformation/FactInformation';

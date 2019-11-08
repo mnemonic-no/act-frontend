@@ -1,6 +1,10 @@
 import React from 'react';
-import { Button, Grid, Tooltip, Typography } from '@material-ui/core';
-import { ContextAction } from '../../pages/types';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+
+import { ContextAction } from '../../core/types';
 
 const ContextActions = ({ actions }: { actions: Array<ContextAction> }) => {
   if (!actions || actions.length === 0) return null;

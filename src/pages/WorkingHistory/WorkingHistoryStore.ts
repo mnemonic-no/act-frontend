@@ -9,7 +9,7 @@ import {
   isFactSearch,
   searchId,
   Search
-} from '../types';
+} from '../../core/types';
 import { exportToJson, fileTimeString, copyToClipBoard, objectTypeToColor, factColor } from '../../util/util';
 import MainPageStore from '../MainPageStore';
 import { addMessage } from '../../util/SnackbarProvider';

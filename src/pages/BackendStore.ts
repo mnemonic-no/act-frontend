@@ -2,7 +2,7 @@ import { action, observable, runInAction } from 'mobx';
 import { autoResolveDataLoader, checkObjectStats, postJson, searchCriteriadataLoader } from '../core/dataLoaders';
 
 import MainPageStore from './MainPageStore';
-import { isObjectSearch, SearchItem, Search, searchId } from './types';
+import { isObjectSearch, SearchItem, Search, searchId } from '../core/types';
 import { addMessage } from '../util/SnackbarProvider';
 import SimpleSearchBackendStore from './SimpleSearchBackendStore';
 

@@ -1,5 +1,9 @@
 import React from 'react';
-import { Button, Grid, makeStyles, Theme, Tooltip } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Tooltip from '@material-ui/core/Tooltip';
+
 import ActObjectAutoSuggest, { IActObjectAutoSuggestComp } from '../../components/ActObjectAutoSuggest';
 
 const useStyles = makeStyles((theme: Theme) => ({

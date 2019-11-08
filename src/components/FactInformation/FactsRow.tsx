@@ -2,11 +2,10 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import { makeStyles } from '@material-ui/core/styles';
-import { Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import format from 'date-fns/format';
 
-import { ActFact } from '../../pages/types';
+import { ActFact } from '../../core/types';
 import { isRetraction } from '../../core/domain';
 
 const useStyles = makeStyles((theme: Theme) => ({

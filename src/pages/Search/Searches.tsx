@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  CircularProgress,
-  ClickAwayListener,
-  List,
-  ListItem,
-  ListItemText,
-  makeStyles,
-  Paper,
-  Popper,
-  Theme,
-  Tooltip,
-  Typography
-} from '@material-ui/core';
 import { observer } from 'mobx-react';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 import WarnIcon from '@material-ui/icons/Warning';
 
 import ObjectTable, { IObjectTableComp } from '../../components/ObjectTable';

@@ -1,7 +1,7 @@
 import * as _ from 'lodash/fp';
 import { action, computed, observable, runInAction } from 'mobx';
 
-import { ActObject, FactType, NamedId } from '../../pages/types';
+import { ActObject, FactType, NamedId } from '../../core/types';
 import { createFact, factTypesDataLoader } from '../../core/dataLoaders';
 import {
   factMapToObjectMap,

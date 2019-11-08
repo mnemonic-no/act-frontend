@@ -1,4 +1,4 @@
-import { ActFact, ActObject, FactType } from '../pages/types';
+import { ActFact, ActObject, FactType } from './types';
 
 export const objectTypes = {
   incident: { id: 'incidentId', name: 'incident' },

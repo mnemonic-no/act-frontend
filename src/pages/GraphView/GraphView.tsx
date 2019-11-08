@@ -1,6 +1,9 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Button, IconButton, makeStyles, Theme, Typography } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import WarnIcon from '@material-ui/icons/Warning';

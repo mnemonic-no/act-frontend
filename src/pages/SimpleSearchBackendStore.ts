@@ -3,7 +3,7 @@ import * as _ from 'lodash/fp';
 
 import { factKeywordSearch, objectKeywordSearch } from '../core/dataLoaders';
 import { factsToObjects } from '../core/domain';
-import { ActFact, ActObject } from './types';
+import { ActFact, ActObject } from '../core/types';
 
 export type SimpleSearch = {
   id: string;

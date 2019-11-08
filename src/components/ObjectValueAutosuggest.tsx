@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Theme, makeStyles } from '@material-ui/core';
+import { Theme, makeStyles } from '@material-ui/core/styles';
 
 import actWretch from '../util/actWretch';
 import withDataLoader from '../util/withDataLoader';

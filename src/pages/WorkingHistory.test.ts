@@ -1,5 +1,5 @@
 import { workingHistoryToPath } from './WorkingHistory';
-import { SearchItem } from './types';
+import { SearchItem } from '../core/types';
 
 const searchItem = (args: { [key: string]: any }): SearchItem => {
   const defaults = {

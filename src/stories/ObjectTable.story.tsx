@@ -6,7 +6,7 @@ import * as _ from 'lodash/fp';
 import ObjectTable, { ColumnKind, IObjectRow, IObjectTableComp } from '../components/ObjectTable';
 import { actTheme } from '../App';
 import { sortRowsBy } from '../pages/Table/PrunedObjectsTableStore';
-import { ActObject } from '../pages/types';
+import { ActObject } from '../core/types';
 
 storiesOf('ObjectTable', module)
   .add('empty', () => {

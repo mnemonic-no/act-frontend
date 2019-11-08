@@ -1,6 +1,7 @@
 import React, { FormEvent } from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles, MenuItem, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
 import Autosuggest, { ChangeEvent } from 'react-autosuggest';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -10,8 +11,9 @@ import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
+
 import { objectTypeToColor, truncateText } from '../util/util';
-import { ActObject } from '../pages/types';
+import { ActObject } from '../core/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},

@@ -1,7 +1,7 @@
 import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { ActFact, ActObject, ActSelection } from '../types';
+import { ActFact, ActObject, ActSelection } from '../../core/types';
 import { ColumnKind, ObjectRow, SortOrder } from './ObjectsTable';
 import MainPageStore from '../MainPageStore';
 import { oneLeggedFactsFor } from '../../core/domain';

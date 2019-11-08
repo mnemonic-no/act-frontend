@@ -5,9 +5,14 @@ import parse from 'autosuggest-highlight/parse';
 // @ts-ignore
 import match from 'autosuggest-highlight/match';
 
-import { makeStyles, MenuItem, Paper, TextField, Tooltip, Typography } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 
-const useStyles = makeStyles((theme: any) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   container: {
     position: 'relative'
   },

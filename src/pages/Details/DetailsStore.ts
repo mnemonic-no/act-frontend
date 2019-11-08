@@ -2,7 +2,14 @@ import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import MainPageStore from '../MainPageStore';
-import { ActFact, ActObject, ContextAction, ContextActionTemplate, PredefinedObjectQuery, Search } from '../types';
+import {
+  ActFact,
+  ActObject,
+  ContextAction,
+  ContextActionTemplate,
+  PredefinedObjectQuery,
+  Search
+} from '../../core/types';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
 import { byTypeThenName, pluralize } from '../../util/util';
 import {

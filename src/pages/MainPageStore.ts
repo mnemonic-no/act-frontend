@@ -11,7 +11,7 @@ import WorkingHistoryStore from './WorkingHistory/WorkingHistoryStore';
 import RefineryOptionsStore from './RefineryOptions/RefineryOptionsStore';
 import RefineryStore from './RefineryStore';
 import SearchStore from './Search/SearchStore';
-import { StateExport } from './types';
+import { StateExport } from '../core/types';
 import SelectionStore from './SelectionStore';
 import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
 import SearchesStore from './Search/SearchesStore';

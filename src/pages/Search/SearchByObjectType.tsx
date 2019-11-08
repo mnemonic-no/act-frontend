@@ -1,6 +1,8 @@
-import { Button, Grid, makeStyles, Theme } from '@material-ui/core';
 import { observer } from 'mobx-react';
 import React from 'react';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 
 import ObjectType from '../../components/ObjectType';
 import QueryAutoSuggest from './QueryAutoSuggest';

@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx';
-import { ActSelection } from './types';
+import { ActSelection } from '../core/types';
 
 class SelectionStore {
   @observable currentlySelected: { [id: string]: ActSelection } = {};

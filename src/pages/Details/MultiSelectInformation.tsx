@@ -11,9 +11,9 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 
-import { ActObject } from '../types';
+import { ActObject } from '../../core/types';
 import { objectTypeToColor, renderObjectValue } from '../../util/util';
 
 const useStyles = makeStyles((theme: Theme) => ({

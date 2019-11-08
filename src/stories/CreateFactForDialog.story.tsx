@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { MuiThemeProvider } from '@material-ui/core';
+import MuiThemeProvider from '@material-ui/styles/ThemeProvider';
 
 import { actTheme } from '../App';
 import CreateFactForDialog from '../components/CreateFactFor/DialogStore';

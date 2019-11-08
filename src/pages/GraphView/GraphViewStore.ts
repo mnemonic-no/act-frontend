@@ -3,7 +3,7 @@ import { action, computed, observable } from 'mobx';
 import config from '../../config';
 import getStyle from '../../core/cytoscapeStyle';
 import { objectFactsToElements } from '../../core/cytoscapeTransformers';
-import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, SearchResult, Search } from '../types';
+import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, SearchResult, Search } from '../../core/types';
 import MainPageStore from '../MainPageStore';
 import { notUndefined } from '../../util/util';
 import { isOneLegged } from '../../core/domain';

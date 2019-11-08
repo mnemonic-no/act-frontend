@@ -16,7 +16,7 @@ import PredefinedObjectQueries from './PredefinedObjectQueries';
 import ContextActions from './ContextActions';
 import { factDataLoader, factTypesDataLoader, objectStatsDataLoader } from '../../core/dataLoaders';
 import { getObjectLabelFromFact, isOneLeggedFactType, objectValueText } from '../../core/domain';
-import { ActFact, ActObject, FactType, PredefinedObjectQuery, Search } from '../../pages/types';
+import { ActFact, ActObject, FactType, PredefinedObjectQuery, Search } from '../../core/types';
 import FactTypeTable from './FactTypeTable';
 import CreateFactForObjectDialog from '../CreateFactFor/Dialog';
 import CreateFactForDialog from '../CreateFactFor/DialogStore';

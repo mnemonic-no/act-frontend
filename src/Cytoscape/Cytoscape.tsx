@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core';
 import * as _ from 'lodash/fp';
+import { makeStyles } from '@material-ui/core/styles';
 import Cytoscape from 'cytoscape';
 // @ts-ignore
 import Klay from 'klayjs';

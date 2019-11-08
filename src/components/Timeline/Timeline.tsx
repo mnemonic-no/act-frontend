@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import * as _ from 'lodash/fp';
 import { observer } from 'mobx-react';
-import { makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 
 import { useOnResize, usePrevious } from '../../hooks';
 import { pluralize } from '../../util/util';

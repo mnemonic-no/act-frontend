@@ -10,22 +10,10 @@ import {
   searchId,
   Search
 } from '../types';
-import { exportToJson, fileTimeString, copyToClipBoard } from '../../util/util';
+import { exportToJson, fileTimeString, copyToClipBoard, objectTypeToColor, factColor } from '../../util/util';
 import MainPageStore from '../MainPageStore';
 import { addMessage } from '../../util/SnackbarProvider';
-
-type TIcon = 'remove' | 'copy';
-export type TAction = { icon: TIcon; onClick: () => void; tooltip: string };
-export type TDetails = { kind: 'tag' | 'label-text'; label: string; text: string };
-
-export type TWorkingHistoryItem = {
-  id: string;
-  title: string;
-  isSelected: boolean;
-  details?: TDetails;
-  onClick: () => void;
-  actions: Array<TAction>;
-};
+import { TDetails, TIcon } from './WorkingHistory';
 
 const copy = (si: SearchItem) => {
   if (isObjectSearch(si.search) && si.search.query) {
@@ -40,11 +28,11 @@ const copy = (si: SearchItem) => {
 
 export const itemTitle = (s: Search) => {
   if (isObjectSearch(s)) {
-    return s.objectType + ': ' + s.objectValue;
+    return [{ text: s.objectType + ' ', color: objectTypeToColor(s.objectType) }, { text: s.objectValue }];
   } else if (isFactSearch(s)) {
-    return 'Fact: ' + s.factTypeName;
+    return [{ text: 'Fact ', color: factColor }, { text: s.factTypeName }];
   }
-  return 'n/a';
+  return [{ text: 'n/a', color: 'red' }];
 };
 
 export const itemDetails = (
@@ -159,45 +147,26 @@ class WorkingHistoryStore {
     });
   }
 
-  @computed get historyItems(): Array<TWorkingHistoryItem> {
-    return this.root.workingHistory.historyItems
-      .filter(q => q.result !== null)
-      .map(item => {
-        return {
-          id: searchId(item.search),
-          title: itemTitle(item.search),
-          isSelected: item.id === this.selectedItemId,
-          details: itemDetails(item, this.predefinedQueryToName),
-          actions: itemActions(item, () => this.removeQuery(item), () => copy(item)),
-          onClick: () => this.setSelectedSearchItem(item)
-        };
-      });
-  }
-
-  @computed get isEmpty(): boolean {
-    return this.root.workingHistory.isEmpty;
-  }
-
   @computed get selectedItemId(): string {
     return this.root.workingHistory.selectedItemId;
   }
 
-  @action
+  @action.bound
   setSelectedSearchItem(item: SearchItem | undefined) {
     if (item) {
       this.root.workingHistory.selectedItemId = item.id;
     }
   }
 
-  @action
-  removeQuery(item: SearchItem) {
+  @action.bound
+  removeItem(item: SearchItem) {
     this.root.workingHistory.removeItem(item);
     if (item.id === this.selectedItemId) {
       this.setSelectedSearchItem(_.last(this.root.workingHistory.historyItems));
     }
   }
 
-  @action
+  @action.bound
   flipMergePrevious() {
     this.root.workingHistory.mergePrevious = !this.root.workingHistory.mergePrevious;
   }
@@ -232,6 +201,31 @@ class WorkingHistoryStore {
   @action.bound
   onClear() {
     this.root.workingHistory.removeAllItems();
+  }
+
+  @computed
+  get prepared() {
+    const historyItems = this.root.workingHistory.historyItems
+      .filter(q => q.result !== null)
+      .map(item => {
+        return {
+          id: searchId(item.search),
+          title: itemTitle(item.search),
+          isSelected: item.id === this.selectedItemId,
+          details: itemDetails(item, this.predefinedQueryToName),
+          actions: itemActions(item, () => this.removeItem(item), () => copy(item)),
+          onClick: () => this.setSelectedSearchItem(item)
+        };
+      });
+
+    return {
+      isEmpty: this.root.workingHistory.isEmpty,
+      historyItems: historyItems,
+      mergePrevious: { checked: this.mergePrevious, onClick: this.flipMergePrevious },
+      onImport: this.onImport,
+      onExport: this.onExport,
+      onClear: this.onClear
+    };
   }
 }
 

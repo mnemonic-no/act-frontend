@@ -1,4 +1,6 @@
+import * as _ from 'lodash/fp';
 import { action, computed, observable, runInAction } from 'mobx';
+
 import { ActObject, FactType, NamedId } from '../../pages/types';
 import { createFact, factTypesDataLoader } from '../../core/dataLoaders';
 import {
@@ -7,8 +9,7 @@ import {
   isRelevantFactType,
   validBidirectionalFactTargetObjectTypes,
   validUnidirectionalFactTargetObjectTypes
-} from '../../core/transformers';
-import * as _ from 'lodash/fp';
+} from '../../core/domain';
 import { addMessage } from '../../util/SnackbarProvider';
 import WorkingHistory from '../../pages/WorkingHistory';
 

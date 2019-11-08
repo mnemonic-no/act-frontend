@@ -1,8 +1,9 @@
-import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
-import { byTypeThenName } from '../../util/util';
-import { getObjectLabelFromFact } from '../../core/transformers';
+
 import config from '../../config';
+import MainPageStore from '../MainPageStore';
+import { byTypeThenName } from '../../util/util';
+import { getObjectLabelFromFact } from '../../core/domain';
 
 class SearchSimpleStore {
   root: MainPageStore;

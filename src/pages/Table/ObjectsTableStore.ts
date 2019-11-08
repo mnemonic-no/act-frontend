@@ -4,7 +4,7 @@ import * as _ from 'lodash/fp';
 import { ActFact, ActObject, ActSelection } from '../types';
 import { ColumnKind, ObjectRow, SortOrder } from './ObjectsTable';
 import MainPageStore from '../MainPageStore';
-import { oneLeggedFactsFor } from '../../core/transformers';
+import { oneLeggedFactsFor } from '../../core/domain';
 import { exportToCsv, fileTimeString } from '../../util/util';
 
 const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {

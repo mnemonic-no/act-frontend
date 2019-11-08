@@ -1,5 +1,6 @@
 import { itemActions, itemDetails, itemTitle, parseStateExport, stateExport } from './WorkingHistoryStore';
 import { SearchItem } from '../types';
+import { factColor } from '../../util/util';
 
 const searchItem = (args: { [key: string]: any }): SearchItem => {
   return {
@@ -68,8 +69,14 @@ it('can import working history', () => {
 });
 
 it('working history item title', () => {
-  expect(itemTitle({ id: 'a', factTypeName: 'alias' })).toEqual('Fact: alias');
-  expect(itemTitle({ id: 'a', objectType: 'threatActor', objectValue: 'Sofacy' })).toEqual('threatActor: Sofacy');
+  expect(itemTitle({ id: 'a', factTypeName: 'alias' })).toEqual([
+    { text: 'Fact ', color: factColor },
+    { text: 'alias' }
+  ]);
+  expect(itemTitle({ id: 'a', objectType: 'threatActor', objectValue: 'Sofacy' })).toEqual([
+    { text: 'threatActor ', color: '#606' },
+    { text: 'Sofacy' }
+  ]);
 });
 
 it('working history item details', () => {

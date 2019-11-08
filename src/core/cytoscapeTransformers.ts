@@ -1,7 +1,6 @@
 import { truncateText } from '../util/util';
-import { isOneLegged, objectLabel } from './transformers';
+import { isOneLegged, isRetracted, objectLabel } from './domain';
 import { ActFact, ActObject } from '../pages/types';
-import { isRetracted } from './domain';
 
 /*
  * Convert ACT object and fact structures to cytoscape structures

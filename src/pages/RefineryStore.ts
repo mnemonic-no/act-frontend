@@ -3,11 +3,17 @@ import { isBefore } from 'date-fns';
 import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { isRetracted, isRetraction, objectIdToFacts } from '../core/domain';
+import {
+  factMapToObjectMap,
+  factsToObjects,
+  isOneLegged,
+  isRetracted,
+  isRetraction,
+  objectIdToFacts
+} from '../core/domain';
 import { ActFact, ActObject, ObjectTypeFilter, SearchResult } from './types';
 import MainPageStore from './MainPageStore';
 import { relativeStringToDate } from '../components/RelativeDateSelector';
-import { factMapToObjectMap, factsToObjects, isOneLegged } from '../core/transformers';
 import { setUnion } from '../util/util';
 
 export const filterByTime = (facts: { [id: string]: ActFact }, endTimestamp: Date | string) => {

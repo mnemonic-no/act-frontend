@@ -2,7 +2,7 @@ import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
 
 import { byTypeThenName } from '../../util/util';
-import { getObjectLabelFromFact } from '../../core/transformers';
+import { getObjectLabelFromFact } from '../../core/domain';
 import config from '../../config';
 import { PredefinedObjectQuery } from '../types';
 

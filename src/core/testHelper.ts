@@ -1,8 +1,9 @@
 import { ActFact, ActObject, FactType } from '../pages/types';
 
 export const objectTypes = {
-  threatActor: { id: 'threatActorId', name: 'threatActor' },
-  report: { id: 'reportId', name: 'report' }
+  incident: { id: 'incidentId', name: 'incident' },
+  report: { id: 'reportId', name: 'report' },
+  threatActor: { id: 'threatActorId', name: 'threatActor' }
 };
 
 export const factTypes = {

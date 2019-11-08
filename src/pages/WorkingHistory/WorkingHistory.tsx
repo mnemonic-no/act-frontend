@@ -16,13 +16,23 @@ import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import WorkingHistoryStore from './WorkingHistoryStore';
-
 const useStyles = makeStyles((theme: Theme) => ({
+  buttons: {
+    padding: theme.spacing(2),
+    paddingTop: theme.spacing(),
+    paddingBottom: theme.spacing(),
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  mergeItem: {
+    paddingLeft: theme.spacing(2)
+  }
+}));
+
+const useItemStyles = makeStyles((theme: Theme) => ({
   listItem: {
     paddingLeft: theme.spacing(2)
   },
-  item: {},
   activeItem: {
     borderLeft: `2px solid ${theme.palette.primary.main}`
   },
@@ -34,13 +44,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     transition: theme.transitions.create('opacity', {
       duration: theme.transitions.duration.shortest
     })
-  },
-  buttons: {
-    padding: theme.spacing(2),
-    paddingTop: theme.spacing(),
-    paddingBottom: theme.spacing(),
-    display: 'flex',
-    justifyContent: 'space-between'
   },
   listItemText: {
     overflowX: 'hidden',
@@ -63,7 +66,52 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const WorkingHistory = ({ store }: IWorkingHistory) => {
+const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
+  const classes = useItemStyles();
+
+  return (
+    <ListItem
+      classes={{
+        root: classes.listItem,
+        container: cc({ [classes.activeItem]: item.isSelected })
+      }}
+      button
+      disableGutters
+      dense
+      key={item.id}
+      onClick={item.onClick}>
+      <ListItemText
+        classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
+        secondaryTypographyProps={{ component: 'div' }}
+        primary={item.title.map(t => (
+          <span style={{ color: t.color || 'currentColor' }}>{t.text}</span>
+        ))}
+        secondary={
+          item.details && (
+            <>
+              <div>{item.details.label}</div>
+              <div className={cc(classes.detailsText, { [classes.tag]: item.details.kind === 'tag' })}>
+                {item.details.text}
+              </div>
+            </>
+          )
+        }
+      />
+      <ListItemSecondaryAction>
+        {item.actions.map((a, idx) => (
+          <Tooltip key={idx} title={a.tooltip} enterDelay={800}>
+            <IconButton onClick={a.onClick} classes={{ root: classes.actionButton }}>
+              {a.icon === 'remove' && <CloseIcon />}
+              {a.icon === 'copy' && <AssignmentIcon />}
+            </IconButton>
+          </Tooltip>
+        ))}
+      </ListItemSecondaryAction>
+    </ListItem>
+  );
+};
+
+const WorkingHistory = (props: IWorkingHistory) => {
   const classes = useStyles();
 
   return (
@@ -72,56 +120,21 @@ const WorkingHistory = ({ store }: IWorkingHistory) => {
         <ListItem>
           <Typography variant="subtitle2">History</Typography>
         </ListItem>
-        {!store.isEmpty && (
-          <ListItem dense disableGutters classes={{ root: classes.listItem }}>
+        {!props.isEmpty && (
+          <ListItem dense disableGutters classes={{ root: classes.mergeItem }}>
             <ListItemText primary="Merge previous" />
             <ListItemSecondaryAction>
-              <Switch onClick={() => store.flipMergePrevious()} checked={store.mergePrevious} />
+              <Switch onClick={() => props.mergePrevious.onClick()} checked={props.mergePrevious.checked} />
             </ListItemSecondaryAction>
           </ListItem>
         )}
       </List>
-      {!store.isEmpty && (
+      {!props.isEmpty && (
         <>
           <Divider />
           <List dense>
-            {store.historyItems.map(item => (
-              <ListItem
-                classes={{
-                  root: classes.listItem,
-                  container: `${item.isSelected ? classes.activeItem : ''} ${classes.item}`
-                }}
-                button
-                disableGutters
-                dense
-                key={item.id}
-                onClick={item.onClick}>
-                <ListItemText
-                  classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
-                  secondaryTypographyProps={{ component: 'div' }}
-                  primary={<span>{item.title}</span>}
-                  secondary={
-                    item.details && (
-                      <>
-                        <div>{item.details.label}</div>
-                        <div className={cc(classes.detailsText, { [classes.tag]: item.details.kind === 'tag' })}>
-                          {item.details.text}
-                        </div>
-                      </>
-                    )
-                  }
-                />
-                <ListItemSecondaryAction>
-                  {item.actions.map((a, idx) => (
-                    <Tooltip key={idx} title={a.tooltip} enterDelay={800}>
-                      <IconButton onClick={a.onClick} classes={{ root: classes.actionButton }}>
-                        {a.icon === 'remove' && <CloseIcon />}
-                        {a.icon === 'copy' && <AssignmentIcon />}
-                      </IconButton>
-                    </Tooltip>
-                  ))}
-                </ListItemSecondaryAction>
-              </ListItem>
+            {props.historyItems.map(item => (
+              <WorkingHistoryItem {...item} />
             ))}
           </List>
           <Divider />
@@ -130,7 +143,7 @@ const WorkingHistory = ({ store }: IWorkingHistory) => {
       <div className={classes.buttons}>
         <Tooltip title="Export the whole search history as JSON">
           <span>
-            <Button onClick={store.onExport} disabled={store.isEmpty}>
+            <Button onClick={props.onExport} disabled={props.isEmpty}>
               Export
             </Button>
           </span>
@@ -138,12 +151,12 @@ const WorkingHistory = ({ store }: IWorkingHistory) => {
         <Tooltip title="Import a previously exported search history">
           <Button component="label">
             Import
-            <input id="importButton" type="file" style={{ display: 'none' }} onChange={store.onImport} />
+            <input id="importButton" type="file" style={{ display: 'none' }} onChange={props.onImport} />
           </Button>
         </Tooltip>
         <Tooltip title="Clear the graph">
           <span>
-            <Button onClick={store.onClear} disabled={store.isEmpty}>
+            <Button onClick={props.onClear} disabled={props.isEmpty}>
               Clear
             </Button>
           </span>
@@ -153,8 +166,26 @@ const WorkingHistory = ({ store }: IWorkingHistory) => {
   );
 };
 
+export type TIcon = 'remove' | 'copy';
+export type TAction = { icon: TIcon; onClick: () => void; tooltip: string };
+export type TDetails = { kind: 'tag' | 'label-text'; label: string; text: string };
+
+export type TWorkingHistoryItem = {
+  id: string;
+  title: Array<{ text: string; color?: string }>;
+  isSelected: boolean;
+  details?: TDetails;
+  onClick: () => void;
+  actions: Array<TAction>;
+};
+
 interface IWorkingHistory {
-  store: WorkingHistoryStore;
+  historyItems: Array<TWorkingHistoryItem>;
+  mergePrevious: { checked: boolean; onClick: () => void };
+  isEmpty: boolean;
+  onImport: (fileEvent: any) => void;
+  onExport: () => void;
+  onClear: () => void;
 }
 
 export default observer(WorkingHistory);

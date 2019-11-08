@@ -1,9 +1,10 @@
 import React from 'react';
+import { observer } from 'mobx-react';
 import { compose } from 'recompose';
-import Typography from '@material-ui/core/Typography/index';
-import { makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import { darken, lighten } from '@material-ui/core/styles/colorManipulator';
-import Button from '@material-ui/core/Button/index';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 
 import config from '../../config';
 import withDataLoader from '../../util/withDataLoader';
@@ -14,11 +15,10 @@ import { ObjectDetails } from '../../pages/Details/DetailsStore';
 import PredefinedObjectQueries from './PredefinedObjectQueries';
 import ContextActions from './ContextActions';
 import { factDataLoader, factTypesDataLoader, objectStatsDataLoader } from '../../core/dataLoaders';
-import { getObjectLabelFromFact, isOneLeggedFactType, objectValueText } from '../../core/transformers';
+import { getObjectLabelFromFact, isOneLeggedFactType, objectValueText } from '../../core/domain';
 import { ActFact, ActObject, FactType, PredefinedObjectQuery, Search } from '../../pages/types';
 import FactTypeTable from './FactTypeTable';
 import CreateFactForObjectDialog from '../CreateFactFor/Dialog';
-import { observer } from 'mobx-react';
 import CreateFactForDialog from '../CreateFactFor/DialogStore';
 
 const useStyles = makeStyles((theme: Theme) => ({

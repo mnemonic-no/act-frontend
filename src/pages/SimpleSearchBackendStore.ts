@@ -2,7 +2,7 @@ import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import { factKeywordSearch, objectKeywordSearch } from '../core/dataLoaders';
-import { factsToObjects } from '../core/transformers';
+import { factsToObjects } from '../core/domain';
 import { ActFact, ActObject } from './types';
 
 export type SimpleSearch = {

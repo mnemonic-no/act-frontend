@@ -6,7 +6,7 @@ import { objectFactsToElements } from '../../core/cytoscapeTransformers';
 import { ActFact, ActObject, ActSelection, isFactSearch, isObjectSearch, SearchResult, Search } from '../types';
 import MainPageStore from '../MainPageStore';
 import { notUndefined } from '../../util/util';
-import { isOneLegged } from '../../core/transformers';
+import { isOneLegged } from '../../core/domain';
 
 const cytoscapeNodeToSelection = (node: any): ActSelection => {
   return {

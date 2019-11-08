@@ -6,7 +6,7 @@ import config from '../../config';
 import MainPageStore from '../MainPageStore';
 import { ColumnKind, IObjectRow, SortOrder } from '../../components/ObjectTable';
 import { sortRowsBy } from '../Table/PrunedObjectsTableStore';
-import { getObjectLabelFromFact } from '../../core/transformers';
+import { getObjectLabelFromFact } from '../../core/domain';
 import { SimpleSearch } from '../SimpleSearchBackendStore';
 
 const emptyFilterValue = 'Show all';

@@ -38,7 +38,7 @@ const ErrorSnackbarComp = ({ error, onClose }: IErrorSnackbarComp) => {
   );
 };
 
-interface IErrorSnackbarComp {
+export interface IErrorSnackbarComp {
   error: any;
   onClose: () => void;
 }

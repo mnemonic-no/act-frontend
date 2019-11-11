@@ -1,29 +1,23 @@
 import React from 'react';
 import { observer } from 'mobx-react';
+import cc from 'clsx';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import Details from './Details/Details';
 import Drawer from '@material-ui/core/Drawer';
-import GraphEmpty from './GraphView/GraphEmpty';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import Paper from '@material-ui/core/Paper';
-import Toolbar from '@material-ui/core/Toolbar';
 
-import AboutButton from '../../components/About';
 import Content from './Content/Content';
-import ErrorSnackbar from '../../components/ErrorSnackbar';
-import ErrorBoundary from '../../components/ErrorBoundary';
+import Details from './Details/Details';
+import GraphEmpty from './GraphView/GraphEmpty';
 import MainPageStore from './MainPageStore';
+import Page from '../Page';
 import RefineryOptions from './RefineryOptions/RefineryOptions';
 import Search from './Search/Search';
 import WorkingHistory from './WorkingHistory/WorkingHistory';
 
 const drawerWidth = 380;
-const detailsDrawerWidth = 360;
 
 const useStyles = makeStyles((theme: Theme) => {
   const enterTransition = theme.transitions.create(['all'], {
@@ -36,78 +30,35 @@ const useStyles = makeStyles((theme: Theme) => {
     duration: theme.transitions.duration.leavingScreen
   });
 
-  const appBarHeight = theme.spacing(8);
   return {
-    root: {
-      height: '100vh',
-      zIndex: 1,
-      overflow: 'hidden'
-    },
-    appFrame: {
-      position: 'relative',
-      display: 'flex',
-      width: '100%',
-      height: '100%'
-    },
     mainFrame: {
       display: 'flex',
-      width: '100%'
-    },
-
-    errorBoundary: {
-      marginTop: appBarHeight
-    },
-
-    appBar: {
-      position: 'absolute',
-      height: appBarHeight,
       width: '100%',
-
-      // Make sure appbar is on top
-      // Drawer z-index is 1200
-      // Need to change strategy if we want other drawers to come on top
-      zIndex: 1201
-    },
-    appBarLeft: {
-      display: 'flex',
-      flexGrow: 1
-    },
-    appBarLogo: {
-      height: 46,
-      maxWidth: 'none'
+      height: '100%',
+      position: 'relative'
     },
 
-    searchContainer: {
+    sideContainer: {
       position: 'relative',
       overflow: 'visible',
       zIndex: 200,
       flexGrow: 0,
       flexShrink: 0
     },
-    searchContainerOpen: {
+    sideContainerOpen: {
       flexBasis: drawerWidth + 'px',
       transition: enterTransition
     },
-    searchContainerClosed: {
+    sideContainerClosed: {
       flexBasis: 0,
       transition: leaveTransition
     },
-    searchDrawerDocked: {
-      overflowY: 'auto',
-      maxWidth: drawerWidth + 'px',
-      height: '100%'
-    },
     searchDrawerPaper: {
-      position: 'relative',
-      marginTop: appBarHeight,
-      height: `calc(100% - ${appBarHeight}px)`,
       backgroundColor: '#FAFAFA'
     },
+
     content: {
       position: 'relative',
-      marginTop: appBarHeight,
-      height: `calc(100% - ${appBarHeight}px)`,
-
       overflow: 'hidden',
       flex: '1 0 300px',
 
@@ -115,31 +66,13 @@ const useStyles = makeStyles((theme: Theme) => {
       flexDirection: 'column'
     },
 
-    detailsContainer: {
-      position: 'relative',
-      overflow: 'visible',
-      zIndex: 200,
-      flexGrow: 0,
-      flexShrink: 0
+    sideDrawerPaper: {
+      position: 'relative'
     },
-    detailsContainerOpen: {
-      flexBasis: detailsDrawerWidth + 'px',
-      transition: enterTransition
-    },
-    detailsContainerClosed: {
-      flexBasis: 0,
-      transition: leaveTransition
-    },
-    detailsDrawerPaper: {
-      marginTop: appBarHeight,
-      width: detailsDrawerWidth + 'px',
-      height: `calc(100% - ${appBarHeight}px)`
-    },
-    detailsDrawerPaperOpen: {
-      width: detailsDrawerWidth + 'px'
-    },
-    detailsDrawerPaperClosed: {
-      width: 0
+    sideDrawerDocked: {
+      overflowY: 'auto',
+      maxWidth: drawerWidth + 'px',
+      height: '100%'
     },
 
     paper: {
@@ -153,7 +86,6 @@ const useStyles = makeStyles((theme: Theme) => {
       marginRight: theme.spacing(1.5),
       marginTop: theme.spacing(1.5)
     },
-
     toggleButton: {
       background: theme.palette.common.white,
       borderColor: theme.palette.divider,
@@ -165,14 +97,14 @@ const useStyles = makeStyles((theme: Theme) => {
       borderTopRightRadius: '10px',
       borderBottomRightRadius: '10px',
       borderWidth: '1px 1px 1px 0',
-      top: appBarHeight + 56,
+      top: 56,
       right: '-48px'
     },
     toggleButtonLeft: {
       borderTopLeftRadius: '10px',
       borderBottomLeftRadius: '10px',
       borderWidth: '1px 0 1px 1px',
-      top: appBarHeight + 4,
+      top: 4,
       left: '-48px'
     }
   };
@@ -182,113 +114,90 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
-      <div className={classes.appFrame}>
-        {/* Header */}
-        <div className={classes.appBar}>
-          <AppBar position="static">
-            <Toolbar>
-              <div className={classes.appBarLeft}>
-                <a href="/">
-                  <img src="/act-logo-onDark.svg" alt="ACT" className={classes.appBarLogo} />
-                </a>
-              </div>
-              <Button color="inherit" component="a" href="/examples">
-                Examples
-              </Button>
-              <AboutButton />
-            </Toolbar>
-            {store.backendStore.isLoading && <LinearProgress variant="query" color="secondary" />}
-          </AppBar>
+    <Page errorSnackbar={store.errorSnackbar} isLoading={store.backendStore.isLoading}>
+      <div className={classes.mainFrame}>
+        {/* Search container */}
+        <div
+          data-container-id="searchContainer"
+          onTransitionEnd={(event: any) => {
+            if (event.target.getAttribute('data-container-id') === 'searchContainer') {
+              store.ui.graphViewStore.rerender();
+            }
+          }}
+          className={cc(classes.sideContainer, {
+            [classes.sideContainerOpen]: store.isSearchDrawerOpen,
+            [classes.sideContainerClosed]: !store.isSearchDrawerOpen
+          })}>
+          <div className={cc(classes.toggleButton, classes.toggleButtonRight)}>
+            <IconButton onClick={store.toggleSearchDrawer}>
+              {store.isSearchDrawerOpen ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
+            </IconButton>
+          </div>
+
+          <Drawer
+            open={store.isSearchDrawerOpen}
+            anchor="left"
+            variant="permanent"
+            classes={{
+              paper: cc(classes.sideDrawerPaper, classes.searchDrawerPaper),
+              docked: classes.sideDrawerDocked
+            }}>
+            {store.isSearchDrawerOpen && (
+              <>
+                <Paper className={classes.paper}>
+                  <Search store={store.ui.searchStore} />
+                </Paper>
+
+                <Paper className={classes.paperNoPadding}>
+                  <WorkingHistory {...store.ui.workingHistoryStore.prepared} />
+                </Paper>
+
+                <Paper className={classes.paper}>
+                  <RefineryOptions store={store.ui.refineryOptionsStore} />
+                </Paper>
+              </>
+            )}
+          </Drawer>
         </div>
 
-        <ErrorBoundary className={classes.errorBoundary}>
-          <div className={classes.mainFrame}>
-            {/* Search container */}
-            <div
-              data-container-id="searchContainer"
-              onTransitionEnd={(event: any) => {
-                if (event.target.getAttribute('data-container-id') === 'searchContainer') {
-                  store.ui.graphViewStore.rerender();
-                }
-              }}
-              className={`${classes.searchContainer} ${
-                store.isSearchDrawerOpen ? classes.searchContainerOpen : classes.searchContainerClosed
-              }`}>
-              <div className={`${classes.toggleButton} ${classes.toggleButtonRight}`}>
-                <IconButton onClick={store.toggleSearchDrawer}>
-                  {store.isSearchDrawerOpen ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
-                </IconButton>
-              </div>
+        {/* Content */}
+        {store.hasContent ? (
+          <Content {...store.ui.contentStore.prepared} rootClass={classes.content} />
+        ) : (
+          <GraphEmpty />
+        )}
 
-              <Drawer
-                open={store.isSearchDrawerOpen}
-                anchor="left"
-                variant="permanent"
-                classes={{
-                  paper: classes.searchDrawerPaper,
-                  docked: classes.searchDrawerDocked
-                }}>
-                {store.isSearchDrawerOpen && (
-                  <>
-                    <Paper className={classes.paper}>
-                      <Search store={store.ui.searchStore} />
-                    </Paper>
-
-                    <Paper className={classes.paperNoPadding}>
-                      <WorkingHistory {...store.ui.workingHistoryStore.prepared} />
-                    </Paper>
-
-                    <Paper className={classes.paper}>
-                      <RefineryOptions store={store.ui.refineryOptionsStore} />
-                    </Paper>
-                  </>
-                )}
-              </Drawer>
-            </div>
-
-            {/* Content */}
-            {store.hasContent ? (
-              <Content {...store.ui.contentStore.prepared} rootClass={classes.content} />
-            ) : (
-              <GraphEmpty />
-            )}
-
-            {/* Details drawer */}
-            <div
-              data-container-id="detailsContainer"
-              onTransitionEnd={(event: any) => {
-                if (event.target.getAttribute('data-container-id') === 'detailsContainer') {
-                  store.ui.graphViewStore.rerender();
-                }
-              }}
-              className={`${classes.detailsContainer} ${
-                store.ui.detailsStore.isOpen ? classes.detailsContainerOpen : classes.detailsContainerClosed
-              }`}>
-              <div className={`${classes.toggleButton} ${classes.toggleButtonLeft}`}>
-                <IconButton onClick={store.ui.detailsStore.toggle}>
-                  {store.ui.detailsStore.isOpen ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
-                </IconButton>
-              </div>
-
-              <Drawer
-                open={store.ui.detailsStore.isOpen}
-                variant="permanent"
-                anchor="right"
-                classes={{
-                  paper: `${classes.detailsDrawerPaper} ${
-                    store.ui.detailsStore.isOpen ? classes.detailsDrawerPaperOpen : classes.detailsDrawerPaperClosed
-                  }`
-                }}>
-                <Details store={store.ui.detailsStore} />
-              </Drawer>
-            </div>
+        {/* Details drawer */}
+        <div
+          data-container-id="detailsContainer"
+          onTransitionEnd={(event: any) => {
+            if (event.target.getAttribute('data-container-id') === 'detailsContainer') {
+              store.ui.graphViewStore.rerender();
+            }
+          }}
+          className={cc(classes.sideContainer, {
+            [classes.sideContainerOpen]: store.ui.detailsStore.isOpen,
+            [classes.sideContainerClosed]: !store.ui.detailsStore.isOpen
+          })}>
+          <div className={cc(classes.toggleButton, classes.toggleButtonLeft)}>
+            <IconButton onClick={store.ui.detailsStore.toggle}>
+              {store.ui.detailsStore.isOpen ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
+            </IconButton>
           </div>
-        </ErrorBoundary>
-      </div>
 
-      <ErrorSnackbar {...store.errorSnackbar} />
-    </div>
+          <Drawer
+            open={store.ui.detailsStore.isOpen}
+            variant="permanent"
+            anchor="right"
+            classes={{
+              paper: classes.sideDrawerPaper,
+              docked: classes.sideDrawerDocked
+            }}>
+            {store.ui.detailsStore.isOpen && <Details store={store.ui.detailsStore} />}
+          </Drawer>
+        </div>
+      </div>
+    </Page>
   );
 };
 

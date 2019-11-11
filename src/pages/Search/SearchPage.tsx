@@ -1,7 +1,15 @@
 import React from 'react';
 
+import Page from '../Page';
+
 const SearchPage = () => {
-  return <div>SEARCH PAGE</div>;
+  const error = { error: null, onClose: () => {} };
+
+  return (
+    <Page errorSnackbar={error} isLoading={false}>
+      <div>SEARCH PAGE</div>
+    </Page>
+  );
 };
 
 export default SearchPage;

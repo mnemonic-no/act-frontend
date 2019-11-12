@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -10,7 +10,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { ActObject } from '../pages/types';
+import { ActObject } from '../core/types';
 import { objectTypeToColor, renderObjectValue } from '../util/util';
 
 export type ColumnKind = 'objectType' | 'objectValue';

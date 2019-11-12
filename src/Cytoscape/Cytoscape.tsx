@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core';
 import * as _ from 'lodash/fp';
+import { makeStyles } from '@material-ui/core/styles';
 import Cytoscape from 'cytoscape';
 // @ts-ignore
 import Klay from 'klayjs';
@@ -23,7 +23,7 @@ import betterGrid from './betterGrid';
 import { usePrevious } from '../hooks';
 import { createBatcherFn, modifierKeysUsed, setSymmetricDifference } from '../util/util';
 import Toolbar from './Toolbar';
-import CytoscapeLayoutStore from '../pages/CytoscapeLayout/CytoscapeLayoutStore';
+import CytoscapeLayoutStore from '../pages/Main/CytoscapeLayout/CytoscapeLayoutStore';
 
 Cytoscape.use(CytoscapeDagre);
 CytoscapeCoseBilkent(Cytoscape);

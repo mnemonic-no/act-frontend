@@ -1,9 +1,11 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles, TableCell, TableRow, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
 
 import { objectTypeToColor, renderObjectValue } from '../../util/util';
-import { ActObject } from '../../pages/types';
+import { ActObject } from '../../core/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   cell: {

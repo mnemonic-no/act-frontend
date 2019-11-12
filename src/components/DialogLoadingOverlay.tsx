@@ -1,5 +1,6 @@
 import React from 'react';
-import { LinearProgress, makeStyles, Theme } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const useStyles = makeStyles((theme: Theme) => ({
   loadingOverlay: {

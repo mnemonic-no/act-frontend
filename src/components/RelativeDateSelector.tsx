@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import { compose, withState, withProps, branch } from 'recompose';
-import Typography from '@material-ui/core/Typography';
+import { Theme, makeStyles } from '@material-ui/core/styles';
 import Popover from '@material-ui/core/Popover';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
+import CheckIcon from '@material-ui/icons/Check';
+import DayPicker from 'react-day-picker';
+import Dialog from '@material-ui/core/Dialog';
+import Divider from '@material-ui/core/Divider';
+import formatDate from 'date-fns/format';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import CheckIcon from '@material-ui/icons/Check';
-import Divider from '@material-ui/core/Divider';
-import Dialog from '@material-ui/core/Dialog';
 import subHours from 'date-fns/subHours';
 import subWeeks from 'date-fns/subWeeks';
 import subMonths from 'date-fns/subMonths';
-import formatDate from 'date-fns/format';
-import DayPicker from 'react-day-picker';
-import { Theme, makeStyles } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
 import 'react-day-picker/lib/style.css';
 
 const RELATIVE_OPTIONS = ['Any time', 'Hour ago', '24 hours ago', 'Week ago', 'Month ago'];

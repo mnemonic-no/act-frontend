@@ -1,23 +1,20 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Fab,
-  makeStyles,
-  TextField,
-  Theme,
-  Typography
-} from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 
 import DialogStore, { FormUniDirectional } from './DialogStore';
 import DialogLoadingOverlay from '../DialogLoadingOverlay';
 import DialogError from '../DialogError';
-import { ActObject, NamedId } from '../../pages/types';
+import { ActObject, NamedId } from '../../core/types';
 import ObjectValueAutosuggest from '../ObjectValueAutosuggest';
 import AccessModeSelector from '../AccessModeSelector';
 

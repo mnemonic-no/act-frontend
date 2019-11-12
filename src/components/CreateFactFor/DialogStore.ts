@@ -1,7 +1,7 @@
 import * as _ from 'lodash/fp';
 import { action, computed, observable, runInAction } from 'mobx';
 
-import { ActObject, FactType, NamedId } from '../../pages/types';
+import { ActObject, FactType, NamedId } from '../../core/types';
 import { createFact, factTypesDataLoader } from '../../core/dataLoaders';
 import {
   factMapToObjectMap,
@@ -11,7 +11,7 @@ import {
   validUnidirectionalFactTargetObjectTypes
 } from '../../core/domain';
 import { addMessage } from '../../util/SnackbarProvider';
-import WorkingHistory from '../../pages/WorkingHistory';
+import WorkingHistory from '../../pages/Main/WorkingHistory';
 
 type FactTypeCategory = 'oneLegged' | 'uniDirectional' | 'biDirectional' | null;
 

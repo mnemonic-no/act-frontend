@@ -1,11 +1,4 @@
-import {
-  ActFact,
-  ActObject,
-  ContextAction,
-  ContextActionTemplate,
-  FactType,
-  PredefinedObjectQuery
-} from '../pages/types';
+import { ActFact, ActObject, ContextAction, ContextActionTemplate, FactType, PredefinedObjectQuery } from './types';
 import { notUndefined, replaceAll, replaceAllInObject } from '../util/util';
 
 export function isRetracted(fact: ActFact) {

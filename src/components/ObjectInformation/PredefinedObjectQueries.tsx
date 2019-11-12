@@ -1,6 +1,10 @@
 import React from 'react';
-import { Grid, Button, Typography, Tooltip } from '@material-ui/core';
-import { PredefinedObjectQuery } from '../../pages/types';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
+
+import { PredefinedObjectQuery } from '../../core/types';
 
 const PredefinedObjectQueriesComp = ({ predefinedObjectQueries, onClick }: IPredefinedObjectQueriesComp) => {
   if (predefinedObjectQueries.length === 0) return null;

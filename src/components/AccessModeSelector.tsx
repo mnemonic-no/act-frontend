@@ -1,6 +1,8 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { makeStyles, MenuItem, TextField } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import LockIcon from '@material-ui/icons/Lock';
 import GroupIcon from '@material-ui/icons/Group';

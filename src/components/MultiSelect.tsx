@@ -1,15 +1,14 @@
-import {
-  Checkbox,
-  Chip,
-  FormControl,
-  FormControlLabel,
-  Input,
-  ListItemText,
-  makeStyles,
-  MenuItem,
-  Select
-} from '@material-ui/core';
 import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+
+import Checkbox from '@material-ui/core/Checkbox';
+import Chip from '@material-ui/core/Chip';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Input from '@material-ui/core/Input';
+import ListItemText from '@material-ui/core/ListItemText';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 const useStyles = makeStyles(() => ({
   root: {

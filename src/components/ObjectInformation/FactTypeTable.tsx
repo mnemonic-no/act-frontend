@@ -1,7 +1,13 @@
 import React from 'react';
-import { makeStyles, Table, TableBody, TableCell, TableRow, Theme, Tooltip } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
+import Tooltip from '@material-ui/core/Tooltip';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
-import { ActFact, ActObject, Search } from '../../pages/types';
+
+import { ActFact, ActObject, Search } from '../../core/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -3,7 +3,7 @@ import * as _ from 'lodash/fp';
 import config from '../config';
 import actWretch from '../util/actWretch';
 import { factMapToObjectMap } from './domain';
-import { ActFact, ActObject, FactType, ObjectFactsSearch, ObjectStats } from '../pages/types';
+import { ActFact, ActObject, FactType, ObjectFactsSearch, ObjectStats } from './types';
 import memoizeDataLoader from '../util/memoizeDataLoader';
 import { arrayToObjectWithIds } from '../util/util';
 

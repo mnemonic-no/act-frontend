@@ -1,7 +1,8 @@
 import React from 'react';
 import ErrorIcon from '@material-ui/icons/Error';
+import { createStyles, withStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import { createStyles, Typography, withStyles, Theme } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
 
 type ErrorBoundaryProps = {
   className: string;

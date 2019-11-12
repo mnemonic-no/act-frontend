@@ -1,5 +1,6 @@
 import config from './config';
 import MainPageStore from './pages/Main/MainPageStore';
+import SearchPageStore from './pages/Search/SearchPageStore';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -20,10 +21,16 @@ const locationDefinitions = (routeDefinitions: any) => {
 
 class AppStore {
   mainPageStore: MainPageStore;
+  searchPageStore: SearchPageStore;
   currentPage: 'mainPage' | 'searchPage' = 'mainPage';
 
   constructor() {
     this.mainPageStore = new MainPageStore(config);
+    this.searchPageStore = new SearchPageStore(
+      this,
+      config,
+      this.mainPageStore.backendStore.autoCompleteSimpleSearchBackendStore
+    );
   }
 
   initByUrl(location: Location): void {

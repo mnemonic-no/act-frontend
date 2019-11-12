@@ -55,7 +55,10 @@ it('can remove subset from selection', () => {
     c: { id: 'c', kind: 'fact' }
   });
 
-  store.removeAllFromSelection([{ id: 'b', kind: 'fact' }, { id: 'c', kind: 'fact' }]);
+  store.removeAllFromSelection([
+    { id: 'b', kind: 'fact' },
+    { id: 'c', kind: 'fact' }
+  ]);
 
   expect(store.currentlySelected).toEqual({
     a: { id: 'a', kind: 'object' }

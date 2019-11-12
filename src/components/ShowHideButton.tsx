@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ArrowIcon = ({ attachedTo, isOpen }: any) => {
+const ArrowIcon = ({ attachedTo, isOpen }: Pick<IShowHideButton, 'attachedTo' | 'isOpen'>) => {
   if (attachedTo === 'left' && isOpen) {
     return <KeyboardArrowRightIcon />;
   }

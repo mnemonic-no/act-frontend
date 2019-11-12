@@ -56,7 +56,6 @@ const useStyles = makeStyles((theme: Theme) => {
     searchDrawerPaper: {
       backgroundColor: '#FAFAFA'
     },
-
     content: {
       position: 'relative',
       overflow: 'hidden',
@@ -64,27 +63,6 @@ const useStyles = makeStyles((theme: Theme) => {
 
       display: 'flex',
       flexDirection: 'column'
-    },
-
-    sideDrawerPaper: {
-      position: 'relative'
-    },
-    sideDrawerDocked: {
-      overflowY: 'auto',
-      maxWidth: drawerWidth + 'px',
-      height: '100%'
-    },
-
-    paper: {
-      padding: theme.spacing(1.5),
-      marginLeft: theme.spacing(1.5),
-      marginRight: theme.spacing(1.5),
-      marginTop: theme.spacing(1.5)
-    },
-    paperNoPadding: {
-      marginLeft: theme.spacing(1.5),
-      marginRight: theme.spacing(1.5),
-      marginTop: theme.spacing(1.5)
     },
     toggleButton: {
       background: theme.palette.common.white,
@@ -110,8 +88,32 @@ const useStyles = makeStyles((theme: Theme) => {
   };
 });
 
+const useDrawerStyles = makeStyles((theme: Theme) => ({
+  paper: {
+    position: 'relative'
+  },
+  docked: {
+    overflowY: 'auto',
+    maxWidth: drawerWidth + 'px',
+    height: '100%'
+  }
+}));
+
+const useSearchStyles = makeStyles((theme: Theme) => ({
+  padding: {
+    padding: theme.spacing(1.5)
+  },
+  paper: {
+    marginLeft: theme.spacing(1.5),
+    marginRight: theme.spacing(1.5),
+    marginTop: theme.spacing(1.5)
+  }
+}));
+
 const MainPage = ({ store }: { store: MainPageStore }) => {
   const classes = useStyles();
+  const drawerClasses = useDrawerStyles();
+  const searchClasses = useSearchStyles();
 
   return (
     <Page errorSnackbar={store.errorSnackbar} isLoading={store.backendStore.isLoading}>
@@ -139,20 +141,18 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
             anchor="left"
             variant="permanent"
             classes={{
-              paper: cc(classes.sideDrawerPaper, classes.searchDrawerPaper),
-              docked: classes.sideDrawerDocked
+              paper: cc(drawerClasses.paper, classes.searchDrawerPaper),
+              docked: drawerClasses.docked
             }}>
             {store.isSearchDrawerOpen && (
               <>
-                <Paper className={classes.paper}>
+                <Paper className={cc(searchClasses.paper, searchClasses.padding)}>
                   <Search store={store.ui.searchStore} />
                 </Paper>
-
-                <Paper className={classes.paperNoPadding}>
+                <Paper className={searchClasses.paper}>
                   <WorkingHistory {...store.ui.workingHistoryStore.prepared} />
                 </Paper>
-
-                <Paper className={classes.paper}>
+                <Paper className={cc(searchClasses.paper, searchClasses.padding)}>
                   <RefineryOptions store={store.ui.refineryOptionsStore} />
                 </Paper>
               </>
@@ -190,8 +190,8 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
             variant="permanent"
             anchor="right"
             classes={{
-              paper: classes.sideDrawerPaper,
-              docked: classes.sideDrawerDocked
+              paper: drawerClasses.paper,
+              docked: drawerClasses.docked
             }}>
             {store.ui.detailsStore.isOpen && <Details store={store.ui.detailsStore} />}
           </Drawer>

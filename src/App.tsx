@@ -63,7 +63,7 @@ const App = () => (
     <MuiThemeProvider theme={actTheme}>
       <SnackbarProvider />
       {store.currentPage === 'mainPage' && <MainPage store={store.mainPageStore} />}
-      {store.currentPage === 'searchPage' && <SearchPage />}
+      {store.currentPage === 'searchPage' && <SearchPage store={store.searchPageStore} />}
     </MuiThemeProvider>
   </>
 );

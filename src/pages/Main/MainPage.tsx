@@ -3,9 +3,6 @@ import { observer } from 'mobx-react';
 import cc from 'clsx';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-import IconButton from '@material-ui/core/IconButton';
-import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import Paper from '@material-ui/core/Paper';
 
 import Content from './Content/Content';
@@ -15,6 +12,7 @@ import MainPageStore from './MainPageStore';
 import Page from '../Page';
 import RefineryOptions from './RefineryOptions/RefineryOptions';
 import Search from './Search/Search';
+import ShowHideButton from '../../components/ShowHideButton';
 import WorkingHistory from './WorkingHistory/WorkingHistory';
 
 const drawerWidth = 380;
@@ -63,27 +61,6 @@ const useStyles = makeStyles((theme: Theme) => {
 
       display: 'flex',
       flexDirection: 'column'
-    },
-    toggleButton: {
-      background: theme.palette.common.white,
-      borderColor: theme.palette.divider,
-      borderStyle: 'solid',
-      position: 'absolute',
-      zIndex: 99999
-    },
-    toggleButtonRight: {
-      borderTopRightRadius: '10px',
-      borderBottomRightRadius: '10px',
-      borderWidth: '1px 1px 1px 0',
-      top: 56,
-      right: '-48px'
-    },
-    toggleButtonLeft: {
-      borderTopLeftRadius: '10px',
-      borderBottomLeftRadius: '10px',
-      borderWidth: '1px 0 1px 1px',
-      top: 4,
-      left: '-48px'
     }
   };
 });
@@ -130,12 +107,12 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
             [classes.sideContainerOpen]: store.isSearchDrawerOpen,
             [classes.sideContainerClosed]: !store.isSearchDrawerOpen
           })}>
-          <div className={cc(classes.toggleButton, classes.toggleButtonRight)}>
-            <IconButton onClick={store.toggleSearchDrawer}>
-              {store.isSearchDrawerOpen ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
-            </IconButton>
-          </div>
-
+          <ShowHideButton
+            isOpen={store.isSearchDrawerOpen}
+            onClick={store.toggleSearchDrawer}
+            attachedTo={'right'}
+            placement={{ top: 56, right: '-48px' }}
+          />
           <Drawer
             open={store.isSearchDrawerOpen}
             anchor="left"
@@ -179,11 +156,12 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
             [classes.sideContainerOpen]: store.ui.detailsStore.isOpen,
             [classes.sideContainerClosed]: !store.ui.detailsStore.isOpen
           })}>
-          <div className={cc(classes.toggleButton, classes.toggleButtonLeft)}>
-            <IconButton onClick={store.ui.detailsStore.toggle}>
-              {store.ui.detailsStore.isOpen ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
-            </IconButton>
-          </div>
+          <ShowHideButton
+            isOpen={store.ui.detailsStore.isOpen}
+            onClick={store.ui.detailsStore.toggle}
+            attachedTo={'left'}
+            placement={{ top: 4, left: '-48px' }}
+          />
 
           <Drawer
             open={store.ui.detailsStore.isOpen}

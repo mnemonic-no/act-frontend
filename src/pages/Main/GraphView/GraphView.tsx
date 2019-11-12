@@ -2,14 +2,12 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import Typography from '@material-ui/core/Typography';
 import WarnIcon from '@material-ui/icons/Warning';
 
 import CytoscapeComp from '../../../Cytoscape/Cytoscape';
 import GraphViewStore from './GraphViewStore';
+import ShowHideButton from '../../../components/ShowHideButton';
 import Timeline from '../../../components/Timeline/Timeline';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -27,17 +25,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
   warningButton: {
     paddingTop: '20px'
-  },
-  toggleButton: {
-    background: theme.palette.common.white,
-    borderColor: theme.palette.divider,
-    borderStyle: 'solid',
-    position: 'absolute',
-    bottom: '-1px',
-    left: '10px',
-    borderTopLeftRadius: '10px',
-    borderTopRightRadius: '10px',
-    borderWidth: '1px 1px 0 1px'
   }
 }));
 
@@ -65,11 +52,13 @@ const GraphView = ({ store }: IGraphView) => {
         ) : (
           <RenderWarning classes={classes} onClick={() => store.acceptRenderWarningOnClick()} />
         )}
-        <div className={classes.toggleButton}>
-          <IconButton onClick={store.toggleShowTimeline}>
-            {store.showTimeline ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
-          </IconButton>
-        </div>
+
+        <ShowHideButton
+          onClick={store.toggleShowTimeline}
+          attachedTo={'bottom'}
+          placement={{ bottom: '-1px', left: '10px' }}
+          isOpen={store.showTimeline}
+        />
       </div>
       {store.showTimeline && (
         <div className={classes.timeline}>

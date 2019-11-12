@@ -36,6 +36,7 @@ const useItemStyles = makeStyles((theme: Theme) => ({
   activeItem: {
     borderLeft: `2px solid ${theme.palette.primary.main}`
   },
+  item: {},
   actionButton: {
     opacity: 0,
     '$item:hover &': {
@@ -73,7 +74,7 @@ const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
     <ListItem
       classes={{
         root: classes.listItem,
-        container: cc({ [classes.activeItem]: item.isSelected })
+        container: cc(classes.item, { [classes.activeItem]: item.isSelected })
       }}
       button
       disableGutters
@@ -83,8 +84,10 @@ const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
       <ListItemText
         classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
         secondaryTypographyProps={{ component: 'div' }}
-        primary={item.title.map(t => (
-          <span style={{ color: t.color || 'currentColor' }}>{t.text}</span>
+        primary={item.title.map((t, idx) => (
+          <span key={idx} style={{ color: t.color || 'currentColor' }}>
+            {t.text}
+          </span>
         ))}
         secondary={
           item.details && (
@@ -134,7 +137,7 @@ const WorkingHistory = (props: IWorkingHistory) => {
           <Divider />
           <List dense>
             {props.historyItems.map(item => (
-              <WorkingHistoryItem {...item} />
+              <WorkingHistoryItem key={item.id} {...item} />
             ))}
           </List>
           <Divider />

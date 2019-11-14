@@ -5,6 +5,7 @@ import SnackbarProvider from './util/SnackbarProvider';
 import AppStore from './AppStore';
 import MainPage from './pages/Main/MainPage';
 import SearchPage from './pages/Search/SearchPage';
+import { observer } from 'mobx-react';
 
 const Black = {
   50: '#9e9e9e',
@@ -68,4 +69,4 @@ const App = () => (
   </>
 );
 
-export default App;
+export default observer(App);

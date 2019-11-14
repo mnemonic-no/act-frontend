@@ -1,4 +1,7 @@
-import { makeStyles, Theme } from '@material-ui/core';
+import React from 'react';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import { observer } from 'mobx-react';
+
 import AppBar from '@material-ui/core/AppBar/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
@@ -6,7 +9,6 @@ import AboutButton from '../components/About';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ErrorSnackbar, { IErrorSnackbarComp } from '../components/ErrorSnackbar';
-import React from 'react';
 
 const useStyles = makeStyles((theme: Theme) => {
   const appBarHeight = theme.spacing(8);
@@ -88,4 +90,4 @@ export interface IPageComp {
   isLoading: boolean;
 }
 
-export default PageComp;
+export default observer(PageComp);

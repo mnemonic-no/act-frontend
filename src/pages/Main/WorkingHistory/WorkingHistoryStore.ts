@@ -213,7 +213,11 @@ class WorkingHistoryStore {
           title: itemTitle(item.search),
           isSelected: item.id === this.selectedItemId,
           details: itemDetails(item, this.predefinedQueryToName),
-          actions: itemActions(item, () => this.removeItem(item), () => copy(item)),
+          actions: itemActions(
+            item,
+            () => this.removeItem(item),
+            () => copy(item)
+          ),
           onClick: () => this.setSelectedSearchItem(item)
         };
       });

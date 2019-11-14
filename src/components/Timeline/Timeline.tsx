@@ -278,14 +278,20 @@ const drawHistogram = (
     .on(
       'mouseover',
       mouseOver(
-        [{ selector: '.bin', opacity: 0.6 }, { selector: '.mouseCatcher', opacity: 0.4 }],
+        [
+          { selector: '.bin', opacity: 0.6 },
+          { selector: '.mouseCatcher', opacity: 0.4 }
+        ],
         container.select('.tooltip')
       )
     )
     .on(
       'mouseleave',
       mouseLeave(
-        [{ selector: '.bin', opacity: 1 }, { selector: '.mouseCatcher', opacity: 0 }],
+        [
+          { selector: '.bin', opacity: 1 },
+          { selector: '.mouseCatcher', opacity: 0 }
+        ],
         container.select('.tooltip')
       )
     )
@@ -337,9 +343,12 @@ const drawScatterPlot = (
     .select('.scatterplot')
     .select('.highlighted')
     .selectAll('g')
-    .data(scatterPlot.filter(x => x.isHighlighted), (d: any) => {
-      return d && d.id;
-    });
+    .data(
+      scatterPlot.filter(x => x.isHighlighted),
+      (d: any) => {
+        return d && d.id;
+      }
+    );
 
   highlighted.exit().remove();
 
@@ -366,7 +375,10 @@ const drawScatterPlot = (
     .select('.scatterplot')
     .select('.non-highlighted')
     .selectAll('circle')
-    .data(scatterPlot.filter(x => !x.isHighlighted), (d: any) => d.id);
+    .data(
+      scatterPlot.filter(x => !x.isHighlighted),
+      (d: any) => d.id
+    );
 
   nonHighlighted.exit().remove();
 

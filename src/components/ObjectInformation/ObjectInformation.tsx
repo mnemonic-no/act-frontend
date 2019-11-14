@@ -2,7 +2,6 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { compose } from 'recompose';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { darken, lighten } from '@material-ui/core/styles/colorManipulator';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
@@ -15,11 +14,12 @@ import { ObjectDetails } from '../../pages/Main/Details/DetailsStore';
 import PredefinedObjectQueries from './PredefinedObjectQueries';
 import ContextActions from './ContextActions';
 import { factDataLoader, factTypesDataLoader, objectStatsDataLoader } from '../../core/dataLoaders';
-import { getObjectLabelFromFact, isOneLeggedFactType, objectValueText } from '../../core/domain';
+import { getObjectLabelFromFact, isOneLeggedFactType } from '../../core/domain';
 import { ActFact, ActObject, FactType, PredefinedObjectQuery, Search } from '../../core/types';
 import FactTypeTable from './FactTypeTable';
 import CreateFactForObjectDialog from '../CreateFactFor/Dialog';
 import CreateFactForDialog from '../CreateFactFor/DialogStore';
+import ObjectTitle from '../../components/ObjectTitle';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -34,9 +34,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     flex: '0 1 auto',
     minHeight: '200px'
   },
-  objectValueLabel: {
-    wordBreak: 'break-word'
-  },
   contextActions: {
     paddingTop: theme.spacing(2)
   },
@@ -50,31 +47,19 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingBottom: theme.spacing(),
     display: 'flex',
     justifyContent: 'space-between'
-  },
-  link: {
-    cursor: 'pointer',
-    color: theme.palette.text.primary,
-    '&:hover': {
-      color: lighten(theme.palette.text.primary, 0.2)
-    },
-    transition: theme.transitions.create('color', {
-      duration: theme.transitions.duration.shortest
-    })
-  },
-
-  ...Object.keys(config.objectColors)
-    .map(name => ({
-      [name]: {
-        // @ts-ignore
-        color: config.objectColors[name],
-        '&:hover': {
-          // @ts-ignore
-          color: darken(config.objectColors[name], 0.2)
-        }
-      }
-    }))
-    .reduce((acc, x) => Object.assign({}, acc, x), {})
+  }
 }));
+
+const objectTitle = (actObject: ActObject, oneLeggedFacts: Array<ActFact>) => {
+  const labelFromFact = getObjectLabelFromFact(actObject, config.objectLabelFromFactType, oneLeggedFacts);
+
+  return {
+    title: labelFromFact || actObject.value,
+    metaTitle: labelFromFact && actObject.value,
+    subTitle: actObject.type.name,
+    color: objectTypeToColor(actObject.type.name)
+  };
+};
 
 const ObjectInformationComp = ({
   selectedObject,
@@ -95,33 +80,15 @@ const ObjectInformationComp = ({
     return null;
   }
 
-  const labelFromFact = getObjectLabelFromFact(selectedObject, config.objectLabelFromFactType, oneLeggedFacts);
   const totalFacts = selectedObject.statistics
     ? selectedObject.statistics.reduce((acc: any, x: any) => x.count + acc, 0)
     : 0;
-  const objectColor = objectTypeToColor(selectedObject.type.name);
 
   // @ts-ignore
-  const selectedObjectClass = classes[selectedObject.type.name];
 
   return (
     <div className={classes.root}>
-      <div onClick={() => onTitleClick()}>
-        <Typography variant="h6" className={`${classes.link} ${selectedObjectClass} ${classes.objectValueLabel}`}>
-          <div>{labelFromFact ? labelFromFact : objectValueText(selectedObject)}</div>
-        </Typography>
-      </div>
-      {labelFromFact && (
-        <Typography variant="caption">
-          <div className={classes.objectValueLabel} style={{ color: objectColor }}>
-            {objectValueText(selectedObject)}
-          </div>
-        </Typography>
-      )}
-
-      <Typography variant="subtitle1" gutterBottom>
-        <span style={{ color: objectColor }}>{selectedObject.type.name}</span>
-      </Typography>
+      <ObjectTitle {...objectTitle(selectedObject, oneLeggedFacts)} onTitleClick={onTitleClick} />
 
       <div className={classes.info}>
         <Typography variant="body1" gutterBottom>

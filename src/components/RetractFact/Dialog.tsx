@@ -43,7 +43,4 @@ decorate(RetractFactStore, {
 const Singleton = new RetractFactStore();
 
 export const { retractFact } = Singleton;
-export default compose(
-  withProps({ state: Singleton }),
-  observer
-)(RetractFactDialog);
+export default compose(withProps({ state: Singleton }), observer)(RetractFactDialog);

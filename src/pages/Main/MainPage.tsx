@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) => {
       transition: leaveTransition
     },
     searchDrawerPaper: {
-      backgroundColor: '#FAFAFA'
+      backgroundColor: theme.palette.grey['100']
     },
     content: {
       position: 'relative',

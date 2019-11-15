@@ -1,6 +1,7 @@
 import config from './config';
 import MainPageStore from './pages/Main/MainPageStore';
 import SearchPageStore from './pages/Search/SearchPageStore';
+import { action, observable } from 'mobx';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -19,16 +20,19 @@ const locationDefinitions = (routeDefinitions: any) => {
   };
 };
 
+export type TPage = 'mainPage' | 'searchPage';
+
 class AppStore {
   mainPageStore: MainPageStore;
   searchPageStore: SearchPageStore;
-  currentPage: 'mainPage' | 'searchPage' = 'mainPage';
+  @observable currentPage: TPage = 'mainPage';
 
   constructor() {
     this.mainPageStore = new MainPageStore(config);
     this.searchPageStore = new SearchPageStore(
       this,
       config,
+      this.mainPageStore.backendStore.simpleSearchBackendStore,
       this.mainPageStore.backendStore.autoCompleteSimpleSearchBackendStore
     );
   }
@@ -61,6 +65,11 @@ class AppStore {
     });
 
     locationMatcher(location);
+  }
+
+  @action.bound
+  navigateTo(page: TPage) {
+    this.currentPage = page;
   }
 }
 

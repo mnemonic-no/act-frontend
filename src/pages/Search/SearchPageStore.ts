@@ -1,21 +1,44 @@
 import { action, computed, observable } from 'mobx';
+
 import { byTypeThenName } from '../../util/util';
 import { getObjectLabelFromFact } from '../../core/domain';
 import config from '../../config';
 import AppStore from '../../AppStore';
+import ResultsStore from './Results/ResultsStore';
 import SimpleSearchBackendStore from '../Main/SimpleSearchBackendStore';
+import DetailsStore from './Details/DetailsStore';
 
 class SearchPageStore {
   root: AppStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
+  autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
+
   @observable simpleSearchInputValue = '';
   @observable activeSearchString = '';
   suggestionLimit: number;
 
-  constructor(root: AppStore, config: any, simpleSearchBackendStore: SimpleSearchBackendStore) {
+  ui: {
+    resultsStore: ResultsStore;
+    detailsStore: DetailsStore;
+  };
+
+  constructor(
+    root: AppStore,
+    config: any,
+    simpleSearchBackendStore: SimpleSearchBackendStore,
+    autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore
+  ) {
     this.root = root;
     this.simpleSearchBackendStore = simpleSearchBackendStore;
+    this.autoCompleteSimpleSearchBackendStore = autoCompleteSimpleSearchBackendStore;
     this.suggestionLimit = simpleSearchBackendStore.resultLimit;
+
+    const resultsStore = new ResultsStore(this, simpleSearchBackendStore);
+
+    this.ui = {
+      resultsStore: resultsStore,
+      detailsStore: new DetailsStore(root, resultsStore, config.objectLabelFromFactType)
+    };
   }
 
   @action.bound
@@ -28,21 +51,24 @@ class SearchPageStore {
     this.simpleSearchInputValue = value ? value : '';
 
     if (this.simpleSearchInputValue.length >= 3) {
-      this.simpleSearchBackendStore.execute(value);
+      this.root.mainPageStore.backendStore.autoCompleteSimpleSearchBackendStore.execute(value);
     }
   }
 
   @action.bound
-  onSearchSubmit() {
-    this.activeSearchString = this.simpleSearchInputValue;
-    this.simpleSearchBackendStore.execute(this.simpleSearchInputValue);
+  onSearchSubmit(searchString: string) {
+    this.activeSearchString = searchString;
+    this.root.mainPageStore.backendStore.executeSimpleSearch(searchString);
+    this.simpleSearchInputValue = '';
   }
 
   @computed
   get prepared() {
-    const simpleSearch = this.simpleSearchBackendStore.getSimpleSearch(this.simpleSearchInputValue);
+    const simpleSearch = this.autoCompleteSimpleSearchBackendStore.getSimpleSearch(this.simpleSearchInputValue);
 
     const autoSuggester = {
+      label: 'Search for objects',
+      value: this.simpleSearchInputValue,
       isLoading: simpleSearch && simpleSearch.status === 'pending',
       suggestions:
         simpleSearch && simpleSearch.objects
@@ -59,21 +85,27 @@ class SearchPageStore {
           : [],
       onChange: this.onSimpleSearchInputChange,
       onSuggestionSelected: (s: any) => {
-        this.root.mainPageStore.backendStore.executeSearch({
-          objectType: s.actObject.type.name,
-          objectValue: s.actObject.value
-        });
-      },
-      value: this.simpleSearchInputValue,
-      label: 'Search for objects'
+        this.onSearchSubmit(`"${s.objectLabel}"`);
+      }
     };
 
     const hasActiveSearch = this.simpleSearchBackendStore.getSimpleSearch(this.activeSearchString);
 
+    const historyItems = this.simpleSearchBackendStore.searchList
+      .map(s => ({
+        label: s.searchString,
+        labelSecondary: s.objects ? `(${s.objects.length})` : '',
+        onClick: () => {
+          this.setActiveSearchString(s.searchString);
+        }
+      }))
+      .sort((a: { label: string }, b: { label: string }) => (a.label > b.label ? 1 : -1));
+
     return {
       hasActiveSearch: hasActiveSearch,
       searchInput: autoSuggester,
-      onSearch: this.onSearchSubmit,
+      searchHistoryItems: historyItems,
+      onSearch: () => this.onSearchSubmit(this.simpleSearchInputValue),
       onClear: () => (this.simpleSearchInputValue = '')
     };
   }

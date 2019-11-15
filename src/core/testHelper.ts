@@ -1,4 +1,5 @@
 import { ActFact, ActObject, FactType } from './types';
+import { SimpleSearch } from '../pages/Main/SimpleSearchBackendStore';
 
 export const objectTypes = {
   incident: { id: 'incidentId', name: 'incident' },
@@ -50,6 +51,22 @@ export const factType = (args: { [key: string]: any }): FactType => {
     namespace: { id: '123', name: 'global' },
     validator: 'RegexValidator',
     validatorParameter: '(.|\n)*'
+  };
+
+  return {
+    ...defaults,
+    ...args
+  };
+};
+
+export const simpleSearch = (args: { [key: string]: any }): SimpleSearch => {
+  const defaults: SimpleSearch = {
+    id: 'x',
+    searchString: '',
+    objectTypeFilter: [],
+    status: 'done',
+    objects: [],
+    facts: []
   };
 
   return {

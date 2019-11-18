@@ -24,8 +24,7 @@ class ContentStore {
       graphViewStore: this.root.ui.graphViewStore,
       factsTableStore: this.root.ui.factsTableStore,
       objectsTableStore: this.root.ui.objectsTableStore,
-      prunedObjectsTableStore: this.root.ui.prunedObjectsTableStore,
-      searchesStore: this.root.ui.searchesStore
+      prunedObjectsTableStore: this.root.ui.prunedObjectsTableStore
     };
   }
 }

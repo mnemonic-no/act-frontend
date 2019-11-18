@@ -102,6 +102,7 @@ class SearchPageStore {
       .sort((a: { label: string }, b: { label: string }) => (a.label > b.label ? 1 : -1));
 
     return {
+      pageMenu: this.root.pageMenu,
       hasActiveSearch: hasActiveSearch,
       searchInput: autoSuggester,
       searchHistoryItems: historyItems,

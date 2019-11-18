@@ -11,11 +11,11 @@ import GraphEmpty from './GraphView/GraphEmpty';
 import MainPageStore from './MainPageStore';
 import Page from '../Page';
 import RefineryOptions from './RefineryOptions/RefineryOptions';
-import Search from './Search/Search';
 import ShowHideButton from '../../components/ShowHideButton';
 import WorkingHistory from './WorkingHistory/WorkingHistory';
+import SearchByObjectType from './Search/SearchByObjectType';
 
-const drawerWidth = 380;
+const drawerWidth = 360;
 
 const useStyles = makeStyles((theme: Theme) => {
   const enterTransition = theme.transitions.create(['all'], {
@@ -31,7 +31,6 @@ const useStyles = makeStyles((theme: Theme) => {
   return {
     mainFrame: {
       display: 'flex',
-      width: '100%',
       height: '100%',
       position: 'relative'
     },
@@ -57,7 +56,7 @@ const useStyles = makeStyles((theme: Theme) => {
     content: {
       position: 'relative',
       overflow: 'hidden',
-      flex: '1 0 300px',
+      flex: '1 1 100px',
 
       display: 'flex',
       flexDirection: 'column'
@@ -68,6 +67,9 @@ const useStyles = makeStyles((theme: Theme) => {
 const useDrawerStyles = makeStyles((theme: Theme) => ({
   paper: {
     position: 'relative'
+  },
+  closed: {
+    border: 0
   },
   docked: {
     overflowY: 'auto',
@@ -81,9 +83,9 @@ const useSearchStyles = makeStyles((theme: Theme) => ({
     padding: theme.spacing(1.5)
   },
   paper: {
-    marginLeft: theme.spacing(1.5),
-    marginRight: theme.spacing(1.5),
-    marginTop: theme.spacing(1.5)
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    marginTop: theme.spacing(1)
   }
 }));
 
@@ -93,7 +95,7 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
   const searchClasses = useSearchStyles();
 
   return (
-    <Page errorSnackbar={store.errorSnackbar} isLoading={store.backendStore.isLoading}>
+    <Page errorSnackbar={store.errorSnackbar} isLoading={store.backendStore.isLoading} leftMenuItems={store.pageMenu}>
       <div className={classes.mainFrame}>
         {/* Search container */}
         <div
@@ -111,20 +113,22 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
             isOpen={store.isSearchDrawerOpen}
             onClick={store.toggleSearchDrawer}
             attachedTo={'right'}
-            placement={{ top: 56, right: '-48px' }}
+            placement={{ top: 52, right: '-48px' }}
           />
           <Drawer
             open={store.isSearchDrawerOpen}
             anchor="left"
             variant="permanent"
             classes={{
-              paper: cc(drawerClasses.paper, classes.searchDrawerPaper),
+              paper: cc(drawerClasses.paper, classes.searchDrawerPaper, {
+                [drawerClasses.closed]: !store.isSearchDrawerOpen
+              }),
               docked: drawerClasses.docked
             }}>
             {store.isSearchDrawerOpen && (
               <>
                 <Paper className={cc(searchClasses.paper, searchClasses.padding)}>
-                  <Search store={store.ui.searchStore} />
+                  <SearchByObjectType store={store.ui.searchStore} />
                 </Paper>
                 <Paper className={searchClasses.paper}>
                   <WorkingHistory {...store.ui.workingHistoryStore.prepared} />

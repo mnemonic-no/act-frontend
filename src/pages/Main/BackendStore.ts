@@ -29,8 +29,6 @@ class BackendStore {
   @action
   async executeSimpleSearch(query: string) {
     this.simpleSearchBackendStore.execute(query);
-    this.root.ui.searchesStore.setActiveSearchString(query);
-    this.root.ui.contentStore.onTabSelected('searches');
   }
 
   @action

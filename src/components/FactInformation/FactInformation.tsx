@@ -24,7 +24,7 @@ import { pluralize } from '../../util/util';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
     paddingBottom: 0,
     height: `calc(100% - ${theme.spacing(3)}px)`,
     display: 'flex',

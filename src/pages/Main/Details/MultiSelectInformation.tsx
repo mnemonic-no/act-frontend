@@ -20,8 +20,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    paddingLeft: theme.spacing(2),
-    paddingTop: theme.spacing(2),
+    paddingLeft: theme.spacing(1),
+    paddingTop: theme.spacing(1),
     paddingBottom: 0,
     height: `calc(100% - ${theme.spacing(3)}px)`
   },

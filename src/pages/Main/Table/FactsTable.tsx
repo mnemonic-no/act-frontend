@@ -45,8 +45,9 @@ export type FactRow = {
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    overflow: 'auto',
-    height: '100%'
+    display: 'flex',
+    flexFlow: 'column nowrap',
+    overflow: 'auto'
   },
   header: {
     padding: '16px 10px 18px 55px',
@@ -55,7 +56,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center'
   },
   tableContainer: {
-    overflowY: 'auto'
+    overflow: 'auto',
+    flex: '1 0 auto'
   },
   headerCell: {
     paddingLeft: theme.spacing(1),

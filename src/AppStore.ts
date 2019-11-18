@@ -1,7 +1,7 @@
 import config from './config';
 import MainPageStore from './pages/Main/MainPageStore';
 import SearchPageStore from './pages/Search/SearchPageStore';
-import { action, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -28,7 +28,7 @@ class AppStore {
   @observable currentPage: TPage = 'mainPage';
 
   constructor() {
-    this.mainPageStore = new MainPageStore(config);
+    this.mainPageStore = new MainPageStore(this, config);
     this.searchPageStore = new SearchPageStore(
       this,
       config,
@@ -70,6 +70,24 @@ class AppStore {
   @action.bound
   navigateTo(page: TPage) {
     this.currentPage = page;
+  }
+
+  @computed
+  get pageMenu() {
+    return [
+      {
+        icon: 'search',
+        onClick: () => this.navigateTo('searchPage'),
+        tooltip: 'Search page',
+        isActive: this.currentPage === 'searchPage'
+      },
+      {
+        icon: 'graph',
+        onClick: () => this.navigateTo('mainPage'),
+        tooltip: 'Graph page',
+        isActive: this.currentPage === 'mainPage'
+      }
+    ];
   }
 }
 

@@ -10,12 +10,12 @@ import WorkingHistory from './WorkingHistory';
 import WorkingHistoryStore from './WorkingHistory/WorkingHistoryStore';
 import RefineryOptionsStore from './RefineryOptions/RefineryOptionsStore';
 import RefineryStore from './RefineryStore';
-import SearchStore from './Search/SearchStore';
 import { StateExport } from '../../core/types';
 import SelectionStore from './SelectionStore';
 import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
-import SearchesStore from './Search/SearchesStore';
 import ContentStore from './Content/ContentStore';
+import AppStore from '../../AppStore';
+import SearchByObjectTypeStore from './Search/SearchByObjectTypeStore';
 
 class MainPageStore {
   ui: {
@@ -24,23 +24,24 @@ class MainPageStore {
     graphViewStore: GraphViewStore;
     detailsStore: DetailsStore;
     refineryOptionsStore: RefineryOptionsStore;
-    searchStore: SearchStore;
+    searchStore: SearchByObjectTypeStore;
     workingHistoryStore: WorkingHistoryStore;
     factsTableStore: FactsTableStore;
     objectsTableStore: ObjectsTableStore;
     prunedObjectsTableStore: PrunedObjectsTableStore;
-    searchesStore: SearchesStore;
   };
 
   @observable isSearchDrawerOpen = true;
   @observable error: Error | null = null;
 
+  appStore: AppStore;
   backendStore: BackendStore;
   workingHistory: WorkingHistory;
   refineryStore: RefineryStore;
   selectionStore: SelectionStore;
 
-  constructor(config: any) {
+  constructor(appStore: AppStore, config: any) {
+    this.appStore = appStore;
     this.backendStore = new BackendStore(this, config);
     this.workingHistory = new WorkingHistory(this);
     this.refineryStore = new RefineryStore(this, window.localStorage);
@@ -53,11 +54,10 @@ class MainPageStore {
       detailsStore: new DetailsStore(this, config),
       prunedObjectsTableStore: new PrunedObjectsTableStore(this),
       refineryOptionsStore: new RefineryOptionsStore(this),
-      searchStore: new SearchStore(this, config),
+      searchStore: new SearchByObjectTypeStore(this, config),
       workingHistoryStore: new WorkingHistoryStore(this, config),
       factsTableStore: new FactsTableStore(this),
-      objectsTableStore: new ObjectsTableStore(this),
-      searchesStore: new SearchesStore(this)
+      objectsTableStore: new ObjectsTableStore(this)
     };
 
     // Make the URL reflect the last item in the working history
@@ -95,7 +95,7 @@ class MainPageStore {
 
   @computed
   get hasContent() {
-    return !this.workingHistory.isEmpty || this.ui.contentStore.selectedTab === 'searches';
+    return !this.workingHistory.isEmpty;
   }
 
   @computed
@@ -104,6 +104,11 @@ class MainPageStore {
       error: this.error,
       onClose: () => (this.error = null)
     };
+  }
+
+  @computed
+  get pageMenu() {
+    return this.appStore.pageMenu;
   }
 }
 

@@ -123,7 +123,7 @@ const SearchPage = ({ store }: { store: SearchPageStore }) => {
   const error = { error: null, onClose: () => {} };
 
   return (
-    <Page errorSnackbar={error} isLoading={false}>
+    <Page errorSnackbar={error} isLoading={false} leftMenuItems={store.prepared.pageMenu}>
       {!store.prepared.hasActiveSearch && <SearchOnly {...store.prepared} />}
       {store.prepared.hasActiveSearch && <SearchWithResults store={store} />}
     </Page>

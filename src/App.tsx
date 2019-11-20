@@ -1,11 +1,12 @@
 import React from 'react';
+import { observer } from 'mobx-react';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
-import SnackbarProvider from './util/SnackbarProvider';
 import AppStore from './AppStore';
 import MainPage from './pages/Main/MainPage';
 import SearchPage from './pages/Search/SearchPage';
-import { observer } from 'mobx-react';
+import SnackbarProvider from './util/SnackbarProvider';
+import SummaryPage from './pages/ObjectSummary/ObjectSummaryPage';
 
 const Black = {
   50: '#9e9e9e',
@@ -65,6 +66,7 @@ const App = () => (
       <SnackbarProvider />
       {store.currentPage === 'mainPage' && <MainPage store={store.mainPageStore} />}
       {store.currentPage === 'searchPage' && <SearchPage store={store.searchPageStore} />}
+      {store.currentPage === 'summaryPage' && <SummaryPage store={store.summaryPageStore} />}
     </MuiThemeProvider>
   </>
 );

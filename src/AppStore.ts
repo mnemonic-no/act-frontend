@@ -1,7 +1,9 @@
+import { action, computed, observable } from 'mobx';
+
 import config from './config';
 import MainPageStore from './pages/Main/MainPageStore';
+import ObjectSummaryPageStore from './pages/ObjectSummary/ObjectSummaryPageStore';
 import SearchPageStore from './pages/Search/SearchPageStore';
-import { action, computed, observable } from 'mobx';
 
 const locationDefinitions = (routeDefinitions: any) => {
   return (location: Location) => {
@@ -20,11 +22,12 @@ const locationDefinitions = (routeDefinitions: any) => {
   };
 };
 
-export type TPage = 'mainPage' | 'searchPage';
+export type TPage = 'mainPage' | 'searchPage' | 'summaryPage';
 
 class AppStore {
   mainPageStore: MainPageStore;
   searchPageStore: SearchPageStore;
+  summaryPageStore: ObjectSummaryPageStore;
   @observable currentPage: TPage = 'mainPage';
 
   constructor() {
@@ -35,12 +38,17 @@ class AppStore {
       this.mainPageStore.backendStore.simpleSearchBackendStore,
       this.mainPageStore.backendStore.autoCompleteSimpleSearchBackendStore
     );
+    this.summaryPageStore = new ObjectSummaryPageStore(this);
   }
 
   initByUrl(location: Location): void {
     const locationMatcher = locationDefinitions({
       '/search(/)?$': () => {
         this.currentPage = 'searchPage';
+      },
+      '/object-summary/(.+)/(.+?)(/)?$': (objectType: string, objectValue: string) => {
+        this.currentPage = 'summaryPage';
+        this.summaryPageStore.prepare(objectType, objectValue);
       },
       '/object-fact-query/(.+)/(.+?)(/)?$': (objectType: string, objectValue: string) => {
         this.currentPage = 'mainPage';

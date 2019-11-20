@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) => ({
       fontSize: '0.9rem',
       position: 'absolute',
       borderRadius: '5px',
-      zIndex: 9999,
+      zIndex: 99999,
       backgroundColor: theme.palette.grey.A700,
       color: theme.palette.common.white,
       padding: '6px',

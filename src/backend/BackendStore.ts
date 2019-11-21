@@ -1,9 +1,10 @@
 import { action, observable, runInAction } from 'mobx';
-import { autoResolveDataLoader, checkObjectStats, postJson, searchCriteriadataLoader } from '../../core/dataLoaders';
+import { autoResolveDataLoader, checkObjectStats, postJson, searchCriteriadataLoader } from '../core/dataLoaders';
 
-import MainPageStore from './MainPageStore';
-import { isObjectSearch, SearchItem, Search, searchId } from '../../core/types';
-import { addMessage } from '../../util/SnackbarProvider';
+import { isObjectSearch, SearchItem, Search, searchId } from '../core/types';
+import { addMessage } from '../util/SnackbarProvider';
+import AppStore from '../AppStore';
+import GraphQueryStore from './GraphQueryStore';
 import SimpleSearchBackendStore from './SimpleSearchBackendStore';
 
 const maxFetchLimit = 2000;
@@ -14,21 +15,18 @@ const isInHistory = (search: Search, historyItems: Array<SearchItem>) => {
 };
 
 class BackendStore {
-  root: MainPageStore;
+  root: AppStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
   autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
+  graphQueryStore: GraphQueryStore;
 
   @observable isLoading: boolean = false;
 
-  constructor(root: MainPageStore, config: any) {
+  constructor(root: AppStore, config: any) {
     this.root = root;
     this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, 300);
     this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
-  }
-
-  @action
-  async executeSimpleSearch(query: string) {
-    this.simpleSearchBackendStore.execute(query);
+    this.graphQueryStore = new GraphQueryStore();
   }
 
   @action
@@ -37,7 +35,7 @@ class BackendStore {
       throw Error('Search of this type is not supported ' + search);
     }
 
-    if (isInHistory(search, this.root.workingHistory.historyItems)) {
+    if (isInHistory(search, this.root.mainPageStore.workingHistory.historyItems)) {
       return;
     }
 
@@ -57,10 +55,10 @@ class BackendStore {
           objects: result.objects
         }
       };
-      this.root.workingHistory.addItem(item);
+      this.root.mainPageStore.workingHistory.addItem(item);
     } catch (err) {
       runInAction(() => {
-        this.root.handleError({ error: err });
+        this.root.mainPageStore.handleError({ error: err });
       });
     } finally {
       runInAction(() => {
@@ -75,12 +73,12 @@ class BackendStore {
       this.isLoading = true;
 
       if (replace) {
-        this.root.workingHistory.removeAllItems();
+        this.root.mainPageStore.workingHistory.removeAllItems();
       }
 
       const all = searches
         .filter(isObjectSearch)
-        .filter(search => !isInHistory(search, this.root.workingHistory.historyItems))
+        .filter(search => !isInHistory(search, this.root.mainPageStore.workingHistory.historyItems))
         .map(async search => {
           return {
             search: search,
@@ -97,12 +95,12 @@ class BackendStore {
               objects: result.objects
             }
           };
-          this.root.workingHistory.addItem(q);
+          this.root.mainPageStore.workingHistory.addItem(q);
         }
       });
     } catch (err) {
       runInAction(() => {
-        this.root.handleError({ error: err, title: 'Import failed' });
+        this.root.mainPageStore.handleError({ error: err, title: 'Import failed' });
       });
     } finally {
       runInAction(() => {
@@ -119,7 +117,7 @@ class BackendStore {
       addMessage(successMessage);
     } catch (err) {
       runInAction(() => {
-        this.root.handleError({ error: err });
+        this.root.mainPageStore.handleError({ error: err });
       });
     } finally {
       runInAction(() => {

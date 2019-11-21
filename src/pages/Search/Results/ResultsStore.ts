@@ -3,7 +3,7 @@ import SearchPageStore from '../SearchPageStore';
 import * as _ from 'lodash/fp';
 import { ActObject } from '../../../core/types';
 import { ColumnKind, IObjectRow, SortOrder } from '../../../components/ObjectTable';
-import SimpleSearchBackendStore, { SimpleSearch } from '../../Main/SimpleSearchBackendStore';
+import SimpleSearchBackendStore, { SimpleSearch } from '../../../backend/SimpleSearchBackendStore';
 import { getObjectLabelFromFact } from '../../../core/domain';
 import config from '../../../config';
 import { sortRowsBy } from '../../Main/Table/PrunedObjectsTableStore';

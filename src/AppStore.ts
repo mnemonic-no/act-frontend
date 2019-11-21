@@ -1,5 +1,6 @@
 import { action, computed, observable } from 'mobx';
 
+import BackendStore from './backend/BackendStore';
 import config from './config';
 import MainPageStore from './pages/Main/MainPageStore';
 import ObjectSummaryPageStore from './pages/ObjectSummary/ObjectSummaryPageStore';
@@ -30,7 +31,10 @@ class AppStore {
   summaryPageStore: ObjectSummaryPageStore;
   @observable currentPage: TPage = 'mainPage';
 
+  backendStore: BackendStore;
+
   constructor() {
+    this.backendStore = new BackendStore(this, config);
     this.mainPageStore = new MainPageStore(this, config);
     this.searchPageStore = new SearchPageStore(
       this,
@@ -38,7 +42,7 @@ class AppStore {
       this.mainPageStore.backendStore.simpleSearchBackendStore,
       this.mainPageStore.backendStore.autoCompleteSimpleSearchBackendStore
     );
-    this.summaryPageStore = new ObjectSummaryPageStore(this);
+    this.summaryPageStore = new ObjectSummaryPageStore(this, config);
   }
 
   initByUrl(location: Location): void {

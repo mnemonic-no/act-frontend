@@ -1,6 +1,6 @@
 import { action, computed, observable, reaction } from 'mobx';
 
-import BackendStore from './BackendStore';
+import BackendStore from '../../backend/BackendStore';
 import CytoscapeLayoutStore from './CytoscapeLayout/CytoscapeLayoutStore';
 import DetailsStore from './Details/DetailsStore';
 import FactsTableStore from './Table/FactsTableStore';
@@ -42,7 +42,7 @@ class MainPageStore {
 
   constructor(appStore: AppStore, config: any) {
     this.appStore = appStore;
-    this.backendStore = new BackendStore(this, config);
+    this.backendStore = appStore.backendStore;
     this.workingHistory = new WorkingHistory(this);
     this.refineryStore = new RefineryStore(this, window.localStorage);
     this.selectionStore = new SelectionStore();

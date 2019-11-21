@@ -5,7 +5,7 @@ import { getObjectLabelFromFact } from '../../core/domain';
 import config from '../../config';
 import AppStore from '../../AppStore';
 import ResultsStore from './Results/ResultsStore';
-import SimpleSearchBackendStore from '../Main/SimpleSearchBackendStore';
+import SimpleSearchBackendStore from '../../backend/SimpleSearchBackendStore';
 import DetailsStore from './Details/DetailsStore';
 
 class SearchPageStore {
@@ -51,14 +51,14 @@ class SearchPageStore {
     this.simpleSearchInputValue = value ? value : '';
 
     if (this.simpleSearchInputValue.length >= 3) {
-      this.root.mainPageStore.backendStore.autoCompleteSimpleSearchBackendStore.execute(value);
+      this.autoCompleteSimpleSearchBackendStore.execute(value);
     }
   }
 
   @action.bound
   onSearchSubmit(searchString: string) {
     this.activeSearchString = searchString;
-    this.root.mainPageStore.backendStore.executeSimpleSearch(searchString);
+    this.simpleSearchBackendStore.execute(searchString);
     this.simpleSearchInputValue = '';
   }
 

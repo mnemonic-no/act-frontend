@@ -1,5 +1,5 @@
 import { ActFact, ActObject, FactType } from './types';
-import { SimpleSearch } from '../pages/Main/SimpleSearchBackendStore';
+import { SimpleSearch } from '../backend/SimpleSearchBackendStore';
 
 export const objectTypes = {
   incident: { id: 'incidentId', name: 'incident' },

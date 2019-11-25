@@ -13,7 +13,7 @@ import WarnIcon from '@material-ui/icons/Warning';
 
 const useSectionStyles = makeStyles((theme: Theme) => ({
   root: {
-    height: '400px',
+    minHeight: '400px',
     display: 'flex',
     flexFlow: 'column nowrap'
   },

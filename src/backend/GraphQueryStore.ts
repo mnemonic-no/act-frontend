@@ -1,7 +1,7 @@
 import { observable } from 'mobx';
 
 import { ActFact, ActObject } from '../core/types';
-import { objectFactsTraverseDataLoader } from '../core/dataLoaders';
+import { autoResolveDataLoader, objectFactsTraverseDataLoader } from '../core/dataLoaders';
 
 export type GraphQuery = {
   id: string;
@@ -45,7 +45,7 @@ class GraphQueryStore {
         objectType: objectTypeName,
         objectValue,
         query: graphQuery
-      });
+      }).then(autoResolveDataLoader);
 
       this.graphQueries[q.id] = { ...q, status: 'done', objects: Object.values(objects), facts: Object.values(facts) };
     } catch (err) {

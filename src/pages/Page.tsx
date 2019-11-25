@@ -62,7 +62,9 @@ const useStyles = makeStyles((theme: Theme) => {
 
     content: {
       flex: '1 0 0',
-      overflow: 'auto'
+      overflow: 'auto',
+      display: 'flex',
+      flexFlow: 'column nowrap'
     }
   };
 });

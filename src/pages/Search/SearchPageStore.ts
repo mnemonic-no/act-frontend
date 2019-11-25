@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx';
 
-import { byTypeThenName } from '../../util/util';
+import { byTypeThenValue } from '../../util/util';
 import { getObjectLabelFromFact } from '../../core/domain';
 import config from '../../config';
 import AppStore from '../../AppStore';
@@ -74,7 +74,7 @@ class SearchPageStore {
         simpleSearch && simpleSearch.objects
           ? simpleSearch.objects
               .slice() // Don't mutate the underlying array
-              .sort(byTypeThenName)
+              .sort(byTypeThenValue)
               .map(actObject => ({
                 actObject: actObject,
                 objectLabel:

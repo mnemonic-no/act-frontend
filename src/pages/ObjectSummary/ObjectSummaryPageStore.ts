@@ -1,10 +1,11 @@
 import { action, computed } from 'mobx';
 
 import { IObjectTitleComp } from '../../components/ObjectTitle';
-import { byTypeThenName, objectTypeToColor } from '../../util/util';
+import { objectTypeToColor } from '../../util/util';
 import AppStore from '../../AppStore';
 import GraphQueryStore from '../../backend/GraphQueryStore';
 import { TSectionComp } from './Section';
+import { getObjectLabelFromFact } from '../../core/domain';
 
 type TSectionConfig = {
   title: string;
@@ -15,11 +16,15 @@ interface IObjectTypeToSections {
   [objectType: string]: { sections: Array<TSectionConfig> };
 }
 
+export const byColumns = (a: { cells: Array<{ text: string }> }, b: { cells: Array<{ text: string }> }) =>
+  a.cells[0].text + '' + a.cells[1].text > b.cells[0].text + '' + b.cells[1].text ? 1 : -1;
+
 export const prepareSections = (
   objectValue: string,
   objectTypeName: string,
   objectTypeToSections: IObjectTypeToSections,
-  graphQueryStore: GraphQueryStore
+  graphQueryStore: GraphQueryStore,
+  objectLabelFromFactType: string
 ): Array<TSectionComp> => {
   const sections = objectTypeToSections[objectTypeName] && objectTypeToSections[objectTypeName].sections;
   if (!sections) return [];
@@ -47,8 +52,13 @@ export const prepareSections = (
         rows: q.objects
           ? q.objects
               .slice()
-              .sort(byTypeThenName)
-              .map(o => ({ cells: [{ text: o.type.name, color: objectTypeToColor(o.type.name) }, { text: o.value }] }))
+              .map(o => ({
+                cells: [
+                  { text: o.type.name, color: objectTypeToColor(o.type.name) },
+                  { text: getObjectLabelFromFact(o, objectLabelFromFactType, q.facts) || o.value }
+                ]
+              }))
+              .sort(byColumns)
           : []
       }
     };
@@ -58,6 +68,7 @@ export const prepareSections = (
 class ObjectSummaryPageStore {
   root: AppStore;
   error: Error | null = null;
+  config: { [id: string]: any };
 
   currentObject: { typeName: string; value: string } | undefined;
 
@@ -65,6 +76,7 @@ class ObjectSummaryPageStore {
 
   constructor(root: AppStore, config: any) {
     this.root = root;
+    this.config = config;
     this.objectTypeToSections = config.objectSummary || {};
   }
 
@@ -109,7 +121,8 @@ class ObjectSummaryPageStore {
           this.currentObject.value,
           this.currentObject.typeName,
           this.objectTypeToSections,
-          this.root.backendStore.graphQueryStore
+          this.root.backendStore.graphQueryStore,
+          this.config.objectLabelFromFactType
         )
       }
     };

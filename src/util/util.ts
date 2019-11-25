@@ -122,7 +122,7 @@ export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
-export const byTypeThenName = (a: ActObject, b: ActObject) =>
+export const byTypeThenValue = (a: ActObject, b: ActObject) =>
   a.type.name + '' + a.value > b.type.name + '' + b.value ? 1 : -1;
 
 export const replaceAll = (s: string, replacements: { [key: string]: string }) => {

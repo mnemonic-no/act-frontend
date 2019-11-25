@@ -1,7 +1,7 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
 
-import { byTypeThenName } from '../../../util/util';
+import { byTypeThenValue } from '../../../util/util';
 import { getObjectLabelFromFact } from '../../../core/domain';
 import config from '../../../config';
 import { PredefinedObjectQuery } from '../../../core/types';
@@ -113,7 +113,7 @@ class SearchByObjectTypeStore {
         simpleSearch && simpleSearch.objects
           ? simpleSearch.objects
               .slice() // Don't mutate the underlying array
-              .sort(byTypeThenName)
+              .sort(byTypeThenValue)
               .map(actObject => ({
                 actObject: actObject,
                 objectLabel:

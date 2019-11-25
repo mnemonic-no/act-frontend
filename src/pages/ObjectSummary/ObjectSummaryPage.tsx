@@ -14,21 +14,29 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     flex: '1 0 auto',
     padding: theme.spacing(1),
-    backgroundColor: theme.palette.grey['100']
+    backgroundColor: theme.palette.grey['100'],
+    display: 'flex',
+    flexFlow: 'column nowrap'
   },
   header: {
     padding: theme.spacing(1),
     marginBottom: theme.spacing(1)
   },
   sections: {
+    flex: '1 0 auto',
     display: 'grid',
     gridGap: theme.spacing(1),
-    [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))'
+    [theme.breakpoints.only('xs')]: {
+      gridTemplateColumns: '1fr'
     },
     [theme.breakpoints.up('md')]: {
-      gridTemplateColumns: 'repeat(auto-fill, minmax(600px, 1fr))'
-    }
+      gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))'
+    },
+    [theme.breakpoints.up('lg')]: {
+      gridTemplateColumns: 'repeat(auto-fit, minmax(600px, 1fr))'
+    },
+    gridTemplateRows: 'repeat(auto-fit, minmax(400px, 1fr))',
+    overflowY: 'auto'
   }
 }));
 

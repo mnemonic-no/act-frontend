@@ -11,7 +11,7 @@ import {
   Search
 } from '../../../core/types';
 import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
-import { byTypeThenName, pluralize } from '../../../util/util';
+import { byTypeThenValue, pluralize } from '../../../util/util';
 import {
   contextActionsFor,
   countByFactType,
@@ -206,7 +206,7 @@ class DetailsStore {
         text: pluralize(selectedObjects.length, 'object'),
         onClick: this.showSelectedObjectsTable
       },
-      objects: selectedObjects.sort(byTypeThenName),
+      objects: selectedObjects.sort(byTypeThenValue),
       onObjectClick: (object: ActObject) => {
         this.root.selectionStore.removeFromSelection({ id: object.id, kind: 'object' });
       },

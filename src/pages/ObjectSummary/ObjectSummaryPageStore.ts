@@ -1,36 +1,41 @@
 import { action, computed } from 'mobx';
 
 import { IObjectTitleComp } from '../../components/ObjectTitle';
-import { objectTypeToColor } from '../../util/util';
+import { IObjectTypeToSections } from '../../core/types';
+import { notUndefined, objectTypeToColor } from '../../util/util';
+import { getObjectLabelFromFact, toContextAction } from '../../core/domain';
+import { TCell, TSectionComp, TTextCell } from './Section';
 import AppStore from '../../AppStore';
 import GraphQueryStore from '../../backend/GraphQueryStore';
-import { TSectionComp } from './Section';
-import { getObjectLabelFromFact } from '../../core/domain';
+import { parseObjectSummary, TSectionConfig } from '../../config';
 
-type TSectionConfig = {
-  title: string;
-  query: string;
+const cellsAsText = (cells: Array<TCell>) => {
+  return cells
+    .filter((x): x is TTextCell => x.kind === 'text')
+    .map((x: TTextCell) => x.text)
+    .join('');
 };
 
-interface IObjectTypeToSections {
-  [objectType: string]: { sections: Array<TSectionConfig> };
-}
+export const byColumns = (a: { cells: Array<TCell> }, b: { cells: Array<TCell> }) => {
+  const aTextCells = cellsAsText(a.cells);
+  const bTextCells = cellsAsText(b.cells);
 
-export const byColumns = (a: { cells: Array<{ text: string }> }, b: { cells: Array<{ text: string }> }) =>
-  a.cells[0].text + '' + a.cells[1].text > b.cells[0].text + '' + b.cells[1].text ? 1 : -1;
+  return aTextCells > bTextCells ? 1 : -1;
+};
 
 export const prepareSections = (
-  objectValue: string,
-  objectTypeName: string,
+  currentObject: { value: string; typeName: string },
   objectTypeToSections: IObjectTypeToSections,
   graphQueryStore: GraphQueryStore,
-  objectLabelFromFactType: string
+  objectLabelFromFactType: string,
+  postAndForgetFn: (url: string, jsonBody: any, successString: string) => void
 ): Array<TSectionComp> => {
-  const sections = objectTypeToSections[objectTypeName] && objectTypeToSections[objectTypeName].sections;
+  const sections =
+    objectTypeToSections[currentObject.typeName] && objectTypeToSections[currentObject.typeName].sections;
   if (!sections) return [];
 
-  return sections.map(({ title, query }: TSectionConfig) => {
-    const q = graphQueryStore.getGraphQuery(objectValue, objectTypeName, query);
+  return sections.map(({ title, query, actions }: TSectionConfig) => {
+    const q = graphQueryStore.getGraphQuery(currentObject.value, currentObject.typeName, query);
 
     if (q.status === 'pending') {
       return { kind: 'loading', title: title };
@@ -54,9 +59,19 @@ export const prepareSections = (
               .slice()
               .map(o => ({
                 cells: [
-                  { text: o.type.name, color: objectTypeToColor(o.type.name) },
-                  { text: getObjectLabelFromFact(o, objectLabelFromFactType, q.facts) || o.value }
-                ]
+                  { kind: 'text' as 'text', text: o.type.name, color: objectTypeToColor(o.type.name) },
+                  {
+                    kind: 'text' as 'text',
+                    text: getObjectLabelFromFact(o, objectLabelFromFactType, q.facts) || o.value
+                  },
+                  actions && {
+                    kind: 'action' as 'action',
+                    actions: actions.map(a => {
+                      const x = toContextAction(a.action, o, postAndForgetFn);
+                      return { tooltip: x.description, icon: a.icon, href: x.href || '' };
+                    })
+                  }
+                ].filter(notUndefined)
               }))
               .sort(byColumns)
           : []
@@ -77,7 +92,8 @@ class ObjectSummaryPageStore {
   constructor(root: AppStore, config: any) {
     this.root = root;
     this.config = config;
-    this.objectTypeToSections = config.objectSummary || {};
+    this.objectTypeToSections =
+      parseObjectSummary({ objectSummary: config.objectSummary, actions: config.actions }) || {};
   }
 
   prepare(objectTypeName: string, objectValue: string) {
@@ -118,11 +134,11 @@ class ObjectSummaryPageStore {
         } as IObjectTitleComp,
         addToGraphButton: { text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView },
         sections: prepareSections(
-          this.currentObject.value,
-          this.currentObject.typeName,
+          this.currentObject,
           this.objectTypeToSections,
           this.root.backendStore.graphQueryStore,
-          this.config.objectLabelFromFactType
+          this.config.objectLabelFromFactType,
+          this.root.backendStore.postAndForget
         )
       }
     };

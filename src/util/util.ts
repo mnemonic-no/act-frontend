@@ -164,3 +164,7 @@ export function copyToClipBoard(text: string) {
   document.execCommand('copy');
   document.body.removeChild(tempTextArea);
 }
+
+export const assertNever = (x: never): never => {
+  throw new Error('Unexpected value. Should have been never' + x);
+};

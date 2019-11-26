@@ -3,13 +3,18 @@ import cc from 'clsx';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import WarnIcon from '@material-ui/icons/Warning';
+
+import ActIcon from '../../components/ActIcon';
+import { assertNever } from '../../util/util';
 
 const useSectionStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -25,8 +30,7 @@ const useSectionStyles = makeStyles((theme: Theme) => ({
   content: {
     flex: '1 0 0',
     display: 'flex',
-    overflow: 'auto',
-    padding: theme.spacing(1)
+    overflowY: 'auto'
   },
   centered: {
     display: 'flex',
@@ -37,6 +41,13 @@ const useSectionStyles = makeStyles((theme: Theme) => ({
   },
   faded: {
     opacity: 0.2
+  }
+}));
+
+const useCellStyles = makeStyles((theme: Theme) => ({
+  cell: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(2)
   }
 }));
 
@@ -57,11 +68,28 @@ interface ILoadingSection {
   title: string;
 }
 
+export type TActionCell = {
+  kind: 'action';
+  actions: Array<{ icon: string; tooltip: string; href: string }>;
+};
+
+export type TTextCell = {
+  kind: 'text';
+  text: string;
+  color?: string;
+};
+
+export type TCell = TActionCell | TTextCell;
+
 interface ITableSection {
   kind: 'table';
   title: string;
   titleRight: string;
-  table: { rows: Array<{ cells: Array<{ text: string; color?: string }> }> };
+  table: {
+    rows: Array<{
+      cells: Array<TCell>;
+    }>;
+  };
 }
 
 export type TSectionComp = IEmptySection | IErrorSection | ILoadingSection | ITableSection;
@@ -142,6 +170,40 @@ const LoadingSectionComp = (props: ILoadingSection) => {
   );
 };
 
+const Cell = (cell: TCell) => {
+  const classes = useCellStyles();
+
+  switch (cell.kind) {
+    case 'text':
+      return (
+        <TableCell size="small" style={{ color: cell.color || '' }} className={classes.cell}>
+          {cell.text}
+        </TableCell>
+      );
+    case 'action':
+      return (
+        <TableCell size="small" className={classes.cell}>
+          <>
+            {cell.actions.map((action, idx) => {
+              return (
+                <div key={idx} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
+                  <Tooltip key={idx} title={action.tooltip} enterDelay={500}>
+                    <IconButton size="small" href={action.href} target="_blank" rel="noopener noreferrer">
+                      <ActIcon iconId={action.icon} />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+              );
+            })}
+          </>
+        </TableCell>
+      );
+
+    default:
+      return assertNever(cell);
+  }
+};
+
 const TableSectionComp = (props: ITableSection) => {
   const classes = useSectionStyles();
   return (
@@ -158,12 +220,8 @@ const TableSectionComp = (props: ITableSection) => {
             {props.table.rows.map((row, idx) => {
               return (
                 <TableRow key={idx}>
-                  {row.cells.map((x, idx) => {
-                    return (
-                      <TableCell key={idx} size="small" style={{ color: x.color || '' }}>
-                        {x.text}
-                      </TableCell>
-                    );
+                  {row.cells.map((cell, idx) => {
+                    return <Cell key={idx} {...cell} />;
                   })}
                 </TableRow>
               );
@@ -176,17 +234,18 @@ const TableSectionComp = (props: ITableSection) => {
 };
 
 const SectionComp = (props: TSectionComp) => {
-  if (props.kind === 'error') {
-    return <ErrorSectionComp {...props} />;
+  switch (props.kind) {
+    case 'error':
+      return <ErrorSectionComp {...props} />;
+    case 'empty':
+      return <EmptySectionComp {...props} />;
+    case 'loading':
+      return <LoadingSectionComp {...props} />;
+    case 'table':
+      return <TableSectionComp {...props} />;
+    default:
+      return assertNever(props);
   }
-  if (props.kind === 'empty') {
-    return <EmptySectionComp {...props} />;
-  }
-  if (props.kind === 'loading') {
-    return <LoadingSectionComp {...props} />;
-  }
-
-  return <TableSectionComp {...props} />;
 };
 
 export default SectionComp;

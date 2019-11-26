@@ -1,14 +1,73 @@
 {
   "apiUrl": "http://your-act-backend",
   "actUserId": 1,
-  "contextActions": [
-    {
-      "objects": ["content", "hash"],
-      "action": {
-        "name": "Some Service",
-        "description": "Some description",
-        "type": "link",
-        "urlPattern": "https://www.somewhere.com/analyze/:objectValue"
+  "actions": {
+    "download-report": {
+      "name": "Download",
+      "type": "link",
+      "description": "Download report",
+      "urlPattern": "http://some-url/download?id=:objectValue"
+    },
+    "enrich": {
+      "name": "Enrich",
+      "type": "postAndForget",
+      "description": "Trigger enrichment",
+      "pathPattern": "/somepath/:objectValue",
+      "jsonBody": {
+        "something": "something",
+        "objectType": ":objectType",
+        "objectValue": ":objectValue"
       }
-    }]
+    },
+    "contextActions": [
+      {
+        "objects": [
+          "content",
+          "hash"
+        ],
+        "action": "download-report"
+      },
+      {
+        "action": "enrich"
+      }
+    ]
+  },
+  "objectSummary": {
+    "ipv4": {
+      "sections": [
+        {
+          "title": "Domains",
+          "query": "g.in('resolvesTo').hasLabel('fqdn')"
+        },
+        {
+          "title": "Reports",
+          "query": "g.in('mentions').hasLabel('report')",
+          "actions": [
+            {
+              "id": "download-report",
+              "icon": "download"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "threatActor": {
+    "sections": [
+      {
+        "title": "Aliases",
+        "query": "g.as('startNode').optional(emit().repeat(out('alias')).until(cyclicPath())).where(neq('startNode'))"
+      },
+      {
+        "title": "Reports",
+        "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('mentions').hasLabel('report')",
+        "actions": [
+          {
+            "id": "download-report",
+            "icon": "download"
+          }
+        ]
+      }
+    ]
+  }
 }

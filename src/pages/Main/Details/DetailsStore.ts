@@ -2,14 +2,8 @@ import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import MainPageStore from '../MainPageStore';
-import {
-  ActFact,
-  ActObject,
-  ContextAction,
-  ContextActionTemplate,
-  PredefinedObjectQuery,
-  Search
-} from '../../../core/types';
+import { ActFact, ActObject, ContextAction, PredefinedObjectQuery, Search } from '../../../core/types';
+import { ContextActionTemplate, resolveActions } from '../../../config';
 import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
 import { byTypeThenValue, pluralize } from '../../../util/util';
 import {
@@ -52,7 +46,8 @@ class DetailsStore {
 
   constructor(root: MainPageStore, config: any) {
     this.root = root;
-    this.contextActionTemplates = config.contextActions || [];
+    this.contextActionTemplates =
+      resolveActions({ contextActions: config.contextActions, actions: config.actions }) || [];
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
 
     reaction(

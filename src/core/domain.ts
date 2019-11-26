@@ -1,5 +1,6 @@
-import { ActFact, ActObject, ContextAction, ContextActionTemplate, FactType, PredefinedObjectQuery } from './types';
-import { notUndefined, replaceAll, replaceAllInObject } from '../util/util';
+import { ActFact, ActObject, ContextAction, FactType, PredefinedObjectQuery } from './types';
+import { assertNever, notUndefined, replaceAll, replaceAllInObject } from '../util/util';
+import { ActionTemplate, ContextActionTemplate } from '../config';
 
 export function isRetracted(fact: ActFact) {
   return fact.flags.some(x => x === 'Retracted');
@@ -96,12 +97,12 @@ export const contextActionsFor = (
 
   return contextActionTemplates
     .filter((x: any) => !x.objects || x.objects.find((objectType: string) => objectType === selected.type.name))
-    .map((x: any) => toContextAction(x, selected, postAndForgetFn))
+    .map((x: any) => toContextAction(x.action, selected, postAndForgetFn))
     .sort(byName);
 };
 
 export const toContextAction = (
-  template: ContextActionTemplate,
+  action: ActionTemplate,
   selected: ActObject,
   postAndForgetFn: (url: string, jsonBody: any, successString: string) => void
 ): ContextAction => {
@@ -110,31 +111,28 @@ export const toContextAction = (
     ':objectType': selected.type.name
   };
 
-  switch (template.action.type) {
+  switch (action.type) {
     case 'link':
       return {
-        name: template.action.name,
-        description: template.action.description,
-        href: replaceAll(template.action.urlPattern || '', replacements)
+        name: action.name,
+        description: action.description,
+        href: replaceAll(action.urlPattern || '', replacements)
       };
     case 'postAndForget':
       return {
-        name: template.action.name,
-        description: template.action.description,
+        name: action.name,
+        description: action.description,
         onClick: () => {
-          if (
-            template.action.confirmation === undefined ||
-            (template.action.confirmation && window.confirm(template.action.confirmation))
-          ) {
-            const url = replaceAll(template.action.pathPattern || '', replacements);
-            const jsonBody = replaceAllInObject(template.action.jsonBody, replacements);
-            postAndForgetFn(url, jsonBody, 'Success: ' + template.action.name);
+          if (action.confirmation === undefined || (action.confirmation && window.confirm(action.confirmation))) {
+            const url = replaceAll(action.pathPattern || '', replacements);
+            const jsonBody = replaceAllInObject(action.jsonBody, replacements);
+            postAndForgetFn(url, jsonBody, 'Success: ' + action.name);
           }
         }
       };
 
     default:
-      throw Error('Unhandled case ' + template.action);
+      return assertNever(action);
   }
 };
 

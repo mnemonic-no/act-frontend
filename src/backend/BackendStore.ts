@@ -109,7 +109,7 @@ class BackendStore {
     }
   }
 
-  @action
+  @action.bound
   async postAndForget(url: string, request: { [key: string]: any }, successMessage: string) {
     try {
       this.isLoading = true;

@@ -1,3 +1,5 @@
+import { TSectionConfig } from '../config';
+
 export type NamedId = {
   id: string;
   name: string;
@@ -114,18 +116,9 @@ export type ContextAction = {
   onClick?: () => void;
 };
 
-export type ContextActionTemplate = {
-  objects?: Array<string>;
-  action: {
-    name: string;
-    type: 'link' | 'postAndForget';
-    description: string;
-    urlPattern?: string;
-    pathPattern?: string;
-    confirmation?: string;
-    jsonBody?: { [key: string]: any };
-  };
-};
+export interface IObjectTypeToSections {
+  [objectTypeName: string]: { sections: Array<TSectionConfig> };
+}
 
 export const searchId = (search: Search) => {
   if (isObjectSearch(search)) {

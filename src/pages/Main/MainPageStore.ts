@@ -51,7 +51,7 @@ class MainPageStore {
       cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
       graphViewStore: new GraphViewStore(this),
 
-      detailsStore: new DetailsStore(this, config),
+      detailsStore: new DetailsStore(appStore, this, config),
       prunedObjectsTableStore: new PrunedObjectsTableStore(this),
       refineryOptionsStore: new RefineryOptionsStore(this),
       searchStore: new SearchByObjectTypeStore(this, config),

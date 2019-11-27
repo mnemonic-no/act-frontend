@@ -1,12 +1,15 @@
 import { action, computed, observable } from 'mobx';
-import SearchPageStore from '../SearchPageStore';
 import * as _ from 'lodash/fp';
+
 import { ActObject } from '../../../core/types';
 import { ColumnKind, IObjectRow, SortOrder } from '../../../components/ObjectTable';
-import SimpleSearchBackendStore, { SimpleSearch } from '../../../backend/SimpleSearchBackendStore';
 import { getObjectLabelFromFact } from '../../../core/domain';
-import config from '../../../config';
 import { sortRowsBy } from '../../Main/Table/PrunedObjectsTableStore';
+import AppStore from '../../../AppStore';
+import config from '../../../config';
+import SearchPageStore from '../SearchPageStore';
+import SimpleSearchBackendStore, { SimpleSearch } from '../../../backend/SimpleSearchBackendStore';
+import { linkOnClickFn } from '../../../util/util';
 
 const emptyFilterValue = 'Show all';
 
@@ -36,6 +39,23 @@ export const resultToRows = ({
   )(simpleSearch.objects);
 };
 
+export const withLink = (rows: Array<IObjectRow>, navigateFn: (e: any) => void): Array<IObjectRow> => {
+  return rows.map(r => {
+    const href = '/object-summary/' + r.actObject.type.name + '/' + r.actObject.value;
+
+    return {
+      ...r,
+      objectValueLink: {
+        href: href,
+        onClick: linkOnClickFn({
+          href: href,
+          navigateFn: navigateFn
+        })
+      }
+    };
+  });
+};
+
 export const selectedObjects = ({
   simpleSearch,
   selectedObjectIds,
@@ -56,6 +76,7 @@ export const selectedObjects = ({
 };
 
 class ResultsStore {
+  appStore: AppStore;
   searchStore: SearchPageStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
 
@@ -63,7 +84,8 @@ class ResultsStore {
   @observable selectedObjectIds: Set<string> = new Set();
   @observable objectTypeFilter: Set<string> = new Set();
 
-  constructor(searchStore: SearchPageStore, simpleSearchBackendStore: SimpleSearchBackendStore) {
+  constructor(appStore: AppStore, searchStore: SearchPageStore, simpleSearchBackendStore: SimpleSearchBackendStore) {
+    this.appStore = appStore;
     this.searchStore = searchStore;
     this.simpleSearchBackendStore = simpleSearchBackendStore;
   }
@@ -169,12 +191,15 @@ class ResultsStore {
       };
     }
 
-    const rows = resultToRows({
-      simpleSearch: activeSimpleSearch,
-      selectedObjectIds: this.selectedObjectIds,
-      objectTypeFilter: this.objectTypeFilter,
-      sortOrder: this.sortOrder
-    });
+    const rows = withLink(
+      resultToRows({
+        simpleSearch: activeSimpleSearch,
+        selectedObjectIds: this.selectedObjectIds,
+        objectTypeFilter: this.objectTypeFilter,
+        sortOrder: this.sortOrder
+      }),
+      (url: string) => this.appStore.goToUrl(url)
+    );
 
     const warningText = activeSimpleSearch.limitExceeded
       ? 'Result set exceeds limit. Try to constrain your search or use the advanced search if you want to see more'

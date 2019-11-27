@@ -3,6 +3,7 @@ import { observer } from 'mobx-react';
 import cc from 'clsx';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
@@ -33,6 +34,9 @@ const useSingleObjectStyles = makeStyles((theme: Theme) => ({
   },
   footer: {
     padding: '10px 0'
+  },
+  linkToSummary: {
+    paddingBottom: theme.spacing(2)
   }
 }));
 
@@ -99,7 +103,7 @@ const ButtonList = ({ actions }: { actions: Array<IButton> }) => {
       {actions.map(action => {
         return (
           <Tooltip key={action.text} title={action.tooltip}>
-            <Button size="small" color="secondary" variant="contained" onClick={action.onClick}>
+            <Button size="small" color="secondary" variant="contained" onClick={action.onClick} href={action.href}>
               {action.text}
             </Button>
           </Tooltip>
@@ -109,7 +113,13 @@ const ButtonList = ({ actions }: { actions: Array<IButton> }) => {
   );
 };
 
-const SingleObjectComp = ({ title, objectTitle, clearSelectionButton, actions }: ISingleObjectComp) => {
+const SingleObjectComp = ({
+  title,
+  objectTitle,
+  clearSelectionButton,
+  linkToSummaryPage,
+  actions
+}: ISingleObjectComp) => {
   const classes = useStyles();
   const singleClasses = useSingleObjectStyles();
 
@@ -118,6 +128,11 @@ const SingleObjectComp = ({ title, objectTitle, clearSelectionButton, actions }:
       <div>
         <Header title={title} clearButton={clearSelectionButton} />
         <ObjectTitle {...objectTitle} />
+        <div className={singleClasses.linkToSummary}>
+          <Link href={linkToSummaryPage.href} color="primary" underline={'always'} onClick={linkToSummaryPage.onClick}>
+            {linkToSummaryPage.text}
+          </Link>
+        </div>
       </div>
       <div className={singleClasses.footer}>
         <Typography variant="subtitle1" gutterBottom>
@@ -166,12 +181,14 @@ const DetailsComp = ({ content, kind }: IDetailsComp) => {
 
 export interface IButton {
   text: string;
-  onClick: () => void;
+  onClick?: (e: any) => void;
+  href?: string;
   tooltip: string;
 }
 
 export interface ISingleObjectComp {
   title: string;
+  linkToSummaryPage: { text: string; tooltip: string; href: string; onClick: (e: any) => void };
   objectTitle: IObjectTitleComp;
   clearSelectionButton: IButton;
   actions: Array<IButton>;

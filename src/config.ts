@@ -91,7 +91,7 @@ export const resolveActions = ({
   contextActions: Array<any>;
   actions: { [actionId: string]: ActionTemplate };
 }): Array<ContextActionTemplate> => {
-  if (!contextActions) return [];
+  if (!contextActions || !actions) return [];
 
   return contextActions.map(ca => {
     if (!actions[ca.action]) {

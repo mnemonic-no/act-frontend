@@ -5,7 +5,7 @@ import MainPageStore from '../MainPageStore';
 import { ActFact, ActObject, ContextAction, PredefinedObjectQuery, Search } from '../../../core/types';
 import { ContextActionTemplate, resolveActions } from '../../../config';
 import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
-import { byTypeThenValue, pluralize } from '../../../util/util';
+import { byTypeThenValue, link, pluralize } from '../../../util/util';
 import {
   contextActionsFor,
   countByFactType,
@@ -13,6 +13,7 @@ import {
   idsToObjects,
   predefinedObjectQueriesFor
 } from '../../../core/domain';
+import AppStore from '../../../AppStore';
 
 export type ObjectDetails = {
   contextActions: Array<ContextAction>;
@@ -35,6 +36,7 @@ export const factTypeLinks = (
 };
 
 class DetailsStore {
+  appStore: AppStore;
   root: MainPageStore;
 
   contextActionTemplates: Array<ContextActionTemplate>;
@@ -44,7 +46,8 @@ class DetailsStore {
   @observable _isOpen = false;
   @observable fadeUnselected = false;
 
-  constructor(root: MainPageStore, config: any) {
+  constructor(appStore: AppStore, root: MainPageStore, config: any) {
+    this.appStore = appStore;
     this.root = root;
     this.contextActionTemplates =
       resolveActions({ contextActions: config.contextActions, actions: config.actions }) || [];
@@ -128,6 +131,13 @@ class DetailsStore {
         ),
         predefinedObjectQueries: predefinedObjectQueriesFor(selected, this.predefinedObjectQueries)
       },
+      linkToSummaryPage: link({
+        text: 'Open summary',
+        tooltip: 'Go to object summary page',
+        href: '/object-summary/' + selected.type.name + '/' + selected.value,
+        navigateFn: (url: string) => this.appStore.goToUrl(url)
+      }),
+
       createFactDialog: this.createFactDialog,
       onSearchSubmit: this.onSearchSubmit,
       onFactClick: this.setSelectedFact,

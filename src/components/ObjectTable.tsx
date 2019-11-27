@@ -2,6 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
+import Link from '@material-ui/core/Link';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -24,6 +25,7 @@ export interface IObjectRow {
   actObject: ActObject;
   isSelected?: boolean;
   label?: string;
+  objectValueLink?: { onClick: (e: any) => void; href: string };
   onRowClick?: (object: ActObject) => void;
   onCheckboxClick?: (obj: ActObject) => void;
 }
@@ -38,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ObjectRowComp = ({ actObject, label, onRowClick, onCheckboxClick, isSelected }: IObjectRow) => {
+const ObjectRowComp = ({ actObject, label, objectValueLink, onRowClick, onCheckboxClick, isSelected }: IObjectRow) => {
   const classes = useStyles();
 
   const objectValueString = renderObjectValue(actObject, 256);
@@ -65,13 +67,15 @@ const ObjectRowComp = ({ actObject, label, onRowClick, onCheckboxClick, isSelect
         <span style={{ color: objectTypeToColor(actObject.type.name) }}>{actObject.type.name}</span>
       </TableCell>
       <TableCell classes={{ root: classes.cell }} size="small">
-        {label ? (
-          <Tooltip title={'Value: ' + objectValueString} enterDelay={500}>
-            <span>{label}</span>
-          </Tooltip>
-        ) : (
-          <span>{objectValueString}</span>
-        )}
+        <Link href={objectValueLink && objectValueLink.href} onClick={objectValueLink && objectValueLink.onClick}>
+          {label ? (
+            <Tooltip title={'Value: ' + objectValueString} enterDelay={500}>
+              <span>{label}</span>
+            </Tooltip>
+          ) : (
+            <span>{objectValueString}</span>
+          )}
+        </Link>
       </TableCell>
     </TableRow>
   );

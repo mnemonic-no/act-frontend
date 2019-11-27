@@ -4,7 +4,7 @@ import { action, computed } from 'mobx';
 import { IDetailsComp } from './Details';
 import { ActFact, ActObject } from '../../../core/types';
 import { getObjectLabelFromFact } from '../../../core/domain';
-import { objectTypeToColor } from '../../../util/util';
+import { link, objectTypeToColor } from '../../../util/util';
 import AppStore from '../../../AppStore';
 import { IObjectTitleComp } from '../../../components/ObjectTitle';
 
@@ -43,7 +43,12 @@ class DetailsStore {
 
     // Clear selection and show graph
     this.resultsStore.clearSelection();
-    this.appStore.navigateTo('mainPage');
+    this.appStore.goToUrl('/chart');
+  }
+
+  @action.bound
+  onOpenObjectSummaryPage(actObject: ActObject) {
+    this.appStore.goToUrl('/object-summary/' + actObject.type.name + '/' + actObject.value);
   }
 
   @computed
@@ -61,6 +66,12 @@ class DetailsStore {
         kind: 'object' as 'object',
         content: {
           title: 'Selection',
+          linkToSummaryPage: link({
+            text: 'Open summary',
+            tooltip: 'Go to object summary page',
+            href: '/object-summary/' + selectedObject.type.name + '/' + selectedObject.value,
+            navigateFn: (url: string) => this.appStore.goToUrl(url)
+          }),
           objectTitle: objectTitle(selectedObject, this.objectLabelFromFactType, activeSimpleSearch.facts || []),
           clearSelectionButton: {
             text: 'Clear',

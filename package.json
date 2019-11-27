@@ -43,6 +43,7 @@
     "seamless-immutable": "7.1.4",
     "typeface-roboto": "0.0.75",
     "typescript": "3.7.2",
+    "universal-router": "8.3.0",
     "wretch": "1.5.5"
   },
   "devDependencies": {

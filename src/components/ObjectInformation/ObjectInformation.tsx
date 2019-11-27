@@ -3,6 +3,8 @@ import { observer } from 'mobx-react';
 import { compose } from 'recompose';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import Link from '@material-ui/core/Link';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
 import config from '../../config';
@@ -47,6 +49,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingBottom: theme.spacing(),
     display: 'flex',
     justifyContent: 'space-between'
+  },
+  linkToSummary: {
+    paddingBottom: theme.spacing(2)
   }
 }));
 
@@ -66,6 +71,7 @@ const ObjectInformationComp = ({
   id,
   oneLeggedFacts,
   details,
+  linkToSummaryPage,
   createFactDialog,
   onSearchSubmit,
   onCreateFactClick,
@@ -84,13 +90,22 @@ const ObjectInformationComp = ({
     ? selectedObject.statistics.reduce((acc: any, x: any) => x.count + acc, 0)
     : 0;
 
-  // @ts-ignore
-
   return (
     <div className={classes.root}>
       <ObjectTitle {...objectTitle(selectedObject, oneLeggedFacts)} onTitleClick={onTitleClick} />
 
       <div className={classes.info}>
+        <Tooltip title={linkToSummaryPage.tooltip}>
+          <div className={classes.linkToSummary}>
+            <Link
+              href={linkToSummaryPage.href}
+              color="primary"
+              underline={'always'}
+              onClick={linkToSummaryPage.onClick}>
+              {linkToSummaryPage.text}
+            </Link>
+          </div>
+        </Tooltip>
         <Typography variant="body1" gutterBottom>
           {totalFacts} facts
         </Typography>
@@ -127,6 +142,7 @@ interface IObjectInformationCompInternal {
   selectedObject: ActObject;
   oneLeggedFacts: Array<ActFact>;
   details: ObjectDetails;
+  linkToSummaryPage: { text: string; href: string; tooltip: string; onClick: (e: any) => void };
   createFactDialog: CreateFactForDialog;
   onSearchSubmit: (search: Search) => void;
   onFactClick: (f: ActFact) => void;

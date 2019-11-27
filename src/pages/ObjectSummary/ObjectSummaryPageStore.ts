@@ -1,4 +1,4 @@
-import { action, computed } from 'mobx';
+import { action, computed, observable } from 'mobx';
 
 import { IObjectTitleComp } from '../../components/ObjectTitle';
 import { IObjectTypeToSections } from '../../core/types';
@@ -85,7 +85,7 @@ class ObjectSummaryPageStore {
   error: Error | null = null;
   config: { [id: string]: any };
 
-  currentObject: { typeName: string; value: string } | undefined;
+  @observable currentObject: { typeName: string; value: string } | undefined;
 
   objectTypeToSections: IObjectTypeToSections = {};
 
@@ -96,6 +96,7 @@ class ObjectSummaryPageStore {
       parseObjectSummary({ objectSummary: config.objectSummary, actions: config.actions }) || {};
   }
 
+  @action.bound
   prepare(objectTypeName: string, objectValue: string) {
     this.currentObject = { typeName: objectTypeName, value: objectValue };
 
@@ -111,11 +112,7 @@ class ObjectSummaryPageStore {
   @action.bound
   openInGraphView() {
     if (!this.currentObject) return;
-    this.root.navigateTo('mainPage');
-    this.root.mainPageStore.backendStore.executeSearch({
-      objectType: this.currentObject.typeName,
-      objectValue: this.currentObject.value
-    });
+    this.root.goToUrl('/object-fact-query/' + this.currentObject.typeName + '/' + this.currentObject.value);
   }
 
   @computed

@@ -33,7 +33,7 @@ class SearchPageStore {
     this.autoCompleteSimpleSearchBackendStore = autoCompleteSimpleSearchBackendStore;
     this.suggestionLimit = simpleSearchBackendStore.resultLimit;
 
-    const resultsStore = new ResultsStore(this, simpleSearchBackendStore);
+    const resultsStore = new ResultsStore(root, this, simpleSearchBackendStore);
 
     this.ui = {
       resultsStore: resultsStore,

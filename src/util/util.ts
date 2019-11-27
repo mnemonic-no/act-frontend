@@ -168,3 +168,22 @@ export function copyToClipBoard(text: string) {
 export const assertNever = (x: never): never => {
   throw new Error('Unexpected value. Should have been never' + x);
 };
+
+export const linkOnClickFn = (props: { href: string; navigateFn: (url: string) => void }) => {
+  return (e: any) => {
+    e.stopPropagation();
+    if (modifierKeysUsed(e)) return; // Enable modified-clicking to open links in new tabs
+    // Stop the browser from navigating to a fresh page, keep the state please
+    e.preventDefault();
+    props.navigateFn(e.currentTarget.pathname);
+  };
+};
+
+export const link = (props: { text: string; tooltip: string; href: string; navigateFn: (url: string) => void }) => {
+  return {
+    text: props.text,
+    tooltip: props.tooltip,
+    href: props.href,
+    onClick: linkOnClickFn({ href: props.href, navigateFn: props.navigateFn })
+  };
+};

@@ -22,7 +22,21 @@
     "uri": ["port", "scheme"]
   },
   "objectLabelFromFactType": "name",
-  "contextActions": [],
+  "actions": {
+    "open-in-vt": {
+      "name": "Virus Total",
+      "description": "Lookup on Virus Total",
+      "type": "link",
+      "urlPattern": "https://www.virustotal.com/gui/file/:objectValue"
+    }
+  },
+  "contextActions": [{
+    "objects": [
+      "content",
+      "hash"
+    ],
+    "action":  "open-in-vt"}
+  ],
   "predefinedObjectQueries": [
     {
       "name": "asn",

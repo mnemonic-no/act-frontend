@@ -4,6 +4,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
+import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -77,6 +78,7 @@ export type TTextCell = {
   kind: 'text';
   text: string;
   color?: string;
+  link?: { href: string; onClick: (e: any) => void };
 };
 
 export type TCell = TActionCell | TTextCell;
@@ -177,7 +179,12 @@ const Cell = (cell: TCell) => {
     case 'text':
       return (
         <TableCell size="small" style={{ color: cell.color || '' }} className={classes.cell}>
-          {cell.text}
+          {cell.link && (
+            <Link href={cell.link.href} onClick={cell.link.onClick}>
+              {cell.text}
+            </Link>
+          )}
+          {!cell.link && cell.text}
         </TableCell>
       );
     case 'action':

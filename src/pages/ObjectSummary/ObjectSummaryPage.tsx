@@ -20,7 +20,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   header: {
     padding: theme.spacing(1),
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(1),
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   sections: {
     flex: '1 0 auto',

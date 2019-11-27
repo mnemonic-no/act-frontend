@@ -2,7 +2,7 @@ import { action, computed, observable } from 'mobx';
 
 import { IObjectTitleComp } from '../../components/ObjectTitle';
 import { IObjectTypeToSections } from '../../core/types';
-import { notUndefined, objectTypeToColor } from '../../util/util';
+import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
 import { getObjectLabelFromFact, toContextAction } from '../../core/domain';
 import { TCell, TSectionComp, TTextCell } from './Section';
 import AppStore from '../../AppStore';
@@ -28,7 +28,8 @@ export const prepareSections = (
   objectTypeToSections: IObjectTypeToSections,
   graphQueryStore: GraphQueryStore,
   objectLabelFromFactType: string,
-  postAndForgetFn: (url: string, jsonBody: any, successString: string) => void
+  postAndForgetFn: (url: string, jsonBody: any, successString: string) => void,
+  navigateFn: (url: string) => void
 ): Array<TSectionComp> => {
   const sections =
     objectTypeToSections[currentObject.typeName] && objectTypeToSections[currentObject.typeName].sections;
@@ -57,22 +58,26 @@ export const prepareSections = (
         rows: q.objects
           ? q.objects
               .slice()
-              .map(o => ({
-                cells: [
-                  { kind: 'text' as 'text', text: o.type.name, color: objectTypeToColor(o.type.name) },
-                  {
-                    kind: 'text' as 'text',
-                    text: getObjectLabelFromFact(o, objectLabelFromFactType, q.facts) || o.value
-                  },
-                  actions && {
-                    kind: 'action' as 'action',
-                    actions: actions.map(a => {
-                      const x = toContextAction(a.action, o, postAndForgetFn);
-                      return { tooltip: x.description, icon: a.icon, href: x.href || '' };
-                    })
-                  }
-                ].filter(notUndefined)
-              }))
+              .map(o => {
+                const href = '/object-summary/' + o.type.name + '/' + o.value;
+                return {
+                  cells: [
+                    { kind: 'text' as 'text', text: o.type.name, color: objectTypeToColor(o.type.name) },
+                    {
+                      kind: 'text' as 'text',
+                      text: getObjectLabelFromFact(o, objectLabelFromFactType, q.facts) || o.value,
+                      link: { href: href, onClick: linkOnClickFn({ href: href, navigateFn: navigateFn }) }
+                    },
+                    actions && {
+                      kind: 'action' as 'action',
+                      actions: actions.map(a => {
+                        const x = toContextAction(a.action, o, postAndForgetFn);
+                        return { tooltip: x.description, icon: a.icon, href: x.href || '' };
+                      })
+                    }
+                  ].filter(notUndefined)
+                };
+              })
               .sort(byColumns)
           : []
       }
@@ -81,7 +86,7 @@ export const prepareSections = (
 };
 
 class ObjectSummaryPageStore {
-  root: AppStore;
+  appStore: AppStore;
   error: Error | null = null;
   config: { [id: string]: any };
 
@@ -90,7 +95,7 @@ class ObjectSummaryPageStore {
   objectTypeToSections: IObjectTypeToSections = {};
 
   constructor(root: AppStore, config: any) {
-    this.root = root;
+    this.appStore = root;
     this.config = config;
     this.objectTypeToSections =
       parseObjectSummary({ objectSummary: config.objectSummary, actions: config.actions }) || {};
@@ -104,7 +109,7 @@ class ObjectSummaryPageStore {
 
     if (sections) {
       sections.forEach(section => {
-        this.root.backendStore.graphQueryStore.execute(objectValue, objectTypeName, section.query);
+        this.appStore.backendStore.graphQueryStore.execute(objectValue, objectTypeName, section.query);
       });
     }
   }
@@ -112,13 +117,13 @@ class ObjectSummaryPageStore {
   @action.bound
   openInGraphView() {
     if (!this.currentObject) return;
-    this.root.goToUrl('/object-fact-query/' + this.currentObject.typeName + '/' + this.currentObject.value);
+    this.appStore.goToUrl('/object-fact-query/' + this.currentObject.typeName + '/' + this.currentObject.value);
   }
 
   @computed
   get prepared() {
     return {
-      pageMenu: this.root.pageMenu,
+      pageMenu: this.appStore.pageMenu,
       error: {
         error: this.error,
         onClose: () => (this.error = null)
@@ -133,9 +138,10 @@ class ObjectSummaryPageStore {
         sections: prepareSections(
           this.currentObject,
           this.objectTypeToSections,
-          this.root.backendStore.graphQueryStore,
+          this.appStore.backendStore.graphQueryStore,
           this.config.objectLabelFromFactType,
-          this.root.backendStore.postAndForget
+          this.appStore.backendStore.postAndForget,
+          (url: string) => this.appStore.goToUrl(url)
         )
       }
     };

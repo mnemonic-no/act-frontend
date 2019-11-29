@@ -62,6 +62,7 @@ interface IErrorSection {
   title: string;
   errorTitle: string;
   errorMessage: string;
+  color: 'error' | 'warning';
 }
 
 interface ILoadingSection {
@@ -116,6 +117,7 @@ const ErrorSectionComp = (props: IErrorSection) => {
   const classes = useSectionStyles();
   const errorClasses = useErrorStyles();
 
+  const color = props.color === 'warning' ? 'secondary' : 'error';
   return (
     <Paper className={classes.root}>
       <div className={classes.title}>
@@ -124,12 +126,12 @@ const ErrorSectionComp = (props: IErrorSection) => {
       <Divider />
       <div className={cc(classes.content, errorClasses.container)}>
         <div className={errorClasses.errorIcon}>
-          <WarnIcon color="error" style={{ fontSize: '90px' }} />
+          <WarnIcon color={color} style={{ fontSize: '90px' }} />
         </div>
-        <Typography color="error" variant="h6">
+        <Typography color={color} variant="h6">
           {props.errorTitle}
         </Typography>
-        <Typography color="error" variant="body2" className={errorClasses.errorMessage}>
+        <Typography color={color} variant="body2" className={errorClasses.errorMessage}>
           {props.errorMessage}
         </Typography>
       </div>

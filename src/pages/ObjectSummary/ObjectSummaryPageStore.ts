@@ -1,7 +1,8 @@
 import { action, computed, observable } from 'mobx';
+import * as _ from 'lodash/fp';
 
 import { IObjectTitleComp } from '../../components/ObjectTitle';
-import { IObjectTypeToSections } from '../../core/types';
+import { ActObject, IObjectTypeToSections } from '../../core/types';
 import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
 import { getObjectLabelFromFact, toContextAction } from '../../core/domain';
 import { TCell, TSectionComp, TTextCell } from './Section';
@@ -21,6 +22,15 @@ export const byColumns = (a: { cells: Array<TCell> }, b: { cells: Array<TCell> }
   const bTextCells = cellsAsText(b.cells);
 
   return aTextCells > bTextCells ? 1 : -1;
+};
+
+export const countByObjectTypeString = (objects: Array<ActObject>) => {
+  return _.pipe(
+    _.groupBy((x: ActObject) => x.type.name),
+    _.mapValues((x: Array<ActObject>) => x.length),
+    _.entries,
+    _.map(([objectType, count]) => objectType + ' (' + count + ')')
+  )(objects).join(', ');
 };
 
 export const prepareSections = (
@@ -43,7 +53,23 @@ export const prepareSections = (
     }
 
     if (q.status === 'rejected') {
-      return { kind: 'error', title: title, errorTitle: 'Query failed', errorMessage: q.errorDetails || '' };
+      return {
+        kind: 'error',
+        title: title,
+        errorTitle: 'Query failed',
+        errorMessage: q.errorDetails || '',
+        color: 'error'
+      };
+    }
+
+    if (q.objects && q.objects.length > 25) {
+      return {
+        kind: 'error',
+        title: title,
+        errorTitle: 'Large result (' + q.objects.length + ')',
+        errorMessage: countByObjectTypeString(q.objects),
+        color: 'warning'
+      };
     }
 
     if (q.objects && q.objects.length === 0) {

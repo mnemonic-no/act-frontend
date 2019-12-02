@@ -2,11 +2,15 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 
+import { ActObject } from '../../core/types';
+import FactTypeTable from '../../components/ObjectInformation/FactTypeTable';
 import ObjectSummaryPageStore from './ObjectSummaryPageStore';
-import ObjectTitle from '../../components/ObjectTitle';
+import ObjectTitle, { IObjectTitleComp } from '../../components/ObjectTitle';
 import Page from '../Page';
 import Section from './Section';
 
@@ -17,13 +21,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     backgroundColor: theme.palette.grey['100'],
     display: 'flex',
     flexFlow: 'column nowrap'
-  },
-  header: {
-    padding: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
   },
   sections: {
     flex: '1 0 auto',
@@ -43,25 +40,76 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
+const useTitleSectionStyles = makeStyles((theme: Theme) => ({
+  root: {
+    padding: theme.spacing(1),
+    display: 'flex',
+    flexFlow: 'column nowrap',
+    alignItems: 'stretch'
+  },
+  heading: { display: 'flex', justifyContent: 'space-between' },
+  content: { flex: '1 0 auto', display: 'flex', flexFlow: 'column nowrap', paddingTop: theme.spacing(1) },
+  centered: {
+    display: 'flex',
+    flexFlow: 'column',
+    flex: '1 0 auto',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
+}));
+
+const TitleSection = (props: {
+  title: IObjectTitleComp;
+  addToGraphButton: { tooltip: string; onClick: () => void; text: string };
+  factTypeTable: { isLoading: boolean; factCount?: string; selectedObject?: ActObject; error?: string };
+}) => {
+  const classes = useTitleSectionStyles();
+
+  return (
+    <Paper className={classes.root}>
+      <div className={classes.heading}>
+        <Typography variant="h6">Object Summary</Typography>
+        <Tooltip title={props.addToGraphButton.tooltip}>
+          <Button variant="outlined" onClick={props.addToGraphButton.onClick}>
+            {props.addToGraphButton.text}
+          </Button>
+        </Tooltip>
+      </div>
+      <ObjectTitle {...props.title} />
+      <div className={classes.content}>
+        {props.factTypeTable.isLoading && (
+          <div className={classes.centered}>
+            <CircularProgress />
+          </div>
+        )}
+        {props.factTypeTable.error && <div>{props.factTypeTable.error}</div>}
+        {!props.factTypeTable.isLoading && props.factTypeTable.selectedObject && (
+          <>
+            <Typography variant="subtitle1">{props.factTypeTable.factCount}</Typography>
+            <FactTypeTable selectedObject={props.factTypeTable.selectedObject} oneLeggedFacts={[]} />
+          </>
+        )}
+      </div>
+    </Paper>
+  );
+};
+
 const SummaryPageComp = ({ store }: ISummaryPageComp) => {
   const classes = useStyles();
 
-  const content = store.prepared.content;
+  const { content } = store.prepared;
 
   return (
     <Page errorSnackbar={store.prepared.error} isLoading={false} leftMenuItems={store.prepared.pageMenu}>
       {!content && <h1>Empty page</h1>}
       {content && (
         <div className={classes.root}>
-          <Paper className={classes.header}>
-            <ObjectTitle {...content.title} />
-            <Tooltip title={content.addToGraphButton.tooltip}>
-              <Button variant="outlined" onClick={content.addToGraphButton.onClick}>
-                {content.addToGraphButton.text}
-              </Button>
-            </Tooltip>
-          </Paper>
           <div className={classes.sections}>
+            <TitleSection
+              title={content.titleSection.title}
+              addToGraphButton={content.titleSection.addToGraphButton}
+              factTypeTable={content.titleSection.factTypeTable}
+            />
             {content.sections.map(section => {
               return <Section key={section.title} {...section} />;
             })}

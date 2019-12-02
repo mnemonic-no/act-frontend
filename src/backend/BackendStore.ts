@@ -6,6 +6,7 @@ import { addMessage } from '../util/SnackbarProvider';
 import AppStore from '../AppStore';
 import GraphQueryStore from './GraphQueryStore';
 import SimpleSearchBackendStore from './SimpleSearchBackendStore';
+import ActObjectBackendStore from './ActObjectBackendStore';
 
 const maxFetchLimit = 2000;
 
@@ -18,6 +19,7 @@ class BackendStore {
   root: AppStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
   autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
+  actObjectBackendStore: ActObjectBackendStore;
   graphQueryStore: GraphQueryStore;
 
   @observable isLoading: boolean = false;
@@ -27,6 +29,7 @@ class BackendStore {
     this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, 300);
     this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
     this.graphQueryStore = new GraphQueryStore();
+    this.actObjectBackendStore = new ActObjectBackendStore(config);
   }
 
   @action

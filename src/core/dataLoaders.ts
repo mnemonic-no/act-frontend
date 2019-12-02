@@ -248,9 +248,18 @@ export const factTypesDataLoader = memoizeDataLoader(
   }
 );
 
-export const objectStatsDataLoader = (id: string) => {
+export const objectByUuidDataLoader = (id: string) => {
   return actWretch
     .url(`/v1/object/uuid/${id}`)
+    .get()
+    .forbidden(handleForbiddenSearchResults)
+    .json(({ data }: any) => data)
+    .catch(handleError);
+};
+
+export const objectDataLoader = (objectTypeName: string, objectValue: string) => {
+  return actWretch
+    .url(`/v1/object/${encodeURIComponent(objectTypeName)}/${encodeURIComponent(objectValue)}`)
     .get()
     .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => data)

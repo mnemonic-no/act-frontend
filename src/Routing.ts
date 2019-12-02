@@ -20,8 +20,8 @@ class Routing {
         action: context => {
           return () => {
             const { objectType, objectValue } = context.params as { [key: string]: string };
-            this.appStore.currentPage = 'summaryPage';
             this.appStore.summaryPageStore.prepare(objectType, objectValue);
+            this.appStore.currentPage = 'summaryPage';
           };
         }
       },
@@ -30,33 +30,30 @@ class Routing {
         action: context => {
           return () => {
             const { objectType, objectValue } = context.params as { [key: string]: string };
-            this.appStore.currentPage = 'mainPage';
             this.appStore.mainPageStore.backendStore.executeSearch({
               objectType: objectType,
               objectValue: objectValue
             });
+            this.appStore.currentPage = 'mainPage';
           };
         }
       },
       {
         path: '/gremlin/:objectType/:objectValue/:query',
         action: context => {
-          this.appStore.currentPage = 'mainPage';
-
           const { objectType, objectValue, query } = context.params as { [key: string]: string };
-
           this.appStore.mainPageStore.backendStore.executeSearch({
             objectType: objectType,
             objectValue: objectValue,
             query: query
           });
+
+          this.appStore.currentPage = 'mainPage';
         }
       },
       {
         path: '/graph-query/:objectType/:objectValue/:query',
         action: context => {
-          this.appStore.currentPage = 'mainPage';
-
           const { objectType, objectValue, query } = context.params as { [key: string]: string };
 
           this.appStore.mainPageStore.backendStore.executeSearch({
@@ -64,6 +61,8 @@ class Routing {
             objectValue: objectValue,
             query: query
           });
+
+          this.appStore.currentPage = 'mainPage';
         }
       },
       {

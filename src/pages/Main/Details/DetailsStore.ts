@@ -2,7 +2,7 @@ import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import MainPageStore from '../MainPageStore';
-import { ActFact, ActObject, ContextAction, PredefinedObjectQuery, Search } from '../../../core/types';
+import { ActFact, ActObject, ContextAction, NamedId, PredefinedObjectQuery, Search } from '../../../core/types';
 import { ContextActionTemplate, resolveActions } from '../../../config';
 import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
 import { byTypeThenValue, link, pluralize } from '../../../util/util';
@@ -139,8 +139,14 @@ class DetailsStore {
       }),
 
       createFactDialog: this.createFactDialog,
-      onSearchSubmit: this.onSearchSubmit,
       onFactClick: this.setSelectedFact,
+      onFactTypeClick: (factType: NamedId) => {
+        this.onSearchSubmit({
+          objectType: selected.type.name,
+          objectValue: selected.value,
+          factTypes: [factType.name]
+        });
+      },
       onTitleClick: () => this.onSearchSubmit({ objectType: selected.type.name, objectValue: selected.value }),
       onPredefinedObjectQueryClick: this.onPredefinedObjectQueryClick,
       onCreateFactClick: this.onCreateFactClick,

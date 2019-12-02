@@ -3,12 +3,13 @@ import * as _ from 'lodash/fp';
 
 import { IObjectTitleComp } from '../../components/ObjectTitle';
 import { ActObject, IObjectTypeToSections } from '../../core/types';
-import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
-import { getObjectLabelFromFact, toContextAction } from '../../core/domain';
+import { linkOnClickFn, notUndefined, objectTypeToColor, pluralize } from '../../util/util';
+import { factCount, getObjectLabelFromFact, objectTitle, toContextAction } from '../../core/domain';
 import { TCell, TSectionComp, TTextCell } from './Section';
 import AppStore from '../../AppStore';
 import GraphQueryStore from '../../backend/GraphQueryStore';
 import { parseObjectSummary, TSectionConfig } from '../../config';
+import { ActObjectSearch } from '../../backend/ActObjectBackendStore';
 
 const cellsAsText = (cells: Array<TCell>) => {
   return cells
@@ -62,7 +63,7 @@ export const prepareSections = (
       };
     }
 
-    if (q.objects && q.objects.length > 25) {
+    if (q.objects && q.objects.length > 200) {
       return {
         kind: 'error',
         title: title,
@@ -111,6 +112,34 @@ export const prepareSections = (
   });
 };
 
+export const getObjectTitle = (actObjectSearch: ActObjectSearch, objectLabelFromFactType: string): IObjectTitleComp => {
+  if (actObjectSearch.status === 'done' && actObjectSearch.result) {
+    return objectTitle(actObjectSearch.result.actObject, actObjectSearch.result.facts, objectLabelFromFactType);
+  }
+  return {
+    title: actObjectSearch.objectValue,
+    subTitle: actObjectSearch.objectTypeName,
+    color: objectTypeToColor(actObjectSearch.objectTypeName)
+  } as IObjectTitleComp;
+};
+
+export const getFactTypeTable = (actObjectSearch: ActObjectSearch) => {
+  if (actObjectSearch.status === 'pending') {
+    return { isLoading: true };
+  }
+  if (actObjectSearch.status === 'rejected') {
+    return { isLoading: false, error: 'Failed to fetch facts: ' + actObjectSearch.errorDetails };
+  }
+  if (actObjectSearch.status === 'done' && actObjectSearch.result) {
+    return {
+      isLoading: false,
+      factCount: pluralize(factCount(actObjectSearch.result.actObject), 'fact'),
+      selectedObject: actObjectSearch.result.actObject
+    };
+  }
+  return { isLoading: false, error: 'Failure: Got no result' };
+};
+
 class ObjectSummaryPageStore {
   appStore: AppStore;
   error: Error | null = null;
@@ -132,6 +161,7 @@ class ObjectSummaryPageStore {
     this.currentObject = { typeName: objectTypeName, value: objectValue };
 
     const sections = this.objectTypeToSections[objectTypeName] && this.objectTypeToSections[objectTypeName].sections;
+    this.appStore.backendStore.actObjectBackendStore.execute(objectValue, objectTypeName);
 
     if (sections) {
       sections.forEach(section => {
@@ -148,19 +178,36 @@ class ObjectSummaryPageStore {
 
   @computed
   get prepared() {
+    const actObjectSearch =
+      this.currentObject &&
+      this.appStore.backendStore.actObjectBackendStore.getActObjectSearch(
+        this.currentObject.value,
+        this.currentObject.typeName
+      );
+
+    if (!this.currentObject || !actObjectSearch) {
+      this.error = new Error('No object selected');
+      return {
+        pageMenu: this.appStore.pageMenu,
+        error: {
+          error: this.error,
+          onClose: () => (this.error = null)
+        }
+      };
+    }
+
     return {
       pageMenu: this.appStore.pageMenu,
       error: {
         error: this.error,
         onClose: () => (this.error = null)
       },
-      content: this.currentObject && {
-        title: {
-          title: this.currentObject.value,
-          subTitle: this.currentObject.typeName,
-          color: objectTypeToColor(this.currentObject.typeName)
-        } as IObjectTitleComp,
-        addToGraphButton: { text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView },
+      content: {
+        titleSection: {
+          title: getObjectTitle(actObjectSearch, this.config.objectLabelFromFactType),
+          addToGraphButton: { text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView },
+          factTypeTable: getFactTypeTable(actObjectSearch)
+        },
         sections: prepareSections(
           this.currentObject,
           this.objectTypeToSections,

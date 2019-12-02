@@ -11,17 +11,17 @@ import config from '../../config';
 import withDataLoader from '../../util/withDataLoader';
 import memoizeDataLoader from '../../util/memoizeDataLoader';
 import CenteredCircularProgress from '../CenteredCircularProgress';
-import { objectTypeToColor } from '../../util/util';
 import { ObjectDetails } from '../../pages/Main/Details/DetailsStore';
 import PredefinedObjectQueries from './PredefinedObjectQueries';
 import ContextActions from './ContextActions';
-import { factDataLoader, factTypesDataLoader, objectStatsDataLoader } from '../../core/dataLoaders';
-import { getObjectLabelFromFact, isOneLeggedFactType } from '../../core/domain';
-import { ActFact, ActObject, FactType, PredefinedObjectQuery, Search } from '../../core/types';
+import { factDataLoader, factTypesDataLoader, objectByUuidDataLoader } from '../../core/dataLoaders';
+import { objectTitle, isOneLeggedFactType, factCount } from '../../core/domain';
+import { ActFact, ActObject, FactType, NamedId, PredefinedObjectQuery } from '../../core/types';
 import FactTypeTable from './FactTypeTable';
 import CreateFactForObjectDialog from '../CreateFactFor/Dialog';
 import CreateFactForDialog from '../CreateFactFor/DialogStore';
 import ObjectTitle from '../../components/ObjectTitle';
+import { pluralize } from '../../util/util';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -55,17 +55,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const objectTitle = (actObject: ActObject, oneLeggedFacts: Array<ActFact>) => {
-  const labelFromFact = getObjectLabelFromFact(actObject, config.objectLabelFromFactType, oneLeggedFacts);
-
-  return {
-    title: labelFromFact || actObject.value,
-    metaTitle: labelFromFact && actObject.value,
-    subTitle: actObject.type.name,
-    color: objectTypeToColor(actObject.type.name)
-  };
-};
-
 const ObjectInformationComp = ({
   selectedObject,
   id,
@@ -73,11 +62,11 @@ const ObjectInformationComp = ({
   details,
   linkToSummaryPage,
   createFactDialog,
-  onSearchSubmit,
   onCreateFactClick,
   onPruneObject,
   onTitleClick,
   onFactClick,
+  onFactTypeClick,
   onPredefinedObjectQueryClick
 }: IObjectInformationCompInternal) => {
   const classes = useStyles();
@@ -86,13 +75,12 @@ const ObjectInformationComp = ({
     return null;
   }
 
-  const totalFacts = selectedObject.statistics
-    ? selectedObject.statistics.reduce((acc: any, x: any) => x.count + acc, 0)
-    : 0;
-
   return (
     <div className={classes.root}>
-      <ObjectTitle {...objectTitle(selectedObject, oneLeggedFacts)} onTitleClick={onTitleClick} />
+      <ObjectTitle
+        {...objectTitle(selectedObject, oneLeggedFacts, config.objectLabelFromFactType)}
+        onTitleClick={onTitleClick}
+      />
 
       <div className={classes.info}>
         <Tooltip title={linkToSummaryPage.tooltip}>
@@ -107,14 +95,16 @@ const ObjectInformationComp = ({
           </div>
         </Tooltip>
         <Typography variant="body1" gutterBottom>
-          {totalFacts} facts
+          {pluralize(factCount(selectedObject), 'fact')}
         </Typography>
 
         <FactTypeTable
           selectedObject={selectedObject}
           oneLeggedFacts={oneLeggedFacts}
-          onSearchSubmit={onSearchSubmit}
+          onFactTypeClick={onFactTypeClick}
           onFactClick={onFactClick}
+          factTooltip="Show fact"
+          factTypeTooltip="Execute search"
         />
       </div>
 
@@ -144,7 +134,7 @@ interface IObjectInformationCompInternal {
   details: ObjectDetails;
   linkToSummaryPage: { text: string; href: string; tooltip: string; onClick: (e: any) => void };
   createFactDialog: CreateFactForDialog;
-  onSearchSubmit: (search: Search) => void;
+  onFactTypeClick: (factType: NamedId) => void;
   onFactClick: (f: ActFact) => void;
   onCreateFactClick: (e: any) => void;
   onPruneObject: (o: ActObject) => void;
@@ -153,7 +143,7 @@ interface IObjectInformationCompInternal {
 }
 
 const dataLoader = async ({ id }: { id: string }) => {
-  const selectedObject = await objectStatsDataLoader(id);
+  const selectedObject = await objectByUuidDataLoader(id);
 
   const factTypes: Array<FactType> = await factTypesDataLoader();
   const oneLeggedFactTypeNames = factTypes.filter(ft => isOneLeggedFactType(ft)).map(ft => ft.name);

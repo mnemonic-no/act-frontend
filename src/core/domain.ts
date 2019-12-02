@@ -1,6 +1,7 @@
 import { ActFact, ActObject, ContextAction, FactType, PredefinedObjectQuery } from './types';
-import { assertNever, notUndefined, replaceAll, replaceAllInObject } from '../util/util';
+import { assertNever, notUndefined, objectTypeToColor, replaceAll, replaceAllInObject } from '../util/util';
 import { ActionTemplate, ContextActionTemplate } from '../config';
+import { IObjectTitleComp } from '../components/ObjectTitle';
 
 export function isRetracted(fact: ActFact) {
   return fact.flags.some(x => x === 'Retracted');
@@ -229,4 +230,23 @@ export const validUnidirectionalFactTargetObjectTypes = (factType: FactType, obj
 
 export const oneLeggedFactsFor = (object: ActObject, facts: Array<ActFact>) => {
   return facts.filter(isOneLegged).filter(f => f.sourceObject && f.sourceObject.id === object.id);
+};
+
+export const objectTitle = (
+  actObject: ActObject,
+  oneLeggedFacts: Array<ActFact>,
+  objectLabelFromFactType: string
+): IObjectTitleComp => {
+  const labelFromFact = getObjectLabelFromFact(actObject, objectLabelFromFactType, oneLeggedFacts);
+
+  return {
+    title: labelFromFact || actObject.value,
+    metaTitle: labelFromFact && actObject.value,
+    subTitle: actObject.type.name,
+    color: objectTypeToColor(actObject.type.name)
+  };
+};
+
+export const factCount = (actObject: ActObject) => {
+  return actObject.statistics ? actObject.statistics.reduce((acc: any, x: any) => x.count + acc, 0) : 0;
 };

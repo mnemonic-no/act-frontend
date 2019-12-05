@@ -2,13 +2,12 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import Chip from '@material-ui/core/Chip';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import { ActObject } from '../../core/types';
-import FactTypeTable from '../../components/ObjectInformation/FactTypeTable';
 import ObjectSummaryPageStore from './ObjectSummaryPageStore';
 import ObjectTitle, { IObjectTitleComp } from '../../components/ObjectTitle';
 import Page from '../Page';
@@ -55,20 +54,25 @@ const useTitleSectionStyles = makeStyles((theme: Theme) => ({
     flex: '1 0 auto',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  tag: {
+    marginRight: theme.spacing(0.5)
   }
 }));
 
 const TitleSection = (props: {
+  isLoading: boolean;
   title: IObjectTitleComp;
   addToGraphButton: { tooltip: string; onClick: () => void; text: string };
-  factTypeTable: { isLoading: boolean; factCount?: string; selectedObject?: ActObject; error?: string };
+  categories: Array<string>;
 }) => {
   const classes = useTitleSectionStyles();
 
   return (
     <Paper className={classes.root}>
       <div className={classes.heading}>
-        <Typography variant="h6">Object Summary</Typography>
+        <Typography variant="h6">Object Summary {props.isLoading && <CircularProgress size={20} />}</Typography>
+
         <Tooltip title={props.addToGraphButton.tooltip}>
           <Button variant="outlined" onClick={props.addToGraphButton.onClick}>
             {props.addToGraphButton.text}
@@ -77,18 +81,15 @@ const TitleSection = (props: {
       </div>
       <ObjectTitle {...props.title} />
       <div className={classes.content}>
-        {props.factTypeTable.isLoading && (
-          <div className={classes.centered}>
-            <CircularProgress />
-          </div>
-        )}
-        {props.factTypeTable.error && <div>{props.factTypeTable.error}</div>}
-        {!props.factTypeTable.isLoading && props.factTypeTable.selectedObject && (
-          <>
-            <Typography variant="subtitle1">{props.factTypeTable.factCount}</Typography>
-            <FactTypeTable selectedObject={props.factTypeTable.selectedObject} oneLeggedFacts={[]} />
-          </>
-        )}
+        <div>
+          {props.categories.map((category, idx) => {
+            return (
+              <Tooltip title={'Category'} key={idx}>
+                <Chip className={classes.tag} label={category} size="small" color="primary" />
+              </Tooltip>
+            );
+          })}
+        </div>
       </div>
     </Paper>
   );
@@ -105,11 +106,7 @@ const SummaryPageComp = ({ store }: ISummaryPageComp) => {
       {content && (
         <div className={classes.root}>
           <div className={classes.sections}>
-            <TitleSection
-              title={content.titleSection.title}
-              addToGraphButton={content.titleSection.addToGraphButton}
-              factTypeTable={content.titleSection.factTypeTable}
-            />
+            <TitleSection {...content.titleSection} />
             {content.sections.map(section => {
               return <Section key={section.title} {...section} />;
             })}

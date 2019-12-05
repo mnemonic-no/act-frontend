@@ -1,15 +1,17 @@
 import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
+import { ActObjectSearch } from '../../backend/ActObjectBackendStore';
+import { FactStatsCellType, IFactStatRow, IFactStatsComp } from '../../components/FactStats';
 import { IObjectTitleComp } from '../../components/ObjectTitle';
-import { ActObject, IObjectTypeToSections } from '../../core/types';
-import { linkOnClickFn, notUndefined, objectTypeToColor, pluralize } from '../../util/util';
-import { factCount, getObjectLabelFromFact, objectTitle, toContextAction } from '../../core/domain';
+import { ActFact, ActObject, IObjectTypeToSections, LoadingStatus, ObjectStats, TLoadable } from '../../core/types';
+import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
+import { getObjectLabelFromFact, isOneLegged, objectTitle, toContextAction } from '../../core/domain';
+import { parseObjectSummary, TSectionConfig } from '../../configUtil';
 import { TCell, TSectionComp, TTextCell } from './Section';
+import { urlToObjectSummaryPage } from '../../Routing';
 import AppStore from '../../AppStore';
 import GraphQueryStore from '../../backend/GraphQueryStore';
-import { parseObjectSummary, TSectionConfig } from '../../config';
-import { ActObjectSearch } from '../../backend/ActObjectBackendStore';
 
 const cellsAsText = (cells: Array<TCell>) => {
   return cells
@@ -86,7 +88,7 @@ export const prepareSections = (
           ? q.objects
               .slice()
               .map(o => {
-                const href = '/object-summary/' + o.type.name + '/' + o.value;
+                const href = urlToObjectSummaryPage(o);
                 return {
                   cells: [
                     { kind: 'text' as 'text', text: o.type.name, color: objectTypeToColor(o.type.name) },
@@ -113,31 +115,82 @@ export const prepareSections = (
 };
 
 export const getObjectTitle = (actObjectSearch: ActObjectSearch, objectLabelFromFactType: string): IObjectTitleComp => {
-  if (actObjectSearch.status === 'done' && actObjectSearch.result) {
+  if (actObjectSearch.status === LoadingStatus.DONE && actObjectSearch.result) {
     return objectTitle(actObjectSearch.result.actObject, actObjectSearch.result.facts, objectLabelFromFactType);
   }
   return {
-    title: actObjectSearch.objectValue,
-    subTitle: actObjectSearch.objectTypeName,
-    color: objectTypeToColor(actObjectSearch.objectTypeName)
+    title: actObjectSearch.args.objectValue,
+    subTitle: actObjectSearch.args.objectTypeName,
+    color: objectTypeToColor(actObjectSearch.args.objectTypeName)
   } as IObjectTitleComp;
 };
 
-export const getFactTypeTable = (actObjectSearch: ActObjectSearch) => {
-  if (actObjectSearch.status === 'pending') {
-    return { isLoading: true };
+export const toFactStatRows = ({
+  actObject,
+  facts
+}: {
+  actObject: ActObject;
+  facts: Array<ActFact>;
+}): Array<IFactStatRow> => {
+  const oneLeggedFacts = facts.filter(isOneLegged);
+
+  return _.pipe(
+    _.sortBy((objectStats: ObjectStats) => objectStats.type.name),
+    _.map(
+      (objectStats: ObjectStats): IFactStatRow => {
+        const matchingOneLeggedFacts = oneLeggedFacts.filter(oneFact => oneFact.type.name === objectStats.type.name);
+
+        if (matchingOneLeggedFacts.length > 0) {
+          return {
+            cells: [
+              { kind: FactStatsCellType.text, text: objectStats.type.name },
+              {
+                kind: FactStatsCellType.links,
+                links: matchingOneLeggedFacts
+                  .map(fact => ({ text: fact.value + '', tag: objectStats.type.name === 'category' }))
+                  .sort((a, b) => (a.text > b.text ? 1 : -1))
+              }
+            ]
+          };
+        }
+
+        return {
+          cells: [
+            { kind: FactStatsCellType.text, text: objectStats.type.name },
+            { kind: FactStatsCellType.text, text: objectStats.count + '', align: 'right' as 'right' }
+          ]
+        };
+      }
+    )
+  )(actObject.statistics);
+};
+
+export const getFactStats = (actObjectSearch: ActObjectSearch): TLoadable<IFactStatsComp> => {
+  switch (actObjectSearch.status) {
+    case LoadingStatus.PENDING:
+      return { status: LoadingStatus.PENDING };
+    case LoadingStatus.REJECTED:
+      return { status: LoadingStatus.REJECTED, error: actObjectSearch.error };
+    case LoadingStatus.DONE:
+      return {
+        status: LoadingStatus.DONE,
+        result: { rows: toFactStatRows(actObjectSearch.result) }
+      };
+    default:
+      // eslint-disable-next-line
+      const _exhaustiveCheck: never = actObjectSearch;
   }
-  if (actObjectSearch.status === 'rejected') {
-    return { isLoading: false, error: 'Failed to fetch facts: ' + actObjectSearch.errorDetails };
-  }
-  if (actObjectSearch.status === 'done' && actObjectSearch.result) {
-    return {
-      isLoading: false,
-      factCount: pluralize(factCount(actObjectSearch.result.actObject), 'fact'),
-      selectedObject: actObjectSearch.result.actObject
-    };
-  }
-  return { isLoading: false, error: 'Failure: Got no result' };
+  return { status: LoadingStatus.REJECTED, error: 'Should never happen' };
+};
+
+export const categories = (actObjectSearch: ActObjectSearch): Array<string> => {
+  if (actObjectSearch.status !== LoadingStatus.DONE) return [];
+
+  return actObjectSearch.result.facts
+    .filter(f => f.type.name === 'category')
+    .map(f => f.value)
+    .filter(notUndefined)
+    .sort();
 };
 
 class ObjectSummaryPageStore {
@@ -204,9 +257,10 @@ class ObjectSummaryPageStore {
       },
       content: {
         titleSection: {
+          isLoading: actObjectSearch.status === LoadingStatus.PENDING,
           title: getObjectTitle(actObjectSearch, this.config.objectLabelFromFactType),
           addToGraphButton: { text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView },
-          factTypeTable: getFactTypeTable(actObjectSearch)
+          categories: categories(actObjectSearch)
         },
         sections: prepareSections(
           this.currentObject,

@@ -1,6 +1,6 @@
 import { ActFact, ActObject, ContextAction, FactType, PredefinedObjectQuery } from './types';
 import { assertNever, notUndefined, objectTypeToColor, replaceAll, replaceAllInObject } from '../util/util';
-import { ActionTemplate, ContextActionTemplate } from '../config';
+import { ActionTemplate, ContextActionTemplate } from '../configUtil';
 import { IObjectTitleComp } from '../components/ObjectTitle';
 
 export function isRetracted(fact: ActFact) {

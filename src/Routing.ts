@@ -1,6 +1,7 @@
 import AppStore from './AppStore';
 import UniversalRouter from 'universal-router';
 import { action } from 'mobx';
+import { ActObject } from './core/types';
 
 class Routing {
   appStore: AppStore;
@@ -98,5 +99,9 @@ class Routing {
     window.history.pushState({ url: url }, '', url);
   }
 }
+
+export const urlToObjectSummaryPage = (actObject: ActObject) => {
+  return '/object-summary/' + encodeURIComponent(actObject.type.name) + '/' + encodeURIComponent(actObject.value);
+};
 
 export default Routing;

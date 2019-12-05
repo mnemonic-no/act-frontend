@@ -1,4 +1,4 @@
-import { parseObjectSummary, resolveActions } from './config';
+import { autoResolveFactsFor, parseObjectSummary, resolveActions } from './configUtil';
 
 it('can resolve context actions', () => {
   expect(resolveActions({ contextActions: [], actions: {} })).toEqual([]);
@@ -71,4 +71,18 @@ it('can parse object summary config', () => {
   ).toEqual({
     tool: { sections: [{ title: 'a', query: 'q', actions: [{ action: downloadAction, icon: 'someIcon' }] }] }
   });
+});
+
+it('can auto resolve facts ', () => {
+  expect(autoResolveFactsFor('test', {})).toEqual([]);
+
+  expect(autoResolveFactsFor('report', { autoResolveFacts: { '*': ['category'] } })).toEqual(['category']);
+  expect(
+    autoResolveFactsFor('report', {
+      autoResolveFacts: {
+        '*': ['category'],
+        report: ['mentions']
+      }
+    })
+  ).toEqual(['category', 'mentions']);
 });

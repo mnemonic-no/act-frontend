@@ -1,11 +1,10 @@
 import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import MainPageStore from '../MainPageStore';
 import { ActFact, ActObject, ContextAction, NamedId, PredefinedObjectQuery, Search } from '../../../core/types';
-import { ContextActionTemplate, resolveActions } from '../../../config';
-import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
 import { byTypeThenValue, link, pluralize } from '../../../util/util';
+import { ContextActionTemplate, resolveActions } from '../../../configUtil';
+import { urlToObjectSummaryPage } from '../../../Routing';
 import {
   contextActionsFor,
   countByFactType,
@@ -14,6 +13,8 @@ import {
   predefinedObjectQueriesFor
 } from '../../../core/domain';
 import AppStore from '../../../AppStore';
+import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
+import MainPageStore from '../MainPageStore';
 
 export type ObjectDetails = {
   contextActions: Array<ContextAction>;
@@ -134,7 +135,7 @@ class DetailsStore {
       linkToSummaryPage: link({
         text: 'Open summary',
         tooltip: 'Go to object summary page',
-        href: '/object-summary/' + selected.type.name + '/' + selected.value,
+        href: urlToObjectSummaryPage(selected),
         navigateFn: (url: string) => this.appStore.goToUrl(url)
       }),
 

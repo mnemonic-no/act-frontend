@@ -7,6 +7,7 @@ import { getObjectLabelFromFact } from '../../../core/domain';
 import { link, objectTypeToColor } from '../../../util/util';
 import AppStore from '../../../AppStore';
 import { IObjectTitleComp } from '../../../components/ObjectTitle';
+import { urlToObjectSummaryPage } from '../../../Routing';
 
 export const objectTitle = (
   actObject: ActObject,
@@ -48,7 +49,7 @@ class DetailsStore {
 
   @action.bound
   onOpenObjectSummaryPage(actObject: ActObject) {
-    this.appStore.goToUrl('/object-summary/' + actObject.type.name + '/' + actObject.value);
+    this.appStore.goToUrl(urlToObjectSummaryPage(actObject));
   }
 
   @computed
@@ -69,7 +70,7 @@ class DetailsStore {
           linkToSummaryPage: link({
             text: 'Open summary',
             tooltip: 'Go to object summary page',
-            href: '/object-summary/' + selectedObject.type.name + '/' + selectedObject.value,
+            href: urlToObjectSummaryPage(selectedObject),
             navigateFn: (url: string) => this.appStore.goToUrl(url)
           }),
           objectTitle: objectTitle(selectedObject, this.objectLabelFromFactType, activeSimpleSearch.facts || []),

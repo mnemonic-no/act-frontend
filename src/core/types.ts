@@ -1,4 +1,4 @@
-import { TSectionConfig } from '../config';
+import { TSectionConfig } from '../configUtil';
 
 export type NamedId = {
   id: string;
@@ -119,6 +119,38 @@ export type ContextAction = {
 export interface IObjectTypeToSections {
   [objectTypeName: string]: { sections: Array<TSectionConfig> };
 }
+
+/**
+ * Loading
+ */
+export enum LoadingStatus {
+  PENDING,
+  REJECTED,
+  DONE
+}
+
+type TCommonLoadable<A> = {
+  id: string;
+  args: A;
+};
+
+export type TPendingLoadable = {
+  status: LoadingStatus.PENDING;
+};
+
+export type TRejectedLoadable = {
+  status: LoadingStatus.REJECTED;
+  error: string;
+};
+
+export type TDoneLoadable<R> = {
+  status: LoadingStatus.DONE;
+  result: R;
+};
+
+export type TLoadable<R> = TPendingLoadable | TDoneLoadable<R> | TRejectedLoadable;
+
+export type TRequestLoadable<A, R> = TCommonLoadable<A> & TLoadable<R>;
 
 export const searchId = (search: Search) => {
   if (isObjectSearch(search)) {

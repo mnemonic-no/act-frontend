@@ -1,17 +1,14 @@
 import { observable } from 'mobx';
 
-import { ActFact, ActObject } from '../core/types';
+import { ActFact, ActObject, LoadingStatus, TRequestLoadable } from '../core/types';
 import { factDataLoader, objectDataLoader } from '../core/dataLoaders';
 import config from '../config';
+import { autoResolveFactsFor } from '../configUtil';
 
-export type ActObjectSearch = {
-  id: string;
-  objectValue: string;
-  objectTypeName: string;
-  status: 'pending' | 'rejected' | 'done';
-  result?: { actObject: ActObject; facts: Array<ActFact> };
-  errorDetails?: string;
-};
+export type ActObjectSearch = TRequestLoadable<
+  { objectValue: string; objectTypeName: string },
+  { actObject: ActObject; facts: Array<ActFact> }
+>;
 
 const actObjectSearchId = ({ objectValue, objectTypeName }: { objectValue: string; objectTypeName: string }) =>
   objectTypeName + objectValue;
@@ -28,12 +25,11 @@ class ActObjectBackendStore {
   async execute(objectValue: string, objectTypeName: string) {
     const s: ActObjectSearch = {
       id: actObjectSearchId({ objectValue: objectValue, objectTypeName: objectTypeName }),
-      objectValue: objectValue,
-      objectTypeName: objectTypeName,
-      status: 'pending'
+      args: { objectValue: objectValue, objectTypeName: objectTypeName },
+      status: LoadingStatus.PENDING
     };
 
-    if (this.includes(s) && this.actObjectSearches[s.id].status !== 'rejected') {
+    if (this.includes(s) && this.actObjectSearches[s.id].status !== LoadingStatus.REJECTED) {
       return;
     }
 
@@ -44,13 +40,14 @@ class ActObjectBackendStore {
 
       // Autoresolve facts for this object
       let facts: Array<ActFact> = [];
-      if (config.autoResolveFacts && config.autoResolveFacts[objectTypeName]) {
-        facts = await factDataLoader(object.id, config.autoResolveFacts[objectTypeName]);
+      const factTypesToAutoResolve = autoResolveFactsFor(objectTypeName, config);
+      if (factTypesToAutoResolve) {
+        facts = await factDataLoader(object.id, factTypesToAutoResolve);
       }
 
-      this.actObjectSearches[s.id] = { ...s, status: 'done', result: { actObject: object, facts: facts } };
+      this.actObjectSearches[s.id] = { ...s, status: LoadingStatus.DONE, result: { actObject: object, facts: facts } };
     } catch (err) {
-      this.actObjectSearches[s.id] = { ...s, status: 'rejected', errorDetails: err.message };
+      this.actObjectSearches[s.id] = { ...s, status: LoadingStatus.REJECTED, error: err.message };
     }
   }
 

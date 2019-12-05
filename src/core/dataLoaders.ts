@@ -215,7 +215,9 @@ export const factTypesToResolveByObjectId = (
       return {
         ...x,
         objectIds: objects
-          .filter((o: ActObject) => x.objectTypes.some((objectTypeName: string) => objectTypeName === o.type.name))
+          .filter((o: ActObject) =>
+            x.objectTypes.some((objectTypeName: string) => objectTypeName === '*' || objectTypeName === o.type.name)
+          )
           .map((o: ActObject) => o.id)
       };
     }),

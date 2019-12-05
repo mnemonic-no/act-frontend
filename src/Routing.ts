@@ -104,4 +104,19 @@ export const urlToObjectSummaryPage = (actObject: ActObject) => {
   return '/object-summary/' + encodeURIComponent(actObject.type.name) + '/' + encodeURIComponent(actObject.value);
 };
 
+export const urlToObjectFactQueryPage = (args: { objectTypeName: string; objectValue: string }) => {
+  return '/object-fact-query/' + encodeURIComponent(args.objectTypeName) + '/' + encodeURIComponent(args.objectValue);
+};
+
+export const urlToGraphQueryPage = (args: { objectTypeName: string; objectValue: string; query: string }) => {
+  return (
+    '/graph-query/' +
+    encodeURIComponent(args.objectTypeName) +
+    '/' +
+    encodeURIComponent(args.objectValue) +
+    '/' +
+    encodeURIComponent(args.query)
+  );
+};
+
 export default Routing;

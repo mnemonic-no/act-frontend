@@ -3,6 +3,7 @@ import * as _ from 'lodash/fp';
 
 import MainPageStore from './MainPageStore';
 import { isFactSearch, isObjectSearch, SearchItem, SearchResult } from '../../core/types';
+import { urlToGraphQueryPage, urlToObjectFactQueryPage } from '../../Routing';
 
 export const workingHistoryToPath = (historyItems: Array<SearchItem>) => {
   const latest = _.last(historyItems);
@@ -14,19 +15,13 @@ export const workingHistoryToPath = (historyItems: Array<SearchItem>) => {
 
   if (isObjectSearch(search) && !_.isEmpty(search.objectValue) && !_.isEmpty(search.objectType)) {
     if (search.query && !_.isEmpty(search.query)) {
-      return (
-        '/graph-query/' +
-        encodeURIComponent(search.objectType) +
-        '/' +
-        encodeURIComponent(search.objectValue) +
-        '/' +
-        encodeURIComponent(search.query)
-      );
-    } else {
-      return (
-        '/object-fact-query/' + encodeURIComponent(search.objectType) + '/' + encodeURIComponent(search.objectValue)
-      );
+      return urlToGraphQueryPage({
+        objectTypeName: search.objectType,
+        objectValue: search.objectValue,
+        query: search.query
+      });
     }
+    return urlToObjectFactQueryPage({ objectTypeName: search.objectType, objectValue: search.objectValue });
   }
   return '';
 };

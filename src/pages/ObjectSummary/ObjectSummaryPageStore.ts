@@ -9,7 +9,7 @@ import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util'
 import { getObjectLabelFromFact, isOneLegged, objectTitle, toContextAction } from '../../core/domain';
 import { parseObjectSummary, TSectionConfig } from '../../configUtil';
 import { TCell, TSectionComp, TTextCell } from './Section';
-import { urlToObjectSummaryPage } from '../../Routing';
+import { urlToObjectFactQueryPage, urlToObjectSummaryPage } from '../../Routing';
 import AppStore from '../../AppStore';
 import GraphQueryStore from '../../backend/GraphQueryStore';
 
@@ -226,7 +226,9 @@ class ObjectSummaryPageStore {
   @action.bound
   openInGraphView() {
     if (!this.currentObject) return;
-    this.appStore.goToUrl('/object-fact-query/' + this.currentObject.typeName + '/' + this.currentObject.value);
+    this.appStore.goToUrl(
+      urlToObjectFactQueryPage({ objectTypeName: this.currentObject.typeName, objectValue: this.currentObject.value })
+    );
   }
 
   @computed

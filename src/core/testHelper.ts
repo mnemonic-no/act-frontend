@@ -4,7 +4,8 @@ import { SimpleSearch } from '../backend/SimpleSearchBackendStore';
 export const objectTypes = {
   incident: { id: 'incidentId', name: 'incident' },
   report: { id: 'reportId', name: 'report' },
-  threatActor: { id: 'threatActorId', name: 'threatActor' }
+  threatActor: { id: 'threatActorId', name: 'threatActor' },
+  uri: { id: 'uriId', name: 'uri' }
 };
 
 export const factTypes = {

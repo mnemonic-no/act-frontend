@@ -10,6 +10,7 @@ import config from '../../../config';
 import SearchPageStore from '../SearchPageStore';
 import SimpleSearchBackendStore, { SimpleSearch } from '../../../backend/SimpleSearchBackendStore';
 import { linkOnClickFn } from '../../../util/util';
+import { urlToObjectSummaryPage } from '../../../Routing';
 
 const emptyFilterValue = 'Show all';
 
@@ -41,7 +42,7 @@ export const resultToRows = ({
 
 export const withLink = (rows: Array<IObjectRow>, navigateFn: (e: any) => void): Array<IObjectRow> => {
   return rows.map(r => {
-    const href = '/object-summary/' + r.actObject.type.name + '/' + r.actObject.value;
+    const href = urlToObjectSummaryPage(r.actObject);
 
     return {
       ...r,

@@ -22,7 +22,7 @@ class ActObjectBackendStore {
     this.config = config;
   }
 
-  async execute(objectValue: string, objectTypeName: string) {
+  async execute(objectValue: string, objectTypeName: string, onError?: (error: Error) => void) {
     const s: ActObjectSearch = {
       id: actObjectSearchId({ objectValue: objectValue, objectTypeName: objectTypeName }),
       args: { objectValue: objectValue, objectTypeName: objectTypeName },
@@ -47,6 +47,7 @@ class ActObjectBackendStore {
 
       this.actObjectSearches[s.id] = { ...s, status: LoadingStatus.DONE, result: { actObject: object, facts: facts } };
     } catch (err) {
+      if (onError) onError(err);
       this.actObjectSearches[s.id] = { ...s, status: LoadingStatus.REJECTED, error: err.message };
     }
   }

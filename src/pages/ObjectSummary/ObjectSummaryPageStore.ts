@@ -147,7 +147,7 @@ export const categories = (actObjectSearch: ActObjectSearch): Array<string> => {
 
 class ObjectSummaryPageStore {
   appStore: AppStore;
-  error: Error | null = null;
+  @observable error: Error | null = null;
   config: { [id: string]: any };
 
   @observable currentObject: { typeName: string; value: string } | undefined;
@@ -166,7 +166,9 @@ class ObjectSummaryPageStore {
     this.currentObject = { typeName: objectTypeName, value: objectValue };
 
     const sections = this.objectTypeToSections[objectTypeName] && this.objectTypeToSections[objectTypeName].sections;
-    this.appStore.backendStore.actObjectBackendStore.execute(objectValue, objectTypeName);
+    this.appStore.backendStore.actObjectBackendStore.execute(objectValue, objectTypeName, (error: Error) => {
+      this.handleError({ error: error, title: 'Failed' });
+    });
 
     if (sections) {
       sections.forEach(section => {
@@ -183,6 +185,23 @@ class ObjectSummaryPageStore {
     );
   }
 
+  @action.bound
+  handleError({ error, title }: { error: Error; title?: string }) {
+    if (title) {
+      // @ts-ignore
+      error.title = title;
+    }
+    this.error = error;
+  }
+
+  @computed
+  get errorSnackbar() {
+    return {
+      error: this.error,
+      onClose: () => (this.error = null)
+    };
+  }
+
   @computed
   get prepared() {
     const actObjectSearch =
@@ -193,22 +212,17 @@ class ObjectSummaryPageStore {
       );
 
     if (!this.currentObject || !actObjectSearch) {
-      this.error = new Error('No object selected');
+      this.handleError({ error: new Error('No object selected') });
+
       return {
         pageMenu: this.appStore.pageMenu,
-        error: {
-          error: this.error,
-          onClose: () => (this.error = null)
-        }
+        error: this.errorSnackbar
       };
     }
 
     return {
       pageMenu: this.appStore.pageMenu,
-      error: {
-        error: this.error,
-        onClose: () => (this.error = null)
-      },
+      error: this.errorSnackbar,
       content: {
         titleSection: {
           isLoading: isPending(actObjectSearch),

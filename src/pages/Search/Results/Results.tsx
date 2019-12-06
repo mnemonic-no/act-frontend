@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-import WarnIcon from '@material-ui/core/SvgIcon/SvgIcon';
+import WarnIcon from '@material-ui/icons/Warning';
 
 import MultiSelect, { IMultiSelect } from '../../../components/MultiSelect';
 import ObjectTable, { IObjectTableComp } from '../../../components/ObjectTable';

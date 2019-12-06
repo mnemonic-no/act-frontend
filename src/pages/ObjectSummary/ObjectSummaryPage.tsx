@@ -7,6 +7,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+import WarnIcon from '@material-ui/icons/Warning';
 
 import ObjectSummaryPageStore from './ObjectSummaryPageStore';
 import ObjectTitle, { IObjectTitleComp } from '../../components/ObjectTitle';
@@ -57,11 +58,16 @@ const useTitleSectionStyles = makeStyles((theme: Theme) => ({
   },
   tag: {
     marginRight: theme.spacing(0.5)
+  },
+  warningContainer: {
+    display: 'flex',
+    color: theme.palette.secondary.dark
   }
 }));
 
 const TitleSection = (props: {
   isLoading: boolean;
+  warning?: string;
   title: IObjectTitleComp;
   addToGraphButton: { tooltip: string; onClick: () => void; text: string };
   categories: Array<string>;
@@ -90,6 +96,12 @@ const TitleSection = (props: {
             );
           })}
         </div>
+        {props.warning && (
+          <div className={classes.warningContainer}>
+            <WarnIcon color="secondary" />
+            <Typography variant="subtitle1">{props.warning}</Typography>
+          </div>
+        )}
       </div>
     </Paper>
   );

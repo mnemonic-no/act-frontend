@@ -212,6 +212,9 @@ class ObjectSummaryPageStore {
       content: {
         titleSection: {
           isLoading: isPending(actObjectSearch),
+          warning: Boolean(!this.objectTypeToSections[this.currentObject.typeName])
+            ? 'Object summary is not supported for objects of this type'
+            : '',
           title: getObjectTitle(actObjectSearch, this.config.objectLabelFromFactType),
           addToGraphButton: { text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView },
           categories: categories(actObjectSearch)

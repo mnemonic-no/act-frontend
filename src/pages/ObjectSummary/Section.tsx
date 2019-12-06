@@ -46,23 +46,6 @@ const useSectionStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const useCellStyles = makeStyles((theme: Theme) => ({
-  cell: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(2)
-  },
-  tags: {
-    display: 'flex',
-    flexFlow: 'row wrap'
-  },
-  tag: {
-    margin: theme.spacing(0.2)
-  },
-  breakWord: {
-    wordBreak: 'break-word'
-  }
-}));
-
 interface IEmptySection {
   kind: 'empty';
   title: string;
@@ -197,6 +180,25 @@ const LoadingSectionComp = (props: ILoadingSection) => {
   );
 };
 
+const useCellStyles = makeStyles((theme: Theme) => ({
+  cell: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(0.5),
+    '&:last-child': { paddingRight: theme.spacing(1) }
+  },
+  actions: { display: 'inline-block' },
+  tags: {
+    display: 'flex',
+    flexFlow: 'row wrap'
+  },
+  tag: {
+    margin: theme.spacing(0.2)
+  },
+  breakWord: {
+    wordBreak: 'break-word'
+  }
+}));
+
 const Cell = (cell: TCell) => {
   const classes = useCellStyles();
 
@@ -217,10 +219,10 @@ const Cell = (cell: TCell) => {
       );
     case CellKind.action:
       return (
-        <TableCell size="small" className={classes.cell}>
+        <TableCell size="small" className={classes.cell} align="right">
           {cell.actions.map((action, idx) => {
             return (
-              <div key={idx}>
+              <div key={idx} className={classes.actions}>
                 <Tooltip title={action.tooltip} enterDelay={500}>
                   <IconButton size="small" href={action.href} target="_blank" rel="noopener noreferrer">
                     <ActIcon iconId={action.icon} />
@@ -234,7 +236,7 @@ const Cell = (cell: TCell) => {
 
     case CellKind.tags:
       return (
-        <TableCell size="small" className={cc(classes.cell)}>
+        <TableCell size="small" className={classes.cell}>
           <div className={classes.tags}>
             {cell.tags.map((tag, idx) => {
               return (

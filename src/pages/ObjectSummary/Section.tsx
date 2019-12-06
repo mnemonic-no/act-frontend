@@ -2,6 +2,7 @@ import React from 'react';
 import cc from 'clsx';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Chip from '@material-ui/core/Chip';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
@@ -49,6 +50,16 @@ const useCellStyles = makeStyles((theme: Theme) => ({
   cell: {
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(2)
+  },
+  tags: {
+    display: 'flex',
+    flexFlow: 'row wrap'
+  },
+  tag: {
+    margin: theme.spacing(0.2)
+  },
+  breakWord: {
+    wordBreak: 'break-word'
   }
 }));
 
@@ -70,19 +81,31 @@ interface ILoadingSection {
   title: string;
 }
 
+export enum CellKind {
+  'text',
+  'action',
+  'tags'
+}
+
 export type TActionCell = {
-  kind: 'action';
+  kind: CellKind.action;
   actions: Array<{ icon: string; tooltip: string; href: string }>;
 };
 
+export type TTagsCell = {
+  kind: CellKind.tags;
+  tags: Array<{ text: string; tooltip: string }>;
+};
+
 export type TTextCell = {
-  kind: 'text';
+  kind: CellKind.text;
   text: string;
   color?: string;
+  canShrink?: boolean;
   link?: { href: string; onClick: (e: any) => void };
 };
 
-export type TCell = TActionCell | TTextCell;
+export type TCell = TActionCell | TTextCell | TTagsCell;
 
 interface ITableSection {
   kind: 'table';
@@ -178,9 +201,12 @@ const Cell = (cell: TCell) => {
   const classes = useCellStyles();
 
   switch (cell.kind) {
-    case 'text':
+    case CellKind.text:
       return (
-        <TableCell size="small" style={{ color: cell.color || '' }} className={classes.cell}>
+        <TableCell
+          size="small"
+          style={{ color: cell.color || '' }}
+          className={cc(classes.cell, { [classes.breakWord]: cell.canShrink })}>
           {cell.link && (
             <Link href={cell.link.href} onClick={cell.link.onClick}>
               {cell.text}
@@ -189,22 +215,35 @@ const Cell = (cell: TCell) => {
           {!cell.link && cell.text}
         </TableCell>
       );
-    case 'action':
+    case CellKind.action:
       return (
         <TableCell size="small" className={classes.cell}>
-          <>
-            {cell.actions.map((action, idx) => {
+          {cell.actions.map((action, idx) => {
+            return (
+              <div key={idx}>
+                <Tooltip title={action.tooltip} enterDelay={500}>
+                  <IconButton size="small" href={action.href} target="_blank" rel="noopener noreferrer">
+                    <ActIcon iconId={action.icon} />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            );
+          })}
+        </TableCell>
+      );
+
+    case CellKind.tags:
+      return (
+        <TableCell size="small" className={cc(classes.cell)}>
+          <div className={classes.tags}>
+            {cell.tags.map((tag, idx) => {
               return (
-                <div key={idx} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
-                  <Tooltip key={idx} title={action.tooltip} enterDelay={500}>
-                    <IconButton size="small" href={action.href} target="_blank" rel="noopener noreferrer">
-                      <ActIcon iconId={action.icon} />
-                    </IconButton>
-                  </Tooltip>
-                </div>
+                <Tooltip key={idx} title={tag.tooltip} enterDelay={500}>
+                  <Chip key={idx} className={classes.tag} label={tag.text} size="small" color="primary" />
+                </Tooltip>
               );
             })}
-          </>
+          </div>
         </TableCell>
       );
 

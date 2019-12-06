@@ -4,7 +4,7 @@ import { action, computed, observable } from 'mobx';
 import { byTypeThenValue } from '../../../util/util';
 import { getObjectLabelFromFact } from '../../../core/domain';
 import config from '../../../config';
-import { PredefinedObjectQuery } from '../../../core/types';
+import { isDone, isPending, PredefinedObjectQuery } from '../../../core/types';
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
 
@@ -94,9 +94,10 @@ class SearchByObjectTypeStore {
     this.objectValue = value ? value : '';
 
     if (this.objectValue.length >= 2) {
-      this.root.backendStore.autoCompleteSimpleSearchBackendStore.execute(toSearchString(this.objectValue), [
-        this.objectType
-      ]);
+      this.root.backendStore.autoCompleteSimpleSearchBackendStore.execute({
+        searchString: toSearchString(this.objectValue),
+        objectTypeFilter: [this.objectType]
+      });
     }
   }
 
@@ -108,20 +109,19 @@ class SearchByObjectTypeStore {
     );
 
     return {
-      isLoading: simpleSearch && simpleSearch.status === 'pending',
-      suggestions:
-        simpleSearch && simpleSearch.objects
-          ? simpleSearch.objects
-              .slice() // Don't mutate the underlying array
-              .sort(byTypeThenValue)
-              .map(actObject => ({
-                actObject: actObject,
-                objectLabel:
-                  getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.facts) ||
-                  actObject.value
-              }))
-              .slice(0, this.suggestionLimit)
-          : [],
+      isLoading: isPending(simpleSearch),
+      suggestions: isDone(simpleSearch)
+        ? simpleSearch.result.objects
+            .slice() // Don't mutate the underlying array
+            .sort(byTypeThenValue)
+            .map(actObject => ({
+              actObject: actObject,
+              objectLabel:
+                getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.result.facts) ||
+                actObject.value
+            }))
+            .slice(0, this.suggestionLimit)
+        : [],
       onChange: this.onObjectValueChange,
       onSuggestionSelected: (s: any) => {
         this.objectValue = s.actObject.value;

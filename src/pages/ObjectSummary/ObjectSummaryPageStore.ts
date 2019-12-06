@@ -2,20 +2,19 @@ import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import { ActObjectSearch } from '../../backend/ActObjectBackendStore';
-import { FactStatsCellType, IFactStatRow, IFactStatsComp } from '../../components/FactStats';
 import { IObjectTitleComp } from '../../components/ObjectTitle';
-import { ActFact, ActObject, IObjectTypeToSections, LoadingStatus, ObjectStats, TLoadable } from '../../core/types';
+import { ActFact, ActObject, IObjectTypeToSections, isDone, isPending, isRejected } from '../../core/types';
 import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
 import { getObjectLabelFromFact, isOneLegged, objectTitle, toContextAction } from '../../core/domain';
 import { parseObjectSummary, TSectionConfig } from '../../configUtil';
-import { TCell, TSectionComp, TTextCell } from './Section';
+import { CellKind, TActionCell, TCell, TSectionComp, TTagsCell, TTextCell } from './Section';
 import { urlToObjectFactQueryPage, urlToObjectSummaryPage } from '../../Routing';
 import AppStore from '../../AppStore';
 import GraphQueryStore from '../../backend/GraphQueryStore';
 
 const cellsAsText = (cells: Array<TCell>) => {
   return cells
-    .filter((x): x is TTextCell => x.kind === 'text')
+    .filter((x): x is TTextCell => x.kind === CellKind.text)
     .map((x: TTextCell) => x.text)
     .join('');
 };
@@ -51,71 +50,82 @@ export const prepareSections = (
   return sections.map(({ title, query, actions }: TSectionConfig) => {
     const q = graphQueryStore.getGraphQuery(currentObject.value, currentObject.typeName, query);
 
-    if (q.status === 'pending') {
+    if (isPending(q)) {
       return { kind: 'loading', title: title };
     }
 
-    if (q.status === 'rejected') {
+    if (isRejected(q)) {
       return {
         kind: 'error',
         title: title,
         errorTitle: 'Query failed',
-        errorMessage: q.errorDetails || '',
+        errorMessage: q.error || '',
         color: 'error'
       };
     }
 
-    if (q.objects && q.objects.length > 200) {
+    const { objects, facts } = q.result;
+    if (objects.length > 200) {
       return {
         kind: 'error',
         title: title,
-        errorTitle: 'Large result (' + q.objects.length + ')',
-        errorMessage: countByObjectTypeString(q.objects),
+        errorTitle: 'Large result (' + objects.length + ')',
+        errorMessage: countByObjectTypeString(objects),
         color: 'warning'
       };
     }
 
-    if (q.objects && q.objects.length === 0) {
+    if (objects.length === 0) {
       return { kind: 'empty', title: title };
     }
+
+    const oneLeggedFacts: Array<ActFact> = facts.filter(isOneLegged) || [];
 
     return {
       kind: 'table',
       title: title,
-      titleRight: q.objects ? q.objects.length + '' : '',
+      titleRight: objects.length + '',
       table: {
-        rows: q.objects
-          ? q.objects
-              .slice()
-              .map(o => {
-                const href = urlToObjectSummaryPage(o);
-                return {
-                  cells: [
-                    { kind: 'text' as 'text', text: o.type.name, color: objectTypeToColor(o.type.name) },
-                    {
-                      kind: 'text' as 'text',
-                      text: getObjectLabelFromFact(o, objectLabelFromFactType, q.facts) || o.value,
-                      link: { href: href, onClick: linkOnClickFn({ href: href, navigateFn: navigateFn }) }
-                    },
-                    actions && {
-                      kind: 'action' as 'action',
-                      actions: actions.map(a => {
-                        const x = toContextAction(a.action, o, postAndForgetFn);
-                        return { tooltip: x.description, icon: a.icon, href: x.href || '' };
-                      })
-                    }
-                  ].filter(notUndefined)
-                };
-              })
-              .sort(byColumns)
-          : []
+        rows: objects
+          .slice()
+          .map((o: ActObject): { cells: Array<TCell> } => {
+            const href = urlToObjectSummaryPage(o);
+            return {
+              cells: [
+                { kind: CellKind.text, text: o.type.name, color: objectTypeToColor(o.type.name) } as TTextCell,
+                {
+                  kind: CellKind.text,
+                  text: getObjectLabelFromFact(o, objectLabelFromFactType, oneLeggedFacts) || o.value,
+                  canShrink: true,
+                  link: { href: href, onClick: linkOnClickFn({ href: href, navigateFn: navigateFn }) }
+                } as TTextCell,
+                {
+                  kind: CellKind.tags,
+                  tags: oneLeggedFacts
+                    .filter(
+                      f => f.type.name === 'category' && f.sourceObject !== undefined && f.sourceObject.id === o.id
+                    )
+                    .map(f => ({ text: f.value || '', tooltip: 'category' }))
+                } as TTagsCell,
+                actions &&
+                  ({
+                    kind: CellKind.action,
+                    actions: actions.map(a => {
+                      const x = toContextAction(a.action, o, postAndForgetFn);
+                      return { tooltip: x.description, icon: a.icon, href: x.href || '' };
+                    })
+                  } as TActionCell)
+              ].filter(notUndefined)
+            };
+          })
+          .sort(byColumns)
       }
     };
   });
 };
 
 export const getObjectTitle = (actObjectSearch: ActObjectSearch, objectLabelFromFactType: string): IObjectTitleComp => {
-  if (actObjectSearch.status === LoadingStatus.DONE && actObjectSearch.result) {
+  if (isDone(actObjectSearch)) {
     return objectTitle(actObjectSearch.result.actObject, actObjectSearch.result.facts, objectLabelFromFactType);
   }
   return {
@@ -125,66 +135,8 @@ export const getObjectTitle = (actObjectSearch: ActObjectSearch, objectLabelFrom
   } as IObjectTitleComp;
 };
 
-export const toFactStatRows = ({
-  actObject,
-  facts
-}: {
-  actObject: ActObject;
-  facts: Array<ActFact>;
-}): Array<IFactStatRow> => {
-  const oneLeggedFacts = facts.filter(isOneLegged);
-
-  return _.pipe(
-    _.sortBy((objectStats: ObjectStats) => objectStats.type.name),
-    _.map(
-      (objectStats: ObjectStats): IFactStatRow => {
-        const matchingOneLeggedFacts = oneLeggedFacts.filter(oneFact => oneFact.type.name === objectStats.type.name);
-
-        if (matchingOneLeggedFacts.length > 0) {
-          return {
-            cells: [
-              { kind: FactStatsCellType.text, text: objectStats.type.name },
-              {
-                kind: FactStatsCellType.links,
-                links: matchingOneLeggedFacts
-                  .map(fact => ({ text: fact.value + '', tag: objectStats.type.name === 'category' }))
-                  .sort((a, b) => (a.text > b.text ? 1 : -1))
-              }
-            ]
-          };
-        }
-
-        return {
-          cells: [
-            { kind: FactStatsCellType.text, text: objectStats.type.name },
-            { kind: FactStatsCellType.text, text: objectStats.count + '', align: 'right' as 'right' }
-          ]
-        };
-      }
-    )
-  )(actObject.statistics);
-};
-
-export const getFactStats = (actObjectSearch: ActObjectSearch): TLoadable<IFactStatsComp> => {
-  switch (actObjectSearch.status) {
-    case LoadingStatus.PENDING:
-      return { status: LoadingStatus.PENDING };
-    case LoadingStatus.REJECTED:
-      return { status: LoadingStatus.REJECTED, error: actObjectSearch.error };
-    case LoadingStatus.DONE:
-      return {
-        status: LoadingStatus.DONE,
-        result: { rows: toFactStatRows(actObjectSearch.result) }
-      };
-    default:
-      // eslint-disable-next-line
-      const _exhaustiveCheck: never = actObjectSearch;
-  }
-  return { status: LoadingStatus.REJECTED, error: 'Should never happen' };
-};
-
 export const categories = (actObjectSearch: ActObjectSearch): Array<string> => {
-  if (actObjectSearch.status !== LoadingStatus.DONE) return [];
+  if (!isDone(actObjectSearch)) return [];
 
   return actObjectSearch.result.facts
     .filter(f => f.type.name === 'category')
@@ -259,7 +211,7 @@ class ObjectSummaryPageStore {
       },
       content: {
         titleSection: {
-          isLoading: actObjectSearch.status === LoadingStatus.PENDING,
+          isLoading: isPending(actObjectSearch),
           title: getObjectTitle(actObjectSearch, this.config.objectLabelFromFactType),
           addToGraphButton: { text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView },
           categories: categories(actObjectSearch)

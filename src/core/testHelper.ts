@@ -1,4 +1,4 @@
-import { ActFact, ActObject, FactType } from './types';
+import { ActFact, ActObject, FactType, LoadingStatus } from './types';
 import { SimpleSearch } from '../backend/SimpleSearchBackendStore';
 
 export const objectTypes = {
@@ -63,11 +63,9 @@ export const factType = (args: { [key: string]: any }): FactType => {
 export const simpleSearch = (args: { [key: string]: any }): SimpleSearch => {
   const defaults: SimpleSearch = {
     id: 'x',
-    searchString: '',
-    objectTypeFilter: [],
-    status: 'done',
-    objects: [],
-    facts: []
+    args: { searchString: '', objectTypeFilter: [] },
+    status: LoadingStatus.DONE,
+    result: { objects: [], facts: [] }
   };
 
   return {

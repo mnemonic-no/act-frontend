@@ -7,6 +7,7 @@ import AppStore from '../../AppStore';
 import ResultsStore from './Results/ResultsStore';
 import SimpleSearchBackendStore from '../../backend/SimpleSearchBackendStore';
 import DetailsStore from './Details/DetailsStore';
+import { isDone, isPending } from '../../core/types';
 
 class SearchPageStore {
   root: AppStore;
@@ -51,14 +52,14 @@ class SearchPageStore {
     this.simpleSearchInputValue = value ? value : '';
 
     if (this.simpleSearchInputValue.length >= 3) {
-      this.autoCompleteSimpleSearchBackendStore.execute(value);
+      this.autoCompleteSimpleSearchBackendStore.execute({ searchString: value, objectTypeFilter: [] });
     }
   }
 
   @action.bound
   onSearchSubmit(searchString: string) {
     this.activeSearchString = searchString;
-    this.simpleSearchBackendStore.execute(searchString);
+    this.simpleSearchBackendStore.execute({ searchString: searchString, objectTypeFilter: [] });
     this.simpleSearchInputValue = '';
   }
 
@@ -69,20 +70,19 @@ class SearchPageStore {
     const autoSuggester = {
       label: 'Search for objects',
       value: this.simpleSearchInputValue,
-      isLoading: simpleSearch && simpleSearch.status === 'pending',
-      suggestions:
-        simpleSearch && simpleSearch.objects
-          ? simpleSearch.objects
-              .slice() // Don't mutate the underlying array
-              .sort(byTypeThenValue)
-              .map(actObject => ({
-                actObject: actObject,
-                objectLabel:
-                  getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.facts) ||
-                  actObject.value
-              }))
-              .slice(0, this.suggestionLimit)
-          : [],
+      isLoading: isPending(simpleSearch),
+      suggestions: isDone(simpleSearch)
+        ? simpleSearch.result.objects
+            .slice() // Don't mutate the underlying array
+            .sort(byTypeThenValue)
+            .map(actObject => ({
+              actObject: actObject,
+              objectLabel:
+                getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.result.facts) ||
+                actObject.value
+            }))
+            .slice(0, this.suggestionLimit)
+        : [],
       onChange: this.onSimpleSearchInputChange,
       onSuggestionSelected: (s: any) => {
         this.onSearchSubmit(`"${s.objectLabel}"`);
@@ -93,10 +93,10 @@ class SearchPageStore {
 
     const historyItems = this.simpleSearchBackendStore.searchList
       .map(s => ({
-        label: s.searchString,
-        labelSecondary: s.objects ? `(${s.objects.length})` : '',
+        label: s.args.searchString,
+        labelSecondary: isDone(s) ? `(${s.result.objects.length})` : '',
         onClick: () => {
-          this.setActiveSearchString(s.searchString);
+          this.setActiveSearchString(s.args.searchString);
         }
       }))
       .sort((a: { label: string }, b: { label: string }) => (a.label > b.label ? 1 : -1));

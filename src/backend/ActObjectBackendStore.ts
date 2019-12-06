@@ -1,6 +1,6 @@
 import { observable } from 'mobx';
 
-import { ActFact, ActObject, LoadingStatus, TRequestLoadable } from '../core/types';
+import { ActFact, ActObject, isRejected, LoadingStatus, TRequestLoadable } from '../core/types';
 import { factDataLoader, objectDataLoader } from '../core/dataLoaders';
 import config from '../config';
 import { autoResolveFactsFor } from '../configUtil';
@@ -29,7 +29,7 @@ class ActObjectBackendStore {
       status: LoadingStatus.PENDING
     };
 
-    if (this.includes(s) && this.actObjectSearches[s.id].status !== LoadingStatus.REJECTED) {
+    if (this.includes(s) && !isRejected(this.actObjectSearches[s.id])) {
       return;
     }
 

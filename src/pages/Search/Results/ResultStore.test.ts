@@ -1,8 +1,9 @@
 import { resultToRows, selectedObjects } from './ResultsStore';
 import { actObject, objectTypes, simpleSearch } from '../../../core/testHelper';
 import { SortOrder } from '../../../components/ObjectTable';
+import { LoadingStatus } from '../../../core/types';
 
-it('test selectedObject', () => {
+it('test selectedObjects', () => {
   expect(
     selectedObjects({
       simpleSearch: simpleSearch({}),
@@ -16,7 +17,7 @@ it('test selectedObject', () => {
 
   expect(
     selectedObjects({
-      simpleSearch: simpleSearch({ objects: [threatActor, report] }),
+      simpleSearch: simpleSearch({ result: { objects: [threatActor, report], facts: [] } }),
       objectTypeFilter: new Set(),
       selectedObjectIds: new Set([threatActor.id])
     })
@@ -24,7 +25,7 @@ it('test selectedObject', () => {
 
   expect(
     selectedObjects({
-      simpleSearch: simpleSearch({ objects: [threatActor, report] }),
+      simpleSearch: simpleSearch({ result: { objects: [threatActor, report] } }),
       objectTypeFilter: new Set(['report']),
       selectedObjectIds: new Set([threatActor.id, report.id])
     })
@@ -36,7 +37,11 @@ const ascObjectType: SortOrder = { order: 'asc', orderBy: 'objectType' };
 it('can make result to rows', () => {
   expect(
     resultToRows({
-      simpleSearch: { id: 'a', status: 'pending', searchString: 'whatever', objectTypeFilter: [] },
+      simpleSearch: {
+        id: 'a',
+        status: LoadingStatus.PENDING,
+        args: { searchString: 'whatever', objectTypeFilter: [] }
+      },
       objectTypeFilter: new Set(),
       selectedObjectIds: new Set(),
       sortOrder: ascObjectType
@@ -44,7 +49,14 @@ it('can make result to rows', () => {
   ).toEqual([]);
   expect(
     resultToRows({
-      simpleSearch: { id: 'a', status: 'pending', searchString: 'whatever', objects: [], objectTypeFilter: [] },
+      simpleSearch: {
+        id: 'a',
+        status: LoadingStatus.PENDING,
+        args: {
+          searchString: 'whatever',
+          objectTypeFilter: []
+        }
+      },
       objectTypeFilter: new Set(),
       selectedObjectIds: new Set(),
       sortOrder: ascObjectType
@@ -58,10 +70,15 @@ it('can make result to rows', () => {
     resultToRows({
       simpleSearch: {
         id: 'a',
-        status: 'done',
-        searchString: 'whatever',
-        objects: [someThreatActor, someReport],
-        objectTypeFilter: []
+        status: LoadingStatus.DONE,
+        args: {
+          searchString: 'whatever',
+          objectTypeFilter: []
+        },
+        result: {
+          objects: [someThreatActor, someReport],
+          facts: []
+        }
       },
       selectedObjectIds: new Set([someReport.id]),
       objectTypeFilter: new Set(),
@@ -81,10 +98,15 @@ it('can filter rows by object type', () => {
     resultToRows({
       simpleSearch: {
         id: 'a',
-        status: 'done',
-        searchString: 'whatever',
-        objects: [someThreatActor, someReport],
-        objectTypeFilter: []
+        status: LoadingStatus.DONE,
+        args: {
+          searchString: 'whatever',
+          objectTypeFilter: []
+        },
+        result: {
+          objects: [someThreatActor, someReport],
+          facts: []
+        }
       },
       selectedObjectIds: new Set(),
       objectTypeFilter: new Set([objectTypes.threatActor.name]),

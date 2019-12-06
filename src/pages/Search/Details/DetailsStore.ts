@@ -2,7 +2,7 @@ import ResultsStore from '../Results/ResultsStore';
 import { action, computed } from 'mobx';
 
 import { IDetailsComp } from './Details';
-import { ActFact, ActObject } from '../../../core/types';
+import { ActFact, ActObject, isDone } from '../../../core/types';
 import { getObjectLabelFromFact } from '../../../core/domain';
 import { link, objectTypeToColor } from '../../../util/util';
 import AppStore from '../../../AppStore';
@@ -73,7 +73,11 @@ class DetailsStore {
             href: urlToObjectSummaryPage(selectedObject),
             navigateFn: (url: string) => this.appStore.goToUrl(url)
           }),
-          objectTitle: objectTitle(selectedObject, this.objectLabelFromFactType, activeSimpleSearch.facts || []),
+          objectTitle: objectTitle(
+            selectedObject,
+            this.objectLabelFromFactType,
+            isDone(activeSimpleSearch) ? activeSimpleSearch.result.facts : []
+          ),
           clearSelectionButton: {
             text: 'Clear',
             tooltip: 'Clear Selection',

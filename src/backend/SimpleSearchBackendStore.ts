@@ -3,20 +3,16 @@ import * as _ from 'lodash/fp';
 
 import { factKeywordSearch, objectKeywordSearch } from '../core/dataLoaders';
 import { factsToObjects } from '../core/domain';
-import { ActFact, ActObject } from '../core/types';
+import { ActFact, ActObject, isRejected, LoadingStatus, TRequestLoadable } from '../core/types';
 
-export type SimpleSearch = {
-  id: string;
-  searchString: string;
-  objectTypeFilter: Array<string>;
-  status: 'pending' | 'rejected' | 'done';
-  objects?: Array<ActObject>;
-  facts?: Array<ActFact>;
-  limitExceeded?: boolean;
-  errorDetails?: string;
-};
+export type SimpleSearchArgs = { searchString: string; objectTypeFilter: Array<string> };
 
-const simpleSearchId = ({ searchString, objectTypeFilter }: Pick<SimpleSearch, 'searchString' | 'objectTypeFilter'>) =>
+export type SimpleSearch = TRequestLoadable<
+  SimpleSearchArgs,
+  { objects: Array<ActObject>; facts: Array<ActFact>; limitExceeded?: boolean }
+>;
+
+const simpleSearchId = ({ searchString, objectTypeFilter }: SimpleSearchArgs) =>
   searchString + ':' + objectTypeFilter.sort().join(',');
 
 class SimpleSearchBackendStore {
@@ -30,15 +26,14 @@ class SimpleSearchBackendStore {
   }
 
   @action.bound
-  async execute(searchString: string, objectTypeFilter: Array<string> = []) {
+  async execute({ searchString, objectTypeFilter }: SimpleSearchArgs) {
     const search: SimpleSearch = {
       id: simpleSearchId({ searchString: searchString, objectTypeFilter: objectTypeFilter }),
-      searchString: searchString,
-      objectTypeFilter: objectTypeFilter,
-      status: 'pending'
+      args: { searchString: searchString, objectTypeFilter: objectTypeFilter },
+      status: LoadingStatus.PENDING
     };
 
-    if (this.includes(search) && this.searches[search.id].status !== 'rejected') {
+    if (this.includes(search) && !isRejected(this.searches[search.id])) {
       return;
     }
 
@@ -62,13 +57,15 @@ class SimpleSearchBackendStore {
       const result = _.uniqBy((x: ActObject) => x.id)([...objectsByValue, ...objectsFromFacts]);
       this.searches[search.id] = {
         ...search,
-        status: 'done',
-        objects: result,
-        facts: factsByNameResult,
-        limitExceeded: this.resultLimit <= objectsByValue.length || this.resultLimit <= objectsFromFacts.length
+        status: LoadingStatus.DONE,
+        result: {
+          objects: result,
+          facts: factsByNameResult,
+          limitExceeded: this.resultLimit <= objectsByValue.length || this.resultLimit <= objectsFromFacts.length
+        }
       };
     } catch (err) {
-      this.searches[simpleSearchId(search)] = { ...search, status: 'rejected', errorDetails: err.message };
+      this.searches[search.id] = { ...search, status: LoadingStatus.REJECTED, error: err.message };
     }
   }
 
@@ -82,7 +79,7 @@ class SimpleSearchBackendStore {
 
   @action.bound
   retry(search: SimpleSearch) {
-    this.execute(search.searchString);
+    this.execute(search.args);
   }
 
   @computed

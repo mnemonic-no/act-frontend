@@ -1,7 +1,7 @@
 import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { ActObject } from '../../../core/types';
+import { ActObject, isDone, isPending, isRejected } from '../../../core/types';
 import { ColumnKind, IObjectRow, SortOrder } from '../../../components/ObjectTable';
 import { getObjectLabelFromFact } from '../../../core/domain';
 import { sortRowsBy } from '../../Main/Table/PrunedObjectsTableStore';
@@ -25,7 +25,7 @@ export const resultToRows = ({
   objectTypeFilter: Set<string>;
   sortOrder: SortOrder;
 }): Array<IObjectRow> => {
-  if (simpleSearch.status !== 'done' || !simpleSearch.objects) {
+  if (!isDone(simpleSearch)) {
     return [];
   }
 
@@ -33,11 +33,11 @@ export const resultToRows = ({
     _.filter((o: ActObject) => objectTypeFilter.size === 0 || objectTypeFilter.has(o.type.name)),
     _.map((o: ActObject) => ({
       actObject: o,
-      label: getObjectLabelFromFact(o, config.objectLabelFromFactType, simpleSearch.facts),
+      label: getObjectLabelFromFact(o, config.objectLabelFromFactType, simpleSearch.result.facts),
       isSelected: selectedObjectIds.has(o.id)
     })),
     rows => sortRowsBy(sortOrder, rows)
-  )(simpleSearch.objects);
+  )(simpleSearch.result.objects);
 };
 
 export const withLink = (rows: Array<IObjectRow>, navigateFn: (e: any) => void): Array<IObjectRow> => {
@@ -66,14 +66,14 @@ export const selectedObjects = ({
   selectedObjectIds: Set<string>;
   objectTypeFilter: Set<string>;
 }) => {
-  if (!simpleSearch || !simpleSearch.objects) {
+  if (!isDone(simpleSearch)) {
     return [];
   }
 
   return _.pipe(
     _.filter((obj: ActObject) => selectedObjectIds.has(obj.id)),
     _.filter((o: ActObject) => objectTypeFilter.size === 0 || objectTypeFilter.has(o.type.name))
-  )(simpleSearch.objects);
+  )(simpleSearch.result.objects);
 };
 
 class ResultsStore {
@@ -180,11 +180,11 @@ class ResultsStore {
       };
     }
 
-    if (activeSimpleSearch.status === 'rejected') {
+    if (isRejected(activeSimpleSearch)) {
       return {
         searchError: {
-          title: 'Results for: ' + activeSimpleSearch.searchString,
-          subTitle: 'Search failed. ' + (activeSimpleSearch.errorDetails ? activeSimpleSearch.errorDetails : ''),
+          title: 'Results for: ' + activeSimpleSearch.args.searchString,
+          subTitle: 'Search failed. ' + activeSimpleSearch.error,
           onRetryClick: () => {
             this.simpleSearchBackendStore.retry(activeSimpleSearch);
           }
@@ -202,25 +202,28 @@ class ResultsStore {
       (url: string) => this.appStore.goToUrl(url)
     );
 
-    const warningText = activeSimpleSearch.limitExceeded
-      ? 'Result set exceeds limit. Try to constrain your search or use the advanced search if you want to see more'
-      : '';
+    const warningText =
+      isDone(activeSimpleSearch) && activeSimpleSearch.result.limitExceeded
+        ? 'Result set exceeds limit. Try to constrain your search or use the advanced search if you want to see more'
+        : '';
 
     return {
       searchError: undefined,
       searchResult: {
-        title: 'Results for: ' + activeSimpleSearch.searchString,
-        subTitle: activeSimpleSearch.objects ? activeSimpleSearch.objects.length + ' objects' : '',
-        isResultEmpty: Boolean(activeSimpleSearch.objects && activeSimpleSearch.objects.length === 0),
+        title: 'Results for: ' + activeSimpleSearch.args.searchString,
+        subTitle: isDone(activeSimpleSearch) ? activeSimpleSearch.result.objects.length + ' objects' : '',
+        isResultEmpty: Boolean(isDone(activeSimpleSearch) && activeSimpleSearch.result.objects.length === 0),
         warningText: warningText,
-        isLoading: activeSimpleSearch.status === 'pending',
+        isLoading: isPending(activeSimpleSearch),
         onAddSelectedObjects: this.onAddSelectedObjects,
         objectTypeFilter: {
           id: 'object-type-filter',
           label: 'Filter',
           emptyValue: emptyFilterValue,
           selectedValues: [...this.objectTypeFilter],
-          values: activeSimpleSearch.objects ? _.uniq(activeSimpleSearch.objects.map(x => x.type.name)).sort() : [],
+          values: isDone(activeSimpleSearch)
+            ? _.uniq(activeSimpleSearch.result.objects.map(x => x.type.name)).sort()
+            : [],
           onChange: this.onObjectTypeFilterChange
         },
         resultTable: {

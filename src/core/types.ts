@@ -152,6 +152,18 @@ export type TLoadable<R> = TPendingLoadable | TDoneLoadable<R> | TRejectedLoadab
 
 export type TRequestLoadable<A, R> = TCommonLoadable<A> & TLoadable<R>;
 
+export const isRejected = <R>(arg: TLoadable<R>): arg is TRejectedLoadable => {
+  return arg && arg.status === LoadingStatus.REJECTED;
+};
+
+export const isPending = <R>(arg: TLoadable<R>): arg is TPendingLoadable => {
+  return arg && arg.status === LoadingStatus.PENDING;
+};
+
+export const isDone = <R>(arg: TLoadable<R>): arg is TDoneLoadable<R> => {
+  return arg && arg.status === LoadingStatus.DONE;
+};
+
 export const searchId = (search: Search) => {
   if (isObjectSearch(search)) {
     return [search.objectType, search.objectValue, search.query, search.factTypes && search.factTypes.sort()]

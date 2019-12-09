@@ -92,7 +92,6 @@ export const prepareSections = (
             const href = urlToObjectSummaryPage(o);
             return {
               cells: [
-                { kind: CellKind.text, text: o.type.name, color: objectTypeToColor(o.type.name) } as TTextCell,
                 {
                   kind: CellKind.text,
                   text: getObjectLabelFromFact(o, objectLabelFromFactType, oneLeggedFacts) || o.value,

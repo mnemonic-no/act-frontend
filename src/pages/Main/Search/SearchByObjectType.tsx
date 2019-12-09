@@ -1,8 +1,8 @@
-import { observer } from 'mobx-react';
 import React from 'react';
+import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
 
 import ActObjectAutoSuggest from '../../../components/ActObjectAutoSuggest';
 import ObjectType from '../../../components/ObjectType';
@@ -10,6 +10,11 @@ import QueryAutoSuggest from './QueryAutoSuggest';
 import SearchByObjectTypeStore from './SearchByObjectTypeStore';
 
 const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gridGap: theme.spacing(1.5)
+  },
   buttonContainer: {
     display: 'flex',
     justifyContent: 'space-between'
@@ -25,30 +30,23 @@ const SearchByObjectTypeComp = ({ store }: ISearch) => {
         e.preventDefault();
         store.submitSearch();
       }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <ObjectType fullWidth value={store.objectType} onChange={store.onObjectTypeChange} />
-        </Grid>
-        <Grid item xs={12}>
-          <ActObjectAutoSuggest {...store.autoSuggester} fullWidth required placeholder="Object value" />
-        </Grid>
-        <Grid item xs={12}>
-          <QueryAutoSuggest
-            required={false}
-            fullWidth
-            placeholder="Query"
-            label="Graph query"
-            helperText={'A Graph query, like g.outE()'}
-            {...store.queryInput}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <div className={classes.buttonContainer}>
-            <Button type="submit">Search</Button>
-            <Button onClick={store.onClear}>Clear</Button>
-          </div>
-        </Grid>
-      </Grid>
+      <div className={classes.root}>
+        <Typography variant="subtitle2">Graph Query</Typography>
+        <ObjectType fullWidth value={store.objectType} onChange={store.onObjectTypeChange} />
+        <ActObjectAutoSuggest {...store.autoSuggester} fullWidth required placeholder="Object value" />
+        <QueryAutoSuggest
+          required={false}
+          fullWidth
+          placeholder="Query"
+          label="Graph query"
+          helperText={'A Graph query, like g.outE()'}
+          {...store.queryInput}
+        />
+        <div className={classes.buttonContainer}>
+          <Button type="submit">Search</Button>
+          <Button onClick={store.onClear}>Clear</Button>
+        </div>
+      </div>
     </form>
   );
 };

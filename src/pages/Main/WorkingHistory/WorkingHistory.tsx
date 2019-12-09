@@ -11,7 +11,6 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
-import Paper from '@material-ui/core/Paper';
 import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
@@ -118,7 +117,7 @@ const WorkingHistory = (props: IWorkingHistory) => {
   const classes = useStyles();
 
   return (
-    <Paper>
+    <>
       <List dense>
         <ListItem>
           <Typography variant="subtitle2">History</Typography>
@@ -165,7 +164,7 @@ const WorkingHistory = (props: IWorkingHistory) => {
           </span>
         </Tooltip>
       </div>
-    </Paper>
+    </>
   );
 };
 

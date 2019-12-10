@@ -21,7 +21,7 @@ const copy = (si: SearchItem) => {
       copyToClipBoard(si.search.query);
       addMessage('Query copied to clipboard');
     } catch (err) {
-      console.log('Faile to copy to clipboard');
+      console.log('Failed to copy to clipboard');
     }
   }
 };

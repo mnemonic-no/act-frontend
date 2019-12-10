@@ -10,12 +10,12 @@ function LoadableComp<R>(props: ILoadableComp<R>) {
   switch (props.loadable.status) {
     case LoadingStatus.PENDING:
       if (!props.loadingComp) {
-        return <DefaultLoadingComp text="Loading" />;
+        return <LoadingComp text="Loading" />;
       }
       return props.loadingComp();
     case LoadingStatus.REJECTED:
       if (!props.errorComp) {
-        return <DefaultErrorComp error={props.loadable.error} />;
+        return <ErrorComp error={props.loadable.error} />;
       }
       return props.errorComp(props.loadable.error);
     case LoadingStatus.DONE:
@@ -26,11 +26,11 @@ function LoadableComp<R>(props: ILoadableComp<R>) {
   }
 }
 
-export const DefaultErrorComp = (props: { error: string }) => {
+export const ErrorComp = (props: { error: string }) => {
   return <Typography color="error">Error: {props.error}</Typography>;
 };
 
-export const DefaultLoadingComp = (props: { text: string }) => {
+export const LoadingComp = (props: { text: string }) => {
   return (
     <div>
       <Typography display="inline" variant="subtitle1" style={{ paddingRight: '10px' }}>

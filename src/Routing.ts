@@ -42,28 +42,32 @@ class Routing {
       {
         path: '/gremlin/:objectType/:objectValue/:query',
         action: context => {
-          const { objectType, objectValue, query } = context.params as { [key: string]: string };
-          this.appStore.mainPageStore.backendStore.executeSearch({
-            objectType: objectType,
-            objectValue: objectValue,
-            query: query
-          });
+          return () => {
+            const { objectType, objectValue, query } = context.params as { [key: string]: string };
+            this.appStore.mainPageStore.backendStore.executeSearch({
+              objectType: objectType,
+              objectValue: objectValue,
+              query: query
+            });
 
-          this.appStore.currentPage = 'mainPage';
+            this.appStore.currentPage = 'mainPage';
+          };
         }
       },
       {
         path: '/graph-query/:objectType/:objectValue/:query',
         action: context => {
-          const { objectType, objectValue, query } = context.params as { [key: string]: string };
+          return () => {
+            const { objectType, objectValue, query } = context.params as { [key: string]: string };
 
-          this.appStore.mainPageStore.backendStore.executeSearch({
-            objectType: objectType,
-            objectValue: objectValue,
-            query: query
-          });
+            this.appStore.mainPageStore.backendStore.executeSearch({
+              objectType: objectType,
+              objectValue: objectValue,
+              query: query
+            });
 
-          this.appStore.currentPage = 'mainPage';
+            this.appStore.currentPage = 'mainPage';
+          };
         }
       },
       {

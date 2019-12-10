@@ -38,6 +38,8 @@ export const suggestions = (
   );
 };
 
+const ANY = 'Any';
+
 class SearchByObjectTypeStore {
   root: MainPageStore;
   @observable objectType: string = '';
@@ -97,7 +99,7 @@ class SearchByObjectTypeStore {
     if (this.objectValue.length >= 2) {
       this.root.backendStore.autoCompleteSimpleSearchBackendStore.execute({
         searchString: toSearchString(this.objectValue),
-        objectTypeFilter: this.objectType && this.objectType !== 'Any' ? [this.objectType] : []
+        objectTypeFilter: this.objectType && this.objectType !== ANY ? [this.objectType] : []
       });
     }
   }
@@ -111,9 +113,11 @@ class SearchByObjectTypeStore {
     return {
       loadable: this.root.backendStore.actObjectTypes,
       value: this.objectType,
-      prepare: (result: Array<NamedId>) => {
-        return _.sortBy((x: NamedId) => x.name)(result.slice().concat([{ id: 'any', name: 'Any' }]));
-      },
+      objectTypes: isDone(this.root.backendStore.actObjectTypes)
+        ? _.sortBy((x: NamedId) => x.name)(
+            this.root.backendStore.actObjectTypes.result.objectTypes.slice().concat([{ id: 'any', name: ANY }])
+          )
+        : [],
       onChange: this.onObjectTypeChange
     };
   }
@@ -122,7 +126,7 @@ class SearchByObjectTypeStore {
   get autoSuggester() {
     const simpleSearch = this.root.backendStore.autoCompleteSimpleSearchBackendStore.getSimpleSearch(
       toSearchString(this.objectValue),
-      this.objectType !== 'Any' ? [this.objectType] : []
+      this.objectType !== ANY ? [this.objectType] : []
     );
 
     return {
@@ -148,6 +152,11 @@ class SearchByObjectTypeStore {
       value: this.objectValue,
       label: 'Object value'
     };
+  }
+
+  @computed
+  get isReadyToSearch() {
+    return this.objectType.length > 0 && this.objectType !== ANY;
   }
 }
 

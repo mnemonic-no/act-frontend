@@ -4,9 +4,10 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
+import { LoadingStatus, NamedId, TLoadable } from '../../../core/types';
+import { ErrorComp, LoadingComp } from '../../../components/Loadable';
 import ActObjectAutoSuggest from '../../../components/ActObjectAutoSuggest';
 import ActObjectType from '../../../components/ActObjectType';
-import Loadable from '../../../components/Loadable';
 import QueryAutoSuggest from './QueryAutoSuggest';
 import SearchByObjectTypeStore from './SearchByObjectTypeStore';
 
@@ -22,6 +23,22 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
+const ActObjectTypeSelector = (props: {
+  loadable: TLoadable<any>;
+  onChange: (value: string) => void;
+  value: string;
+  objectTypes: Array<NamedId>;
+}) => {
+  switch (props.loadable.status) {
+    case LoadingStatus.REJECTED:
+      return <ErrorComp error={props.loadable.error} />;
+    case LoadingStatus.PENDING:
+      return <LoadingComp text="Loading" />;
+    case LoadingStatus.DONE:
+      return <ActObjectType fullWidth onChange={props.onChange} value={props.value} objectTypes={props.objectTypes} />;
+  }
+};
+
 const SearchByObjectTypeComp = ({ store }: ISearch) => {
   const classes = useStyles();
 
@@ -29,25 +46,13 @@ const SearchByObjectTypeComp = ({ store }: ISearch) => {
     <form
       onSubmit={e => {
         e.preventDefault();
-        store.submitSearch();
+        if (store.isReadyToSearch) {
+          store.submitSearch();
+        }
       }}>
       <div className={classes.root}>
         <Typography variant="subtitle2">Graph Query</Typography>
-
-        <Loadable
-          loadable={store.objectTypeSelector.loadable}
-          resultComp={result => {
-            return (
-              <ActObjectType
-                fullWidth
-                onChange={store.objectTypeSelector.onChange}
-                value={store.objectTypeSelector.value}
-                objectTypes={store.objectTypeSelector.prepare(result.objectTypes)}
-              />
-            );
-          }}
-        />
-
+        <ActObjectTypeSelector {...store.objectTypeSelector} />
         <ActObjectAutoSuggest {...store.autoSuggester} fullWidth required placeholder="Object value" />
         <QueryAutoSuggest
           required={false}
@@ -58,7 +63,9 @@ const SearchByObjectTypeComp = ({ store }: ISearch) => {
           {...store.queryInput}
         />
         <div className={classes.buttonContainer}>
-          <Button type="submit">Search</Button>
+          <Button type="submit" disabled={!store.isReadyToSearch}>
+            Search
+          </Button>
           <Button onClick={store.onClear}>Clear</Button>
         </div>
       </div>

@@ -17,7 +17,7 @@ const simpleSearchId = ({ searchString, objectTypeFilter }: SimpleSearchArgs) =>
 
 class SimpleSearchBackendStore {
   config: any;
-  @observable searches: { [searchString: string]: SimpleSearch } = {};
+  @observable searches: { [id: string]: SimpleSearch } = {};
   resultLimit: number;
 
   constructor(config: any, limit: number) {

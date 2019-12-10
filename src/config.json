@@ -15,6 +15,7 @@
     "uri": "#0c0"
   },
   "autoResolveFacts": {
+    "*": ["category"],
     "asn": ["name"],
     "incident": ["name"],
     "path": ["basename"],

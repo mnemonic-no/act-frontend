@@ -1,7 +1,13 @@
 import { action, observable, runInAction } from 'mobx';
-import { autoResolveDataLoader, checkObjectStats, postJson, searchCriteriadataLoader } from '../core/dataLoaders';
+import {
+  autoResolveDataLoader,
+  checkObjectStats,
+  objectTypesDataLoader,
+  postJson,
+  searchCriteriadataLoader
+} from '../core/dataLoaders';
 
-import { isObjectSearch, SearchItem, Search, searchId } from '../core/types';
+import { isObjectSearch, LoadingStatus, NamedId, Search, searchId, SearchItem, TLoadable } from '../core/types';
 import { addMessage } from '../util/SnackbarProvider';
 import AppStore from '../AppStore';
 import GraphQueryStore from './GraphQueryStore';
@@ -17,10 +23,12 @@ const isInHistory = (search: Search, historyItems: Array<SearchItem>) => {
 
 class BackendStore {
   root: AppStore;
-  simpleSearchBackendStore: SimpleSearchBackendStore;
-  autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
+
   actObjectBackendStore: ActObjectBackendStore;
+  autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
+  @observable actObjectTypes: TLoadable<{ objectTypes: Array<NamedId> }> | undefined;
   graphQueryStore: GraphQueryStore;
+  simpleSearchBackendStore: SimpleSearchBackendStore;
 
   @observable isLoading: boolean = false;
 
@@ -30,6 +38,27 @@ class BackendStore {
     this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
     this.graphQueryStore = new GraphQueryStore();
     this.actObjectBackendStore = new ActObjectBackendStore(config);
+  }
+
+  @action
+  async fetchActObjectTypes() {
+    if (this.actObjectTypes) return;
+
+    this.actObjectTypes = {
+      status: LoadingStatus.PENDING
+    };
+
+    try {
+      const result = await objectTypesDataLoader();
+
+      this.actObjectTypes = {
+        ...this.actObjectTypes,
+        result: { objectTypes: result.objectTypes },
+        status: LoadingStatus.DONE
+      };
+    } catch (err) {
+      this.actObjectTypes = { ...this.actObjectTypes, status: LoadingStatus.REJECTED, error: err?.message };
+    }
   }
 
   @action

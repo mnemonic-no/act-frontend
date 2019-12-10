@@ -1,10 +1,11 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
+import * as _ from 'lodash/fp';
 
 import { byTypeThenValue } from '../../../util/util';
 import { getObjectLabelFromFact } from '../../../core/domain';
 import config from '../../../config';
-import { isDone, isPending, PredefinedObjectQuery } from '../../../core/types';
+import { isDone, isPending, NamedId, PredefinedObjectQuery } from '../../../core/types';
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
 
@@ -96,19 +97,36 @@ class SearchByObjectTypeStore {
     if (this.objectValue.length >= 2) {
       this.root.backendStore.autoCompleteSimpleSearchBackendStore.execute({
         searchString: toSearchString(this.objectValue),
-        objectTypeFilter: [this.objectType]
+        objectTypeFilter: this.objectType && this.objectType !== 'Any' ? [this.objectType] : []
       });
     }
+  }
+
+  @computed
+  get objectTypeSelector() {
+    if (!this.root.backendStore.actObjectTypes) {
+      throw new Error('Failed to initialize actObjectTypes');
+    }
+
+    return {
+      loadable: this.root.backendStore.actObjectTypes,
+      value: this.objectType,
+      prepare: (result: Array<NamedId>) => {
+        return _.sortBy((x: NamedId) => x.name)(result.slice().concat([{ id: 'any', name: 'Any' }]));
+      },
+      onChange: this.onObjectTypeChange
+    };
   }
 
   @computed
   get autoSuggester() {
     const simpleSearch = this.root.backendStore.autoCompleteSimpleSearchBackendStore.getSimpleSearch(
       toSearchString(this.objectValue),
-      [this.objectType]
+      this.objectType !== 'Any' ? [this.objectType] : []
     );
 
     return {
+      objectTypes: this.root.backendStore.actObjectTypes,
       isLoading: isPending(simpleSearch),
       suggestions: isDone(simpleSearch)
         ? simpleSearch.result.objects
@@ -124,6 +142,7 @@ class SearchByObjectTypeStore {
         : [],
       onChange: this.onObjectValueChange,
       onSuggestionSelected: (s: any) => {
+        this.objectType = s.actObject.type.name;
         this.objectValue = s.actObject.value;
       },
       value: this.objectValue,

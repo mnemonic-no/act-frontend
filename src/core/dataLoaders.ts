@@ -51,6 +51,14 @@ const handleForbiddenSearchResults = (error: any) => {
 
 const DEFAULT_LIMIT = 10000;
 
+export const objectTypesDataLoader = () =>
+  actWretch
+    .url('/v1/objectType')
+    .get()
+    .forbidden(handleForbiddenSearchResults)
+    .json(({ data }) => ({ objectTypes: data }))
+    .catch(handleError);
+
 /**
  * Fetch facts from an object specifed by type and value
  */

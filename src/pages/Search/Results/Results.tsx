@@ -91,7 +91,7 @@ const ResultsComp = (props: IResultsComp) => {
     return <div>No results</div>;
   }
 
-  const { isLoading, title, subTitle, isResultEmpty, resultTable, warningText, objectTypeFilter } = props.searchResult;
+  const { isLoading, title, subTitles, isResultEmpty, resultTable, warningText, objectTypeFilter } = props.searchResult;
 
   return (
     <div className={classes.root}>
@@ -101,14 +101,20 @@ const ResultsComp = (props: IResultsComp) => {
             <Typography variant="h6">{title}</Typography>
             {isLoading && <CircularProgress className={classes.progress} size={20} />}
           </div>
-          <Typography variant="body1">{subTitle}</Typography>
+          {subTitles.map(x => {
+            return (
+              <Typography key={x.text} variant="body1" style={{ color: x.color }}>
+                {x.text}
+              </Typography>
+            );
+          })}
           {warningText && (
             <div className={classes.warningContainer}>
               <WarnIcon color="secondary" />
               <Typography variant="subtitle1">{warningText}</Typography>
             </div>
           )}
-          {!isLoading && !isResultEmpty && (
+          {!isLoading && !isResultEmpty && objectTypeFilter && (
             <div className={classes.objectTypeFilter}>
               <MultiSelect {...objectTypeFilter} />
             </div>
@@ -135,14 +141,19 @@ interface ISearchError {
   onRetryClick: () => void;
 }
 
-interface IResultsComp {
+export interface IColorText {
+  text: string;
+  color?: string;
+}
+
+export interface IResultsComp {
   searchError?: ISearchError;
   searchResult?: {
     title: string;
-    subTitle: string;
+    subTitles: Array<IColorText>;
     isLoading: boolean;
     warningText?: string;
-    objectTypeFilter: IMultiSelect;
+    objectTypeFilter?: IMultiSelect;
     isResultEmpty: boolean;
     resultTable: IObjectTableComp;
   };

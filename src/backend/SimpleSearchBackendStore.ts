@@ -13,7 +13,12 @@ export type SimpleSearch = TRequestLoadable<
 >;
 
 const simpleSearchId = ({ searchString, objectTypeFilter }: SimpleSearchArgs) =>
-  searchString + ':' + objectTypeFilter.sort().join(',');
+  searchString +
+  ':' +
+  objectTypeFilter
+    .slice()
+    .sort()
+    .join(',');
 
 class SimpleSearchBackendStore {
   config: any;

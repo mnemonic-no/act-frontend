@@ -1,7 +1,10 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
+import SearchIcon from '@material-ui/icons/Search';
 
 import ActObjectAutoSuggest, { IActObjectAutoSuggestComp } from '../../components/ActObjectAutoSuggest';
 import Details from './Details/Details';
@@ -9,8 +12,9 @@ import HistoryButton from './HistoryButton';
 import Page from '../Page';
 import Results from './Results/Results';
 import SearchPageStore from './SearchPageStore';
+import SingleValueFilter, { ISingleValueFilterComp } from '../../components/SingleValueFilter';
 
-const useSearchOnlyStyles = makeStyles(() => ({
+const useSearchOnlyStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
     height: '100%',
@@ -26,7 +30,8 @@ const useSearchOnlyStyles = makeStyles(() => ({
     flex: '0 10 30%'
   },
   logo: {
-    width: 512
+    width: 512,
+    marginBottom: theme.spacing(2)
   }
 }));
 
@@ -41,12 +46,15 @@ const useResultStyles = makeStyles((theme: Theme) => ({
     padding: '10px',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'top',
     margin: '10px 10px 0 10px'
   },
   searchInput: {
     flex: '1 0 auto',
     paddingRight: theme.spacing(2)
+  },
+  historyButton: {
+    paddingTop: theme.spacing(1)
   },
   resultsContainer: {
     display: 'flex',
@@ -65,8 +73,60 @@ const useResultStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
+const useSearchInputStyles = makeStyles(() => ({
+  root: {
+    display: 'flex',
+    '& :first-child': {
+      flex: '1 0 auto'
+    }
+  },
+  searchButton: {
+    paddingLeft: '20px'
+  }
+}));
+
+const SearchInput = (props: {
+  autoSuggest: Omit<IActObjectAutoSuggestComp, 'fullWidth' | 'required' | 'helperText' | 'placeholder'>;
+  objectTypeFilter: ISingleValueFilterComp;
+  isAdvancedSearchEnabled: boolean;
+  advancedSearchButton: { text: string; onClick: () => void };
+  onSearch: () => void;
+}) => {
+  const classes = useSearchInputStyles();
+
+  return (
+    <>
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          props.onSearch();
+        }}>
+        <div className={classes.root}>
+          <ActObjectAutoSuggest {...props.autoSuggest} fullWidth required placeholder="Search for objects" />
+          <div className={classes.searchButton}>
+            <IconButton color={'primary'} onClick={props.onSearch}>
+              <SearchIcon fontSize={'large'} />
+            </IconButton>
+          </div>
+        </div>
+      </form>
+
+      {!props.isAdvancedSearchEnabled && (
+        <Button size="small" onClick={props.advancedSearchButton.onClick}>
+          {props.advancedSearchButton.text}
+        </Button>
+      )}
+      {props.isAdvancedSearchEnabled && <SingleValueFilter {...props.objectTypeFilter} />}
+    </>
+  );
+};
+
 const SearchOnly = (props: {
   searchInput: Omit<IActObjectAutoSuggestComp, 'fullWidth' | 'required' | 'helperText' | 'placeholder'>;
+  objectTypeFilter: ISingleValueFilterComp;
+  isAdvancedSearchEnabled: boolean;
+  advancedSearchButton: { text: string; onClick: () => void };
+
   onSearch: () => void;
 }) => {
   const classes = useSearchOnlyStyles();
@@ -76,13 +136,13 @@ const SearchOnly = (props: {
       <div className={classes.spacer} />
       <div className={classes.searchContainer}>
         <img className={classes.logo} src="/act-logo-onWhite.svg" alt="ACT | The Open Threat Intelligence Platform" />
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            props.onSearch();
-          }}>
-          <ActObjectAutoSuggest {...props.searchInput} fullWidth required placeholder="Search for objects" />
-        </form>
+        <SearchInput
+          autoSuggest={props.searchInput}
+          onSearch={props.onSearch}
+          objectTypeFilter={props.objectTypeFilter}
+          isAdvancedSearchEnabled={props.isAdvancedSearchEnabled}
+          advancedSearchButton={props.advancedSearchButton}
+        />
       </div>
     </div>
   );
@@ -91,21 +151,30 @@ const SearchOnly = (props: {
 const SearchWithResults = observer(({ store }: { store: SearchPageStore }) => {
   const classes = useResultStyles();
 
-  const { searchInput, searchHistoryItems, onSearch } = store.prepared;
+  const {
+    searchInput,
+    searchHistoryItems,
+    onSearch,
+    objectTypeFilter,
+    isAdvancedSearchEnabled,
+    advancedSearchButton
+  } = store.prepared;
 
   return (
     <div className={classes.root}>
       <Paper className={classes.searchContainer}>
         <div className={classes.searchInput}>
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              onSearch();
-            }}>
-            <ActObjectAutoSuggest {...searchInput} fullWidth required placeholder="Search for objects" />
-          </form>
+          <SearchInput
+            autoSuggest={searchInput}
+            onSearch={onSearch}
+            objectTypeFilter={objectTypeFilter}
+            isAdvancedSearchEnabled={isAdvancedSearchEnabled}
+            advancedSearchButton={advancedSearchButton}
+          />
         </div>
-        <HistoryButton historyItems={searchHistoryItems} />
+        <div className={classes.historyButton}>
+          <HistoryButton historyItems={searchHistoryItems} />
+        </div>
       </Paper>
       <Paper className={classes.resultsContainer}>
         <div className={classes.results}>

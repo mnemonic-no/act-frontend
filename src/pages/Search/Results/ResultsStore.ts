@@ -9,8 +9,9 @@ import AppStore from '../../../AppStore';
 import config from '../../../config';
 import SearchPageStore from '../SearchPageStore';
 import SimpleSearchBackendStore, { SimpleSearch } from '../../../backend/SimpleSearchBackendStore';
-import { linkOnClickFn } from '../../../util/util';
+import { linkOnClickFn, objectTypeToColor, pluralize } from '../../../util/util';
 import { urlToObjectSummaryPage } from '../../../Routing';
+import { IColorText } from './Results';
 
 const emptyFilterValue = 'Show all';
 
@@ -126,7 +127,10 @@ class ResultsStore {
 
   @computed
   get activeSimpleSearch() {
-    return this.simpleSearchBackendStore.getSimpleSearch(this.searchStore.activeSearchString);
+    return this.simpleSearchBackendStore.getSimpleSearch(
+      this.searchStore.activeSearch.searchString,
+      this.searchStore.activeSearch.objectTypeFilter
+    );
   }
 
   @action.bound
@@ -207,25 +211,36 @@ class ResultsStore {
         ? 'Result set exceeds limit. Try to constrain your search or use the advanced search if you want to see more'
         : '';
 
+    const isSearchFiltered = activeSimpleSearch.args.objectTypeFilter.length > 0;
+
     return {
       searchError: undefined,
       searchResult: {
         title: 'Results for: ' + activeSimpleSearch.args.searchString,
-        subTitle: isDone(activeSimpleSearch) ? activeSimpleSearch.result.objects.length + ' objects' : '',
+        subTitles: _.filter<IColorText>(Boolean)([
+          isSearchFiltered && {
+            text: 'Filter: ' + activeSimpleSearch.args.objectTypeFilter[0],
+            color: objectTypeToColor(activeSimpleSearch.args.objectTypeFilter[0])
+          },
+          isDone(activeSimpleSearch) && { text: pluralize(activeSimpleSearch.result.objects.length, 'object') }
+        ]),
+
         isResultEmpty: Boolean(isDone(activeSimpleSearch) && activeSimpleSearch.result.objects.length === 0),
         warningText: warningText,
         isLoading: isPending(activeSimpleSearch),
         onAddSelectedObjects: this.onAddSelectedObjects,
-        objectTypeFilter: {
-          id: 'object-type-filter',
-          label: 'Filter',
-          emptyValue: emptyFilterValue,
-          selectedValues: [...this.objectTypeFilter],
-          values: isDone(activeSimpleSearch)
-            ? _.uniq(activeSimpleSearch.result.objects.map(x => x.type.name)).sort()
-            : [],
-          onChange: this.onObjectTypeFilterChange
-        },
+        objectTypeFilter: !isSearchFiltered
+          ? {
+              id: 'object-type-filter',
+              label: 'Filter',
+              emptyValue: emptyFilterValue,
+              selectedValues: [...this.objectTypeFilter],
+              values: isDone(activeSimpleSearch)
+                ? _.uniq(activeSimpleSearch.result.objects.map(x => x.type.name)).sort()
+                : [],
+              onChange: this.onObjectTypeFilterChange
+            }
+          : undefined,
         resultTable: {
           sortOrder: this.sortOrder,
           onSortChange: this.onSortChange,

@@ -122,6 +122,8 @@ export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
+export const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
+
 export const byTypeThenValue = (a: ActObject, b: ActObject) =>
   a.type.name + '' + a.value > b.type.name + '' + b.value ? 1 : -1;
 

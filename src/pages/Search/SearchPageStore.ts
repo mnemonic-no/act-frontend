@@ -1,21 +1,29 @@
 import { action, computed, observable } from 'mobx';
 
-import { byTypeThenValue } from '../../util/util';
+import { byName, byTypeThenValue } from '../../util/util';
 import { getObjectLabelFromFact } from '../../core/domain';
+import { isDone, isPending } from '../../core/types';
 import config from '../../config';
 import AppStore from '../../AppStore';
-import ResultsStore from './Results/ResultsStore';
-import SimpleSearchBackendStore from '../../backend/SimpleSearchBackendStore';
 import DetailsStore from './Details/DetailsStore';
-import { isDone, isPending } from '../../core/types';
+import ResultsStore from './Results/ResultsStore';
+import SimpleSearchBackendStore, { SimpleSearchArgs } from '../../backend/SimpleSearchBackendStore';
 
 class SearchPageStore {
   root: AppStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
   autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
+  @observable isAdvancedSearchEnabled: boolean = false;
 
-  @observable simpleSearchInputValue = '';
-  @observable activeSearchString = '';
+  @observable searchInput: SimpleSearchArgs = {
+    searchString: '',
+    objectTypeFilter: []
+  };
+
+  @observable activeSearch: SimpleSearchArgs = {
+    searchString: '',
+    objectTypeFilter: []
+  };
   suggestionLimit: number;
 
   ui: {
@@ -43,33 +51,43 @@ class SearchPageStore {
   }
 
   @action.bound
-  setActiveSearchString(searchString: string) {
-    this.activeSearchString = searchString;
-  }
+  onSimpleSearchInputChange(value: string, objectTypeFilter: Array<string>) {
+    this.searchInput = { searchString: value ? value : '', objectTypeFilter: objectTypeFilter };
 
-  @action.bound
-  onSimpleSearchInputChange(value: string) {
-    this.simpleSearchInputValue = value ? value : '';
-
-    if (this.simpleSearchInputValue.length >= 3) {
-      this.autoCompleteSimpleSearchBackendStore.execute({ searchString: value, objectTypeFilter: [] });
+    if (this.searchInput.searchString.length >= 3) {
+      this.autoCompleteSimpleSearchBackendStore.execute({ searchString: value, objectTypeFilter: objectTypeFilter });
     }
   }
 
   @action.bound
-  onSearchSubmit(searchString: string) {
-    this.activeSearchString = searchString;
-    this.simpleSearchBackendStore.execute({ searchString: searchString, objectTypeFilter: [] });
-    this.simpleSearchInputValue = '';
+  onSearchSubmit(searchString: string, objectTypeFilter: Array<string> = []) {
+    if (searchString.length < 1) return;
+
+    this.activeSearch = { searchString: searchString, objectTypeFilter: objectTypeFilter };
+    this.simpleSearchBackendStore.execute({ searchString: searchString, objectTypeFilter: objectTypeFilter });
+    this.searchInput.searchString = '';
+  }
+
+  @action.bound
+  setObjectTypeFilter(objectTypeFilter: Array<string>) {
+    this.searchInput.objectTypeFilter = objectTypeFilter;
+  }
+
+  @action.bound
+  clearObjectTypeFilter() {
+    this.searchInput.objectTypeFilter = [];
   }
 
   @computed
   get prepared() {
-    const simpleSearch = this.autoCompleteSimpleSearchBackendStore.getSimpleSearch(this.simpleSearchInputValue);
+    const simpleSearch = this.autoCompleteSimpleSearchBackendStore.getSimpleSearch(
+      this.searchInput.searchString,
+      this.searchInput.objectTypeFilter
+    );
 
     const autoSuggester = {
       label: 'Search for objects',
-      value: this.simpleSearchInputValue,
+      value: this.searchInput.searchString,
       isLoading: isPending(simpleSearch),
       suggestions: isDone(simpleSearch)
         ? simpleSearch.result.objects
@@ -83,31 +101,58 @@ class SearchPageStore {
             }))
             .slice(0, this.suggestionLimit)
         : [],
-      onChange: this.onSimpleSearchInputChange,
+      onChange: (value: string) => this.onSimpleSearchInputChange(value, this.searchInput.objectTypeFilter),
       onSuggestionSelected: (s: any) => {
-        this.onSearchSubmit(`"${s.objectLabel}"`);
+        this.onSearchSubmit(`"${s.objectLabel}"`, this.searchInput.objectTypeFilter);
       }
     };
 
-    const hasActiveSearch = this.simpleSearchBackendStore.getSimpleSearch(this.activeSearchString);
+    const hasActiveSearch = this.simpleSearchBackendStore.searchList.length > 0;
 
     const historyItems = this.simpleSearchBackendStore.searchList
       .map(s => ({
-        label: s.args.searchString,
-        labelSecondary: isDone(s) ? `(${s.result.objects.length})` : '',
+        label:
+          s.args.searchString +
+          (s.args.objectTypeFilter.length > 0 ? ' (' + s.args.objectTypeFilter.join(', ') + ')' : ''),
+        labelSecondary: isDone(s) ? `${s.result.objects.length}` : '',
         onClick: () => {
-          this.setActiveSearchString(s.args.searchString);
+          this.activeSearch = s.args;
         }
       }))
       .sort((a: { label: string }, b: { label: string }) => (a.label > b.label ? 1 : -1));
+
+    const objectTypeFilterItems =
+      this.root.backendStore.actObjectTypes && isDone(this.root.backendStore.actObjectTypes)
+        ? this.root.backendStore.actObjectTypes.result.objectTypes
+            .slice()
+            .sort(byName)
+            .map(x => ({ text: x.name }))
+        : [];
 
     return {
       pageMenu: this.root.pageMenu,
       hasActiveSearch: hasActiveSearch,
       searchInput: autoSuggester,
       searchHistoryItems: historyItems,
-      onSearch: () => this.onSearchSubmit(this.simpleSearchInputValue),
-      onClear: () => (this.simpleSearchInputValue = '')
+      isAdvancedSearchEnabled: this.isAdvancedSearchEnabled,
+      advancedSearchButton: {
+        text: 'Advanced search',
+        onClick: () => {
+          this.isAdvancedSearchEnabled = true;
+        }
+      },
+      objectTypeFilter: {
+        title: 'Object type',
+        selection: this.searchInput.objectTypeFilter.join(', '),
+        options: objectTypeFilterItems,
+        onChange: (item: { text: string }) => {
+          this.setObjectTypeFilter([item.text]);
+        },
+        onClear: () => {
+          this.clearObjectTypeFilter();
+        }
+      },
+      onSearch: () => this.onSearchSubmit(this.searchInput.searchString, this.searchInput.objectTypeFilter)
     };
   }
 }

@@ -13,8 +13,7 @@ import ListItemControl from '../../../components/ListItemControl';
 import RefineryOptionsStore from './RefineryOptionsStore';
 import RelativeDateSelector from '../../../components/RelativeDateSelector';
 import { ObjectTypeFilter } from '../../../core/types';
-
-const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
+import { byName } from '../../../util/util';
 
 const RefineryOptions = ({ store }: { store: RefineryOptionsStore }) => (
   <Grid container spacing={2}>

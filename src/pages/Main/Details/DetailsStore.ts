@@ -1,8 +1,16 @@
 import { action, computed, observable, reaction } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { ActFact, ActObject, ContextAction, NamedId, PredefinedObjectQuery, Search } from '../../../core/types';
-import { byTypeThenValue, link, pluralize } from '../../../util/util';
+import {
+  ActFact,
+  ActObject,
+  ActSelection,
+  ContextAction,
+  NamedId,
+  PredefinedObjectQuery,
+  Search
+} from '../../../core/types';
+import { link, objectTypeToColor, pluralize } from '../../../util/util';
 import { ContextActionTemplate, resolveActions } from '../../../configUtil';
 import { urlToObjectSummaryPage } from '../../../Routing';
 import {
@@ -15,10 +23,15 @@ import {
 import AppStore from '../../../AppStore';
 import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
 import MainPageStore from '../MainPageStore';
+import { IGroup } from '../../../components/GroupByAccordion';
 
 export type ObjectDetails = {
   contextActions: Array<ContextAction>;
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
+};
+
+const actObjectToSelection = (actObject: ActObject): ActSelection => {
+  return { id: actObject.id, kind: 'object' };
 };
 
 export const factTypeLinks = (
@@ -36,6 +49,48 @@ export const factTypeLinks = (
   )(selectedFacts);
 };
 
+export const accordionGroups = ({
+  actObjects,
+  unSelectFn,
+  isAccordionExpanded
+}: {
+  actObjects: Array<ActObject>;
+  unSelectFn: (selection: Array<ActSelection>) => void;
+  isAccordionExpanded: { [objectTypeName: string]: boolean };
+}) => {
+  return _.pipe(
+    _.groupBy((o: ActObject) => o.type.name),
+    _.entries,
+    _.map(([objectTypeName, objectsOfType]: [string, Array<ActObject>]) => {
+      return {
+        title: { text: objectTypeName, color: objectTypeToColor(objectTypeName) },
+        actions: [
+          {
+            text: 'Clear',
+            onClick: () => {
+              unSelectFn(objectsOfType.map(actObjectToSelection));
+            }
+          }
+        ],
+        isExpanded: isAccordionExpanded[objectTypeName],
+        items: _.pipe(
+          _.map((actObject: ActObject) => ({
+            text: actObject.value,
+            iconAction: {
+              icon: 'close',
+              tooltip: 'Unselect',
+              onClick: () => {
+                unSelectFn([actObjectToSelection(actObject)]);
+              }
+            }
+          })),
+          _.sortBy(x => x.text)
+        )(objectsOfType)
+      };
+    })
+  )(actObjects);
+};
+
 class DetailsStore {
   appStore: AppStore;
   root: MainPageStore;
@@ -46,6 +101,8 @@ class DetailsStore {
   @observable createFactDialog: CreateFactForDialog | null = null;
   @observable _isOpen = false;
   @observable fadeUnselected = false;
+
+  @observable multiSelectionAccordion: { [objectType: string]: boolean } = {};
 
   constructor(appStore: AppStore, root: MainPageStore, config: any) {
     this.appStore = appStore;
@@ -206,29 +263,47 @@ class DetailsStore {
     );
 
     return {
-      title: `Selection`,
+      title: 'Selection',
       fadeUnselected: this.fadeUnselected,
       onToggleFadeUnselected: this.toggleFadeUnselected,
       factTitle: {
         text: pluralize(selectedFacts.length, 'fact'),
-        onClick: () => this.showSelectedFactsTable()
+        onClick: () => this.showSelectedFactsTable(),
+        onClearClick: () =>
+          this.root.selectionStore.removeAllFromSelection(selectedFacts.map(x => ({ id: x.id, kind: 'fact' })))
       },
       factTypeLinks: factTypeLinks(selectedFacts, this.showSelectedFactsTable),
       objectTitle: {
         text: pluralize(selectedObjects.length, 'object'),
-        onClick: this.showSelectedObjectsTable
+        onClick: this.showSelectedObjectsTable,
+        onClearClick: () => this.root.selectionStore.removeAllFromSelection(selectedObjects.map(actObjectToSelection))
       },
-      objects: selectedObjects.sort(byTypeThenValue),
-      onObjectClick: (object: ActObject) => {
-        this.root.selectionStore.removeFromSelection({ id: object.id, kind: 'object' });
-      },
-      onPruneObjectsClick: () => {
-        this.root.refineryStore.addToPrunedObjectIds(this.root.selectionStore.currentlySelectedObjectIds);
-        this.root.selectionStore.clearSelection();
+      objectTypeGroupByAccordion: {
+        onToggle: (group: IGroup) => {
+          this.multiSelectionAccordion = {
+            ...this.multiSelectionAccordion,
+            [group.title.text]: !Boolean(this.multiSelectionAccordion[group.title.text])
+          };
+        },
+        groups: accordionGroups({
+          actObjects: selectedObjects,
+          isAccordionExpanded: this.multiSelectionAccordion,
+          unSelectFn: (selection: Array<ActSelection>) => this.root.selectionStore.removeAllFromSelection(selection)
+        })
       },
       onClearSelectionClick: () => {
         this.root.selectionStore.clearSelection();
-      }
+      },
+      actions: [
+        {
+          text: 'Prune objects',
+          tooltip: 'Prune the selected objects from the view',
+          onClick: () => {
+            this.root.refineryStore.addToPrunedObjectIds(this.root.selectionStore.currentlySelectedObjectIds);
+            this.root.selectionStore.clearSelection();
+          }
+        }
+      ]
     };
   }
 

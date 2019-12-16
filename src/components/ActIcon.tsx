@@ -1,5 +1,6 @@
 import React from 'react';
 import BugIcon from '@material-ui/icons/BugReport';
+import CloseIcon from '@material-ui/icons/Close';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import LinkIcon from '@material-ui/icons/Link';
 
@@ -11,6 +12,8 @@ const ActIconComponent = ({ iconId }: { iconId: string }) => {
       return <LinkIcon />;
     case 'bug':
       return <BugIcon />;
+    case 'close':
+      return <CloseIcon />;
     default:
       throw Error('Icon with id ' + iconId + ' not supported in ActIconComponent');
   }

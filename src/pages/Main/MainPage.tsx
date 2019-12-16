@@ -164,7 +164,7 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
             isOpen={store.ui.detailsStore.isOpen}
             onClick={store.ui.detailsStore.toggle}
             attachedTo={'left'}
-            placement={{ top: 4, left: '-48px' }}
+            placement={{ top: 7, left: '-48px' }}
           />
 
           <Drawer

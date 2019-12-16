@@ -1,46 +1,58 @@
 import React from 'react';
 import { observer } from 'mobx-react';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
+import Divider from '@material-ui/core/Divider';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Paper from '@material-ui/core/Paper';
 import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles, Theme } from '@material-ui/core/styles';
 
-import { ActObject } from '../../../core/types';
-import { objectTypeToColor, renderObjectValue } from '../../../util/util';
+import GroupByAccordionComp, { IGroupByAccordionComp } from '../../../components/GroupByAccordion';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    paddingLeft: theme.spacing(1),
-    paddingTop: theme.spacing(1),
-    paddingBottom: 0,
-    height: `calc(100% - ${theme.spacing(3)}px)`
+    height: '100%'
   },
   title: {
-    paddingTop: '2px'
+    paddingLeft: theme.spacing(1),
+    paddingTop: theme.spacing(0.3)
   },
   titleContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1.2),
+    paddingRight: theme.spacing(1.5),
     paddingBottom: theme.spacing(1)
   },
   titleLink: {
-    cursor: 'pointer'
+    cursor: 'pointer',
+    paddingLeft: theme.spacing(1)
   },
-  objectList: {
+  sectionTitle: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottom: '1px solid ' + theme.palette.grey[300]
+  },
+  contentContainer: {
     minHeight: 0,
     flex: '1 0 300px',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    padding: theme.spacing(1),
+    backgroundColor: theme.palette.grey[100]
+  },
+  factPaper: {
+    marginBottom: theme.spacing(2)
   },
   actions: {
     flex: '0 0 auto',
@@ -49,81 +61,75 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const MultiSelectInformationComp = ({
-  title,
-  factTitle,
-  factTypeLinks,
-  objectTitle,
-  objects,
-  fadeUnselected,
-  onToggleFadeUnselected,
-  onObjectClick,
-  onPruneObjectsClick,
-  onClearSelectionClick
-}: IMultiSelectInformationComp) => {
+const MultiSelectInformationComp = (props: IMultiSelectInformationComp) => {
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
       <div className={classes.titleContainer}>
         <Typography variant="h6" className={classes.title}>
-          {title}
+          {props.title}
         </Typography>
         <FormControlLabel
           label="Highlight"
           labelPlacement="start"
-          control={<Switch onClick={onToggleFadeUnselected} checked={fadeUnselected} />}
+          control={<Switch onClick={props.onToggleFadeUnselected} checked={props.fadeUnselected} />}
         />
         <Tooltip title="Clear selection">
-          <Button size="small" variant="outlined" onClick={onClearSelectionClick}>
+          <Button size="small" variant="outlined" onClick={props.onClearSelectionClick}>
             Clear
           </Button>
         </Tooltip>
       </div>
-      <Typography variant="subtitle1" onClick={factTitle.onClick} className={classes.titleLink}>
-        {factTitle.text}
-      </Typography>
-      <List dense disablePadding>
-        {factTypeLinks.map(({ text, onClick }) => {
+      <Divider />
+
+      <div className={classes.contentContainer}>
+        <Paper className={classes.factPaper}>
+          <div className={classes.sectionTitle}>
+            <Typography variant="subtitle1" onClick={props.factTitle.onClick} className={classes.titleLink}>
+              {props.factTitle.text}
+            </Typography>
+            <IconButton onClick={props.factTitle.onClearClick}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+
+          <List dense disablePadding>
+            {props.factTypeLinks.map(({ text, onClick }) => {
+              return (
+                <ListItem key={text} button onClick={onClick}>
+                  <ListItemText primary={<div>{text}</div>} />
+                </ListItem>
+              );
+            })}
+          </List>
+        </Paper>
+
+        <Paper>
+          <div className={classes.sectionTitle}>
+            <Typography variant="subtitle1" onClick={props.objectTitle.onClick} className={classes.titleLink}>
+              {props.objectTitle.text}
+            </Typography>
+
+            <IconButton onClick={props.objectTitle.onClearClick}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+          <GroupByAccordionComp {...props.objectTypeGroupByAccordion} />
+        </Paper>
+      </div>
+
+      <Divider />
+      <div className={classes.actions}>
+        {props.actions.map(a => {
           return (
-            <ListItem key={text} button onClick={onClick}>
-              <ListItemText primary={<div>{text}</div>} />
-            </ListItem>
+            <Tooltip key={a.text} title={a.tooltip}>
+              <span>
+                <Button onClick={a.onClick}>{a.text}</Button>
+              </span>
+            </Tooltip>
           );
         })}
-      </List>
-      <Typography variant="subtitle1" onClick={objectTitle.onClick} className={classes.titleLink}>
-        {objectTitle.text}
-      </Typography>
-      <div className={classes.objectList}>
-        <List disablePadding>
-          {objects.map((object: ActObject) => {
-            return (
-              <ListItem key={object.id} dense>
-                <ListItemText
-                  primary={
-                    <div>
-                      <span style={{ color: objectTypeToColor(object.type.name) }}>{object.type.name + ' '}</span>
-                      <span>{renderObjectValue(object, 20)}</span>
-                    </div>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <IconButton edge="end" aria-label="delete" onClick={() => onObjectClick(object)}>
-                    <CloseIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            );
-          })}
-        </List>
-      </div>
-      <div className={classes.actions}>
-        <Tooltip title="Prune the selected objects from the view">
-          <span>
-            <Button onClick={onPruneObjectsClick}>Prune objects</Button>
-          </span>
-        </Tooltip>
       </div>
     </div>
   );
@@ -133,13 +139,12 @@ export interface IMultiSelectInformationComp {
   title: string;
   fadeUnselected: boolean;
   onToggleFadeUnselected: () => void;
-  factTitle: { text: string; onClick: () => void };
+  factTitle: { text: string; onClick: () => void; onClearClick: () => void };
   factTypeLinks: Array<{ text: string; onClick: () => void }>;
-  objectTitle: { text: string; onClick: () => void };
-  objects: Array<ActObject>;
-  onObjectClick: (obj: ActObject) => void;
-  onPruneObjectsClick: () => void;
+  objectTitle: { text: string; onClick: () => void; onClearClick: () => void };
+  objectTypeGroupByAccordion: IGroupByAccordionComp;
   onClearSelectionClick: () => void;
+  actions: Array<{ text: string; tooltip: string; onClick: () => void }>;
 }
 
 export default observer(MultiSelectInformationComp);

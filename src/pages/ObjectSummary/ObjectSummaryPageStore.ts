@@ -10,7 +10,7 @@ import { parseObjectSummary, TSectionConfig } from '../../configUtil';
 import { CellKind, TActionCell, TCell, TSectionComp, TTagsCell, TTextCell } from './Section';
 import { urlToObjectFactQueryPage, urlToObjectSummaryPage } from '../../Routing';
 import AppStore from '../../AppStore';
-import GraphQueryStore from '../../backend/GraphQueryStore';
+import ObjectTraverseBackendStore from '../../backend/ObjectTraverseBackendStore';
 
 const cellsAsText = (cells: Array<TCell>) => {
   return cells
@@ -38,7 +38,7 @@ export const countByObjectTypeString = (objects: Array<ActObject>) => {
 export const prepareSections = (
   currentObject: { value: string; typeName: string },
   objectTypeToSections: IObjectTypeToSections,
-  graphQueryStore: GraphQueryStore,
+  graphQueryStore: ObjectTraverseBackendStore,
   objectLabelFromFactType: string,
   postAndForgetFn: (url: string, jsonBody: any, successString: string) => void,
   navigateFn: (url: string) => void
@@ -48,7 +48,7 @@ export const prepareSections = (
   if (!sections) return [];
 
   return sections.map(({ title, query, actions }: TSectionConfig) => {
-    const q = graphQueryStore.getGraphQuery(currentObject.value, currentObject.typeName, query);
+    const q = graphQueryStore.getItem(currentObject.value, currentObject.typeName, query);
 
     if (isPending(q)) {
       return { kind: 'loading', title: title };
@@ -171,7 +171,7 @@ class ObjectSummaryPageStore {
 
     if (sections) {
       sections.forEach(section => {
-        this.appStore.backendStore.graphQueryStore.execute(objectValue, objectTypeName, section.query);
+        this.appStore.backendStore.objectTraverseBackendStore.execute(objectValue, objectTypeName, section.query);
       });
     }
   }
@@ -235,7 +235,7 @@ class ObjectSummaryPageStore {
         sections: prepareSections(
           this.currentObject,
           this.objectTypeToSections,
-          this.appStore.backendStore.graphQueryStore,
+          this.appStore.backendStore.objectTraverseBackendStore,
           this.config.objectLabelFromFactType,
           this.appStore.backendStore.postAndForget,
           (url: string) => this.appStore.goToUrl(url)

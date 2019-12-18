@@ -3,7 +3,17 @@ import * as _ from 'lodash/fp';
 import config from '../config';
 import actWretch from '../util/actWretch';
 import { factMapToObjectMap } from './domain';
-import { ActFact, ActObject, FactType, ObjectFactsSearch, ObjectStats } from './types';
+import {
+  ActFact,
+  ActObject,
+  FactType,
+  isObjectFactsSearch,
+  isObjectTraverseSearch,
+  ObjectFactsSearch,
+  ObjectStats,
+  ObjectTraverseSearch,
+  Search
+} from './types';
 import memoizeDataLoader from '../util/memoizeDataLoader';
 import { arrayToObjectWithIds } from '../util/util';
 
@@ -89,7 +99,7 @@ export const objectFactsDataLoader = ({ objectType, objectValue, factTypes }: Ob
 /**
  * Fetch facts and objects from a traversal query from a specifed object
  */
-export const objectFactsTraverseDataLoader = ({ objectType, objectValue, query }: ObjectFactsSearch) =>
+export const objectTraverseDataLoader = ({ objectType, objectValue, query }: ObjectTraverseSearch) =>
   actWretch
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}/traverse`)
     .json({
@@ -110,15 +120,13 @@ export const objectFactsTraverseDataLoader = ({ objectType, objectValue, query }
     })
     .catch(handleError);
 
-export const searchCriteriadataLoader = (search: ObjectFactsSearch) => {
-  const { objectType, objectValue, query } = search;
-
-  if (objectType && objectValue && query) {
-    return objectFactsTraverseDataLoader(search);
-  } else if (objectType && objectValue) {
+export const searchCriteriadataLoader = (search: Search) => {
+  if (isObjectTraverseSearch(search)) {
+    return objectTraverseDataLoader(search);
+  } else if (isObjectFactsSearch(search)) {
     return objectFactsDataLoader(search);
   } else {
-    throw new Error('TODO');
+    throw new Error('Not supported: ' + JSON.stringify(search));
   }
 };
 
@@ -140,13 +148,13 @@ export const resultCount = (search: ObjectFactsSearch, statistics: Array<ObjectS
   }, 0);
 };
 
-export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: number) => {
-  const { objectType, objectValue, query } = search;
-
+export const checkObjectStats = async (search: Search, maxCount: number) => {
   // API does not support stats when there is a query
-  if (query) {
+  if (!isObjectFactsSearch(search)) {
     return true;
   }
+
+  const { objectType, objectValue } = search;
 
   const totalCount = await actWretch
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}`)

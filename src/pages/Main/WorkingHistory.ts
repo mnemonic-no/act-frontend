@@ -2,10 +2,18 @@ import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import MainPageStore from './MainPageStore';
-import { isFactSearch, isObjectSearch, SearchItem, SearchResult } from '../../core/types';
+import {
+  isFactSearch,
+  isObjectFactsSearch,
+  WorkingHistoryItem,
+  SearchResult,
+  Search,
+  isObjectTraverseSearch
+} from '../../core/types';
 import { urlToGraphQueryPage, urlToObjectFactQueryPage } from '../../Routing';
+import { searchId } from '../../core/domain';
 
-export const workingHistoryToPath = (historyItems: Array<SearchItem>) => {
+export const workingHistoryToPath = (historyItems: Array<WorkingHistoryItem>) => {
   const latest = _.last(historyItems);
   const search = latest ? latest.search : '';
 
@@ -13,23 +21,25 @@ export const workingHistoryToPath = (historyItems: Array<SearchItem>) => {
     return '';
   }
 
-  if (isObjectSearch(search) && !_.isEmpty(search.objectValue) && !_.isEmpty(search.objectType)) {
-    if (search.query && !_.isEmpty(search.query)) {
-      return urlToGraphQueryPage({
-        objectTypeName: search.objectType,
-        objectValue: search.objectValue,
-        query: search.query
-      });
-    }
+  if (isObjectFactsSearch(search) && !_.isEmpty(search.objectValue) && !_.isEmpty(search.objectType)) {
     return urlToObjectFactQueryPage({ objectTypeName: search.objectType, objectValue: search.objectValue });
   }
+
+  if (isObjectTraverseSearch(search) && !_.isEmpty(search.query)) {
+    return urlToGraphQueryPage({
+      objectTypeName: search.objectType,
+      objectValue: search.objectValue,
+      query: search.query
+    });
+  }
+
   return '';
 };
 
 class WorkingHistory {
   root: MainPageStore;
 
-  @observable.shallow historyItems: Array<SearchItem> = [];
+  @observable.shallow historyItems: Array<WorkingHistoryItem> = [];
 
   @observable mergePrevious: boolean = true;
   @observable selectedItemId: string = '';
@@ -44,7 +54,7 @@ class WorkingHistory {
 
   @computed get result(): SearchResult {
     if (!this.mergePrevious) {
-      const selectedItem = this.historyItems.find((item: SearchItem) => item.id === this.selectedItemId);
+      const selectedItem = this.historyItems.find((item: WorkingHistoryItem) => item.id === this.selectedItemId);
       return selectedItem ? selectedItem.result : { facts: {}, objects: {} };
     }
 
@@ -72,15 +82,15 @@ class WorkingHistory {
   }
 
   @action
-  addItem(item: SearchItem) {
-    const selectedIndex = this.historyItems.findIndex((i: SearchItem) => i.id === this.selectedItemId);
+  addItem(item: WorkingHistoryItem) {
+    const selectedIndex = this.historyItems.findIndex((i: WorkingHistoryItem) => i.id === this.selectedItemId);
     this.historyItems.splice(selectedIndex + 1, 0, item);
     this.selectedItemId = item.id;
     this.root.ui.graphViewStore.setSelectedNodeBasedOnSearch(item.search);
   }
 
   @action
-  removeItem(searchItem: SearchItem) {
+  removeItem(searchItem: WorkingHistoryItem) {
     // @ts-ignore
     this.historyItems.remove(searchItem);
   }
@@ -90,6 +100,11 @@ class WorkingHistory {
     // @ts-ignore
     this.historyItems.clear();
     this.root.selectionStore.clearSelection();
+  }
+
+  isInHistory(search: Search) {
+    const id = searchId(search);
+    return this.historyItems.some(q => q.id === id);
   }
 
   asPathname(): string {

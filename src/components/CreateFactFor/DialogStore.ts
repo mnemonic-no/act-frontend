@@ -246,7 +246,7 @@ class CreateFactForDialog {
 
       addMessage('Fact created');
 
-      const search = { id: resultFact.id, factTypeName: resultFact.type.name };
+      const search = { id: resultFact.id, factTypeName: resultFact.type.name, kind: 'singleFact' as 'singleFact' };
 
       const facts = { [resultFact.id]: resultFact };
 

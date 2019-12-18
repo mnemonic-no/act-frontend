@@ -32,6 +32,7 @@ class Routing {
           return () => {
             const { objectType, objectValue } = context.params as { [key: string]: string };
             this.appStore.mainPageStore.backendStore.executeSearch({
+              kind: 'objectFacts',
               objectType: objectType,
               objectValue: objectValue
             });
@@ -45,6 +46,7 @@ class Routing {
           return () => {
             const { objectType, objectValue, query } = context.params as { [key: string]: string };
             this.appStore.mainPageStore.backendStore.executeSearch({
+              kind: 'objectTraverse',
               objectType: objectType,
               objectValue: objectValue,
               query: query
@@ -61,6 +63,7 @@ class Routing {
             const { objectType, objectValue, query } = context.params as { [key: string]: string };
 
             this.appStore.mainPageStore.backendStore.executeSearch({
+              kind: 'objectTraverse',
               objectType: objectType,
               objectValue: objectValue,
               query: query

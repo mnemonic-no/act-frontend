@@ -67,19 +67,39 @@ export type SearchResult = {
 
 export type SingleFactSearch = {
   id: string;
+  kind: 'singleFact';
   factTypeName: string;
 };
 
 export type ObjectFactsSearch = {
+  kind: 'objectFacts';
   objectType: string;
   objectValue: string;
-  query?: string;
   factTypes?: Array<string>;
 };
 
-export type Search = SingleFactSearch | ObjectFactsSearch;
+export type ObjectTraverseSearch = {
+  kind: 'objectTraverse';
+  objectType: string;
+  objectValue: string;
+  query: string;
+};
 
-export type SearchItem = {
+export type Search = SingleFactSearch | ObjectFactsSearch | ObjectTraverseSearch;
+
+export const isObjectTraverseSearch = (search: Search): search is ObjectTraverseSearch => {
+  return search.kind === 'objectTraverse';
+};
+
+export const isObjectFactsSearch = (search: Search): search is ObjectFactsSearch => {
+  return search.kind === 'objectFacts';
+};
+
+export const isFactSearch = (search: Search): search is SingleFactSearch => {
+  return search.kind === 'singleFact';
+};
+
+export type WorkingHistoryItem = {
   id: string;
   search: Search;
   result: SearchResult;
@@ -162,22 +182,4 @@ export const isPending = <R>(arg: TLoadable<R>): arg is TPendingLoadable => {
 
 export const isDone = <R>(arg: TLoadable<R>): arg is TDoneLoadable<R> => {
   return arg && arg.status === LoadingStatus.DONE;
-};
-
-export const searchId = (search: Search) => {
-  if (isObjectSearch(search)) {
-    return [search.objectType, search.objectValue, search.query, search.factTypes && search.factTypes.sort()]
-      .filter(x => x)
-      .join(':');
-  } else {
-    return search.id;
-  }
-};
-
-export const isObjectSearch = (search: Search): search is ObjectFactsSearch => {
-  return (search as ObjectFactsSearch).objectType !== undefined;
-};
-
-export const isFactSearch = (search: Search): search is SingleFactSearch => {
-  return (search as SingleFactSearch).factTypeName !== undefined;
 };

@@ -1,4 +1,14 @@
-import { ActFact, ActObject, ContextAction, FactType, PredefinedObjectQuery } from './types';
+import {
+  ActFact,
+  ActObject,
+  ContextAction,
+  FactType,
+  isFactSearch,
+  isObjectFactsSearch,
+  isObjectTraverseSearch,
+  PredefinedObjectQuery,
+  Search
+} from './types';
 import { assertNever, notUndefined, objectTypeToColor, replaceAll, replaceAllInObject } from '../util/util';
 import { ActionTemplate, ContextActionTemplate } from '../configUtil';
 import { IObjectTitleComp } from '../components/ObjectTitle';
@@ -40,6 +50,20 @@ export const factTypeString = (factType: FactType | undefined | null) => {
   if (isBidirectional(factType)) return 'biDirectional';
 
   return 'uniDirectional';
+};
+
+export const searchId = (search: Search) => {
+  if (isObjectFactsSearch(search)) {
+    return [search.objectType, search.objectValue, search.factTypes && search.factTypes.sort()]
+      .filter(x => x)
+      .join(':');
+  } else if (isFactSearch(search)) {
+    return search.id;
+  } else if (isObjectTraverseSearch(search)) {
+    return [search.objectType, search.objectValue, search.query].filter(x => x).join(':');
+  }
+  assertNever(search);
+  throw new Error('Not supported' + JSON.stringify(search));
 };
 
 /**

@@ -144,7 +144,12 @@ class DetailsStore {
   onPredefinedObjectQueryClick(q: PredefinedObjectQuery): void {
     const obj = this.selectedObject;
     if (obj) {
-      this.root.backendStore.executeSearch({ objectType: obj.type.name, objectValue: obj.value, query: q.query });
+      this.root.backendStore.executeSearch({
+        kind: 'objectTraverse',
+        objectType: obj.type.name,
+        objectValue: obj.value,
+        query: q.query
+      });
     }
   }
 
@@ -200,12 +205,14 @@ class DetailsStore {
       onFactClick: this.setSelectedFact,
       onFactTypeClick: (factType: NamedId) => {
         this.onSearchSubmit({
+          kind: 'objectFacts',
           objectType: selected.type.name,
           objectValue: selected.value,
           factTypes: [factType.name]
         });
       },
-      onTitleClick: () => this.onSearchSubmit({ objectType: selected.type.name, objectValue: selected.value }),
+      onTitleClick: () =>
+        this.onSearchSubmit({ kind: 'objectFacts', objectType: selected.type.name, objectValue: selected.value }),
       onPredefinedObjectQueryClick: this.onPredefinedObjectQueryClick,
       onCreateFactClick: this.onCreateFactClick,
       onPruneObject: (o: ActObject) => {

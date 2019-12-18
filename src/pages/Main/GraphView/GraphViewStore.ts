@@ -8,9 +8,10 @@ import {
   ActObject,
   ActSelection,
   isFactSearch,
-  isObjectSearch,
+  isObjectFactsSearch,
   SearchResult,
-  Search
+  Search,
+  isObjectTraverseSearch
 } from '../../../core/types';
 import MainPageStore from '../MainPageStore';
 import { notUndefined } from '../../../util/util';
@@ -109,7 +110,11 @@ class GraphViewStore {
       },
       onNodeDoubleClick: (node: any) => {
         if (node.data('isFact')) return;
-        this.root.backendStore.executeSearch({ objectType: node.data('type'), objectValue: node.data('value') });
+        this.root.backendStore.executeSearch({
+          kind: 'objectFacts',
+          objectType: node.data('type'),
+          objectValue: node.data('value')
+        });
       },
       onSelect: (selection: Array<any>) => {
         this.root.selectionStore.setCurrentlySelected(
@@ -124,13 +129,15 @@ class GraphViewStore {
 
   @action
   setSelectedNodeBasedOnSearch(search: Search) {
-    if (isObjectSearch(search)) {
+    if (isObjectFactsSearch(search)) {
       const searchedNode = Object.values(this.root.refineryStore.refined.objects).find(
         (object: ActObject) => object.type.name === search.objectType && object.value === search.objectValue
       );
-      if (searchedNode && !search.query) {
+      if (searchedNode) {
         this.root.selectionStore.setCurrentSelection({ id: searchedNode.id, kind: 'object' });
       }
+    } else if (isObjectTraverseSearch(search)) {
+      // Noop
     } else if (isFactSearch(search)) {
       const searchedNode = Object.values(this.root.refineryStore.refined.facts).find(
         (fact: ActFact) => fact.id === search.id

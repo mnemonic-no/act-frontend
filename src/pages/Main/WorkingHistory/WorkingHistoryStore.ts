@@ -2,21 +2,22 @@ import { action, computed } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import {
-  isObjectSearch,
-  SearchItem,
+  isObjectFactsSearch,
+  WorkingHistoryItem,
   StateExport,
   PredefinedObjectQuery,
   isFactSearch,
-  searchId,
-  Search
+  Search,
+  isObjectTraverseSearch
 } from '../../../core/types';
 import { exportToJson, fileTimeString, copyToClipBoard, objectTypeToColor, factColor } from '../../../util/util';
 import MainPageStore from '../MainPageStore';
 import { addMessage } from '../../../util/SnackbarProvider';
 import { TDetails, TIcon } from './WorkingHistory';
+import { searchId } from '../../../core/domain';
 
-const copy = (si: SearchItem) => {
-  if (isObjectSearch(si.search) && si.search.query) {
+const copy = (si: WorkingHistoryItem) => {
+  if (isObjectTraverseSearch(si.search)) {
     try {
       copyToClipBoard(si.search.query);
       addMessage('Query copied to clipboard');
@@ -27,7 +28,9 @@ const copy = (si: SearchItem) => {
 };
 
 export const itemTitle = (s: Search) => {
-  if (isObjectSearch(s)) {
+  if (isObjectFactsSearch(s)) {
+    return [{ text: s.objectType + ' ', color: objectTypeToColor(s.objectType) }, { text: s.objectValue }];
+  } else if (isObjectTraverseSearch(s)) {
     return [{ text: s.objectType + ' ', color: objectTypeToColor(s.objectType) }, { text: s.objectValue }];
   } else if (isFactSearch(s)) {
     return [{ text: 'Fact ', color: factColor }, { text: s.factTypeName }];
@@ -36,9 +39,20 @@ export const itemTitle = (s: Search) => {
 };
 
 export const itemDetails = (
-  si: SearchItem,
+  si: WorkingHistoryItem,
   predefinedQueryToName: { [query: string]: string }
 ): TDetails | undefined => {
+  if (isObjectFactsSearch(si.search)) {
+    if (si.search.factTypes) {
+      return {
+        kind: 'label-text',
+        label: 'Fact types:',
+        text: si.search.factTypes.join(',')
+      };
+    }
+    return undefined;
+  }
+
   if (isFactSearch(si.search)) {
     return {
       kind: 'label-text',
@@ -47,36 +61,27 @@ export const itemDetails = (
     };
   }
 
-  if (isObjectSearch(si.search)) {
-    if (si.search.factTypes) {
+  if (isObjectTraverseSearch(si.search)) {
+    const predefinedQueryName = predefinedQueryToName[si.search.query];
+    if (predefinedQueryName) {
       return {
-        kind: 'label-text',
-        label: 'Fact types:',
-        text: si.search.factTypes.join(',')
-      };
-    }
-    if (si.search.query) {
-      const predefinedQueryName = predefinedQueryToName[si.search.query];
-      if (predefinedQueryName) {
-        return {
-          kind: 'tag',
-          label: 'Query:',
-          text: predefinedQueryName
-        };
-      }
-      return {
-        kind: 'label-text',
+        kind: 'tag',
         label: 'Query:',
-        text: si.search.query
+        text: predefinedQueryName
       };
     }
+    return {
+      kind: 'label-text',
+      label: 'Query:',
+      text: si.search.query
+    };
   }
 };
 
-export const itemActions = (si: SearchItem, onRemoveClick: () => void, onCopyClick: () => void) => {
+export const itemActions = (si: WorkingHistoryItem, onRemoveClick: () => void, onCopyClick: () => void) => {
   const actions = [{ icon: 'remove' as TIcon, tooltip: 'Remove', onClick: onRemoveClick }];
 
-  if (isObjectSearch(si.search) && si.search.query) {
+  if (isObjectTraverseSearch(si.search)) {
     return [
       {
         icon: 'copy' as TIcon,
@@ -90,8 +95,8 @@ export const itemActions = (si: SearchItem, onRemoveClick: () => void, onCopyCli
   return actions;
 };
 
-export const stateExport = (items: Array<SearchItem>, prunedObjectIds: Set<string>): StateExport => {
-  const searches = items.map((q: any) => ({ ...q.search })).filter(isObjectSearch);
+export const stateExport = (items: Array<WorkingHistoryItem>, prunedObjectIds: Set<string>): StateExport => {
+  const searches = items.map((q: any) => ({ ...q.search })).filter(x => !isFactSearch(x));
   return { version: '1.0.0', queries: searches, prunedObjectIds: [...prunedObjectIds] };
 };
 
@@ -141,7 +146,7 @@ class WorkingHistoryStore {
     return this.root.workingHistory.mergePrevious;
   }
 
-  @computed get queries(): Array<SearchItem> {
+  @computed get queries(): Array<WorkingHistoryItem> {
     return this.root.workingHistory.historyItems.filter(q => {
       return q.result !== null;
     });
@@ -152,14 +157,14 @@ class WorkingHistoryStore {
   }
 
   @action.bound
-  setSelectedSearchItem(item: SearchItem | undefined) {
+  setSelectedSearchItem(item: WorkingHistoryItem | undefined) {
     if (item) {
       this.root.workingHistory.selectedItemId = item.id;
     }
   }
 
   @action.bound
-  removeItem(item: SearchItem) {
+  removeItem(item: WorkingHistoryItem) {
     this.root.workingHistory.removeItem(item);
     if (item.id === this.selectedItemId) {
       this.setSelectedSearchItem(_.last(this.root.workingHistory.historyItems));

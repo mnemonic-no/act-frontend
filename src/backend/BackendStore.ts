@@ -7,28 +7,32 @@ import {
   searchCriteriadataLoader
 } from '../core/dataLoaders';
 
-import { isObjectSearch, LoadingStatus, NamedId, Search, searchId, SearchItem, TLoadable } from '../core/types';
+import {
+  isObjectFactsSearch,
+  LoadingStatus,
+  NamedId,
+  Search,
+  WorkingHistoryItem,
+  TLoadable,
+  isObjectTraverseSearch
+} from '../core/types';
 import { addMessage } from '../util/SnackbarProvider';
 import AppStore from '../AppStore';
-import GraphQueryStore from './GraphQueryStore';
+import ObjectTraverseBackendStore from './ObjectTraverseBackendStore';
 import SimpleSearchBackendStore from './SimpleSearchBackendStore';
 import ActObjectBackendStore from './ActObjectBackendStore';
+import { searchId } from '../core/domain';
 
 const maxFetchLimit = 2000;
-
-const isInHistory = (search: Search, historyItems: Array<SearchItem>) => {
-  const id = searchId(search);
-  return historyItems.some(q => q.id === id);
-};
 
 class BackendStore {
   root: AppStore;
 
   actObjectBackendStore: ActObjectBackendStore;
   autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
-  @observable actObjectTypes: TLoadable<{ objectTypes: Array<NamedId> }> | undefined;
-  graphQueryStore: GraphQueryStore;
+  objectTraverseBackendStore: ObjectTraverseBackendStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
+  @observable actObjectTypes: TLoadable<{ objectTypes: Array<NamedId> }> | undefined;
 
   @observable isLoading: boolean = false;
 
@@ -36,7 +40,7 @@ class BackendStore {
     this.root = root;
     this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, 300);
     this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
-    this.graphQueryStore = new GraphQueryStore();
+    this.objectTraverseBackendStore = new ObjectTraverseBackendStore();
     this.actObjectBackendStore = new ActObjectBackendStore(config);
   }
 
@@ -63,11 +67,11 @@ class BackendStore {
 
   @action
   async executeSearch(search: Search) {
-    if (!isObjectSearch(search)) {
-      throw Error('Search of this type is not supported ' + search);
+    if (!isObjectFactsSearch(search) && !isObjectTraverseSearch(search)) {
+      throw Error('Search of this type is not supported ' + JSON.stringify(search));
     }
 
-    if (isInHistory(search, this.root.mainPageStore.workingHistory.historyItems)) {
+    if (this.root.mainPageStore.workingHistory.isInHistory(search)) {
       return;
     }
 
@@ -79,7 +83,7 @@ class BackendStore {
 
       const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
 
-      const item: SearchItem = {
+      const item: WorkingHistoryItem = {
         id: searchId(search),
         search: search,
         result: {
@@ -109,8 +113,8 @@ class BackendStore {
       }
 
       const all = searches
-        .filter(isObjectSearch)
-        .filter(search => !isInHistory(search, this.root.mainPageStore.workingHistory.historyItems))
+        .filter(s => isObjectFactsSearch(s) || isObjectTraverseSearch(s))
+        .filter(search => !this.root.mainPageStore.workingHistory.isInHistory(search))
         .map(async search => {
           return {
             search: search,
@@ -119,7 +123,7 @@ class BackendStore {
         });
       await Promise.all(all).then(results => {
         for (let { search, result } of results) {
-          const q: SearchItem = {
+          const q: WorkingHistoryItem = {
             id: searchId(search),
             search: search,
             result: {

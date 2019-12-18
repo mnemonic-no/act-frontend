@@ -38,7 +38,7 @@ class DetailsStore {
   @action.bound
   onAddObjectToGraph(objects: Array<ActObject>) {
     this.appStore.mainPageStore.backendStore.executeSearches({
-      searches: objects.map(o => ({ objectType: o.type.name, objectValue: o.value })),
+      searches: objects.map(o => ({ kind: 'objectFacts', objectType: o.type.name, objectValue: o.value })),
       replace: false
     });
 

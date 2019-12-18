@@ -1,11 +1,12 @@
 import { workingHistoryToPath } from './WorkingHistory';
-import { SearchItem } from '../../core/types';
+import { WorkingHistoryItem } from '../../core/types';
 
-const searchItem = (args: { [key: string]: any }): SearchItem => {
+const searchItem = (args: { [key: string]: any }): WorkingHistoryItem => {
   const defaults = {
     id: 'defaultId',
     result: { facts: {}, objects: {} },
     search: {
+      kind: 'objectFacts' as 'objectFacts',
       objectType: '',
       objectValue: ''
     }
@@ -16,14 +17,17 @@ const searchItem = (args: { [key: string]: any }): SearchItem => {
 
 it('can convert working history to path', () => {
   expect(workingHistoryToPath([searchItem({})])).toEqual('');
-  expect(workingHistoryToPath([searchItem({ search: { objectType: 'threatActor', objectValue: 'Axiom' } })])).toEqual(
-    '/object-fact-query/threatActor/Axiom'
-  );
+  expect(
+    workingHistoryToPath([
+      searchItem({ search: { kind: 'objectFacts', objectType: 'threatActor', objectValue: 'Axiom' } })
+    ])
+  ).toEqual('/object-fact-query/threatActor/Axiom');
 
   expect(
     workingHistoryToPath([
       searchItem({
         search: {
+          kind: 'objectTraverse',
           objectType: 'threatActor',
           objectValue: 'Axiom',
           query:

@@ -1,33 +1,35 @@
 import { itemActions, itemDetails, itemTitle, parseStateExport, stateExport } from './WorkingHistoryStore';
-import { SearchItem } from '../../../core/types';
+import { ObjectFactsSearch, ObjectTraverseSearch, WorkingHistoryItem } from '../../../core/types';
 import { factColor } from '../../../util/util';
 
-const searchItem = (args: { [key: string]: any }): SearchItem => {
+const searchItem = (args: { [key: string]: any }): WorkingHistoryItem => {
   return {
     ...{
       id: '123',
       result: { facts: {}, objects: {} },
-      search: { id: 'Axiom', factTypeName: 'alias' }
+      search: { id: 'Axiom', factTypeName: 'alias', kind: 'singleFact' }
     },
     ...args
   };
 };
 
 it('can export query history', () => {
-  expect(stateExport([searchItem({ id: 'Axiom', factTypeName: 'alias' })], new Set())).toEqual({
+  expect(stateExport([searchItem({ id: 'Axiom', factTypeName: 'alias', kind: 'singleFact' })], new Set())).toEqual({
     version: '1.0.0',
     queries: [],
     prunedObjectIds: []
   });
 
-  const objectTypeSearch = { objectType: 'threatActor', objectValue: 'Axiom' };
-  const graphSearch = {
+  const objectFactsSearch: ObjectFactsSearch = { objectType: 'threatActor', objectValue: 'Axiom', kind: 'objectFacts' };
+  const traverseSearch: ObjectTraverseSearch = {
+    kind: 'objectTraverse',
     objectType: 'threatActor',
     objectValue: 'Sofacy',
     query:
       "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().where(outE().has('value','malware')).where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).not(where(outE().has('value','sinkhole'))).path().unfold()"
   };
-  const filteredSearch = {
+  const filteredSearch: ObjectFactsSearch = {
+    kind: 'objectFacts',
     objectType: 'report',
     objectValue: 'abcdef',
     factTypes: ['mentions']
@@ -36,15 +38,15 @@ it('can export query history', () => {
   expect(
     stateExport(
       [
-        searchItem({ search: objectTypeSearch }),
-        searchItem({ search: graphSearch }),
+        searchItem({ search: objectFactsSearch }),
+        searchItem({ search: traverseSearch }),
         searchItem({ search: filteredSearch })
       ],
       new Set(['abcd', 'efgh'])
     )
   ).toEqual({
     version: '1.0.0',
-    queries: [objectTypeSearch, graphSearch, filteredSearch],
+    queries: [objectFactsSearch, traverseSearch, filteredSearch],
     prunedObjectIds: ['abcd', 'efgh']
   });
 });
@@ -69,11 +71,11 @@ it('can import working history', () => {
 });
 
 it('working history item title', () => {
-  expect(itemTitle({ id: 'a', factTypeName: 'alias' })).toEqual([
+  expect(itemTitle({ id: 'a', factTypeName: 'alias', kind: 'singleFact' })).toEqual([
     { text: 'Fact ', color: factColor },
     { text: 'alias' }
   ]);
-  expect(itemTitle({ id: 'a', objectType: 'threatActor', objectValue: 'Sofacy' })).toEqual([
+  expect(itemTitle({ objectType: 'threatActor', objectValue: 'Sofacy', kind: 'objectFacts' })).toEqual([
     { text: 'threatActor ', color: '#606' },
     { text: 'Sofacy' }
   ]);
@@ -83,14 +85,23 @@ it('working history item details', () => {
   const predefinedQueryToName = { 'some query': 'tools' };
   expect(
     itemDetails(
-      searchItem({ search: { id: 'a', objectType: 'threatActor', objectValue: 'Sofacy', query: 'some query' } }),
+      searchItem({
+        search: {
+          objectType: 'threatActor',
+          objectValue: 'Sofacy',
+          query: 'some query',
+          kind: 'objectTraverse'
+        }
+      }),
       predefinedQueryToName
     )
   ).toEqual({ kind: 'tag', label: 'Query:', text: 'tools' });
 
   expect(
     itemDetails(
-      searchItem({ search: { id: 'a', objectType: 'threatActor', objectValue: 'Sofacy', query: 'a custom query' } }),
+      searchItem({
+        search: { objectType: 'threatActor', objectValue: 'Sofacy', query: 'a custom query', kind: 'objectTraverse' }
+      }),
       predefinedQueryToName
     )
   ).toEqual({ kind: 'label-text', label: 'Query:', text: 'a custom query' });
@@ -106,7 +117,7 @@ it('working history item actions', () => {
 
   expect(
     itemActions(
-      searchItem({ search: { id: 'a', objectType: 'threatActor', objectValue: 'a', query: 'q' } }),
+      searchItem({ search: { kind: 'objectTraverse', objectType: 'threatActor', objectValue: 'a', query: 'q' } }),
       removeFn,
       copyFn
     )

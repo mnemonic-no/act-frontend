@@ -142,7 +142,11 @@ class ResultsStore {
     }
 
     this.searchStore.root.mainPageStore.backendStore.executeSearches({
-      searches: selectedObjects.map((obj: ActObject) => ({ objectType: obj.type.name, objectValue: obj.value })),
+      searches: selectedObjects.map((obj: ActObject) => ({
+        kind: 'objectFacts',
+        objectType: obj.type.name,
+        objectValue: obj.value
+      })),
       replace: false
     });
 

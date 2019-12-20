@@ -5,7 +5,7 @@ import * as _ from 'lodash/fp';
 import { byTypeThenValue } from '../../../util/util';
 import { getObjectLabelFromFact } from '../../../core/domain';
 import config from '../../../config';
-import { isDone, isPending, NamedId, PredefinedObjectQuery } from '../../../core/types';
+import { isDone, isPending, NamedId, PredefinedObjectQuery, Search } from '../../../core/types';
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
 
@@ -40,6 +40,13 @@ export const suggestions = (
 
 const ANY = 'Any';
 
+const toSearch = (args: { objectType: string; objectValue: string; query: string }): Search => {
+  if (args.query.length === 0) {
+    return { objectType: args.objectType, objectValue: args.objectValue, kind: 'objectFacts' };
+  }
+  return { ...args, kind: 'objectTraverse' };
+};
+
 class SearchByObjectTypeStore {
   root: MainPageStore;
   @observable objectType: string = '';
@@ -57,13 +64,13 @@ class SearchByObjectTypeStore {
 
   @action
   submitSearch() {
-    const { objectType, objectValue, query } = this;
-    this.root.backendStore.executeSearch({
-      kind: 'objectTraverse',
-      objectType: objectType,
-      objectValue: objectValue,
-      query: query
-    });
+    this.root.backendStore.executeSearch(
+      toSearch({
+        objectType: this.objectType,
+        objectValue: this.objectValue,
+        query: this.query
+      })
+    );
   }
 
   @action.bound

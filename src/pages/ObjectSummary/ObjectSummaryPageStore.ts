@@ -48,7 +48,12 @@ export const prepareSections = (
   if (!sections) return [];
 
   return sections.map(({ title, query, actions }: TSectionConfig) => {
-    const q = graphQueryStore.getItem(currentObject.value, currentObject.typeName, query);
+    const q = graphQueryStore.getItemBy({
+      kind: 'objectTraverse',
+      objectValue: currentObject.value,
+      objectType: currentObject.typeName,
+      query: query
+    });
 
     if (isPending(q)) {
       return { kind: 'loading', title: title };
@@ -64,7 +69,8 @@ export const prepareSections = (
       };
     }
 
-    const { objects, facts } = q.result;
+    const objects = Object.values(q.result.objects);
+    const facts = Object.values(q.result.facts);
     if (objects.length > 200) {
       return {
         kind: 'error',
@@ -171,7 +177,14 @@ class ObjectSummaryPageStore {
 
     if (sections) {
       sections.forEach(section => {
-        this.appStore.backendStore.objectTraverseBackendStore.execute(objectValue, objectTypeName, section.query);
+        this.appStore.backendStore.objectTraverseBackendStore
+          .execute({
+            kind: 'objectTraverse',
+            objectValue: objectValue,
+            objectType: objectTypeName,
+            query: section.query
+          })
+          .catch(err => {}); // No need to do any additional error handling here
       });
     }
   }

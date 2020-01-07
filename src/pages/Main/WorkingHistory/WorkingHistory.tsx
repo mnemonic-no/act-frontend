@@ -1,12 +1,12 @@
 import React from 'react';
 import cc from 'clsx';
-import CloseIcon from '@material-ui/icons/Close';
-import AssignmentIcon from '@material-ui/icons/Assignment';
 import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import Fade from '@material-ui/core/Fade';
 import IconButton from '@material-ui/core/IconButton';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
@@ -14,6 +14,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+
+import ActIconComponent from '../../../components/ActIcon';
 
 const useStyles = makeStyles((theme: Theme) => ({
   buttons: {
@@ -83,11 +85,18 @@ const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
       <ListItemText
         classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
         secondaryTypographyProps={{ component: 'div' }}
-        primary={item.title.map((t, idx) => (
-          <span key={idx} style={{ color: t.color || 'currentColor' }}>
-            {t.text}
-          </span>
-        ))}
+        primary={
+          <>
+            <Fade in={item.isLoading} timeout={500}>
+              <LinearProgress variant="query" color="secondary" />
+            </Fade>
+            {item.title.map((t, idx) => (
+              <span key={idx} style={{ color: t.color || 'currentColor' }}>
+                {t.text}
+              </span>
+            ))}
+          </>
+        }
         secondary={
           item.details && (
             <>
@@ -103,8 +112,7 @@ const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
         {item.actions.map((a, idx) => (
           <Tooltip key={idx} title={a.tooltip} enterDelay={800}>
             <IconButton onClick={a.onClick} classes={{ root: classes.actionButton }}>
-              {a.icon === 'remove' && <CloseIcon />}
-              {a.icon === 'copy' && <AssignmentIcon />}
+              <ActIconComponent iconId={a.icon} />
             </IconButton>
           </Tooltip>
         ))}
@@ -175,6 +183,7 @@ export type TDetails = { kind: 'tag' | 'label-text'; label: string; text: string
 export type TWorkingHistoryItem = {
   id: string;
   title: Array<{ text: string; color?: string }>;
+  isLoading: boolean;
   isSelected: boolean;
   details?: TDetails;
   onClick: () => void;

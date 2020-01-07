@@ -92,7 +92,7 @@ const GroupByAccordionComp = (props: IGroupByAccordionComp) => {
 
                       {item.iconAction && (
                         <ListItemSecondaryAction>
-                          <Tooltip title={item.iconAction.tooltip}>
+                          <Tooltip title={item.iconAction.tooltip} enterDelay={500}>
                             <IconButton edge="end" onClick={item.iconAction.onClick}>
                               <ActIcon iconId={item.iconAction.icon} />
                             </IconButton>

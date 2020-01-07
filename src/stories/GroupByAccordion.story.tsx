@@ -5,7 +5,6 @@ import GroupByAccordion, { IGroup } from '../components/GroupByAccordion';
 
 import { actTheme } from '../App';
 import { objectTypeToColor } from '../util/util';
-import { withBasic } from './MultiSelect.story';
 
 export default { title: 'GroupByAccordion' };
 

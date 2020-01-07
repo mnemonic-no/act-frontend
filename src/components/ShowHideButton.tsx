@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     borderColor: theme.palette.divider,
     borderStyle: 'solid',
     position: 'absolute',
-    zIndex: 99999
+    zIndex: 999
   },
   placement: (props: { placement: TPlacement; attachedTo: TAttachedTo }) => ({
     top: props.placement.top || undefined,

@@ -145,7 +145,7 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
         {store.hasContent ? (
           <Content {...store.ui.contentStore.prepared} rootClass={classes.content} />
         ) : (
-          <GraphEmpty />
+          <GraphEmpty navigateFn={(url: string) => store.appStore.goToUrl(url)} />
         )}
 
         {/* Details drawer */}

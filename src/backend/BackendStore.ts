@@ -1,27 +1,25 @@
-import { action, observable, runInAction } from 'mobx';
-import {
-  autoResolveDataLoader,
-  checkObjectStats,
-  objectTypesDataLoader,
-  postJson,
-  searchCriteriadataLoader
-} from '../core/dataLoaders';
+import { action, computed, observable, runInAction } from 'mobx';
+import { checkObjectStats, objectTypesDataLoader, postJson } from '../core/dataLoaders';
 
 import {
+  isMultiObjectSearch,
   isObjectFactsSearch,
+  isObjectTraverseSearch,
+  isPending,
   LoadingStatus,
   NamedId,
   Search,
-  WorkingHistoryItem,
   TLoadable,
-  isObjectTraverseSearch
+  WorkingHistoryItem
 } from '../core/types';
 import { addMessage } from '../util/SnackbarProvider';
+import { searchId } from '../core/domain';
+import ActObjectBackendStore from './ActObjectBackendStore';
 import AppStore from '../AppStore';
 import ObjectTraverseBackendStore from './ObjectTraverseBackendStore';
+import ObjectFactsBackendStore from './ObjectFactsBackendStore';
 import SimpleSearchBackendStore from './SimpleSearchBackendStore';
-import ActObjectBackendStore from './ActObjectBackendStore';
-import { searchId } from '../core/domain';
+import MultiObjectTraverseBackendStore from './MultiObjectTraverseBackendStore';
 
 const maxFetchLimit = 2000;
 
@@ -31,17 +29,31 @@ class BackendStore {
   actObjectBackendStore: ActObjectBackendStore;
   autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
   objectTraverseBackendStore: ObjectTraverseBackendStore;
+  objectFactsBackendStore: ObjectFactsBackendStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
-  @observable actObjectTypes: TLoadable<{ objectTypes: Array<NamedId> }> | undefined;
+  multiObjectTraverseStore: MultiObjectTraverseBackendStore;
 
-  @observable isLoading: boolean = false;
+  @observable actObjectTypes: TLoadable<{ objectTypes: Array<NamedId> }> | undefined;
 
   constructor(root: AppStore, config: any) {
     this.root = root;
-    this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, 300);
-    this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
-    this.objectTraverseBackendStore = new ObjectTraverseBackendStore();
     this.actObjectBackendStore = new ActObjectBackendStore(config);
+    this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
+    this.objectFactsBackendStore = new ObjectFactsBackendStore();
+    this.objectTraverseBackendStore = new ObjectTraverseBackendStore();
+    this.multiObjectTraverseStore = new MultiObjectTraverseBackendStore();
+    this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, 300);
+  }
+
+  @observable loading: boolean = false;
+
+  @computed get isLoading() {
+    return (
+      this.loading ||
+      Object.values(this.objectFactsBackendStore.cache).some(isPending) ||
+      Object.values(this.objectTraverseBackendStore.cache).some(isPending) ||
+      Object.values(this.multiObjectTraverseStore.cache).some(isPending)
+    );
   }
 
   @action
@@ -65,9 +77,9 @@ class BackendStore {
     }
   }
 
-  @action
+  @action.bound
   async executeSearch(search: Search) {
-    if (!isObjectFactsSearch(search) && !isObjectTraverseSearch(search)) {
+    if (!isObjectFactsSearch(search) && !isObjectTraverseSearch(search) && !isMultiObjectSearch(search)) {
       throw Error('Search of this type is not supported ' + JSON.stringify(search));
     }
 
@@ -75,72 +87,50 @@ class BackendStore {
       return;
     }
 
-    try {
-      this.isLoading = true;
+    if (isObjectFactsSearch(search)) {
       const approvedAmountOfData = await checkObjectStats(search, maxFetchLimit);
-
       if (!approvedAmountOfData) return;
+    }
 
-      const result = await searchCriteriadataLoader(search).then(autoResolveDataLoader);
-
+    try {
       const item: WorkingHistoryItem = {
         id: searchId(search),
-        search: search,
-        result: {
-          facts: result.facts,
-          objects: result.objects
-        }
+        search: search
       };
+
       this.root.mainPageStore.workingHistory.addItem(item);
+
+      if (isObjectTraverseSearch(search)) {
+        await this.objectTraverseBackendStore.execute(search).then(() => {
+          this.root.mainPageStore.ui.graphViewStore.setSelectedNodeBasedOnSearch(item.search);
+        });
+      } else if (isObjectFactsSearch(search)) {
+        await this.objectFactsBackendStore.execute(search).then(() => {
+          this.root.mainPageStore.ui.graphViewStore.setSelectedNodeBasedOnSearch(item.search);
+        });
+      } else if (isMultiObjectSearch(search)) {
+        await this.multiObjectTraverseStore.execute(search);
+      }
     } catch (err) {
       runInAction(() => {
         this.root.mainPageStore.handleError({ error: err });
       });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
     }
   }
 
-  @action
+  @action.bound
   async executeSearches({ searches, replace = true }: { searches: Array<Search>; replace: boolean }) {
     try {
-      this.isLoading = true;
-
       if (replace) {
         this.root.mainPageStore.workingHistory.removeAllItems();
       }
 
-      const all = searches
-        .filter(s => isObjectFactsSearch(s) || isObjectTraverseSearch(s))
-        .filter(search => !this.root.mainPageStore.workingHistory.isInHistory(search))
-        .map(async search => {
-          return {
-            search: search,
-            result: await searchCriteriadataLoader(search).then(autoResolveDataLoader)
-          };
-        });
-      await Promise.all(all).then(results => {
-        for (let { search, result } of results) {
-          const q: WorkingHistoryItem = {
-            id: searchId(search),
-            search: search,
-            result: {
-              facts: result.facts,
-              objects: result.objects
-            }
-          };
-          this.root.mainPageStore.workingHistory.addItem(q);
-        }
+      searches.forEach(search => {
+        this.executeSearch(search);
       });
     } catch (err) {
       runInAction(() => {
         this.root.mainPageStore.handleError({ error: err, title: 'Import failed' });
-      });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
       });
     }
   }
@@ -148,7 +138,7 @@ class BackendStore {
   @action.bound
   async postAndForget(url: string, request: { [key: string]: any }, successMessage: string) {
     try {
-      this.isLoading = true;
+      this.loading = true;
       await postJson(url, request);
       addMessage(successMessage);
     } catch (err) {
@@ -157,7 +147,7 @@ class BackendStore {
       });
     } finally {
       runInAction(() => {
-        this.isLoading = false;
+        this.loading = false;
       });
     }
   }

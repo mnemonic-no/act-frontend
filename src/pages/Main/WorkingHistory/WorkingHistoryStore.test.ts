@@ -79,6 +79,9 @@ it('working history item title', () => {
     { text: 'threatActor ', color: '#606' },
     { text: 'Sofacy' }
   ]);
+  expect(
+    itemTitle({ kind: 'multiObjectTraverse', objectType: 'threatActor', objectIds: ['a', 'b'], query: 'something' })
+  ).toEqual([{ text: 'threatActor ', color: '#606' }, { text: '2 objects' }]);
 });
 
 it('working history item details', () => {
@@ -100,7 +103,21 @@ it('working history item details', () => {
   expect(
     itemDetails(
       searchItem({
-        search: { objectType: 'threatActor', objectValue: 'Sofacy', query: 'a custom query', kind: 'objectTraverse' }
+        search: { kind: 'objectTraverse', objectType: 'threatActor', objectValue: 'Sofacy', query: 'a custom query' }
+      }),
+      predefinedQueryToName
+    )
+  ).toEqual({ kind: 'label-text', label: 'Query:', text: 'a custom query' });
+
+  expect(
+    itemDetails(
+      searchItem({
+        search: {
+          kind: 'multiObjectTraverse',
+          objectType: 'threatActor',
+          objectIds: ['a', 'b'],
+          query: 'a custom query'
+        }
       }),
       predefinedQueryToName
     )
@@ -118,6 +135,19 @@ it('working history item actions', () => {
   expect(
     itemActions(
       searchItem({ search: { kind: 'objectTraverse', objectType: 'threatActor', objectValue: 'a', query: 'q' } }),
+      removeFn,
+      copyFn
+    )
+  ).toEqual([
+    { icon: 'copy', tooltip: 'Copy query to clipboard', onClick: copyFn },
+    { icon: 'remove', tooltip: 'Remove', onClick: removeFn }
+  ]);
+
+  expect(
+    itemActions(
+      searchItem({
+        search: { kind: 'multiObjectTraverse', objectType: 'threatActor', objectIds: ['a', 'b'], query: 'something' }
+      }),
       removeFn,
       copyFn
     )

@@ -1,27 +1,19 @@
 import { observable } from 'mobx';
 
-import { ActFact, ActObject, isRejected, LoadingStatus, ObjectTraverseSearch, TRequestLoadable } from '../core/types';
+import { isRejected, LoadingStatus, ObjectTraverseSearch, SearchResult, TRequestLoadable } from '../core/types';
 import { autoResolveDataLoader, objectTraverseDataLoader } from '../core/dataLoaders';
 
-export type ObjectTraverseLoadable = TRequestLoadable<
-  ObjectTraverseSearch,
-  { objects: Array<ActObject>; facts: Array<ActFact>; limitExceeded?: boolean }
->;
+export type ObjectTraverseLoadable = TRequestLoadable<ObjectTraverseSearch, SearchResult>;
 
-const id = ({ objectValue, objectType, query }: ObjectTraverseSearch) => objectType + ':' + objectValue + ':' + query;
+export const objectTraverseId = ({ objectValue, objectType, query }: ObjectTraverseSearch) =>
+  objectType + ':' + objectValue + ':' + query;
 
 class ObjectTraverseBackendStore {
   @observable cache: { [id: string]: ObjectTraverseLoadable } = {};
 
-  async execute(objectValue: string, objectType: string, query: string) {
-    const request: ObjectTraverseSearch = {
-      kind: 'objectTraverse',
-      objectValue: objectValue,
-      objectType: objectType,
-      query: query
-    };
+  async execute(request: ObjectTraverseSearch) {
     const q: ObjectTraverseLoadable = {
-      id: id(request),
+      id: objectTraverseId(request),
       status: LoadingStatus.PENDING,
       args: request
     };
@@ -39,12 +31,13 @@ class ObjectTraverseBackendStore {
         ...q,
         status: LoadingStatus.DONE,
         result: {
-          objects: Object.values(objects),
-          facts: Object.values(facts)
+          objects: objects,
+          facts: facts
         }
       };
     } catch (err) {
       this.cache[q.id] = { ...q, status: LoadingStatus.REJECTED, error: err.message };
+      throw err;
     }
   }
 
@@ -55,7 +48,11 @@ class ObjectTraverseBackendStore {
       query: query,
       kind: 'objectTraverse'
     };
-    return this.cache[id(s)];
+    return this.cache[objectTraverseId(s)];
+  }
+
+  getItemBy(s: ObjectTraverseSearch) {
+    return this.cache[objectTraverseId(s)];
   }
 
   includes(q: ObjectTraverseLoadable) {

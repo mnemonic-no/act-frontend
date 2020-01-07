@@ -8,11 +8,10 @@ import {
   ActObject,
   FactType,
   isObjectFactsSearch,
-  isObjectTraverseSearch,
   ObjectFactsSearch,
   ObjectStats,
   ObjectTraverseSearch,
-  Search
+  SearchResult
 } from './types';
 import memoizeDataLoader from '../util/memoizeDataLoader';
 import { arrayToObjectWithIds } from '../util/util';
@@ -72,7 +71,11 @@ export const objectTypesDataLoader = () =>
 /**
  * Fetch facts from an object specifed by type and value
  */
-export const objectFactsDataLoader = ({ objectType, objectValue, factTypes }: ObjectFactsSearch) => {
+export const objectFactsDataLoader = ({
+  objectType,
+  objectValue,
+  factTypes
+}: ObjectFactsSearch): Promise<SearchResult> => {
   const requestBody = {
     ...(factTypes && factTypes.length > 0 && { factType: factTypes }),
     limit: DEFAULT_LIMIT,
@@ -96,20 +99,25 @@ export const objectFactsDataLoader = ({ objectType, objectValue, factTypes }: Ob
     .catch(handleError);
 };
 
+const isFact = (maybeFact: any) => maybeFact.hasOwnProperty('bidirectionalBinding');
+
 /**
  * Fetch facts and objects from a traversal query from a specifed object
  */
-export const objectTraverseDataLoader = ({ objectType, objectValue, query }: ObjectTraverseSearch) =>
+export const objectTraverseDataLoader = ({
+  objectType,
+  objectValue,
+  query
+}: ObjectTraverseSearch): Promise<SearchResult> =>
   actWretch
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}/traverse`)
     .json({
       query
     })
     .post()
+
     .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => {
-      const isFact = (maybeFact: any) => maybeFact.hasOwnProperty('bidirectionalBinding');
-
       const facts: { [id: string]: ActFact } = arrayToObjectWithIds(data.filter(isFact));
       const objects: { [id: string]: ActObject } = arrayToObjectWithIds(data.filter(_.negate(isFact)));
 
@@ -120,14 +128,30 @@ export const objectTraverseDataLoader = ({ objectType, objectValue, query }: Obj
     })
     .catch(handleError);
 
-export const searchCriteriadataLoader = (search: Search) => {
-  if (isObjectTraverseSearch(search)) {
-    return objectTraverseDataLoader(search);
-  } else if (isObjectFactsSearch(search)) {
-    return objectFactsDataLoader(search);
-  } else {
-    throw new Error('Not supported: ' + JSON.stringify(search));
-  }
+/**
+ * Traverse the graph based on a query, starting with multiple objects
+ */
+export const multiObjectTraverseDataLoader = (props: {
+  objectIds: Array<string>;
+  query: string;
+}): Promise<SearchResult> => {
+  const request = { query: props.query, objectID: props.objectIds };
+
+  return actWretch
+    .url('/v1/object/traverse')
+    .json(request)
+    .post()
+    .forbidden(handleForbiddenSearchResults)
+    .json(({ data }: any) => {
+      const facts: { [id: string]: ActFact } = arrayToObjectWithIds(data.filter(isFact));
+      const objects: { [id: string]: ActObject } = arrayToObjectWithIds(data.filter(_.negate(isFact)));
+
+      return {
+        facts,
+        objects
+      };
+    })
+    .catch(handleError);
 };
 
 export const resultCount = (search: ObjectFactsSearch, statistics: Array<ObjectStats> | undefined) => {
@@ -148,7 +172,7 @@ export const resultCount = (search: ObjectFactsSearch, statistics: Array<ObjectS
   }, 0);
 };
 
-export const checkObjectStats = async (search: Search, maxCount: number) => {
+export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: number) => {
   // API does not support stats when there is a query
   if (!isObjectFactsSearch(search)) {
     return true;

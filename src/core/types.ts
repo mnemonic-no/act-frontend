@@ -85,10 +85,21 @@ export type ObjectTraverseSearch = {
   query: string;
 };
 
-export type Search = SingleFactSearch | ObjectFactsSearch | ObjectTraverseSearch;
+export type MultiObjectTraverseSearch = {
+  kind: 'multiObjectTraverse';
+  objectType: string;
+  objectIds: Array<string>;
+  query: string;
+};
+
+export type Search = SingleFactSearch | ObjectFactsSearch | ObjectTraverseSearch | MultiObjectTraverseSearch;
 
 export const isObjectTraverseSearch = (search: Search): search is ObjectTraverseSearch => {
   return search.kind === 'objectTraverse';
+};
+
+export const isMultiObjectSearch = (search: Search): search is MultiObjectTraverseSearch => {
+  return search.kind === 'multiObjectTraverse';
 };
 
 export const isObjectFactsSearch = (search: Search): search is ObjectFactsSearch => {
@@ -102,7 +113,6 @@ export const isFactSearch = (search: Search): search is SingleFactSearch => {
 export type WorkingHistoryItem = {
   id: string;
   search: Search;
-  result: SearchResult;
 };
 
 export type StateExport = {

@@ -1,5 +1,4 @@
 import { action, computed } from 'mobx';
-import * as _ from 'lodash/fp';
 
 import {
   isObjectFactsSearch,
@@ -8,16 +7,27 @@ import {
   PredefinedObjectQuery,
   isFactSearch,
   Search,
-  isObjectTraverseSearch
+  isObjectTraverseSearch,
+  SearchResult,
+  TLoadable,
+  isPending,
+  isMultiObjectSearch
 } from '../../../core/types';
-import { exportToJson, fileTimeString, copyToClipBoard, objectTypeToColor, factColor } from '../../../util/util';
+import {
+  exportToJson,
+  fileTimeString,
+  copyToClipBoard,
+  objectTypeToColor,
+  factColor,
+  assertNever
+} from '../../../util/util';
 import MainPageStore from '../MainPageStore';
 import { addMessage } from '../../../util/SnackbarProvider';
 import { TDetails, TIcon } from './WorkingHistory';
 import { searchId } from '../../../core/domain';
 
 const copy = (si: WorkingHistoryItem) => {
-  if (isObjectTraverseSearch(si.search)) {
+  if (isObjectTraverseSearch(si.search) || isMultiObjectSearch(si.search)) {
     try {
       copyToClipBoard(si.search.query);
       addMessage('Query copied to clipboard');
@@ -34,7 +44,13 @@ export const itemTitle = (s: Search) => {
     return [{ text: s.objectType + ' ', color: objectTypeToColor(s.objectType) }, { text: s.objectValue }];
   } else if (isFactSearch(s)) {
     return [{ text: 'Fact ', color: factColor }, { text: s.factTypeName }];
+  } else if (isMultiObjectSearch(s)) {
+    return [
+      { text: s.objectType + ' ', color: objectTypeToColor(s.objectType) },
+      { text: s.objectIds.length + ' objects' }
+    ];
   }
+  assertNever(s);
   return [{ text: 'n/a', color: 'red' }];
 };
 
@@ -61,7 +77,7 @@ export const itemDetails = (
     };
   }
 
-  if (isObjectTraverseSearch(si.search)) {
+  if (isObjectTraverseSearch(si.search) || isMultiObjectSearch(si.search)) {
     const predefinedQueryName = predefinedQueryToName[si.search.query];
     if (predefinedQueryName) {
       return {
@@ -81,7 +97,7 @@ export const itemDetails = (
 export const itemActions = (si: WorkingHistoryItem, onRemoveClick: () => void, onCopyClick: () => void) => {
   const actions = [{ icon: 'remove' as TIcon, tooltip: 'Remove', onClick: onRemoveClick }];
 
-  if (isObjectTraverseSearch(si.search)) {
+  if (isObjectTraverseSearch(si.search) || isMultiObjectSearch(si.search)) {
     return [
       {
         icon: 'copy' as TIcon,
@@ -146,12 +162,6 @@ class WorkingHistoryStore {
     return this.root.workingHistory.mergePrevious;
   }
 
-  @computed get queries(): Array<WorkingHistoryItem> {
-    return this.root.workingHistory.historyItems.filter(q => {
-      return q.result !== null;
-    });
-  }
-
   @computed get selectedItemId(): string {
     return this.root.workingHistory.selectedItemId;
   }
@@ -166,9 +176,6 @@ class WorkingHistoryStore {
   @action.bound
   removeItem(item: WorkingHistoryItem) {
     this.root.workingHistory.removeItem(item);
-    if (item.id === this.selectedItemId) {
-      this.setSelectedSearchItem(_.last(this.root.workingHistory.historyItems));
-    }
   }
 
   @action.bound
@@ -210,22 +217,23 @@ class WorkingHistoryStore {
 
   @computed
   get prepared() {
-    const historyItems = this.root.workingHistory.historyItems
-      .filter(q => q.result !== null)
-      .map(item => {
+    const historyItems = this.root.workingHistory.withLoadable.map(
+      (props: { item: WorkingHistoryItem; loadable: TLoadable<SearchResult> }) => {
         return {
-          id: searchId(item.search),
-          title: itemTitle(item.search),
-          isSelected: item.id === this.selectedItemId,
-          details: itemDetails(item, this.predefinedQueryToName),
+          id: searchId(props.item.search),
+          title: itemTitle(props.item.search),
+          isSelected: props.item.id === this.selectedItemId,
+          isLoading: isPending(props.loadable),
+          details: itemDetails(props.item, this.predefinedQueryToName),
           actions: itemActions(
-            item,
-            () => this.removeItem(item),
-            () => copy(item)
+            props.item,
+            () => this.removeItem(props.item),
+            () => copy(props.item)
           ),
-          onClick: () => this.setSelectedSearchItem(item)
+          onClick: () => this.setSelectedSearchItem(props.item)
         };
-      });
+      }
+    );
 
     return {
       isEmpty: this.root.workingHistory.isEmpty,

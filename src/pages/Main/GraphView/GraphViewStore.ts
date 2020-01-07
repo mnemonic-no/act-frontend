@@ -11,7 +11,8 @@ import {
   isObjectFactsSearch,
   SearchResult,
   Search,
-  isObjectTraverseSearch
+  isObjectTraverseSearch,
+  isMultiObjectSearch
 } from '../../../core/types';
 import MainPageStore from '../MainPageStore';
 import { notUndefined } from '../../../util/util';
@@ -127,17 +128,15 @@ class GraphViewStore {
     };
   }
 
-  @action
+  @action.bound
   setSelectedNodeBasedOnSearch(search: Search) {
-    if (isObjectFactsSearch(search)) {
+    if (isObjectFactsSearch(search) || isObjectTraverseSearch(search)) {
       const searchedNode = Object.values(this.root.refineryStore.refined.objects).find(
         (object: ActObject) => object.type.name === search.objectType && object.value === search.objectValue
       );
       if (searchedNode) {
         this.root.selectionStore.setCurrentSelection({ id: searchedNode.id, kind: 'object' });
       }
-    } else if (isObjectTraverseSearch(search)) {
-      // Noop
     } else if (isFactSearch(search)) {
       const searchedNode = Object.values(this.root.refineryStore.refined.facts).find(
         (fact: ActFact) => fact.id === search.id
@@ -145,6 +144,8 @@ class GraphViewStore {
       if (searchedNode) {
         this.root.selectionStore.setCurrentSelection({ id: searchedNode.id, kind: 'fact' });
       }
+    } else if (isMultiObjectSearch(search)) {
+      this.root.selectionStore.setCurrentSelection({ id: search.objectIds[0], kind: 'object' });
     } else {
       // eslint-disable-next-line
       const _exhaustiveCheck: never = search;

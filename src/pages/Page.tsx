@@ -3,6 +3,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import { observer } from 'mobx-react';
 import AppBar from '@material-ui/core/AppBar/AppBar';
 import Button from '@material-ui/core/Button';
+import Fade from '@material-ui/core/Fade';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -126,7 +127,9 @@ const PageComp = (props: IPageComp) => {
               </Button>
               <AboutButton />
             </Toolbar>
-            {props.isLoading && <LinearProgress variant="query" color="secondary" />}
+            <Fade in={props.isLoading} timeout={500}>
+              <LinearProgress variant="query" color="secondary" />
+            </Fade>
           </AppBar>
         </div>
 

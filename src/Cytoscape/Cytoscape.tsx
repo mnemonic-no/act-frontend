@@ -247,6 +247,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
       runLayout(cy, { ...layoutConfig, fit: false }, layout, setLayout);
       syncSelection(cy, selectedNodeIds);
       centerOnSelection(cy);
+
       // @ts-ignore
     } else if (previousProps.layoutConfig !== layoutConfig) {
       runLayout(cy, layoutConfig, layout, setLayout);
@@ -256,6 +257,11 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
     // so we have to fix it ourselves))
     if (previousProps && setSymmetricDifference(previousProps.selectedNodeIds, selectedNodeIds).size > 0) {
       syncSelection(cy, selectedNodeIds);
+    }
+
+    // Center on selection when going from no selection to single selection
+    if (previousProps?.selectedNodeIds.size === 0 && selectedNodeIds.size === 1) {
+      centerOnSelection(cy);
     }
 
     // @ts-ignore

@@ -1,7 +1,11 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import Link from '@material-ui/core/Link';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+
+import { link } from '../../../util/util';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -27,23 +31,27 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   text: {
     marginTop: theme.spacing(4)
-  },
-  link: {
-    cursor: 'pointer',
-    textDecoration: 'underline',
-    // color: theme.palette.secondary.main,
-    color: theme.palette.primary.main,
-    '&:hover': {
-      color: theme.palette.secondary.dark
-    },
-    '&:focus,&:active': {
-      color: theme.palette.secondary.light
-    }
   }
 }));
 
-const GraphEmptyComp = () => {
+const GraphEmptyComp = (props: { navigateFn: (url: string) => void }) => {
   const classes = useStyles();
+
+  const links = [
+    '/object-fact-query/ipv4/153.148.23.118',
+    '/object-fact-query/threatActor/Sofacy',
+    '/object-fact-query/technique/Credential%20Dumping',
+    '/object-fact-query/tool/foosace',
+    '/object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad'
+  ].map(url =>
+    link({
+      text: url,
+      href: url,
+      tooltip: 'Execute query',
+      navigateFn: props.navigateFn
+    })
+  );
+
   return (
     <div className={classes.root}>
       <div className={classes.inner}>
@@ -54,31 +62,15 @@ const GraphEmptyComp = () => {
           To get started try out one of these examples
         </Typography>
         <Typography component="ul" className={classes.list}>
-          <li>
-            <a className={classes.link} href="/object-fact-query/ipv4/153.148.23.118">
-              /object-fact-query/ipv4/153.148.23.118
-            </a>
-          </li>
-          <li>
-            <a className={classes.link} href="/object-fact-query/threatActor/Sofacy">
-              /object-fact-query/threatActor/Sofacy
-            </a>
-          </li>
-          <li>
-            <a className={classes.link} href="/object-fact-query/technique/Credential%20Dumping">
-              /object-fact-query/technique/Credential%20Dumping
-            </a>
-          </li>
-          <li>
-            <a className={classes.link} href="/object-fact-query/tool/foosace">
-              /object-fact-query/tool/foosace
-            </a>
-          </li>
-          <li>
-            <a className={classes.link} href="/object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad">
-              /object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad
-            </a>
-          </li>
+          {links.map(link => (
+            <li key={link.text}>
+              <Tooltip title={link.tooltip}>
+                <Link href={link.href} color="primary" underline={'always'} onClick={link.onClick}>
+                  {link.text}
+                </Link>
+              </Tooltip>
+            </li>
+          ))}
         </Typography>
         <Button variant="outlined" component="a" href="/examples">
           Click here for a full list of examples

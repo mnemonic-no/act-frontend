@@ -4,6 +4,7 @@ import {
   ContextAction,
   FactType,
   isFactSearch,
+  isMultiObjectSearch,
   isObjectFactsSearch,
   isObjectTraverseSearch,
   PredefinedObjectQuery,
@@ -61,6 +62,14 @@ export const searchId = (search: Search) => {
     return search.id;
   } else if (isObjectTraverseSearch(search)) {
     return [search.objectType, search.objectValue, search.query].filter(x => x).join(':');
+  } else if (isMultiObjectSearch(search)) {
+    return [
+      search.objectIds
+        .slice()
+        .sort()
+        .join(','),
+      search.query
+    ].join(':');
   }
   assertNever(search);
   throw new Error('Not supported' + JSON.stringify(search));

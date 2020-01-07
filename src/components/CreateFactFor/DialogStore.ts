@@ -250,14 +250,7 @@ class CreateFactForDialog {
 
       const facts = { [resultFact.id]: resultFact };
 
-      this.workingHistory.addItem({
-        id: search.id,
-        search: search,
-        result: {
-          facts: facts,
-          objects: factMapToObjectMap(facts)
-        }
-      });
+      this.workingHistory.addCreatedItem(search, { facts: facts, objects: factMapToObjectMap(facts) });
     } catch (err) {
       runInAction(() => {
         this.error = err;

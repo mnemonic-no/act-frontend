@@ -15,6 +15,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
 import GroupByAccordionComp, { IGroupByAccordionComp } from '../../../components/GroupByAccordion';
+import GraphQueryDialogComp, { IGraphQueryDialogComp } from '../../../components/GraphQueryDialog';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -66,6 +67,8 @@ const MultiSelectInformationComp = (props: IMultiSelectInformationComp) => {
 
   return (
     <div className={classes.root}>
+      {props.graphQueryDialog && <GraphQueryDialogComp {...props.graphQueryDialog} />}
+
       <div className={classes.titleContainer}>
         <Typography variant="h6" className={classes.title}>
           {props.title}
@@ -145,6 +148,7 @@ export interface IMultiSelectInformationComp {
   objectTypeGroupByAccordion: IGroupByAccordionComp;
   onClearSelectionClick: () => void;
   actions: Array<{ text: string; tooltip: string; onClick: () => void }>;
+  graphQueryDialog?: IGraphQueryDialogComp;
 }
 
 export default observer(MultiSelectInformationComp);

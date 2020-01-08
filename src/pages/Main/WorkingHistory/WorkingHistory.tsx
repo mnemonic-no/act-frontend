@@ -53,7 +53,8 @@ const useItemStyles = makeStyles((theme: Theme) => ({
     textOverflow: 'ellipsis'
   },
   listItemSecondary: {
-    display: 'flex'
+    display: 'flex',
+    color: theme.palette.text.secondary
   },
   detailsText: {
     display: 'inline-block',
@@ -83,28 +84,29 @@ const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
       key={item.id}
       onClick={item.onClick}>
       <ListItemText
-        classes={{ root: classes.listItemText, secondary: classes.listItemSecondary }}
-        secondaryTypographyProps={{ component: 'div' }}
+        disableTypography={true}
         primary={
           <>
             <Fade in={item.isLoading} timeout={500}>
               <LinearProgress variant="query" color="secondary" />
             </Fade>
-            {item.title.map((t, idx) => (
-              <span key={idx} style={{ color: t.color || 'currentColor' }}>
-                {t.text}
-              </span>
-            ))}
+            <Typography variant="body2" className={classes.listItemText}>
+              {item.title.map((t, idx) => (
+                <span key={idx} style={{ color: t.color || 'currentColor' }}>
+                  {t.text}
+                </span>
+              ))}
+            </Typography>
           </>
         }
         secondary={
           item.details && (
-            <>
-              <div>{item.details.label}</div>
-              <div className={cc(classes.detailsText, { [classes.tag]: item.details.kind === 'tag' })}>
+            <Typography variant="body2" className={classes.listItemSecondary}>
+              <span>{item.details.label}</span>
+              <span className={cc(classes.detailsText, { [classes.tag]: item.details.kind === 'tag' })}>
                 {item.details.text}
-              </div>
-            </>
+              </span>
+            </Typography>
           )
         }
       />

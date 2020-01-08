@@ -275,6 +275,25 @@ class DetailsStore {
       }),
 
       createFactDialog: this.createFactDialog,
+      graphQueryDialog: graphQueryDialog({
+        isOpen: this.multiSelectQueryDialog.isOpen,
+        query: this.multiSelectQueryDialogGraphQuery,
+        actObjects: [selected],
+        predefinedObjectQueries: this.predefinedObjectQueries,
+        onQueryChange: (q: string) => {
+          this.multiSelectQueryDialogGraphQuery = q;
+        },
+        onSubmit: (actObjects: Array<ActObject>, query: string) => {
+          this.multiSelectQueryDialog.isOpen = false;
+          this.onMultiObjectTraverseSubmit(actObjects, query);
+          this.multiSelectQueryDialogGraphQuery = '';
+        },
+        onClose: () => {
+          this.multiSelectQueryDialog.isOpen = false;
+          this.multiSelectQueryDialogGraphQuery = '';
+        }
+      }),
+
       onFactClick: this.setSelectedFact,
       onFactTypeClick: (factType: NamedId) => {
         this.onSearchSubmit({
@@ -288,7 +307,10 @@ class DetailsStore {
         this.onSearchSubmit({ kind: 'objectFacts', objectType: selected.type.name, objectValue: selected.value }),
       onPredefinedObjectQueryClick: this.onPredefinedObjectQueryClick,
       onCreateFactClick: this.onCreateFactClick,
-      onPruneObject: (o: ActObject) => {
+      onGraphQueryClick: () => {
+        this.multiSelectQueryDialog.isOpen = true;
+      },
+      onPruneObjectClick: (o: ActObject) => {
         this.root.refineryStore.addToPrunedObjectIds([o.id]);
         this.root.selectionStore.clearSelection();
       }

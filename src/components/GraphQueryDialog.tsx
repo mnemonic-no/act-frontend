@@ -24,6 +24,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   section: {
     padding: theme.spacing(3, 0)
+  },
+  breakWords: {
+    wordBreak: 'break-all'
   }
 }));
 
@@ -44,7 +47,7 @@ const GraphQueryDialogComp = (props: IGraphQueryDialogComp) => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <Typography variant="h6" style={{ color: props.description.color }}>
+          <Typography variant="h6" style={{ color: props.description.color }} className={classes.breakWords}>
             {props.description.text}
           </Typography>
 
@@ -64,6 +67,7 @@ const GraphQueryDialogComp = (props: IGraphQueryDialogComp) => {
           <TextField
             label={'Graph Query'}
             multiline
+            autoFocus
             rows="4"
             variant="outlined"
             rowsMax="10"

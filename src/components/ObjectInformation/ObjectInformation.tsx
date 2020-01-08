@@ -8,21 +8,22 @@ import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import config from '../../config';
-import withDataLoader from '../../util/withDataLoader';
-import memoizeDataLoader from '../../util/memoizeDataLoader';
-import CenteredCircularProgress from '../CenteredCircularProgress';
-import { ObjectDetails } from '../../pages/Main/Details/DetailsStore';
-import PredefinedObjectQueries from './PredefinedObjectQueries';
-import ContextActions from './ContextActions';
 import { ActFact, ActObject, FactType, NamedId, ObjectStats, PredefinedObjectQuery } from '../../core/types';
 import { factDataLoader, factTypesDataLoader, objectByUuidDataLoader } from '../../core/dataLoaders';
 import { objectTitle, isOneLeggedFactType, factCount } from '../../core/domain';
+import { ObjectDetails } from '../../pages/Main/Details/DetailsStore';
 import { pluralize } from '../../util/util';
+import CenteredCircularProgress from '../CenteredCircularProgress';
+import config from '../../config';
+import ContextActions from './ContextActions';
 import CreateFactForObjectDialog from '../CreateFactFor/Dialog';
 import CreateFactForDialog from '../CreateFactFor/DialogStore';
 import FactStats, { FactStatsCellType, IFactStatRow } from '../FactStats';
+import GraphQueryDialogComp, { IGraphQueryDialogComp } from '../GraphQueryDialog';
+import memoizeDataLoader from '../../util/memoizeDataLoader';
 import ObjectTitle from '../../components/ObjectTitle';
+import PredefinedObjectQueries from './PredefinedObjectQueries';
+import withDataLoader from '../../util/withDataLoader';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -104,33 +105,20 @@ export const toFactStatRows = (props: {
   )(props.actObject.statistics);
 };
 
-const ObjectInformationComp = ({
-  selectedObject,
-  id,
-  oneLeggedFacts,
-  details,
-  linkToSummaryPage,
-  createFactDialog,
-  onCreateFactClick,
-  onPruneObject,
-  onTitleClick,
-  onFactClick,
-  onFactTypeClick,
-  onPredefinedObjectQueryClick
-}: IObjectInformationCompInternal) => {
+const ObjectInformationComp = (props: IObjectInformationCompInternal) => {
   const classes = useStyles();
 
-  if (!selectedObject) {
+  if (!props.selectedObject) {
     return null;
   }
 
   const factStats = {
     rows: toFactStatRows({
-      actObject: selectedObject,
-      oneLeggedFacts: oneLeggedFacts,
-      onFactTypeClick: onFactTypeClick,
+      actObject: props.selectedObject,
+      oneLeggedFacts: props.oneLeggedFacts,
+      onFactTypeClick: props.onFactTypeClick,
       onFactTypeClickTooltip: 'Execute search',
-      onFactClick: onFactClick,
+      onFactClick: props.onFactClick,
       onFactTooltip: 'Show fact'
     })
   };
@@ -138,43 +126,45 @@ const ObjectInformationComp = ({
   return (
     <div className={classes.root}>
       <ObjectTitle
-        {...objectTitle(selectedObject, oneLeggedFacts, config.objectLabelFromFactType)}
-        onTitleClick={onTitleClick}
+        {...objectTitle(props.selectedObject, props.oneLeggedFacts, config.objectLabelFromFactType)}
+        onTitleClick={props.onTitleClick}
       />
 
       <div className={classes.info}>
-        <Tooltip title={linkToSummaryPage.tooltip}>
+        <Tooltip title={props.linkToSummaryPage.tooltip}>
           <div className={classes.linkToSummary}>
             <Link
-              href={linkToSummaryPage.href}
+              href={props.linkToSummaryPage.href}
               color="primary"
               underline={'always'}
-              onClick={linkToSummaryPage.onClick}>
-              {linkToSummaryPage.text}
+              onClick={props.linkToSummaryPage.onClick}>
+              {props.linkToSummaryPage.text}
             </Link>
           </div>
         </Tooltip>
         <Typography variant="body1" gutterBottom>
-          {pluralize(factCount(selectedObject), 'fact')}
+          {pluralize(factCount(props.selectedObject), 'fact')}
         </Typography>
 
         <FactStats {...factStats} />
       </div>
 
       <div className={classes.contextActions}>
-        <ContextActions actions={details.contextActions} />
+        <ContextActions actions={props.details.contextActions} />
       </div>
 
       <div className={classes.predefinedQueries}>
         <PredefinedObjectQueries
-          predefinedObjectQueries={details.predefinedObjectQueries}
-          onClick={onPredefinedObjectQueryClick}
+          predefinedObjectQueries={props.details.predefinedObjectQueries}
+          onClick={props.onPredefinedObjectQueryClick}
         />
       </div>
       <div className={classes.footer}>
-        <Button onClick={() => onPruneObject(selectedObject)}>Prune</Button>
-        <Button onClick={e => onCreateFactClick(e)}>Create fact</Button>
-        {createFactDialog && <CreateFactForObjectDialog store={createFactDialog} />}
+        <Button onClick={() => props.onPruneObjectClick(props.selectedObject)}>Prune</Button>
+        <Button onClick={() => props.onGraphQueryClick()}>Graph Query</Button>
+        <Button onClick={e => props.onCreateFactClick(e)}>Create fact</Button>
+        {props.createFactDialog && <CreateFactForObjectDialog store={props.createFactDialog} />}
+        <GraphQueryDialogComp {...props.graphQueryDialog} />
       </div>
     </div>
   );
@@ -187,10 +177,12 @@ interface IObjectInformationCompInternal {
   details: ObjectDetails;
   linkToSummaryPage: { text: string; href: string; tooltip: string; onClick: (e: any) => void };
   createFactDialog: CreateFactForDialog;
+  graphQueryDialog: IGraphQueryDialogComp;
   onFactTypeClick: (factType: NamedId) => void;
   onFactClick: (f: ActFact) => void;
   onCreateFactClick: (e: any) => void;
-  onPruneObject: (o: ActObject) => void;
+  onPruneObjectClick: (o: ActObject) => void;
+  onGraphQueryClick: () => void;
   onTitleClick: () => void;
   onPredefinedObjectQueryClick: (q: PredefinedObjectQuery) => void;
 }

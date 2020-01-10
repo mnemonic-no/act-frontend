@@ -10,12 +10,14 @@ import {
   PredefinedObjectQuery,
   Search
 } from '../../../core/types';
-import { link, objectTypeToColor, pluralize } from '../../../util/util';
+import { link, pluralize } from '../../../util/util';
 import { ContextActionTemplate, resolveActions } from '../../../configUtil';
 import { urlToObjectSummaryPage } from '../../../Routing';
 import {
+  accordionGroups,
   contextActionsFor,
   countByFactType,
+  graphQueryDialog,
   idsToFacts,
   idsToObjects,
   predefinedObjectQueriesFor
@@ -49,97 +51,6 @@ export const factTypeLinks = (
   )(selectedFacts);
 };
 
-export const accordionGroups = ({
-  actObjects,
-  unSelectFn,
-  openQueryDialogFn,
-  isAccordionExpanded
-}: {
-  actObjects: Array<ActObject>;
-  unSelectFn: (selection: Array<ActSelection>) => void;
-  openQueryDialogFn: (objects: Array<ActObject>) => void;
-  isAccordionExpanded: { [objectTypeName: string]: boolean };
-}) => {
-  return _.pipe(
-    _.groupBy((o: ActObject) => o.type.name),
-    _.entries,
-    _.map(([objectTypeName, objectsOfType]: [string, Array<ActObject>]) => {
-      return {
-        title: { text: objectTypeName, color: objectTypeToColor(objectTypeName) },
-        actions: [
-          {
-            text: 'Query',
-            onClick: () => {
-              openQueryDialogFn(objectsOfType);
-            }
-          },
-          {
-            text: 'Clear',
-            onClick: () => {
-              unSelectFn(objectsOfType.map(actObjectToSelection));
-            }
-          }
-        ],
-        isExpanded: isAccordionExpanded[objectTypeName],
-        items: _.pipe(
-          _.map((actObject: ActObject) => ({
-            text: actObject.value,
-            iconAction: {
-              icon: 'close',
-              tooltip: 'Unselect',
-              onClick: () => {
-                unSelectFn([actObjectToSelection(actObject)]);
-              }
-            }
-          })),
-          _.sortBy(x => x.text)
-        )(objectsOfType)
-      };
-    }),
-    _.sortBy(x => x.title.text)
-  )(actObjects);
-};
-
-const graphQueryDialog = (props: {
-  isOpen: boolean;
-  query: string;
-  onQueryChange: (q: string) => void;
-  onSubmit: (actObjects: Array<ActObject>, query: string) => void;
-  onClose: () => void;
-  actObjects: Array<ActObject>;
-  predefinedObjectQueries: Array<PredefinedObjectQuery>;
-}) => {
-  const objectType = props.actObjects[0]?.type.name;
-
-  return {
-    isOpen: props.isOpen,
-    graphQuery: {
-      value: props.query,
-      onChange: props.onQueryChange
-    },
-    description:
-      props.actObjects.length > 1
-        ? {
-            text: pluralize(props.actObjects.length, props.actObjects[0]?.type.name),
-            color: objectTypeToColor(objectType)
-          }
-        : {
-            text: props.actObjects[0]?.type?.name + ' ' + props.actObjects[0]?.value,
-            color: objectTypeToColor(objectType)
-          },
-    predefinedObjectQueries: {
-      onClick: (q: PredefinedObjectQuery) => {
-        props.onSubmit(props.actObjects, q.query);
-      },
-      queries: predefinedObjectQueriesFor(props.actObjects[0], props.predefinedObjectQueries)
-    },
-    onClose: props.onClose,
-    onSubmit: () => {
-      props.onSubmit(props.actObjects, props.query);
-    }
-  };
-};
-
 class DetailsStore {
   appStore: AppStore;
   root: MainPageStore;
@@ -152,11 +63,11 @@ class DetailsStore {
   @observable fadeUnselected = false;
 
   @observable multiSelectionAccordion: { [objectType: string]: boolean } = {};
-  @observable multiSelectQueryDialog: { isOpen: boolean; actObjects: Array<ActObject> } = {
+  @observable multiSelectQueryDialog: { isOpen: boolean; actObjects: Array<ActObject>; query: string } = {
     isOpen: false,
-    actObjects: []
+    actObjects: [],
+    query: ''
   };
-  @observable multiSelectQueryDialogGraphQuery: string = '';
 
   constructor(appStore: AppStore, root: MainPageStore, config: any) {
     this.appStore = appStore;
@@ -277,20 +188,20 @@ class DetailsStore {
       createFactDialog: this.createFactDialog,
       graphQueryDialog: graphQueryDialog({
         isOpen: this.multiSelectQueryDialog.isOpen,
-        query: this.multiSelectQueryDialogGraphQuery,
+        query: this.multiSelectQueryDialog.query,
         actObjects: [selected],
         predefinedObjectQueries: this.predefinedObjectQueries,
         onQueryChange: (q: string) => {
-          this.multiSelectQueryDialogGraphQuery = q;
+          this.multiSelectQueryDialog.query = q;
         },
         onSubmit: (actObjects: Array<ActObject>, query: string) => {
           this.multiSelectQueryDialog.isOpen = false;
           this.onMultiObjectTraverseSubmit(actObjects, query);
-          this.multiSelectQueryDialogGraphQuery = '';
+          this.multiSelectQueryDialog.query = '';
         },
         onClose: () => {
           this.multiSelectQueryDialog.isOpen = false;
-          this.multiSelectQueryDialogGraphQuery = '';
+          this.multiSelectQueryDialog.query = '';
         }
       }),
 
@@ -357,13 +268,9 @@ class DetailsStore {
   openQueryDialog(objects: Array<ActObject>) {
     this.multiSelectQueryDialog = {
       isOpen: true,
-      actObjects: objects
+      actObjects: objects,
+      query: ''
     };
-  }
-
-  @action.bound
-  setMultiSelectQueryDialogGraphQuery(s: string) {
-    this.multiSelectQueryDialogGraphQuery = s;
   }
 
   @computed
@@ -383,20 +290,20 @@ class DetailsStore {
       title: 'Selection',
       graphQueryDialog: graphQueryDialog({
         isOpen: this.multiSelectQueryDialog.isOpen,
-        query: this.multiSelectQueryDialogGraphQuery,
+        query: this.multiSelectQueryDialog.query,
         actObjects: actObjects,
         predefinedObjectQueries: this.predefinedObjectQueries,
         onQueryChange: (q: string) => {
-          this.multiSelectQueryDialogGraphQuery = q;
+          this.multiSelectQueryDialog.query = q;
         },
         onSubmit: (actObjects: Array<ActObject>, query: string) => {
           this.multiSelectQueryDialog.isOpen = false;
           this.onMultiObjectTraverseSubmit(actObjects, query);
-          this.multiSelectQueryDialogGraphQuery = '';
+          this.multiSelectQueryDialog.query = '';
         },
         onClose: () => {
           this.multiSelectQueryDialog.isOpen = false;
-          this.multiSelectQueryDialogGraphQuery = '';
+          this.multiSelectQueryDialog.query = '';
         }
       }),
       fadeUnselected: this.fadeUnselected,
@@ -423,10 +330,27 @@ class DetailsStore {
         groups: accordionGroups({
           actObjects: selectedObjects,
           isAccordionExpanded: this.multiSelectionAccordion,
-          openQueryDialogFn: (objects: Array<ActObject>) => {
-            this.openQueryDialog(objects);
-          },
-          unSelectFn: (selection: Array<ActSelection>) => this.root.selectionStore.removeAllFromSelection(selection)
+          groupActions: [
+            {
+              text: 'Query',
+              onClick: (objectsOfType: Array<ActObject>) => {
+                this.openQueryDialog(objectsOfType);
+              }
+            },
+            {
+              text: 'Clear',
+              onClick: (objectsOfType: Array<ActObject>) => {
+                this.root.selectionStore.removeAllFromSelection(objectsOfType.map(actObjectToSelection));
+              }
+            }
+          ],
+          itemAction: {
+            icon: 'close',
+            tooltip: 'Unselect this object',
+            onClick: (actObject: ActObject) => {
+              this.root.selectionStore.removeAllFromSelection([actObjectToSelection(actObject)]);
+            }
+          }
         })
       },
       onClearSelectionClick: () => {

@@ -17,7 +17,7 @@ import SingleValueFilter, { ISingleValueFilterComp } from '../../components/Sing
 const useSearchOnlyStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
-    height: '100%',
+    flex: '1 0 0',
     flexFlow: 'column nowrap',
     alignItems: 'center',
     justifyContent: 'center'
@@ -46,7 +46,7 @@ const useResultStyles = makeStyles((theme: Theme) => ({
     padding: '10px',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'top',
+    alignItems: 'flex-start',
     margin: '10px 10px 0 10px'
   },
   searchInput: {
@@ -57,16 +57,23 @@ const useResultStyles = makeStyles((theme: Theme) => ({
     paddingTop: theme.spacing(1)
   },
   resultsContainer: {
+    flex: '1 0 auto',
     display: 'flex',
     margin: '10px',
-    height: '100%'
+    overflow: 'hidden',
+    minWidth: 0
   },
   results: {
-    flex: '1 1 50%',
-    overflowX: 'auto'
+    flex: '1 1 auto',
+    minWidth: 0,
+    display: 'flex',
+    overflow: 'hidden'
   },
   details: {
-    flex: '1 1 50%',
+    flex: '0 0 500px',
+    minWidth: '500px',
+    overflow: 'hidden',
+
     display: 'flex',
     borderLeft: '1px solid',
     borderColor: theme.palette.grey['200']

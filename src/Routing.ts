@@ -115,6 +115,10 @@ export const urlToObjectFactQueryPage = (args: { objectTypeName: string; objectV
   return '/object-fact-query/' + encodeURIComponent(args.objectTypeName) + '/' + encodeURIComponent(args.objectValue);
 };
 
+export const urlToChartPage = () => {
+  return '/chart';
+};
+
 export const urlToGraphQueryPage = (args: { objectTypeName: string; objectValue: string; query: string }) => {
   return (
     '/graph-query/' +

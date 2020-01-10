@@ -1,4 +1,5 @@
 import React from 'react';
+import cc from 'clsx';
 import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -34,6 +35,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   cell: {
     paddingLeft: theme.spacing(2)
   },
+  wordBreakAll: {
+    whiteSpace: 'normal',
+    wordBreak: 'break-all'
+  },
   row: {
     cursor: 'pointer',
     height: theme.spacing(4)
@@ -66,7 +71,7 @@ const ObjectRowComp = ({ actObject, label, objectValueLink, onRowClick, onCheckb
       <TableCell classes={{ root: classes.cell }} size="small">
         <span style={{ color: objectTypeToColor(actObject.type.name) }}>{actObject.type.name}</span>
       </TableCell>
-      <TableCell classes={{ root: classes.cell }} size="small">
+      <TableCell classes={{ root: cc(classes.cell, classes.wordBreakAll) }} size="small">
         <Link href={objectValueLink && objectValueLink.href} onClick={objectValueLink && objectValueLink.onClick}>
           {label ? (
             <Tooltip title={'Value: ' + objectValueString} enterDelay={500}>

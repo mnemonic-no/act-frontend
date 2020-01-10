@@ -62,8 +62,7 @@ const useStyles = makeStyles((theme: Theme) => {
     },
 
     content: {
-      flex: '1 0 0',
-      overflow: 'auto',
+      flex: '1 0 0%',
       display: 'flex',
       flexFlow: 'column nowrap'
     }

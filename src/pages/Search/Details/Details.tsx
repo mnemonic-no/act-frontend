@@ -7,20 +7,22 @@ import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
+import GraphQueryDialog, { IGraphQueryDialogComp } from '../../../components/GraphQueryDialog';
+import GroupByAccordionComp, { IGroupByAccordionComp } from '../../../components/GroupByAccordion';
 import ObjectTitle, { IObjectTitleComp } from '../../../components/ObjectTitle';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    flex: '1 0 auto',
-    padding: '10px'
+    padding: '10px',
+    outline: '2px solid pink'
   }
 }));
 
 const useEmptyStyles = makeStyles(() => ({
   centered: {
+    width: '100%',
     display: 'flex',
     textAlign: 'center',
-    height: '100%',
     alignItems: 'center',
     justifyContent: 'center'
   }
@@ -29,8 +31,10 @@ const useEmptyStyles = makeStyles(() => ({
 const useSingleObjectStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
-    flexFlow: 'column nowrap',
-    justifyContent: 'space-between'
+    overflow: 'hidden',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    width: '100%'
   },
   footer: {
     padding: '10px 0'
@@ -43,9 +47,20 @@ const useSingleObjectStyles = makeStyles((theme: Theme) => ({
 const useMultiObjectStyles = makeStyles((theme: Theme) => ({
   root: {
     display: 'flex',
-    flexFlow: 'column nowrap',
-    justifyContent: 'space-between'
+    overflow: 'hidden',
+    width: '100%',
+    flexDirection: 'column'
   },
+
+  accordion: {
+    flex: '1 1 auto',
+    maxWidth: '500px',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    height: '0px',
+    minHeight: '0px'
+  },
+
   footer: {
     padding: '10px 0'
   }
@@ -145,23 +160,29 @@ const SingleObjectComp = ({
   );
 };
 
-const MultipleObjectsComp = ({ title, subTitle, clearSelectionButton, actions }: IMultipleObjectsComp) => {
+const MultipleObjectsComp = (props: IMultipleObjectsComp) => {
   const classes = useStyles();
   const multiClasses = useMultiObjectStyles();
 
   return (
     <div className={cc(classes.root, multiClasses.root)}>
       <div>
-        <Header title={title} clearButton={clearSelectionButton} />
-        <Typography variant="subtitle1">{subTitle}</Typography>
+        <Header title={props.title} clearButton={props.clearSelectionButton} />
+        <Typography variant="subtitle1">{props.subTitle}</Typography>
       </div>
+
+      <div className={multiClasses.accordion}>
+        <GroupByAccordionComp {...props.objectTypeGroupByAccordion} />
+      </div>
+
       <div className={multiClasses.footer}>
         <Typography variant="subtitle1" gutterBottom>
           Actions
         </Typography>
 
-        <ButtonList actions={actions} />
+        <ButtonList actions={props.actions} />
       </div>
+      <GraphQueryDialog {...props.graphQueryDialog} />
     </div>
   );
 };
@@ -198,7 +219,9 @@ export interface IMultipleObjectsComp {
   title: string;
   subTitle: string;
   clearSelectionButton: IButton;
+  objectTypeGroupByAccordion: IGroupByAccordionComp;
   actions: Array<IButton>;
+  graphQueryDialog: IGraphQueryDialogComp;
 }
 
 export interface IDetailsComp {

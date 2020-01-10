@@ -46,7 +46,7 @@ class SearchPageStore {
 
     this.ui = {
       resultsStore: resultsStore,
-      detailsStore: new DetailsStore(root, resultsStore, config.objectLabelFromFactType)
+      detailsStore: new DetailsStore(root, resultsStore, config.objectLabelFromFactType, config)
     };
   }
 

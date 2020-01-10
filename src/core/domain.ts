@@ -1,3 +1,5 @@
+import * as _ from 'lodash/fp';
+
 import {
   ActFact,
   ActObject,
@@ -10,7 +12,7 @@ import {
   PredefinedObjectQuery,
   Search
 } from './types';
-import { assertNever, notUndefined, objectTypeToColor, replaceAll, replaceAllInObject } from '../util/util';
+import { assertNever, notUndefined, objectTypeToColor, pluralize, replaceAll, replaceAllInObject } from '../util/util';
 import { ActionTemplate, ContextActionTemplate } from '../configUtil';
 import { IObjectTitleComp } from '../components/ObjectTitle';
 
@@ -282,4 +284,81 @@ export const objectTitle = (
 
 export const factCount = (actObject: ActObject) => {
   return actObject.statistics ? actObject.statistics.reduce((acc: any, x: any) => x.count + acc, 0) : 0;
+};
+
+export const accordionGroups = (props: {
+  actObjects: Array<ActObject>;
+  isAccordionExpanded: { [objectTypeName: string]: boolean };
+  groupActions: Array<{ text: string; onClick: (objectsOfType: Array<ActObject>) => void }>;
+  itemAction: { icon: string; tooltip: string; onClick: (actObject: ActObject) => void };
+}) => {
+  return _.pipe(
+    _.groupBy((o: ActObject) => o.type.name),
+    _.entries,
+    _.map(([objectTypeName, objectsOfType]: [string, Array<ActObject>]) => {
+      return {
+        title: { text: objectTypeName, color: objectTypeToColor(objectTypeName) },
+        actions: props.groupActions.map(a => ({
+          ...a,
+          onClick: () => {
+            a.onClick(objectsOfType);
+          }
+        })),
+        isExpanded: props.isAccordionExpanded[objectTypeName],
+        items: _.pipe(
+          _.map((actObject: ActObject) => ({
+            text: actObject.value,
+            iconAction: {
+              ...props.itemAction,
+              onClick: () => {
+                props.itemAction.onClick(actObject);
+              }
+            }
+          })),
+          _.sortBy(x => x.text)
+        )(objectsOfType)
+      };
+    }),
+    _.sortBy(x => x.title.text)
+  )(props.actObjects);
+};
+
+export const graphQueryDialog = (props: {
+  isOpen: boolean;
+  actObjects: Array<ActObject>;
+  predefinedObjectQueries: Array<PredefinedObjectQuery>;
+  query: string;
+  onQueryChange: (q: string) => void;
+  onSubmit: (actObjects: Array<ActObject>, query: string) => void;
+  onClose: () => void;
+}) => {
+  const objectType = props.actObjects[0]?.type.name;
+
+  return {
+    isOpen: props.isOpen,
+    graphQuery: {
+      value: props.query,
+      onChange: props.onQueryChange
+    },
+    description:
+      props.actObjects.length > 1
+        ? {
+            text: pluralize(props.actObjects.length, props.actObjects[0]?.type.name),
+            color: objectTypeToColor(objectType)
+          }
+        : {
+            text: props.actObjects[0]?.type?.name + ' ' + props.actObjects[0]?.value,
+            color: objectTypeToColor(objectType)
+          },
+    predefinedObjectQueries: {
+      onClick: (q: PredefinedObjectQuery) => {
+        props.onSubmit(props.actObjects, q.query);
+      },
+      queries: predefinedObjectQueriesFor(props.actObjects[0], props.predefinedObjectQueries)
+    },
+    onClose: props.onClose,
+    onSubmit: () => {
+      props.onSubmit(props.actObjects, props.query);
+    }
+  };
 };

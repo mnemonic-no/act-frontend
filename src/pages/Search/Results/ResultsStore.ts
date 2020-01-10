@@ -110,6 +110,11 @@ class ResultsStore {
   }
 
   @action.bound
+  removeAllFromSelection(objectIds: Array<string>) {
+    objectIds.forEach(x => this.selectedObjectIds.delete(x));
+  }
+
+  @action.bound
   clearSelection() {
     this.selectedObjectIds = new Set();
   }

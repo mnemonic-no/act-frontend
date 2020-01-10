@@ -1,7 +1,7 @@
 import * as sut from './domain';
 import { actObject, fact, factType, factTypes, objectTypes } from './testHelper';
 import { ActObject } from './types';
-import { ContextActionTemplate } from '../config';
+import { ContextActionTemplate } from '../configUtil';
 
 it('can check if fact is retracted', () => {
   expect(sut.isRetracted(fact({}))).toBeFalsy();
@@ -363,4 +363,91 @@ it('factType to string', () => {
       })
     )
   ).toBe('uniDirectional');
+});
+
+it('can make accordionGroups', () => {
+  expect(
+    sut.accordionGroups({
+      actObjects: [],
+      isAccordionExpanded: {},
+      itemAction: { icon: 'close', tooltip: 'Close', onClick: () => {} },
+      groupActions: [{ text: 'Query', onClick: () => {} }]
+    })
+  ).toEqual([]);
+
+  expect(
+    sut.accordionGroups({
+      actObjects: [
+        actObject({ id: 'a', value: 'Sofacy', type: objectTypes.threatActor }),
+        actObject({ id: 'b', value: 'Axiom', type: objectTypes.threatActor }),
+        actObject({ id: 'c', value: '8.8.8.8', type: objectTypes.ipv4 })
+      ],
+      isAccordionExpanded: { ipv4: true },
+      itemAction: { icon: 'close', tooltip: 'Unselect', onClick: () => {} },
+      groupActions: [
+        { text: 'Query', onClick: () => {} },
+        { text: 'Clear', onClick: () => {} }
+      ]
+    })
+  ).toEqual([
+    expect.objectContaining({
+      title: { text: 'ipv4', color: '#00c' },
+      isExpanded: true,
+      actions: [
+        { text: 'Query', onClick: expect.any(Function) },
+        { text: 'Clear', onClick: expect.any(Function) }
+      ],
+      items: [
+        expect.objectContaining({
+          text: '8.8.8.8',
+          iconAction: { icon: 'close', tooltip: 'Unselect', onClick: expect.any(Function) }
+        })
+      ]
+    }),
+    expect.objectContaining({
+      title: { text: 'threatActor', color: '#606' },
+      isExpanded: undefined,
+      actions: [
+        { text: 'Query', onClick: expect.any(Function) },
+        { text: 'Clear', onClick: expect.any(Function) }
+      ],
+      items: [
+        expect.objectContaining({
+          text: 'Axiom',
+          iconAction: { icon: 'close', tooltip: 'Unselect', onClick: expect.any(Function) }
+        }),
+        expect.objectContaining({
+          text: 'Sofacy',
+          iconAction: { icon: 'close', tooltip: 'Unselect', onClick: expect.any(Function) }
+        })
+      ]
+    })
+  ]);
+});
+
+it('can make graphQueryDialog', () => {
+  expect(
+    sut.graphQueryDialog({
+      isOpen: true,
+      actObjects: [actObject({ id: 'test', value: 'Sofacy', type: objectTypes.threatActor })],
+      predefinedObjectQueries: [],
+      query: "g.in('resolvesTo').hasLabel('fqdn')",
+      onQueryChange: () => {},
+      onSubmit: () => {},
+      onClose: () => {}
+    })
+  ).toEqual({
+    isOpen: true,
+    graphQuery: {
+      value: "g.in('resolvesTo').hasLabel('fqdn')",
+      onChange: expect.any(Function)
+    },
+    description: { color: '#606', text: 'threatActor Sofacy' },
+    predefinedObjectQueries: {
+      onClick: expect.any(Function),
+      queries: []
+    },
+    onClose: expect.any(Function),
+    onSubmit: expect.any(Function)
+  });
 });

@@ -19,19 +19,23 @@ const useStyles = makeStyles((theme: Theme) => ({
     flex: '1 0 auto'
   },
   root: {
-    overflowY: 'hidden',
-    height: '100%',
+    overflow: 'hidden',
+    width: '100%',
     display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between'
+    flexDirection: 'column'
   },
   header: {
-    padding: '16px 10px 18px 16px',
+    padding: '10px',
     display: 'flex',
     justifyContent: 'space-between'
   },
   titleContainer: { display: 'flex', alignItems: 'center' },
-  tableContainer: { overflowY: 'auto', flex: '1 1 auto' },
+  tableContainer: {
+    overflow: 'auto',
+    flex: '1 1 0px',
+    minHeight: 0,
+    height: 0 // Required in order to get scrollbars with flexbox
+  },
   objectTypeFilter: { paddingTop: theme.spacing(2) + 'px' },
   progress: { padding: theme.spacing(1) },
   selectButton: {
@@ -128,7 +132,9 @@ const ResultsComp = (props: IResultsComp) => {
       )}
       {!isLoading && !isResultEmpty && (
         <div className={classes.tableContainer}>
-          <ObjectTable {...resultTable} />
+          <div>
+            <ObjectTable {...resultTable} />
+          </div>
         </div>
       )}
     </div>

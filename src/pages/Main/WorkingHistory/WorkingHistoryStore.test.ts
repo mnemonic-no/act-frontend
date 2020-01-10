@@ -1,6 +1,7 @@
-import { itemActions, itemDetails, itemTitle, parseStateExport, stateExport } from './WorkingHistoryStore';
+import * as sut from './WorkingHistoryStore';
 import { ObjectFactsSearch, ObjectTraverseSearch, WorkingHistoryItem } from '../../../core/types';
 import { factColor } from '../../../util/util';
+import { actObject, objectTypes } from '../../../core/testHelper';
 
 const searchItem = (args: { [key: string]: any }): WorkingHistoryItem => {
   return {
@@ -14,7 +15,7 @@ const searchItem = (args: { [key: string]: any }): WorkingHistoryItem => {
 };
 
 it('can export query history', () => {
-  expect(stateExport([searchItem({ id: 'Axiom', factTypeName: 'alias', kind: 'singleFact' })], new Set())).toEqual({
+  expect(sut.stateExport([searchItem({ id: 'Axiom', factTypeName: 'alias', kind: 'singleFact' })], new Set())).toEqual({
     version: '1.0.0',
     queries: [],
     prunedObjectIds: []
@@ -36,7 +37,7 @@ it('can export query history', () => {
   };
 
   expect(
-    stateExport(
+    sut.stateExport(
       [
         searchItem({ search: objectFactsSearch }),
         searchItem({ search: traverseSearch }),
@@ -52,16 +53,16 @@ it('can export query history', () => {
 });
 
 it('can import working history', () => {
-  expect(() => parseStateExport(JSON.stringify({ version: '1.0.0', queries: [] }))).toThrow(
+  expect(() => sut.parseStateExport(JSON.stringify({ version: '1.0.0', queries: [] }))).toThrow(
     "Validation failed: history export has no 'queries'"
   );
 
-  expect(() => parseStateExport(JSON.stringify({ version: '1.0.0', queries: [{ bad: 'data' }] }))).toThrow(
+  expect(() => sut.parseStateExport(JSON.stringify({ version: '1.0.0', queries: [{ bad: 'data' }] }))).toThrow(
     'Queries must have objectType and objectValue: {"bad":"data"}'
   );
 
   expect(
-    parseStateExport(
+    sut.parseStateExport(
       JSON.stringify({
         version: '1.0.0',
         queries: [{ objectType: 'threatActor', objectValue: 'Axiom' }]
@@ -71,23 +72,23 @@ it('can import working history', () => {
 });
 
 it('working history item title', () => {
-  expect(itemTitle({ id: 'a', factTypeName: 'alias', kind: 'singleFact' })).toEqual([
+  expect(sut.itemTitle({ id: 'a', factTypeName: 'alias', kind: 'singleFact' })).toEqual([
     { text: 'Fact ', color: factColor },
     { text: 'alias' }
   ]);
-  expect(itemTitle({ objectType: 'threatActor', objectValue: 'Sofacy', kind: 'objectFacts' })).toEqual([
+  expect(sut.itemTitle({ objectType: 'threatActor', objectValue: 'Sofacy', kind: 'objectFacts' })).toEqual([
     { text: 'threatActor ', color: '#606' },
     { text: 'Sofacy' }
   ]);
   expect(
-    itemTitle({ kind: 'multiObjectTraverse', objectType: 'threatActor', objectIds: ['a', 'b'], query: 'something' })
+    sut.itemTitle({ kind: 'multiObjectTraverse', objectType: 'threatActor', objectIds: ['a', 'b'], query: 'something' })
   ).toEqual([{ text: 'threatActor ', color: '#606' }, { text: '2 objects' }]);
 });
 
 it('working history item details', () => {
   const predefinedQueryToName = { 'some query': 'tools' };
   expect(
-    itemDetails(
+    sut.itemDetails(
       searchItem({
         search: {
           objectType: 'threatActor',
@@ -101,7 +102,7 @@ it('working history item details', () => {
   ).toEqual({ kind: 'tag', label: 'Query:', text: 'tools' });
 
   expect(
-    itemDetails(
+    sut.itemDetails(
       searchItem({
         search: { kind: 'objectTraverse', objectType: 'threatActor', objectValue: 'Sofacy', query: 'a custom query' }
       }),
@@ -110,7 +111,7 @@ it('working history item details', () => {
   ).toEqual({ kind: 'label-text', label: 'Query:', text: 'a custom query' });
 
   expect(
-    itemDetails(
+    sut.itemDetails(
       searchItem({
         search: {
           kind: 'multiObjectTraverse',
@@ -128,12 +129,12 @@ it('working history item actions', () => {
   const removeFn = () => {};
   const copyFn = () => {};
 
-  expect(itemActions(searchItem({}), removeFn, copyFn)).toEqual([
+  expect(sut.itemActions(searchItem({}), removeFn, copyFn)).toEqual([
     { icon: 'remove', tooltip: 'Remove', onClick: removeFn }
   ]);
 
   expect(
-    itemActions(
+    sut.itemActions(
       searchItem({ search: { kind: 'objectTraverse', objectType: 'threatActor', objectValue: 'a', query: 'q' } }),
       removeFn,
       copyFn
@@ -144,7 +145,7 @@ it('working history item actions', () => {
   ]);
 
   expect(
-    itemActions(
+    sut.itemActions(
       searchItem({
         search: { kind: 'multiObjectTraverse', objectType: 'threatActor', objectIds: ['a', 'b'], query: 'something' }
       }),
@@ -155,4 +156,17 @@ it('working history item actions', () => {
     { icon: 'copy', tooltip: 'Copy query to clipboard', onClick: copyFn },
     { icon: 'remove', tooltip: 'Remove', onClick: removeFn }
   ]);
+});
+
+it('search to selection', () => {
+  expect(
+    sut.searchToSelection({ kind: 'singleFact', id: 'Axiom', factTypeName: 'alias' }, { facts: {}, objects: {} })
+  ).toEqual({ Axiom: { kind: 'fact', id: 'Axiom' } });
+
+  expect(
+    sut.searchToSelection(
+      { objectType: 'threatActor', objectValue: 'Sofacy', kind: 'objectFacts' },
+      { facts: {}, objects: { '123': actObject({ id: '123', type: objectTypes.threatActor, value: 'Sofacy' }) } }
+    )
+  ).toEqual({ '123': { kind: 'object', id: '123' } });
 });

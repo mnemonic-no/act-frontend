@@ -1,4 +1,5 @@
 import { action, computed } from 'mobx';
+import * as _ from 'lodash/fp';
 
 import {
   isObjectFactsSearch,
@@ -11,7 +12,10 @@ import {
   SearchResult,
   TLoadable,
   isPending,
-  isMultiObjectSearch
+  isMultiObjectSearch,
+  isDone,
+  ActSelection,
+  ActObject
 } from '../../../core/types';
 import {
   exportToJson,
@@ -144,6 +148,24 @@ export const parseStateExport = (contentJson: any): StateExport => {
   return parsed;
 };
 
+export const searchToSelection = (search: Search, result: SearchResult): { [id: string]: ActSelection } => {
+  if (isFactSearch(search)) {
+    return { [search.id]: { id: search.id, kind: 'fact' } };
+  } else if (isObjectTraverseSearch(search) || isObjectFactsSearch(search)) {
+    const match = _.find((x: ActObject) => x.type.name === search.objectType && x.value === search.objectValue)(
+      result.objects
+    );
+    return match ? { [match.id]: { kind: 'object', id: match.id } } : {};
+  } else if (isMultiObjectSearch(search)) {
+    return search.objectIds.reduce((acc, id) => {
+      return { ...acc, [id]: { kind: 'object', id: id } };
+    }, {});
+  } else {
+    assertNever(search);
+    return {};
+  }
+};
+
 class WorkingHistoryStore {
   root: MainPageStore;
 
@@ -167,9 +189,14 @@ class WorkingHistoryStore {
   }
 
   @action.bound
-  setSelectedSearchItem(item: WorkingHistoryItem | undefined) {
-    if (item) {
-      this.root.workingHistory.selectedItemId = item.id;
+  setSelectedSearchItem(props: { item: WorkingHistoryItem; loadable: TLoadable<SearchResult> }) {
+    if (props.item) {
+      this.root.workingHistory.selectedItemId = props.item.id;
+
+      if (isDone(props.loadable)) {
+        const selection = searchToSelection(props.item.search, this.root.workingHistory.result);
+        this.root.selectionStore.setCurrentlySelected(selection);
+      }
     }
   }
 
@@ -230,7 +257,7 @@ class WorkingHistoryStore {
             () => this.removeItem(props.item),
             () => copy(props.item)
           ),
-          onClick: () => this.setSelectedSearchItem(props.item)
+          onClick: () => this.setSelectedSearchItem(props)
         };
       }
     );

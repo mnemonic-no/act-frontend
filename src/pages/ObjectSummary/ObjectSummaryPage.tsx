@@ -16,7 +16,8 @@ import Section from './Section';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    flex: '1 0 auto',
+    overflow: 'auto',
+    height: '100%',
     padding: theme.spacing(1),
     backgroundColor: theme.palette.grey['100'],
     display: 'flex',

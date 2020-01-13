@@ -1,21 +1,21 @@
 import { action, computed, observable, reaction } from 'mobx';
 
+import { StateExportv2 } from '../../core/types';
+import AppStore from '../../AppStore';
 import BackendStore from '../../backend/BackendStore';
+import ContentStore from './Content/ContentStore';
 import CytoscapeLayoutStore from './CytoscapeLayout/CytoscapeLayoutStore';
 import DetailsStore from './Details/DetailsStore';
 import FactsTableStore from './Table/FactsTableStore';
 import GraphViewStore from './GraphView/GraphViewStore';
 import ObjectsTableStore from './Table/ObjectsTableStore';
-import WorkingHistory from './WorkingHistory';
-import WorkingHistoryStore from './WorkingHistory/WorkingHistoryStore';
+import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
 import RefineryOptionsStore from './RefineryOptions/RefineryOptionsStore';
 import RefineryStore from './RefineryStore';
-import { StateExport } from '../../core/types';
-import SelectionStore from './SelectionStore';
-import PrunedObjectsTableStore from './Table/PrunedObjectsTableStore';
-import ContentStore from './Content/ContentStore';
-import AppStore from '../../AppStore';
 import SearchByObjectTypeStore from './Search/SearchByObjectTypeStore';
+import SelectionStore from './SelectionStore';
+import WorkingHistory from './WorkingHistory';
+import WorkingHistoryStore from './WorkingHistory/WorkingHistoryStore';
 
 class MainPageStore {
   ui: {
@@ -79,8 +79,8 @@ class MainPageStore {
   }
 
   @action.bound
-  initByImport(stateExport: StateExport): void {
-    this.backendStore.executeSearches({ searches: stateExport.queries, replace: true });
+  initByImport(stateExport: StateExportv2): void {
+    this.backendStore.executeSearches({ searches: stateExport.searches, replace: true });
     this.refineryStore.setPrunedObjectIds(stateExport.prunedObjectIds || []);
   }
 

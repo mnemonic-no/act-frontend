@@ -16,7 +16,7 @@ import {
   TLoadable,
   WorkingHistoryItem
 } from '../../core/types';
-import { urlToGraphQueryPage, urlToObjectFactQueryPage } from '../../Routing';
+import { urlToGraphQueryPage, urlToMultiObjectQueryPage, urlToObjectFactQueryPage } from '../../Routing';
 import { searchId } from '../../core/domain';
 import { notUndefined } from '../../util/util';
 import ObjectTraverseBackendStore from '../../backend/ObjectTraverseBackendStore';
@@ -32,15 +32,15 @@ export const workingHistoryToPath = (historyItems: Array<WorkingHistoryItem>) =>
   }
 
   if (isObjectFactsSearch(search) && !_.isEmpty(search.objectValue) && !_.isEmpty(search.objectType)) {
-    return urlToObjectFactQueryPage({ objectTypeName: search.objectType, objectValue: search.objectValue });
+    return urlToObjectFactQueryPage(search);
   }
 
   if (isObjectTraverseSearch(search) && !_.isEmpty(search.query)) {
-    return urlToGraphQueryPage({
-      objectTypeName: search.objectType,
-      objectValue: search.objectValue,
-      query: search.query
-    });
+    return urlToGraphQueryPage(search);
+  }
+
+  if (isMultiObjectSearch(search) && !_.isEmpty(search.query)) {
+    return urlToMultiObjectQueryPage(search);
   }
 
   return '';

@@ -4,7 +4,6 @@ import * as _ from 'lodash/fp';
 import {
   isObjectFactsSearch,
   WorkingHistoryItem,
-  StateExport,
   PredefinedObjectQuery,
   isFactSearch,
   Search,
@@ -15,7 +14,9 @@ import {
   isMultiObjectSearch,
   isDone,
   ActSelection,
-  ActObject
+  ActObject,
+  StateExportv2,
+  StateExport
 } from '../../../core/types';
 import {
   exportToJson,
@@ -115,25 +116,44 @@ export const itemActions = (si: WorkingHistoryItem, onRemoveClick: () => void, o
   return actions;
 };
 
-export const stateExport = (items: Array<WorkingHistoryItem>, prunedObjectIds: Set<string>): StateExport => {
+export const stateExport = (items: Array<WorkingHistoryItem>, prunedObjectIds: Set<string>): StateExportv2 => {
   const searches = items.map((q: any) => ({ ...q.search })).filter(x => !isFactSearch(x));
-  return { version: '1.0.0', queries: searches, prunedObjectIds: [...prunedObjectIds] };
+  return { version: '2.0.0', searches: searches, prunedObjectIds: [...prunedObjectIds] };
 };
 
-export const parseStateExport = (contentJson: any): StateExport => {
+export const toV2 = (contentJson: StateExport) => ({
+  version: '2.0.0',
+  searches: contentJson?.queries.map((x: any) => {
+    if (x.query && x.query.length > 0) {
+      return {
+        ...x,
+        kind: 'objectTraverse'
+      };
+    } else {
+      return {
+        ...x,
+        kind: 'objectFacts'
+      };
+    }
+  }),
+  prunedObjectIds: contentJson.prunedObjectIds
+});
+
+export const parseStateExport = (contentJson: any): StateExportv2 => {
   if (typeof contentJson !== 'string') {
     throw new Error('File content is not text');
   }
 
-  const parsed = JSON.parse(contentJson);
+  const rawParsed = JSON.parse(contentJson);
+  const parsed = rawParsed.version !== '2.0.0' ? toV2(rawParsed) : rawParsed;
 
-  if (!parsed.queries || parsed.queries.length < 1) {
-    throw new Error("Validation failed: history export has no 'queries'");
+  if (!parsed.searches || parsed.searches.length < 1) {
+    throw new Error("Validation failed: history export has no 'searches' property");
   }
 
-  parsed.queries.forEach((q: any) => {
-    if (!q.objectType || !q.objectValue) {
-      throw new Error('Queries must have objectType and objectValue: ' + JSON.stringify(q));
+  parsed.searches.forEach((s: any) => {
+    if (!isObjectFactsSearch(s) && !isObjectTraverseSearch(s) && !isMultiObjectSearch(s)) {
+      throw new Error('Unsupport search found: ' + JSON.stringify(s));
     }
   });
 

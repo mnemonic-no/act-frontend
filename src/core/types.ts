@@ -116,8 +116,14 @@ export type WorkingHistoryItem = {
 };
 
 export type StateExport = {
-  version: string;
+  version: '1.0.0';
   queries: Array<Search>;
+  prunedObjectIds: Array<string>;
+};
+
+export type StateExportv2 = {
+  version: '2.0.0';
+  searches: Array<Search>;
   prunedObjectIds: Array<string>;
 };
 

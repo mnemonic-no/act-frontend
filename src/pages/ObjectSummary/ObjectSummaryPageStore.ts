@@ -193,7 +193,11 @@ class ObjectSummaryPageStore {
   openInGraphView() {
     if (!this.currentObject) return;
     this.appStore.goToUrl(
-      urlToObjectFactQueryPage({ objectTypeName: this.currentObject.typeName, objectValue: this.currentObject.value })
+      urlToObjectFactQueryPage({
+        kind: 'objectFacts',
+        objectType: this.currentObject.typeName,
+        objectValue: this.currentObject.value
+      })
     );
   }
 

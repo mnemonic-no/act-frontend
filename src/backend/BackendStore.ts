@@ -101,15 +101,15 @@ class BackendStore {
       this.root.mainPageStore.workingHistory.addItem(item);
 
       if (isObjectTraverseSearch(search)) {
-        await this.objectTraverseBackendStore.execute(search).then(() => {
+        this.objectTraverseBackendStore.execute(search).then(() => {
           this.root.mainPageStore.ui.graphViewStore.setSelectedNodeBasedOnSearch(item.search);
         });
       } else if (isObjectFactsSearch(search)) {
-        await this.objectFactsBackendStore.execute(search).then(() => {
+        this.objectFactsBackendStore.execute(search).then(() => {
           this.root.mainPageStore.ui.graphViewStore.setSelectedNodeBasedOnSearch(item.search);
         });
       } else if (isMultiObjectSearch(search)) {
-        await this.multiObjectTraverseStore.execute(search);
+        this.multiObjectTraverseStore.execute(search);
       }
     } catch (err) {
       runInAction(() => {
@@ -125,9 +125,9 @@ class BackendStore {
         this.root.mainPageStore.workingHistory.removeAllItems();
       }
 
-      searches.forEach(search => {
-        this.executeSearch(search);
-      });
+      for (const search of searches) {
+        await this.executeSearch(search);
+      }
     } catch (err) {
       runInAction(() => {
         this.root.mainPageStore.handleError({ error: err, title: 'Import failed' });

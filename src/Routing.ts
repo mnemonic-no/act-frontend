@@ -1,7 +1,7 @@
 import AppStore from './AppStore';
 import UniversalRouter from 'universal-router';
 import { action } from 'mobx';
-import { ActObject } from './core/types';
+import { ActObject, MultiObjectTraverseSearch, ObjectFactsSearch, ObjectTraverseSearch } from './core/types';
 
 class Routing {
   appStore: AppStore;
@@ -74,6 +74,23 @@ class Routing {
         }
       },
       {
+        path: '/multi-object-traverse/:objectType/:query/:objectIds+',
+        action: context => {
+          return () => {
+            const { objectType, query } = context.params as { [key: string]: string };
+
+            this.appStore.mainPageStore.backendStore.executeSearch({
+              kind: 'multiObjectTraverse',
+              objectType: objectType,
+              objectIds: context.params.objectIds as Array<string>,
+              query: query
+            });
+
+            this.appStore.currentPage = 'mainPage';
+          };
+        }
+      },
+      {
         path: '/chart',
         action: () => {
           return () => {
@@ -111,22 +128,33 @@ export const urlToObjectSummaryPage = (actObject: ActObject) => {
   return '/object-summary/' + encodeURIComponent(actObject.type.name) + '/' + encodeURIComponent(actObject.value);
 };
 
-export const urlToObjectFactQueryPage = (args: { objectTypeName: string; objectValue: string }) => {
-  return '/object-fact-query/' + encodeURIComponent(args.objectTypeName) + '/' + encodeURIComponent(args.objectValue);
+export const urlToObjectFactQueryPage = (s: ObjectFactsSearch) => {
+  return '/object-fact-query/' + encodeURIComponent(s.objectType) + '/' + encodeURIComponent(s.objectValue);
+};
+
+export const urlToMultiObjectQueryPage = (s: MultiObjectTraverseSearch) => {
+  return (
+    '/multi-object-traverse/' +
+    encodeURIComponent(s.objectType) +
+    '/' +
+    encodeURIComponent(s.query) +
+    '/' +
+    s.objectIds.map(x => encodeURIComponent(x)).join('/')
+  );
 };
 
 export const urlToChartPage = () => {
   return '/chart';
 };
 
-export const urlToGraphQueryPage = (args: { objectTypeName: string; objectValue: string; query: string }) => {
+export const urlToGraphQueryPage = (s: ObjectTraverseSearch) => {
   return (
     '/graph-query/' +
-    encodeURIComponent(args.objectTypeName) +
+    encodeURIComponent(s.objectType) +
     '/' +
-    encodeURIComponent(args.objectValue) +
+    encodeURIComponent(s.objectValue) +
     '/' +
-    encodeURIComponent(args.query)
+    encodeURIComponent(s.query)
   );
 };
 

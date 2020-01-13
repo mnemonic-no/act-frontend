@@ -1,9 +1,14 @@
 import * as sut from './WorkingHistoryStore';
-import { ObjectFactsSearch, ObjectTraverseSearch, WorkingHistoryItem } from '../../../core/types';
+import {
+  MultiObjectTraverseSearch,
+  ObjectFactsSearch,
+  ObjectTraverseSearch,
+  WorkingHistoryItem
+} from '../../../core/types';
 import { factColor } from '../../../util/util';
 import { actObject, objectTypes } from '../../../core/testHelper';
 
-const searchItem = (args: { [key: string]: any }): WorkingHistoryItem => {
+const item = (args: { [key: string]: any }): WorkingHistoryItem => {
   return {
     ...{
       id: '123',
@@ -15,9 +20,9 @@ const searchItem = (args: { [key: string]: any }): WorkingHistoryItem => {
 };
 
 it('can export query history', () => {
-  expect(sut.stateExport([searchItem({ id: 'Axiom', factTypeName: 'alias', kind: 'singleFact' })], new Set())).toEqual({
-    version: '1.0.0',
-    queries: [],
+  expect(sut.stateExport([item({ id: 'Axiom', factTypeName: 'alias', kind: 'singleFact' })], new Set())).toEqual({
+    version: '2.0.0',
+    searches: [],
     prunedObjectIds: []
   });
 
@@ -38,27 +43,36 @@ it('can export query history', () => {
 
   expect(
     sut.stateExport(
-      [
-        searchItem({ search: objectFactsSearch }),
-        searchItem({ search: traverseSearch }),
-        searchItem({ search: filteredSearch })
-      ],
+      [item({ search: objectFactsSearch }), item({ search: traverseSearch }), item({ search: filteredSearch })],
       new Set(['abcd', 'efgh'])
     )
   ).toEqual({
-    version: '1.0.0',
-    queries: [objectFactsSearch, traverseSearch, filteredSearch],
+    version: '2.0.0',
+    searches: [objectFactsSearch, traverseSearch, filteredSearch],
     prunedObjectIds: ['abcd', 'efgh']
+  });
+
+  const multiObjectTraverseSearch: MultiObjectTraverseSearch = {
+    kind: 'multiObjectTraverse',
+    objectType: 'threatActor',
+    objectIds: ['x', 'y', 'z'],
+    query: "g.in('resolvesTo').hasLabel('fqdn')"
+  };
+
+  expect(sut.stateExport([item({ search: multiObjectTraverseSearch })], new Set())).toEqual({
+    version: '2.0.0',
+    searches: [multiObjectTraverseSearch],
+    prunedObjectIds: []
   });
 });
 
 it('can import working history', () => {
-  expect(() => sut.parseStateExport(JSON.stringify({ version: '1.0.0', queries: [] }))).toThrow(
-    "Validation failed: history export has no 'queries'"
+  expect(() => sut.parseStateExport(JSON.stringify({ version: '2.0.0', searches: [] }))).toThrow(
+    "Validation failed: history export has no 'searches' property"
   );
 
-  expect(() => sut.parseStateExport(JSON.stringify({ version: '1.0.0', queries: [{ bad: 'data' }] }))).toThrow(
-    'Queries must have objectType and objectValue: {"bad":"data"}'
+  expect(() => sut.parseStateExport(JSON.stringify({ version: '2.0.0', searches: [{ bad: 'data' }] }))).toThrow(
+    'Unsupport search found: {"bad":"data"}'
   );
 
   expect(
@@ -68,7 +82,33 @@ it('can import working history', () => {
         queries: [{ objectType: 'threatActor', objectValue: 'Axiom' }]
       })
     )
-  ).toEqual({ version: '1.0.0', queries: [{ objectType: 'threatActor', objectValue: 'Axiom' }] });
+  ).toEqual({ version: '2.0.0', searches: [{ kind: 'objectFacts', objectType: 'threatActor', objectValue: 'Axiom' }] });
+
+  expect(
+    sut.parseStateExport(
+      JSON.stringify({
+        version: '2.0.0',
+        searches: [
+          {
+            kind: 'multiObjectTraverse',
+            objectType: 'threatActor',
+            objectIds: ['x', 'y', 'z'],
+            query: "g.in('resolvesTo').hasLabel('fqdn')"
+          }
+        ]
+      })
+    )
+  ).toEqual({
+    version: '2.0.0',
+    searches: [
+      {
+        kind: 'multiObjectTraverse',
+        objectType: 'threatActor',
+        objectIds: ['x', 'y', 'z'],
+        query: "g.in('resolvesTo').hasLabel('fqdn')"
+      }
+    ]
+  });
 });
 
 it('working history item title', () => {
@@ -89,7 +129,7 @@ it('working history item details', () => {
   const predefinedQueryToName = { 'some query': 'tools' };
   expect(
     sut.itemDetails(
-      searchItem({
+      item({
         search: {
           objectType: 'threatActor',
           objectValue: 'Sofacy',
@@ -103,7 +143,7 @@ it('working history item details', () => {
 
   expect(
     sut.itemDetails(
-      searchItem({
+      item({
         search: { kind: 'objectTraverse', objectType: 'threatActor', objectValue: 'Sofacy', query: 'a custom query' }
       }),
       predefinedQueryToName
@@ -112,7 +152,7 @@ it('working history item details', () => {
 
   expect(
     sut.itemDetails(
-      searchItem({
+      item({
         search: {
           kind: 'multiObjectTraverse',
           objectType: 'threatActor',
@@ -129,13 +169,13 @@ it('working history item actions', () => {
   const removeFn = () => {};
   const copyFn = () => {};
 
-  expect(sut.itemActions(searchItem({}), removeFn, copyFn)).toEqual([
+  expect(sut.itemActions(item({}), removeFn, copyFn)).toEqual([
     { icon: 'remove', tooltip: 'Remove', onClick: removeFn }
   ]);
 
   expect(
     sut.itemActions(
-      searchItem({ search: { kind: 'objectTraverse', objectType: 'threatActor', objectValue: 'a', query: 'q' } }),
+      item({ search: { kind: 'objectTraverse', objectType: 'threatActor', objectValue: 'a', query: 'q' } }),
       removeFn,
       copyFn
     )
@@ -146,7 +186,7 @@ it('working history item actions', () => {
 
   expect(
     sut.itemActions(
-      searchItem({
+      item({
         search: { kind: 'multiObjectTraverse', objectType: 'threatActor', objectIds: ['a', 'b'], query: 'something' }
       }),
       removeFn,

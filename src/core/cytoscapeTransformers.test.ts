@@ -1,5 +1,5 @@
-import { oneLeggedFactToCytoscapeEdge } from './cytoscapeTransformers';
-import { fact } from './testHelper';
+import * as sut from './cytoscapeTransformers';
+import { actObject, fact, objectTypes } from './testHelper';
 
 it('can transform one-legged fact to cytoscape node', () => {
   const theFact = fact({
@@ -9,7 +9,7 @@ it('can transform one-legged fact to cytoscape node', () => {
     sourceObject: { id: 'xyz', name: 'the source object' },
     destinationObject: undefined
   });
-  expect(oneLeggedFactToCytoscapeEdge(theFact)).toEqual({
+  expect(sut.oneLeggedFactToCytoscapeEdge(theFact)).toEqual({
     group: 'edges',
     data: {
       factId: theFact.id,
@@ -22,4 +22,38 @@ it('can transform one-legged fact to cytoscape node', () => {
       target: 'xyz'
     }
   });
+});
+
+it('object and facts to cytoscape elements ', () => {
+  expect(
+    sut.objectFactsToElements({
+      facts: [],
+      objects: [],
+      objectLabelFromFactType: null,
+      shortenObjectLabels: true
+    })
+  ).toEqual([]);
+
+  expect(
+    sut.objectFactsToElements({
+      facts: [],
+      objects: [
+        actObject({ id: 'abc', type: objectTypes.threatActor, value: 'Some very long name will be shortened' })
+      ],
+      objectLabelFromFactType: null,
+      shortenObjectLabels: true
+    })
+  ).toEqual([
+    {
+      classes: 'threatActor',
+      group: 'nodes',
+      data: {
+        id: 'abc',
+        isFact: false,
+        label: 'Some very long n…',
+        type: 'threatActor',
+        value: 'Some very long name will be shortened'
+      }
+    }
+  ]);
 });

@@ -22,8 +22,7 @@ import { shallowEqual } from 'recompose';
 import betterGrid from './betterGrid';
 import { usePrevious } from '../hooks';
 import { createBatcherFn, modifierKeysUsed, setSymmetricDifference } from '../util/util';
-import Toolbar from './Toolbar';
-import CytoscapeLayoutStore from '../pages/Main/CytoscapeLayout/CytoscapeLayoutStore';
+import Toolbar, { IConfigButtonProps } from './Toolbar';
 
 Cytoscape.use(CytoscapeDagre);
 CytoscapeCoseBilkent(Cytoscape);
@@ -152,7 +151,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
     resizeEvent,
     style,
     layoutConfig,
-    cytoscapeLayoutStore,
+    configButton,
     onNodeClick,
     onNodeDoubleClick,
     onSelect,
@@ -279,7 +278,7 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
       <div id="cytoscape-container" className={classes.cytoscapeContainer} />
       <div className={classes.toolbar}>
         <Toolbar
-          cytoscapeLayoutStore={cytoscapeLayoutStore}
+          configButton={configButton}
           onZoomIn={() => cy && zoomIn(cy)}
           onZoomOut={() => cy && zoomOut(cy)}
           onFit={() => cy && fit(cy)}
@@ -296,12 +295,12 @@ interface ICytoscapeComp {
   resizeEvent: number;
   style: any;
   layoutConfig: any;
-  cytoscapeLayoutStore: CytoscapeLayoutStore;
   onNodeClick: (target: any) => void;
   onNodeDoubleClick: (target: any) => void;
   onNodeCtxClick?: (target: any) => void;
   onSelect?: (selection: Array<any>) => void;
   onUnselect?: (selection: Array<any>) => void;
+  configButton: IConfigButtonProps;
 }
 
 export default CytoscapeComp;

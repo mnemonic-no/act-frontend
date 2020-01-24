@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { observer } from 'mobx-react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import FilterCenterFocusIcon from '@material-ui/icons/FilterCenterFocus';
 import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
@@ -17,8 +17,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import ZoomOutMapIcon from '@material-ui/icons/ZoomOutMap';
 
-import CytoscapeLayout from '../pages/Main/CytoscapeLayout/CytoscapeLayout';
-import CytoscapeLayoutStore from '../pages/Main/CytoscapeLayout/CytoscapeLayoutStore';
+import CytoscapeLayout, { ICytoscapeLayout } from '../pages/Main/CytoscapeLayout/CytoscapeLayout';
+import ActIcon from '../components/ActIcon';
 
 const useStyles = makeStyles((theme: Theme) => ({
   toolbar: {
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ConfigButton = ({ cytoscapeLayoutStore }: any) => {
+const ConfigButton = observer((props: IConfigButtonProps) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [configOpen, setConfigOpen] = useState(false);
@@ -51,40 +51,52 @@ const ConfigButton = ({ cytoscapeLayoutStore }: any) => {
         setAnchorEl(node);
       }}>
       <Tooltip title="Graph settings" placement="top">
-        <Paper className={classes.toolbarButtonPaper}>
-          <IconButton className={classes.button} onClick={() => setConfigOpen(!configOpen)}>
-            <SettingsIcon />
-          </IconButton>
-        </Paper>
+        <span>
+          <Paper className={classes.toolbarButtonPaper}>
+            <IconButton className={classes.button} onClick={() => setConfigOpen(!configOpen)}>
+              <SettingsIcon />
+            </IconButton>
+          </Paper>
+        </span>
       </Tooltip>
       <Popper disablePortal={true} container={anchorEl} open={configOpen} anchorEl={anchorEl} placement="left-end">
-        <ClickAwayListener onClickAway={() => setConfigOpen(!configOpen)}>
-          <Paper className={classes.popperRoot}>
-            <List>
-              <ListItem disableGutters>
-                <ListItemText primary="Edges" secondary={'Show labels'} />
-                <ListItemSecondaryAction>
-                  <Switch
-                    onClick={() => cytoscapeLayoutStore.toggleShowFactEdgeLabels()}
-                    checked={cytoscapeLayoutStore.showFactEdgeLabels}
-                  />
-                </ListItemSecondaryAction>
-              </ListItem>
+        <Paper className={classes.popperRoot}>
+          <IconButton size={'small'} aria-label="close" onClick={() => setConfigOpen(false)}>
+            <ActIcon iconId={'close'} />
+          </IconButton>
 
-              <CytoscapeLayout store={cytoscapeLayoutStore} />
-            </List>
-          </Paper>
-        </ClickAwayListener>
+          <List dense>
+            {props.toggles.map((t: Toggle) => {
+              return (
+                <ListItem key={t.label} disableGutters>
+                  <ListItemText primary={t.label} secondary={t.labelSecondary} />
+                  <ListItemSecondaryAction>
+                    <Switch onClick={t.onClick} checked={t.isChecked} />
+                  </ListItemSecondaryAction>
+                </ListItem>
+              );
+            })}
+
+            <CytoscapeLayout {...props.layoutConfig} />
+          </List>
+        </Paper>
       </Popper>
     </div>
   );
-};
+});
 
-const ToolbarComp = ({ onZoomIn, onZoomOut, onFit, onFocusOnSelection, cytoscapeLayoutStore }: IToolbarComp) => {
+type Toggle = { label: string; labelSecondary: string; onClick: () => void; isChecked: boolean };
+
+export interface IConfigButtonProps {
+  layoutConfig: ICytoscapeLayout;
+  toggles: Array<Toggle>;
+}
+
+const ToolbarComp = ({ onZoomIn, onZoomOut, onFit, onFocusOnSelection, configButton }: IToolbarComp) => {
   const classes = useStyles();
   return (
     <Toolbar disableGutters classes={{ root: classes.toolbar }}>
-      <ConfigButton cytoscapeLayoutStore={cytoscapeLayoutStore} />
+      <ConfigButton {...configButton} />
 
       <Tooltip title="Focus on selection" placement="top">
         <Paper className={classes.toolbarButtonPaper}>
@@ -122,11 +134,11 @@ const ToolbarComp = ({ onZoomIn, onZoomOut, onFit, onFocusOnSelection, cytoscape
 };
 
 interface IToolbarComp {
-  cytoscapeLayoutStore: CytoscapeLayoutStore;
+  configButton: IConfigButtonProps;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onFit: () => void;
   onFocusOnSelection: () => void;
 }
 
-export default ToolbarComp;
+export default observer(ToolbarComp);

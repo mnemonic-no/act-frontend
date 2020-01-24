@@ -1,8 +1,8 @@
-import { action, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import layouts from '../../../Cytoscape/layouts';
 import layoutConfigToObject from '../../../Cytoscape/layouts/layoutConfigToObject';
 
-type Layout = {
+export type TCytoscapeLayout = {
   layoutName: string;
   layoutUrl: string;
   layoutConfig: any;
@@ -10,34 +10,42 @@ type Layout = {
 };
 
 class CytoscapeLayoutStore {
-  @observable layout: Layout;
-  @observable showLayoutOptions: boolean = false;
   localStorage: Pick<Storage, 'getItem' | 'setItem'>;
+  @observable layout: TCytoscapeLayout;
+  @observable showLayoutOptions: boolean = false;
   @observable showFactEdgeLabels: boolean;
+  @observable shortenObjectLabels: boolean;
 
   constructor(localStorage: Pick<Storage, 'getItem' | 'setItem'>) {
     this.localStorage = localStorage;
     this.showFactEdgeLabels = Boolean(JSON.parse(localStorage.getItem('options.showFactEdgeLabels') || 'false'));
+    this.shortenObjectLabels = Boolean(JSON.parse(localStorage.getItem('options.shortenObjectLabels') || 'true'));
     this.layout = layouts.euler;
   }
 
-  @action
-  setLayout(newLayout: Layout) {
+  @action.bound
+  setLayout(newLayout: TCytoscapeLayout) {
     this.layout = newLayout;
   }
 
-  @action
+  @action.bound
   toggleShowLayoutOptions() {
     this.showLayoutOptions = !this.showLayoutOptions;
   }
 
-  @action
+  @action.bound
   toggleShowFactEdgeLabels() {
     this.showFactEdgeLabels = !this.showFactEdgeLabels;
     localStorage.setItem('options.showFactEdgeLabels', JSON.stringify(this.showFactEdgeLabels));
   }
 
-  @action
+  @action.bound
+  toggleShortenObjectLabels() {
+    this.shortenObjectLabels = !this.shortenObjectLabels;
+    localStorage.setItem('options.shortenObjectLabels', JSON.stringify(this.shortenObjectLabels));
+  }
+
+  @action.bound
   onLayoutConfigChange(layoutConfig: any) {
     const newLayout = {
       layoutName: this.layout.layoutName,
@@ -49,6 +57,35 @@ class CytoscapeLayoutStore {
       })
     };
     this.setLayout(newLayout);
+  }
+
+  @computed
+  get layoutConfigurator() {
+    return {
+      layout: this.layout,
+      setLayout: this.setLayout,
+      showLayoutOptions: this.showLayoutOptions,
+      toggleShowLayoutOptions: this.toggleShowLayoutOptions,
+      onLayoutConfigChange: this.onLayoutConfigChange
+    };
+  }
+
+  @computed
+  get toggles() {
+    return [
+      {
+        label: 'Edges',
+        labelSecondary: 'Show labels',
+        onClick: this.toggleShowFactEdgeLabels,
+        isChecked: this.showFactEdgeLabels
+      },
+      {
+        label: 'Objects',
+        labelSecondary: 'Shorten long labels',
+        onClick: this.toggleShortenObjectLabels,
+        isChecked: this.shortenObjectLabels
+      }
+    ];
   }
 }
 

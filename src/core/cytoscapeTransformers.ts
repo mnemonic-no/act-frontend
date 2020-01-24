@@ -10,7 +10,7 @@ export const objectToCytoscapeNode = (object: ActObject, label: string) => {
     group: 'nodes',
     data: {
       id: object.id,
-      label: truncateText(label, 16),
+      label: label,
       type: object.type.name,
       value: object.value,
       isFact: false
@@ -68,18 +68,19 @@ export const twoLeggedFactToCytoscapeEdge = (fact: ActFact) => {
   };
 };
 
-export const objectFactsToElements = ({
-  facts,
-  objects,
-  objectLabelFromFactType
-}: {
+export const objectFactsToElements = (props: {
   facts: Array<ActFact>;
   objects: Array<ActObject>;
   objectLabelFromFactType: string | null;
+  shortenObjectLabels: boolean;
 }) => {
   // Put one legged facts in the graph in order to keep the currently selected elements in sync with the selectionStore
   return [
-    ...facts.map(f => (isOneLegged(f) ? oneLeggedFactToCytoscapeEdge(f) : twoLeggedFactToCytoscapeEdge(f))),
-    ...objects.map(o => objectToCytoscapeNode(o, objectLabel(o, objectLabelFromFactType, facts)))
+    ...props.facts.map(f => (isOneLegged(f) ? oneLeggedFactToCytoscapeEdge(f) : twoLeggedFactToCytoscapeEdge(f))),
+    ...props.objects.map(o => {
+      const l = objectLabel(o, props.objectLabelFromFactType, props.facts);
+      const label = props.shortenObjectLabels ? truncateText(l, 16) : l;
+      return objectToCytoscapeNode(o, label);
+    })
   ];
 };

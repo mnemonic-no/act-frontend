@@ -71,7 +71,8 @@ class GraphViewStore {
     return objectFactsToElements({
       facts: Object.values(res.facts),
       objects: Object.values(res.objects),
-      objectLabelFromFactType: config.objectLabelFromFactType
+      objectLabelFromFactType: config.objectLabelFromFactType,
+      shortenObjectLabels: this.root.ui.cytoscapeLayoutStore.shortenObjectLabels
     });
   }
 
@@ -97,7 +98,10 @@ class GraphViewStore {
       elements: this.cytoscapeElements,
       layout: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
       layoutConfig: this.root.ui.cytoscapeLayoutStore.layout.layoutObject,
-      cytoscapeLayoutStore: this.root.ui.cytoscapeLayoutStore,
+      configButton: {
+        layoutConfig: this.root.ui.cytoscapeLayoutStore.layoutConfigurator,
+        toggles: this.root.ui.cytoscapeLayoutStore.toggles
+      },
 
       style: getStyle({
         showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels,

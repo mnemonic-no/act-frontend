@@ -18,9 +18,9 @@ import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
+import { TCytoscapeLayout } from './CytoscapeLayoutStore';
 import LAYOUTS, { types } from '../../../Cytoscape/layouts';
 import ListItemControl from '../../../components/ListItemControl';
-import CytoscapeLayoutStore from './CytoscapeLayoutStore';
 
 const useStyles = makeStyles((theme: Theme) => ({
   expand: {
@@ -119,7 +119,7 @@ const LayoutOptionsList = ({ layoutConfig, layoutName, onChange }: any) => {
   );
 };
 
-const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
+const CytoscapeLayout = (props: ICytoscapeLayout) => {
   const classes = useStyles();
 
   return (
@@ -129,10 +129,9 @@ const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
           fullWidth
           label="Layout"
           select
-          value={store.layout.layoutName}
+          value={props.layout.layoutName}
           onChange={e => {
-            // Dirty hack to get it to work...
-            store.setLayout(
+            props.setLayout(
               // @ts-ignore
               LAYOUTS[Object.keys(LAYOUTS).find(x => LAYOUTS[x].layoutName === e.target.value)]
             );
@@ -158,9 +157,9 @@ const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
             <ListItemText secondary={'Layout options'} />
             <ListItemSecondaryAction>
               <IconButton
-                onClick={() => store.toggleShowLayoutOptions()}
+                onClick={() => props.toggleShowLayoutOptions()}
                 className={cc(classes.expand, {
-                  [classes.expandOpen]: store.showLayoutOptions
+                  [classes.expandOpen]: props.showLayoutOptions
                 })}>
                 <ExpandMoreIcon />
               </IconButton>
@@ -168,14 +167,14 @@ const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
           </ListItem>
         </List>
 
-        <Collapse in={store.showLayoutOptions} unmountOnExit>
+        <Collapse in={props.showLayoutOptions} unmountOnExit>
           <Divider />
           <LayoutOptionsList
-            layoutConfig={store.layout.layoutConfig}
-            layoutName={store.layout.layoutName}
-            onChange={(layout: any) => store.onLayoutConfigChange(layout)}
+            layoutConfig={props.layout.layoutConfig}
+            layoutName={props.layout.layoutName}
+            onChange={(layout: any) => props.onLayoutConfigChange(layout)}
           />
-          <a href={store.layout.layoutUrl}>
+          <a href={props.layout.layoutUrl}>
             <Typography>Reference</Typography>
           </a>
         </Collapse>
@@ -184,8 +183,12 @@ const CytoscapeLayout = ({ store }: ICytoscapeLayout) => {
   );
 };
 
-interface ICytoscapeLayout {
-  store: CytoscapeLayoutStore;
+export interface ICytoscapeLayout {
+  layout: TCytoscapeLayout;
+  setLayout: (l: TCytoscapeLayout) => void;
+  showLayoutOptions: boolean;
+  toggleShowLayoutOptions: () => void;
+  onLayoutConfigChange: (layoutConfig: any) => void;
 }
 
 export default observer(CytoscapeLayout);

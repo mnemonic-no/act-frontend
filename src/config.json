@@ -296,5 +296,303 @@
       "query": "g.inE('attributedTo').otherV().inE('attributedTo').otherV().inE('observedIn').otherV().outE('classifiedAs').otherV().path().unfold()",
       "objects": ["campaign"]
     }
-  ]
+  ],
+  "objectSummary": {
+    "ipv4": {
+      "sections": [
+        {
+          "title": "Domains",
+          "query": "g.in('resolvesTo').hasLabel('fqdn')"
+        },
+        {
+          "title": "Reports",
+          "query": "g.in('mentions').hasLabel('report')"
+        },
+        {
+          "title": "ASN",
+          "query": "g.repeat(out('memberOf')).times(2).hasLabel('asn')"
+        },
+        {
+          "title": "Downloads",
+          "query": "g.out('componentOf').hasLabel('uri').in('at').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "actions": [
+            {
+              "id": "open-in-vt",
+              "icon": "bug"
+            }
+          ]
+        },
+        {
+          "title": "Callback",
+          "query": "g.out('componentOf').hasLabel('uri').in('connectsTo').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "actions": [
+            {
+              "id": "open-in-vt",
+              "icon": "bug"
+            }
+          ]
+        },
+        {
+          "title": "Incidents",
+          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
+        },
+        {
+          "title": "Signatures",
+          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').in('detects').hasLabel('signature')"
+        },
+        {
+          "title": "Tools",
+          "query": "g.out('componentOf').hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().out('classifiedAs').hasLabel('tool')"
+        },
+        {
+          "title": "Paths",
+          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('path')"
+        },
+        {
+          "title": "Queries",
+          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('query')"
+        }
+      ]
+    },
+    "fqdn": {
+      "sections": [
+        {
+          "title": "IP addresses",
+          "query": "g.out('resolvesTo').hasLabel('ipv4')"
+        },
+        {
+          "title": "Reports",
+          "query": "g.in('mentions').hasLabel('report')"
+        },
+        {
+          "title": "Downloads",
+          "query": "g.out('componentOf').hasLabel('uri').in('at').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "actions": [
+            {
+              "id": "open-in-vt",
+              "icon": "bug"
+            }
+          ]
+        },
+        {
+          "title": "Callback",
+          "query": "g.out('componentOf').hasLabel('uri').in('connectsTo').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "actions": [
+            {
+              "id": "open-in-vt",
+              "icon": "bug"
+            }
+          ]
+        },
+        {
+          "title": "Incidents",
+          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
+        },
+        {
+          "title": "Signatures",
+          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').in('detects').hasLabel('signature')"
+        },
+        {
+          "title": "Tools",
+          "query": "g.out('componentOf').hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().out('classifiedAs').hasLabel('tool')"
+        },
+        {
+          "title": "Paths",
+          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('path')"
+        },
+        {
+          "title": "Queries",
+          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('query')"
+        }
+      ]
+    },
+    "hash": {
+      "sections": [
+        {
+          "title": "Hashes",
+          "query": "g.as('startNode').out('represents').in('represents').where(neq('startNode'))",
+          "actions": [
+            {
+              "id": "open-in-vt",
+              "icon": "bug"
+            }
+          ]
+        },
+        {
+          "title": "Reports",
+          "query": "g.out('represents').in('represents').in('mentions').hasLabel('report')"
+        },
+        {
+          "title": "Downloads",
+          "query": "g.out('represents').out('at').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+        },
+        {
+          "title": "Callback",
+          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+        },
+        {
+          "title": "Incidents",
+          "query": "g.out('represents').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
+        },
+        {
+          "title": "Signatures",
+          "query": "g.out('represents').out('observedIn').in('detects').hasLabel('signature')"
+        },
+        {
+          "title": "Tools",
+          "query": "g.out('represents').out('classifiedAs').hasLabel('tool')"
+        },
+        {
+          "title": "Paths",
+          "query": "g.out('represents').outE().hasLabel(within('at','connectsTo')).otherV().in('componentOf').hasLabel('path')"
+        },
+        {
+          "title": "Download paths",
+          "query": "g.out('represents').out('at').in('componentOf').hasLabel('path')"
+        },
+        {
+          "title": "Callback paths",
+          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel('path')"
+        },
+        {
+          "title": "Queries",
+          "query": "g.out('represents').outE().hasLabel(within('at','connectsTo')).otherV().in('componentOf').hasLabel('query')"
+        },
+        {
+          "title": "Download queries",
+          "query": "g.out('represents').out('at').in('componentOf').hasLabel('query')"
+        },
+        {
+          "title": "Callback queries",
+          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel('query')"
+        }
+      ]
+    },
+    "report": {
+      "sections": [
+        {
+          "title": "IP addresses",
+          "query": "g.out('mentions').hasLabel('ipv4')"
+        },
+        {
+          "title": "Domains",
+          "query": "g.out('mentions').hasLabel('fqdn')"
+        },
+        {
+          "title": "Hashes",
+          "query": "g.out('mentions').hasLabel('hash')"
+        },
+        {
+          "title": "Tools",
+          "query": "g.out('mentions').hasLabel('tool')"
+        },
+        {
+          "title": "Technique",
+          "query": "g.out('mentions').hasLabel('technique')"
+        },
+        {
+          "title": "Threat actors",
+          "query": "g.out('mentions').hasLabel('threatActor')"
+        },
+        {
+          "title": "Vulnerabilities",
+          "query": "g.out('mentions').hasLabel('vulnerability')"
+        },
+        {
+          "title": "Countries",
+          "query": "g.out('mentions').hasLabel('country')"
+        },
+        {
+          "title": "Sectors",
+          "query": "g.out('mentions').hasLabel('sector')"
+        },
+        {
+          "title": "Related reports",
+          "query": "g.out('mentions').hasLabel(within('ipv4','hash')).in('mentions').hasLabel('report')"
+        }
+      ]
+    },
+    "tool": {
+      "sections": [
+        {
+          "title": "Aliases",
+          "query": "g.as('startNode').optional(emit().repeat(out('alias')).until(cyclicPath())).where(neq('startNode'))"
+        },
+        {
+          "title": "Reports",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).union(inE('mentions').otherV(),inE('classifiedAs').otherV().in('represents').in('mentions')).hasLabel('report')"
+        },
+        {
+          "title": "Threat actors",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('observedIn').out('attributedTo').out('attributedTo').hasLabel('threatActor')"
+        },
+        {
+          "title": "Techniques",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).out('implements').hasLabel('technique')"
+        },
+        {
+          "title": "Samples",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "actions": [
+            {
+              "id": "open-in-vt",
+              "icon": "bug"
+            }
+          ]
+        },
+        {
+          "title": "Downloads",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('at').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+        },
+        {
+          "title": "Callback",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('connectsTo').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+        },
+        {
+          "title": "Incidents",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
+        },
+        {
+          "title": "Signatures",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('observedIn').in('detects').hasLabel('signature')"
+        }
+      ]
+    },
+    "threatActor": {
+      "sections": [
+        {
+          "title": "Aliases",
+          "query": "g.as('startNode').optional(emit().repeat(out('alias')).until(cyclicPath())).where(neq('startNode'))"
+        },
+        {
+          "title": "Reports",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('mentions').hasLabel('report')"
+        },
+        {
+          "title": "Techniques",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').in('attributedTo').out('classifiedAs').hasLabel('technique')"
+        },
+        {
+          "title": "Tools",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').in('attributedTo').in('observedIn').hasLabel('content').out('classifiedAs').hasLabel('tool')"
+        },
+        {
+          "title": "Incidents",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
+        },
+        {
+          "title": "Campaigns",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('attributedTo').hasLabel('campaign')"
+        },
+        {
+          "title": "Target sectors",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('memberOf').hasLabel('sector')"
+        },
+        {
+          "title": "Target countries",
+          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('locatedIn').hasLabel('country')"
+        }
+      ]
+    }
+  }
 }

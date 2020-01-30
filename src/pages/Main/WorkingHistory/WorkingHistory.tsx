@@ -15,7 +15,7 @@ import Switch from '@material-ui/core/Switch';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import ActIconComponent from '../../../components/ActIcon';
+import ActIcon from '../../../components/ActIcon';
 
 const useStyles = makeStyles((theme: Theme) => ({
   buttons: {
@@ -66,6 +66,14 @@ const useItemStyles = makeStyles((theme: Theme) => ({
     border: '0',
     background: '#eaeaea',
     textTransform: 'uppercase'
+  },
+  errorIndicator: {
+    display: 'flex',
+    alignItems: 'center',
+    color: theme.palette.error.dark
+  },
+  errorText: {
+    paddingLeft: theme.spacing(0.5)
   }
 }));
 
@@ -90,6 +98,13 @@ const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
             <Fade in={item.isLoading} timeout={500}>
               <LinearProgress variant="query" color="secondary" />
             </Fade>
+            {item.error && (
+              <Tooltip title={item.error}>
+                <div className={classes.errorIndicator}>
+                  <ActIcon iconId="error" /> <div className={classes.errorText}>Failed</div>
+                </div>
+              </Tooltip>
+            )}
             <Typography variant="body2" className={classes.listItemText}>
               {item.title.map((t, idx) => (
                 <span key={idx} style={{ color: t.color || 'currentColor' }}>
@@ -114,7 +129,7 @@ const WorkingHistoryItem = (item: TWorkingHistoryItem) => {
         {item.actions.map((a, idx) => (
           <Tooltip key={idx} title={a.tooltip} enterDelay={800}>
             <IconButton onClick={a.onClick} classes={{ root: classes.actionButton }}>
-              <ActIconComponent iconId={a.icon} />
+              <ActIcon iconId={a.icon} />
             </IconButton>
           </Tooltip>
         ))}
@@ -186,6 +201,7 @@ export type TWorkingHistoryItem = {
   id: string;
   title: Array<{ text: string; color?: string }>;
   isLoading: boolean;
+  error?: string;
   isSelected: boolean;
   details?: TDetails;
   onClick: () => void;

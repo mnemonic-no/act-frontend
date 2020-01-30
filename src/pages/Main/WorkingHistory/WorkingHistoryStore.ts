@@ -16,7 +16,8 @@ import {
   ActSelection,
   ActObject,
   StateExportv2,
-  StateExport
+  StateExport,
+  isRejected
 } from '../../../core/types';
 import {
   exportToJson,
@@ -271,6 +272,7 @@ class WorkingHistoryStore {
           title: itemTitle(props.item.search),
           isSelected: props.item.id === this.selectedItemId,
           isLoading: isPending(props.loadable),
+          error: isRejected(props.loadable) ? props.loadable.error : undefined,
           details: itemDetails(props.item, this.predefinedQueryToName),
           actions: itemActions(
             props.item,

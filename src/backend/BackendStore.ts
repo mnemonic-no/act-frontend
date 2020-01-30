@@ -9,11 +9,9 @@ import {
   LoadingStatus,
   NamedId,
   Search,
-  TLoadable,
-  WorkingHistoryItem
+  TLoadable
 } from '../core/types';
 import { addMessage } from '../util/SnackbarProvider';
-import { searchId } from '../core/domain';
 import ActObjectBackendStore from './ActObjectBackendStore';
 import AppStore from '../AppStore';
 import ObjectTraverseBackendStore from './ObjectTraverseBackendStore';
@@ -78,38 +76,41 @@ class BackendStore {
   }
 
   @action.bound
-  async executeSearch(search: Search) {
+  async executeSingleSearch(search: Search): Promise<any> {
     if (!isObjectFactsSearch(search) && !isObjectTraverseSearch(search) && !isMultiObjectSearch(search)) {
       throw Error('Search of this type is not supported ' + JSON.stringify(search));
     }
 
+    if (isObjectFactsSearch(search)) {
+      // Checking object stats is best effort. Ignore all errors on the request itself
+      const approvedAmountOfData = await checkObjectStats(search, maxFetchLimit).catch(e => true);
+      if (!approvedAmountOfData) {
+        return;
+      }
+    }
+
+    if (isObjectTraverseSearch(search)) {
+      return this.objectTraverseBackendStore.execute(search);
+    } else if (isObjectFactsSearch(search)) {
+      return this.objectFactsBackendStore.execute(search);
+    } else if (isMultiObjectSearch(search)) {
+      return this.multiObjectTraverseStore.execute(search);
+    }
+  }
+
+  @action.bound
+  async executeSearch(search: Search) {
     if (this.root.mainPageStore.workingHistory.isInHistory(search)) {
       return;
     }
 
-    if (isObjectFactsSearch(search)) {
-      const approvedAmountOfData = await checkObjectStats(search, maxFetchLimit);
-      if (!approvedAmountOfData) return;
-    }
+    this.root.mainPageStore.workingHistory.addSearch(search);
 
     try {
-      const item: WorkingHistoryItem = {
-        id: searchId(search),
-        search: search
-      };
+      await this.executeSingleSearch(search);
 
-      this.root.mainPageStore.workingHistory.addItem(item);
-
-      if (isObjectTraverseSearch(search)) {
-        this.objectTraverseBackendStore.execute(search).then(() => {
-          this.root.mainPageStore.ui.graphViewStore.setSelectedNodeBasedOnSearch(item.search);
-        });
-      } else if (isObjectFactsSearch(search)) {
-        this.objectFactsBackendStore.execute(search).then(() => {
-          this.root.mainPageStore.ui.graphViewStore.setSelectedNodeBasedOnSearch(item.search);
-        });
-      } else if (isMultiObjectSearch(search)) {
-        this.multiObjectTraverseStore.execute(search);
+      if (isObjectTraverseSearch(search) || isObjectFactsSearch(search)) {
+        this.root.mainPageStore.ui.graphViewStore.setSelectedNodeBasedOnSearch(search);
       }
     } catch (err) {
       runInAction(() => {
@@ -125,12 +126,23 @@ class BackendStore {
         this.root.mainPageStore.workingHistory.removeAllItems();
       }
 
-      for (const search of searches) {
-        await this.executeSearch(search);
+      for (const s of searches) {
+        this.root.mainPageStore.workingHistory.addSearch(s);
+      }
+
+      const results = await Promise.all(
+        searches.map(s => this.executeSingleSearch(s).catch(e => ({ error: e, search: s })))
+      );
+      const errors = results.filter(Boolean);
+      if (errors.length > 0) {
+        this.root.mainPageStore.handleError({
+          error: new Error('See search history for details'),
+          title: 'Bulk result: ' + errors.length + ' of  ' + searches.length + ' searches failed'
+        });
       }
     } catch (err) {
       runInAction(() => {
-        this.root.mainPageStore.handleError({ error: err, title: 'Import failed' });
+        this.root.mainPageStore.handleError({ error: err, title: 'Bulk search failed' });
       });
     }
   }

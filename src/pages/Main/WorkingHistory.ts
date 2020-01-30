@@ -141,6 +141,18 @@ class WorkingHistory {
   }
 
   @action.bound
+  addSearch(search: Search) {
+    const item: WorkingHistoryItem = {
+      id: searchId(search),
+      search: search
+    };
+
+    if (!this.isInHistory(search)) {
+      this.addItem(item);
+    }
+  }
+
+  @action.bound
   addItem(item: WorkingHistoryItem) {
     const selectedIndex = this.historyItems.findIndex((i: WorkingHistoryItem) => i.id === this.selectedItemId);
     this.historyItems.splice(selectedIndex + 1, 0, item);

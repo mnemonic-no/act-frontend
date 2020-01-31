@@ -6,6 +6,7 @@ import {
   ActObject,
   ActSelection,
   ContextAction,
+  isDone,
   NamedId,
   PredefinedObjectQuery,
   Search
@@ -381,8 +382,9 @@ class DetailsStore {
 
   @action.bound
   onCreateFactClick() {
-    if (this.selectedObject) {
-      this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.workingHistory, []);
+    if (this.selectedObject && this.root.backendStore.factTypes && isDone(this.root.backendStore.factTypes)) {
+      const factTypes = this.root.backendStore.factTypes.result.factTypes;
+      this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.workingHistory, factTypes);
     }
   }
 

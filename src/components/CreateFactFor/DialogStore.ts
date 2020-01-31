@@ -1,8 +1,7 @@
-import * as _ from 'lodash/fp';
 import { action, computed, observable, runInAction } from 'mobx';
 
 import { ActObject, FactType, NamedId } from '../../core/types';
-import { createFact, factTypesDataLoader } from '../../core/dataLoaders';
+import { createFact } from '../../core/dataLoaders';
 import {
   factMapToObjectMap,
   factTypeString,
@@ -124,18 +123,11 @@ class CreateFactForDialog {
     this.selectedObject = selectedObject;
     this.workingHistory = workingHistory;
 
-    if (_.isEmpty(factTypes)) {
-      factTypesDataLoader().then((factTypes: Array<FactType>) => {
-        runInAction(() => {
-          this.factTypes = factTypes
-            .filter(ft => isRelevantFactType(ft, selectedObject))
-            .sort((a, b) => (a.name > b.name ? 1 : -1));
+    this.factTypes = factTypes
+      .filter(ft => isRelevantFactType(ft, selectedObject))
+      .sort((a, b) => (a.name > b.name ? 1 : -1));
 
-          this.onFactTypeChange(this.factTypes[0].name);
-        });
-      });
-    } else {
-      this.factTypes = factTypes;
+    if (this.factTypes[0]) {
       this.onFactTypeChange(this.factTypes[0].name);
     }
   }

@@ -1,7 +1,8 @@
 import { action, computed, observable, runInAction } from 'mobx';
-import { checkObjectStats, objectTypesDataLoader, postJson } from '../core/dataLoaders';
+import { checkObjectStats, factTypesDataLoader, objectTypesDataLoader, postJson } from '../core/dataLoaders';
 
 import {
+  FactType,
   isMultiObjectSearch,
   isObjectFactsSearch,
   isObjectTraverseSearch,
@@ -32,6 +33,7 @@ class BackendStore {
   multiObjectTraverseStore: MultiObjectTraverseBackendStore;
 
   @observable actObjectTypes: TLoadable<{ objectTypes: Array<NamedId> }> | undefined;
+  @observable factTypes: TLoadable<{ factTypes: Array<FactType> }> | undefined;
 
   constructor(root: AppStore, config: any) {
     this.root = root;
@@ -54,7 +56,7 @@ class BackendStore {
     );
   }
 
-  @action
+  @action.bound
   async fetchActObjectTypes() {
     if (this.actObjectTypes) return;
 
@@ -72,6 +74,29 @@ class BackendStore {
       };
     } catch (err) {
       this.actObjectTypes = { ...this.actObjectTypes, status: LoadingStatus.REJECTED, error: err?.message };
+      throw err;
+    }
+  }
+
+  @action.bound
+  async fetchFactTypes() {
+    if (this.factTypes) return;
+
+    this.factTypes = {
+      status: LoadingStatus.PENDING
+    };
+
+    try {
+      const result = await factTypesDataLoader();
+
+      this.factTypes = {
+        ...this.factTypes,
+        result: { factTypes: result },
+        status: LoadingStatus.DONE
+      };
+    } catch (err) {
+      this.factTypes = { ...this.factTypes, status: LoadingStatus.REJECTED, error: err?.message };
+      throw err;
     }
   }
 

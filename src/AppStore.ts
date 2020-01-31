@@ -38,6 +38,7 @@ class AppStore {
 
   initByUrl(location: Location): void {
     this.backendStore.fetchActObjectTypes();
+    this.backendStore.fetchFactTypes();
     this.goToUrl(location.pathname);
   }
 

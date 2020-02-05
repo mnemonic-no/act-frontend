@@ -6,6 +6,7 @@ import { factMapToObjectMap } from './domain';
 import {
   ActFact,
   ActObject,
+  FactComment,
   FactType,
   isObjectFactsSearch,
   ObjectFactsSearch,
@@ -314,6 +315,31 @@ export const factDataLoader = (objectId: string, factTypes: Array<string>): Prom
     .json(({ data }: any) => data)
     .catch(handleError);
 };
+
+export const factByIdDataLoader = ({ id }: { id: string }): Promise<ActFact> =>
+  actWretch
+    .url(`/v1/fact/uuid/${id}`)
+    .get()
+    .forbidden(handleForbiddenSearchResults)
+    .json(({ data }) => data)
+    .catch(handleError);
+
+export const factCommentsDataLoader = ({ id }: { id: string }): Promise<Array<FactComment>> =>
+  actWretch
+    .url(`/v1/fact/uuid/${id}/comments`)
+    .get()
+    .forbidden(handleForbiddenSearchResults)
+    .json(({ data }) => data)
+    .catch(handleError);
+
+export const metaFactsDataLoader = ({ id }: { id: string }): Promise<Array<ActFact>> =>
+  actWretch
+    .url(`/v1/fact/uuid/${id}/meta`)
+    .query({ includeRetracted: true })
+    .get()
+    .forbidden(handleForbiddenSearchResults)
+    .json(({ data }) => data)
+    .catch(handleError);
 
 export const createFact = (request: any) => {
   return actWretch

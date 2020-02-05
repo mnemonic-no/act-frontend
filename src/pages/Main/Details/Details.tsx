@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import DetailsStore from './DetailsStore';
-import FactInformation, { IFactInformationComp } from '../../../components/FactInformation/FactInformation';
+import FactInformation, { IFactInformationProps } from '../../../components/FactInformation/FactInformation';
 import ObjectInformation, { IObjectInformationProps } from '../../../components/ObjectInformation/ObjectInformation';
 import MultipleObjectsInformation, { IMultiSelectInformationComp } from './MultiSelectInformation';
 
@@ -20,7 +20,7 @@ const content = (store: DetailsStore) => {
     case 'object':
       return <ObjectInformation {...(store.selectedObjectDetails as IObjectInformationProps)} />;
     case 'fact':
-      return <FactInformation {...(store.selectedFactDetails as IFactInformationComp)} />;
+      return <FactInformation {...(store.selectedFactDetails as IFactInformationProps)} />;
     case 'multi':
       return <MultipleObjectsInformation {...(store.multiSelectInfo as IMultiSelectInformationComp)} />;
     default:

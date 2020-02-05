@@ -35,6 +35,12 @@ export interface FetchOneLeggedFacts {
   objectId: string;
 }
 
+export interface FetchFact {
+  kind: 'fetchFact';
+  factId: string;
+  refetch?: boolean;
+}
+
 export type ActEvent =
   | NavigateEvent
   | SelectionReset
@@ -42,4 +48,5 @@ export type ActEvent =
   | SelectionClear
   | SelectionToggle
   | FetchActObjectStats
+  | FetchFact
   | FetchOneLeggedFacts;

@@ -1,6 +1,5 @@
-import * as _ from 'lodash/fp';
 import React from 'react';
-import { compose, withHandlers } from 'recompose';
+import * as _ from 'lodash/fp';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -10,17 +9,14 @@ import TableBody from '@material-ui/core/TableBody';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import actWretch from '../../util/actWretch';
-import { isMetaFact, isRetracted } from '../../core/domain';
-import CenteredCircularProgress from '../CenteredCircularProgress';
-import memoizeDataLoader from '../../util/memoizeDataLoader';
-import { ObjectRow } from './ObjectRow';
-import RetractFactDialog, { retractFact } from '../RetractFact/Dialog';
-import withDataLoader, { combineDataLoaders } from '../../util/withDataLoader';
-import { factColor } from '../../util/util';
 import { ActFact, ActObject, FactComment } from '../../core/types';
+import { factColor } from '../../util/util';
 import { FactRow } from './FactsRow';
+import { isMetaFact, isRetracted } from '../../core/domain';
+import { ObjectRow } from './ObjectRow';
 import { pluralize } from '../../util/util';
+import CenteredCircularProgress from '../CenteredCircularProgress';
+import RetractFactDialog from '../RetractFact/Dialog';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -35,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   info: {
     flex: 1
   },
-  actions: {
+  footer: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1)
   },
@@ -57,10 +53,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   factType: {
     color: factColor
   },
-  objects: {
-    paddingTop: '1rem'
-  },
-  metaFacts: {
+  section: {
     paddingTop: '1rem'
   },
   comments: {
@@ -69,20 +62,19 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const FactInformationComp = ({
-  id,
   fact,
+  isLoadingData,
   metaFacts,
   comments,
-  access,
+  footerButtons,
   onFactRowClick,
   onObjectRowClick,
-  onReferenceClick,
-  onRetractFactClick
-}: IFactInformationCompInternal) => {
+  onReferenceClick
+}: IFactInformationProps) => {
   const classes = useStyles();
 
   if (!fact) {
-    return null;
+    return <div className={classes.root}>{isLoadingData && <CenteredCircularProgress />}</div>;
   }
 
   return (
@@ -133,7 +125,7 @@ const FactInformationComp = ({
         </Grid>
 
         {isMetaFact(fact) && fact.inReferenceTo && (
-          <div className={classes.metaFacts}>
+          <div className={classes.section}>
             <Link component="button" color="primary" variant="body1" onClick={() => onReferenceClick(fact)}>
               In reference to <span className={classes.factType}>{fact.inReferenceTo.type.name}</span>
             </Link>
@@ -141,7 +133,7 @@ const FactInformationComp = ({
         )}
 
         {!isMetaFact(fact) && (
-          <div className={classes.objects}>
+          <div className={classes.section}>
             <Typography variant="body1">
               {pluralize(fact.sourceObject && fact.destinationObject ? 2 : 1, 'object')}
             </Typography>
@@ -166,8 +158,10 @@ const FactInformationComp = ({
           </div>
         )}
 
+        {isLoadingData && <CenteredCircularProgress />}
+
         {!_.isEmpty(metaFacts) && (
-          <div className={classes.metaFacts}>
+          <div className={classes.section}>
             <Typography variant="body1">{pluralize(metaFacts.length, 'fact')}</Typography>
             <Table classes={{ root: classes.tables }}>
               <TableBody>
@@ -188,81 +182,28 @@ const FactInformationComp = ({
             </div>
           ))}
       </div>
-      <div className={classes.actions}>
-        <Button onClick={onRetractFactClick}>Retract fact</Button>
-        <RetractFactDialog />
+      <div className={classes.footer}>
+        {footerButtons.map(b => (
+          <Button key={b.text} onClick={b.onClick}>
+            {b.text}
+          </Button>
+        ))}
       </div>
+      <RetractFactDialog />
     </div>
   );
 };
 
-const factDataLoader = ({ id }: { id: string }) =>
-  actWretch
-    .url(`/v1/fact/uuid/${id}`)
-    .get()
-    .json(({ data }) => ({
-      fact: data
-    }));
-
-const commentsDataLoader = ({ id }: { id: string }) =>
-  actWretch
-    .url(`/v1/fact/uuid/${id}/comments`)
-    .get()
-    .json(({ data }) => ({ comments: data }));
-
-const accessDataLoader = ({ id }: { id: string }) =>
-  actWretch
-    .url(`/v1/fact/uuid/${id}/access`)
-    .get()
-    .json(({ data }) => ({ access: data }));
-
-const metaFactsDataLoader = ({ id }: { id: string }) =>
-  actWretch
-    .url(`/v1/fact/uuid/${id}/meta`)
-    .query({ includeRetracted: true })
-    .get()
-    .json(({ data }) => ({ metaFacts: data }));
-
-const memoizedFactDataLoader = memoizeDataLoader(factDataLoader, ['id']);
-
-interface IFactInformationCompInternal {
+export interface IFactInformationProps {
   id: string;
-  fact: ActFact;
+  isLoadingData: boolean;
+  fact: ActFact | null;
+  comments: Array<FactComment>;
+  metaFacts: Array<ActFact>;
+  footerButtons: Array<{ text: string; onClick: () => void }>;
   onObjectRowClick: (obj: ActObject) => void;
   onFactRowClick: (fact: ActFact) => void;
   onReferenceClick: (fact: ActFact) => void;
-  comments: Array<FactComment>;
-  access: any;
-  metaFacts: Array<ActFact>;
-  onRetractFactClick: (x: any) => void;
 }
 
-export type IFactInformationComp = Omit<
-  IFactInformationCompInternal,
-  | 'alwaysShowLoadingComponent'
-  | 'LoadingComponent'
-  | 'fact'
-  | 'metaFacts'
-  | 'comments'
-  | 'access'
-  | 'onRetractFactClick'
->;
-
-export default compose<IFactInformationCompInternal, IFactInformationComp>(
-  withDataLoader(
-    combineDataLoaders(memoizedFactDataLoader, commentsDataLoader, accessDataLoader, metaFactsDataLoader),
-    {
-      alwaysShowLoadingComponent: true,
-      LoadingComponent: CenteredCircularProgress
-    }
-  ),
-  withHandlers({
-    onRetractFactClick: ({ fact, forceFetch }: any) => () => {
-      retractFact(
-        fact,
-        // Wait 1 second before updating the data, allowing the api to reindex
-        () => setTimeout(forceFetch, 1000)
-      );
-    }
-  })
-)(FactInformationComp);
+export default FactInformationComp;

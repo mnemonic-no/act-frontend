@@ -75,6 +75,12 @@ class AppStore {
       case 'fetchActObjectStats':
         this.mainPageStore.backendStore.actObjectBackendStore.execute(event.objectValue, event.objectTypeName);
         break;
+      case 'fetchFact':
+        this.mainPageStore.backendStore.factBackendStore.execute({
+          factId: event.factId,
+          refetch: Boolean(event.refetch)
+        });
+        break;
       case 'fetchOneLeggedFacts':
         this.mainPageStore.backendStore.oneLeggedFactsStore.execute(event.objectId);
         break;

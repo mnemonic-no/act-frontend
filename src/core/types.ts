@@ -195,14 +195,14 @@ export type TLoadable<R> = TPendingLoadable | TDoneLoadable<R> | TRejectedLoadab
 
 export type TRequestLoadable<A, R> = TCommonLoadable<A> & TLoadable<R>;
 
-export const isRejected = <R>(arg: TLoadable<R>): arg is TRejectedLoadable => {
-  return arg && arg.status === LoadingStatus.REJECTED;
+export const isRejected = <R>(arg: TLoadable<R> | undefined): arg is TRejectedLoadable => {
+  return Boolean(arg && arg.status === LoadingStatus.REJECTED);
 };
 
-export const isPending = <R>(arg: TLoadable<R>): arg is TPendingLoadable => {
-  return arg && arg.status === LoadingStatus.PENDING;
+export const isPending = <R>(arg: TLoadable<R> | undefined): arg is TPendingLoadable => {
+  return Boolean(arg && arg.status === LoadingStatus.PENDING);
 };
 
-export const isDone = <R>(arg: TLoadable<R>): arg is TDoneLoadable<R> => {
-  return arg && arg.status === LoadingStatus.DONE;
+export const isDone = <R>(arg: TLoadable<R> | undefined): arg is TDoneLoadable<R> => {
+  return Boolean(arg && arg.status === LoadingStatus.DONE);
 };

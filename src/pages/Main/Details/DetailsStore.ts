@@ -31,6 +31,7 @@ import MainPageStore from '../MainPageStore';
 import { IGroup } from '../../../components/GroupByAccordion';
 import EventBus from '../../../util/eventbus';
 import config from '../../../config';
+import { retractFact } from '../../../components/RetractFact/Dialog';
 import { FactStatsCellType, IFactStatRow } from '../../../components/FactStats';
 
 const actObjectToSelection = (actObject: ActObject): ActSelection => {
@@ -149,7 +150,13 @@ class DetailsStore {
 
     this.contentsKind = selectionToContentsKind(this.root.selectionStore.currentlySelected);
 
-    if (this.contentsKind === 'object') {
+    if (this.contentsKind === 'fact') {
+      const factId = Object.values(this.root.selectionStore.currentlySelected)[0].id;
+      if (factId && !this.root.backendStore.factBackendStore.includes(factId)) {
+        // Most facts are already in the working history, but this fetches comments and metafacts too.
+        this.eventBus.publish([{ kind: 'fetchFact', factId: factId }]);
+      }
+    } else if (this.contentsKind === 'object') {
       const actObject = this.root.workingHistory.getObjectById(
         Object.values(this.root.selectionStore.currentlySelected)[0].id
       );
@@ -364,8 +371,16 @@ class DetailsStore {
 
     if (!selected || selected.kind !== 'fact') return null;
 
+    // Most facts are already in the working history, but some must be fetched (like metafacts).
+    const factSearch = this.root.backendStore.factBackendStore.getFact(selected.id);
+    const fact = isDone(factSearch) ? factSearch.result.fact : this.root.workingHistory.getFactById(selected.id);
+
     return {
       id: selected.id,
+      fact: fact,
+      isLoadingData: isPending(factSearch),
+      metaFacts: isDone(factSearch) ? factSearch.result.metaFacts : [],
+      comments: isDone(factSearch) ? factSearch.result.comments : [],
       endTimestamp: this.endTimestamp,
       onObjectRowClick: this.setSelectedObject,
       onFactRowClick: this.setSelectedFact,
@@ -378,7 +393,21 @@ class DetailsStore {
             }
           ]);
         }
-      }
+      },
+      footerButtons: [
+        {
+          text: 'Retract fact',
+          onClick: () => {
+            if (!fact) return;
+            retractFact(fact, () => {
+              // Wait 1 second before updating the data, allowing the api to reindex
+              setTimeout(() => {
+                this.eventBus.publish([{ kind: 'fetchFact', factId: fact.id, refetch: true }]);
+              }, 1000);
+            });
+          }
+        }
+      ]
     };
   }
 

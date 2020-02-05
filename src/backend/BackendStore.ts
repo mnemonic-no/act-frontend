@@ -15,6 +15,7 @@ import {
 import { addMessage } from '../util/SnackbarProvider';
 import ActObjectBackendStore from './ActObjectBackendStore';
 import AppStore from '../AppStore';
+import FactBackendStore from './FactBackendStore';
 import ObjectTraverseBackendStore from './ObjectTraverseBackendStore';
 import ObjectFactsBackendStore from './ObjectFactsBackendStore';
 import SimpleSearchBackendStore from './SimpleSearchBackendStore';
@@ -28,6 +29,7 @@ class BackendStore {
 
   actObjectBackendStore: ActObjectBackendStore;
   oneLeggedFactsStore: OneLeggedFactsBackendStore;
+  factBackendStore: FactBackendStore;
   autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
   objectTraverseBackendStore: ObjectTraverseBackendStore;
   objectFactsBackendStore: ObjectFactsBackendStore;
@@ -40,6 +42,7 @@ class BackendStore {
   constructor(root: AppStore, config: any) {
     this.root = root;
     this.actObjectBackendStore = new ActObjectBackendStore(config);
+    this.factBackendStore = new FactBackendStore(config);
     this.oneLeggedFactsStore = new OneLeggedFactsBackendStore(this, config);
     this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
     this.objectFactsBackendStore = new ObjectFactsBackendStore();

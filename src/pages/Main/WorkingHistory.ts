@@ -3,6 +3,7 @@ import * as _ from 'lodash/fp';
 
 import MainPageStore from './MainPageStore';
 import {
+  ActFact,
   ActObject,
   isDone,
   isFactSearch,
@@ -196,6 +197,16 @@ class WorkingHistory {
 
   asPathname(): string {
     return workingHistoryToPath(this.historyItems);
+  }
+
+  getFactById(id: string): ActFact | undefined {
+    const resolvedItems = this.withLoadable.filter(x => isDone(x.loadable)) as Array<{
+      item: WorkingHistoryItem;
+      loadable: TDoneLoadable<SearchResult>;
+    }>;
+
+    const found = resolvedItems.find(x => x.loadable.result.facts[id]);
+    return found ? found.loadable.result.facts[id] : undefined;
   }
 
   getObjectById(id: string): ActObject | undefined {

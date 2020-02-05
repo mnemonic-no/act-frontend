@@ -10,8 +10,8 @@ export type ActObjectSearch = TRequestLoadable<
   { actObject: ActObject; facts: Array<ActFact> }
 >;
 
-const actObjectSearchId = ({ objectValue, objectTypeName }: { objectValue: string; objectTypeName: string }) =>
-  objectTypeName + objectValue;
+const actObjectSearchId = (props: { objectValue: string; objectTypeName: string }) =>
+  props.objectTypeName + props.objectValue;
 
 class ActObjectBackendStore {
   @observable actObjectSearches: { [id: string]: ActObjectSearch } = {};
@@ -58,6 +58,10 @@ class ActObjectBackendStore {
 
   includes(s: ActObjectSearch) {
     return this.actObjectSearches.hasOwnProperty(s.id);
+  }
+
+  includesActObject(actObject: ActObject) {
+    return Boolean(this.getActObjectSearch(actObject.value, actObject.type.name));
   }
 }
 

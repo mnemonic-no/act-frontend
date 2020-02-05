@@ -1,15 +1,15 @@
-import { action, computed, observable, reaction } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import {
   ActFact,
   ActObject,
   ActSelection,
-  ContextAction,
   isDone,
+  isPending,
   NamedId,
-  PredefinedObjectQuery,
-  Search
+  ObjectStats,
+  PredefinedObjectQuery
 } from '../../../core/types';
 import { link, pluralize } from '../../../util/util';
 import { ContextActionTemplate, resolveActions } from '../../../configUtil';
@@ -18,20 +18,20 @@ import {
   accordionGroups,
   contextActionsFor,
   countByFactType,
+  factCount,
   graphQueryDialog,
   idsToFacts,
   idsToObjects,
+  objectTitle,
   predefinedObjectQueriesFor
 } from '../../../core/domain';
 import AppStore from '../../../AppStore';
 import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
 import MainPageStore from '../MainPageStore';
 import { IGroup } from '../../../components/GroupByAccordion';
-
-export type ObjectDetails = {
-  contextActions: Array<ContextAction>;
-  predefinedObjectQueries: Array<PredefinedObjectQuery>;
-};
+import EventBus from '../../../util/eventbus';
+import config from '../../../config';
+import { FactStatsCellType, IFactStatRow } from '../../../components/FactStats';
 
 const actObjectToSelection = (actObject: ActObject): ActSelection => {
   return { id: actObject.id, kind: 'object' };
@@ -52,8 +52,70 @@ export const factTypeLinks = (
   )(selectedFacts);
 };
 
+export const selectionToContentsKind = (currentlySelected: {
+  [id: string]: ActSelection;
+}): 'empty' | 'multi' | 'fact' | 'object' => {
+  const selectionCount = Object.keys(currentlySelected).length;
+
+  if (selectionCount === 0) {
+    return 'empty';
+  } else if (selectionCount > 1) {
+    return 'multi';
+  } else {
+    return Object.values(currentlySelected)[0].kind;
+  }
+};
+
+export const toFactStatRows = (props: {
+  actObject: ActObject;
+  oneLeggedFacts: Array<ActFact>;
+  onFactTypeClick: (factType: NamedId) => void;
+  factTypeTooltip: string;
+  onFactClick: (fact: ActFact) => void;
+  factTooltip: string;
+}): Array<IFactStatRow> => {
+  return _.pipe(
+    _.sortBy((objectStats: ObjectStats) => objectStats.type.name),
+    _.map(
+      (objectStats: ObjectStats): IFactStatRow => {
+        const matchingOneLeggedFacts = props.oneLeggedFacts.filter(
+          oneFact => oneFact.type.name === objectStats.type.name
+        );
+
+        if (matchingOneLeggedFacts.length > 0) {
+          return {
+            cells: [
+              { kind: FactStatsCellType.text, text: objectStats.type.name },
+              {
+                kind: FactStatsCellType.links,
+                links: matchingOneLeggedFacts
+                  .map(x => ({
+                    text: x.value + '',
+                    tag: objectStats.type.name === 'category',
+                    tooltip: props.factTooltip,
+                    onClick: () => props.onFactClick(x)
+                  }))
+                  .sort((a, b) => (a.text > b.text ? 1 : -1))
+              }
+            ]
+          };
+        }
+
+        return {
+          onClick: () => props.onFactTypeClick(objectStats.type),
+          tooltip: props.factTypeTooltip,
+          cells: [
+            { kind: FactStatsCellType.text, text: objectStats.type.name },
+            { kind: FactStatsCellType.text, text: objectStats.count + '', align: 'right' as 'right' }
+          ]
+        };
+      }
+    )
+  )(props.actObject.statistics);
+};
+
 class DetailsStore {
-  appStore: AppStore;
+  eventBus: EventBus;
   root: MainPageStore;
 
   contextActionTemplates: Array<ContextActionTemplate>;
@@ -62,6 +124,7 @@ class DetailsStore {
   @observable createFactDialog: CreateFactForDialog | null = null;
   @observable _isOpen = false;
   @observable fadeUnselected = false;
+  @observable contentsKind: 'empty' | 'multi' | 'fact' | 'object' = 'empty';
 
   @observable multiSelectionAccordion: { [objectType: string]: boolean } = {};
   @observable multiSelectQueryDialog: { isOpen: boolean; actObjects: Array<ActObject>; query: string } = {
@@ -71,31 +134,38 @@ class DetailsStore {
   };
 
   constructor(appStore: AppStore, root: MainPageStore, config: any) {
-    this.appStore = appStore;
     this.root = root;
+    this.eventBus = appStore.eventBus;
     this.contextActionTemplates =
       resolveActions({ contextActions: config.contextActions, actions: config.actions }) || [];
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
-
-    reaction(
-      () => this.root.selectionStore.currentlySelected,
-      currentlySelected => {
-        if (Object.keys(currentlySelected).length > 0) {
-          this.open();
-        }
-      }
-    );
   }
 
   @action.bound
-  onSearchSubmit(search: Search) {
-    this.root.backendStore.executeSearch(search);
+  selectionChanged() {
+    if (Object.keys(this.root.selectionStore.currentlySelected).length > 0) {
+      this.open();
+    }
+
+    this.contentsKind = selectionToContentsKind(this.root.selectionStore.currentlySelected);
+
+    if (this.contentsKind === 'object') {
+      const actObject = this.root.workingHistory.getObjectById(
+        Object.values(this.root.selectionStore.currentlySelected)[0].id
+      );
+      if (actObject && !this.root.backendStore.actObjectBackendStore.includesActObject(actObject)) {
+        this.eventBus.publish([
+          { kind: 'fetchActObjectStats', objectValue: actObject.value, objectTypeName: actObject.type.name },
+          { kind: 'fetchOneLeggedFacts', objectId: actObject.id }
+        ]);
+      }
+    }
   }
 
   @action.bound
   onMultiObjectTraverseSubmit(actObjects: Array<ActObject>, query: string) {
     if (actObjects.length === 1) {
-      this.onSearchSubmit({
+      this.root.backendStore.executeSearch({
         kind: 'objectTraverse',
         query: query,
         objectType: actObjects[0].type.name,
@@ -126,8 +196,7 @@ class DetailsStore {
   }
 
   @action.bound
-  onPredefinedObjectQueryClick(q: PredefinedObjectQuery): void {
-    const obj = this.selectedObject;
+  onPredefinedObjectQueryClick(obj: ActObject, q: PredefinedObjectQuery): void {
     if (obj) {
       this.root.backendStore.executeSearch({
         kind: 'objectTraverse',
@@ -169,23 +238,88 @@ class DetailsStore {
 
     if (!selected) return null;
 
+    const actObjectSearch = this.root.backendStore.actObjectBackendStore.getActObjectSearch(
+      selected.value,
+      selected.type.name
+    );
+
+    const oneLeggedFactsSearch = this.root.backendStore.oneLeggedFactsStore.getOneLeggedFacts(selected.id);
+    const oneLeggedFacts: Array<ActFact> = isDone(oneLeggedFactsSearch) ? oneLeggedFactsSearch.result.facts : [];
+
     return {
       id: selected.id,
+      objectTitle: {
+        ...objectTitle(selected, oneLeggedFacts, config.objectLabelFromFactType),
+        onTitleClick: () =>
+          this.root.backendStore.executeSearch({
+            kind: 'objectFacts',
+            objectType: selected.type.name,
+            objectValue: selected.value
+          })
+      },
+      isLoadingData: isPending(actObjectSearch),
+
+      actions: [
+        {
+          title: 'Actions',
+          buttons: contextActionsFor(
+            selected,
+            this.contextActionTemplates,
+            this.root.backendStore.postAndForget.bind(this.root.backendStore)
+          ).map(contextAction => ({
+            text: contextAction.name,
+            onClick: contextAction.onClick,
+            href: contextAction.href,
+            tooltip: contextAction.description
+          }))
+        },
+        {
+          title: 'Predefined queries',
+          buttons: predefinedObjectQueriesFor(selected, this.predefinedObjectQueries).map(p => ({
+            text: p.name,
+            tooltip: p.description,
+            onClick: () => this.onPredefinedObjectQueryClick(selected, p)
+          }))
+        }
+      ],
       details: {
         contextActions: contextActionsFor(
           selected,
           this.contextActionTemplates,
           this.root.backendStore.postAndForget.bind(this.root.backendStore)
         ),
-        predefinedObjectQueries: predefinedObjectQueriesFor(selected, this.predefinedObjectQueries)
+        predefinedObjectQueries: predefinedObjectQueriesFor(selected, this.predefinedObjectQueries).map(p => ({
+          text: p.name,
+          tooltip: p.description,
+          onClick: () => this.onPredefinedObjectQueryClick(selected, p)
+        }))
       },
       linkToSummaryPage: link({
         text: 'Open summary',
         tooltip: 'Go to object summary page',
         href: urlToObjectSummaryPage(selected),
-        navigateFn: (url: string) => this.appStore.goToUrl(url)
+        navigateFn: (url: string) => this.eventBus.publish([{ kind: 'navigate', url: url }])
       }),
-
+      factTitle: isDone(actObjectSearch) ? pluralize(factCount(actObjectSearch.result.actObject), 'fact') : '',
+      factStats: isDone(actObjectSearch)
+        ? {
+            rows: toFactStatRows({
+              actObject: actObjectSearch.result.actObject,
+              oneLeggedFacts: oneLeggedFacts,
+              onFactTypeClick: (factType: NamedId) => {
+                this.root.backendStore.executeSearch({
+                  kind: 'objectFacts',
+                  objectType: selected.type.name,
+                  objectValue: selected.value,
+                  factTypes: [factType.name]
+                });
+              },
+              onFactClick: this.setSelectedFact,
+              factTooltip: 'Show fact',
+              factTypeTooltip: 'Execute search'
+            })
+          }
+        : { rows: [] },
       createFactDialog: this.createFactDialog,
       graphQueryDialog: graphQueryDialog({
         isOpen: this.multiSelectQueryDialog.isOpen,
@@ -205,27 +339,22 @@ class DetailsStore {
           this.multiSelectQueryDialog.query = '';
         }
       }),
-
-      onFactClick: this.setSelectedFact,
-      onFactTypeClick: (factType: NamedId) => {
-        this.onSearchSubmit({
-          kind: 'objectFacts',
-          objectType: selected.type.name,
-          objectValue: selected.value,
-          factTypes: [factType.name]
-        });
-      },
-      onTitleClick: () =>
-        this.onSearchSubmit({ kind: 'objectFacts', objectType: selected.type.name, objectValue: selected.value }),
-      onPredefinedObjectQueryClick: this.onPredefinedObjectQueryClick,
-      onCreateFactClick: this.onCreateFactClick,
-      onGraphQueryClick: () => {
-        this.multiSelectQueryDialog.isOpen = true;
-      },
-      onPruneObjectClick: (o: ActObject) => {
-        this.root.refineryStore.addToPrunedObjectIds([o.id]);
-        this.root.selectionStore.clearSelection();
-      }
+      footerButtons: [
+        {
+          text: 'Prune',
+          onClick: () => {
+            this.root.refineryStore.addToPrunedObjectIds([selected.id]);
+            this.eventBus.publish([{ kind: 'selectionClear' }]);
+          }
+        },
+        {
+          text: 'Graph Query',
+          onClick: () => {
+            this.multiSelectQueryDialog.isOpen = true;
+          }
+        },
+        { text: 'Create Fact', onClick: this.onCreateFactClick }
+      ]
     };
   }
 
@@ -242,7 +371,12 @@ class DetailsStore {
       onFactRowClick: this.setSelectedFact,
       onReferenceClick: (fact: ActFact) => {
         if (fact.inReferenceTo) {
-          this.root.selectionStore.setCurrentSelection({ kind: 'fact', id: fact.inReferenceTo.id });
+          this.eventBus.publish([
+            {
+              kind: 'selectionReset',
+              selection: { [fact.inReferenceTo.id]: { kind: 'fact', id: fact.inReferenceTo.id } }
+            }
+          ]);
         }
       }
     };
@@ -313,13 +447,16 @@ class DetailsStore {
         text: pluralize(selectedFacts.length, 'fact'),
         onClick: () => this.showSelectedFactsTable(),
         onClearClick: () =>
-          this.root.selectionStore.removeAllFromSelection(selectedFacts.map(x => ({ id: x.id, kind: 'fact' })))
+          this.eventBus.publish([
+            { kind: 'selectionRemove', removeAll: selectedFacts.map(x => ({ id: x.id, kind: 'fact' })) }
+          ])
       },
       factTypeLinks: factTypeLinks(selectedFacts, this.showSelectedFactsTable),
       objectTitle: {
         text: pluralize(selectedObjects.length, 'object'),
         onClick: this.showSelectedObjectsTable,
-        onClearClick: () => this.root.selectionStore.removeAllFromSelection(selectedObjects.map(actObjectToSelection))
+        onClearClick: () =>
+          this.eventBus.publish([{ kind: 'selectionRemove', removeAll: selectedObjects.map(actObjectToSelection) }])
       },
       objectTypeGroupByAccordion: {
         onToggle: (group: IGroup) => {
@@ -341,7 +478,9 @@ class DetailsStore {
             {
               text: 'Clear',
               onClick: (objectsOfType: Array<ActObject>) => {
-                this.root.selectionStore.removeAllFromSelection(objectsOfType.map(actObjectToSelection));
+                this.eventBus.publish([
+                  { kind: 'selectionRemove', removeAll: objectsOfType.map(actObjectToSelection) }
+                ]);
               }
             }
           ],
@@ -349,13 +488,13 @@ class DetailsStore {
             icon: 'close',
             tooltip: 'Unselect this object',
             onClick: (actObject: ActObject) => {
-              this.root.selectionStore.removeAllFromSelection([actObjectToSelection(actObject)]);
+              this.eventBus.publish([{ kind: 'selectionRemove', removeAll: [actObjectToSelection(actObject)] }]);
             }
           }
         })
       },
       onClearSelectionClick: () => {
-        this.root.selectionStore.clearSelection();
+        this.eventBus.publish([{ kind: 'selectionClear' }]);
       },
       actions: [
         {
@@ -363,7 +502,7 @@ class DetailsStore {
           tooltip: 'Prune the selected objects from the view',
           onClick: () => {
             this.root.refineryStore.addToPrunedObjectIds(this.root.selectionStore.currentlySelectedObjectIds);
-            this.root.selectionStore.clearSelection();
+            this.eventBus.publish([{ kind: 'selectionClear' }]);
           }
         }
       ]
@@ -372,12 +511,14 @@ class DetailsStore {
 
   @action.bound
   setSelectedObject(actObject: ActObject) {
-    this.root.selectionStore.setCurrentSelection({ kind: 'object', id: actObject.id });
+    this.eventBus.publish([
+      { kind: 'selectionReset', selection: { [actObject.id]: { kind: 'object', id: actObject.id } } }
+    ]);
   }
 
   @action.bound
   setSelectedFact(fact: ActFact) {
-    this.root.selectionStore.setCurrentSelection({ kind: 'fact', id: fact.id });
+    this.eventBus.publish([{ kind: 'selectionReset', selection: { [fact.id]: { kind: 'fact', id: fact.id } } }]);
   }
 
   @action.bound
@@ -386,19 +527,6 @@ class DetailsStore {
       const factTypes = this.root.backendStore.factTypes.result.factTypes;
       this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.workingHistory, factTypes);
     }
-  }
-
-  @computed
-  get contentsKind(): 'empty' | 'objects' | 'object' | 'fact' {
-    const selectionCount = Object.keys(this.root.selectionStore.currentlySelected).length;
-
-    if (selectionCount === 0) {
-      return 'empty';
-    } else if (selectionCount > 1) {
-      return 'objects';
-    }
-
-    return Object.values(this.root.selectionStore.currentlySelected)[0].kind;
   }
 }
 

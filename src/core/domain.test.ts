@@ -443,9 +443,9 @@ it('can make graphQueryDialog', () => {
       onChange: expect.any(Function)
     },
     description: { color: '#606', text: 'threatActor Sofacy' },
-    predefinedObjectQueries: {
-      onClick: expect.any(Function),
-      queries: []
+    predefinedObjectQueryButtonList: {
+      title: 'Predefined Object Queries',
+      buttons: []
     },
     onClose: expect.any(Function),
     onSubmit: expect.any(Function)

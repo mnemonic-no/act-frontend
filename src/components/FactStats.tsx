@@ -88,7 +88,7 @@ const FactStatsCell = (props: IFactStatCell) => {
   }
 };
 
-const FactStatsComp = (props: IFactStatsComp) => {
+const FactStatsComp = (props: IFactStatsProps) => {
   const classes = useStyles();
 
   return (
@@ -139,7 +139,7 @@ export type IFactStatCell = TextCell | LinksCell;
 
 export type IFactStatRow = { cells: Array<IFactStatCell>; onClick?: () => void; tooltip?: string };
 
-export interface IFactStatsComp {
+export interface IFactStatsProps {
   rows: Array<IFactStatRow>;
 }
 

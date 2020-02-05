@@ -152,6 +152,13 @@ export type ContextAction = {
   onClick?: () => void;
 };
 
+export type ActionButton = {
+  text: string;
+  tooltip: string;
+  href?: string;
+  onClick?: () => void;
+};
+
 export interface IObjectTypeToSections {
   [objectTypeName: string]: { sections: Array<TSectionConfig> };
 }

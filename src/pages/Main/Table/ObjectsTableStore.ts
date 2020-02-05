@@ -6,6 +6,7 @@ import { ColumnKind, ObjectRow, SortOrder } from './ObjectsTable';
 import MainPageStore from '../MainPageStore';
 import { oneLeggedFactsFor } from '../../../core/domain';
 import { exportToCsv, fileTimeString } from '../../../util/util';
+import EventBus from '../../../util/eventbus';
 
 const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
   return objects.slice().sort((a: any, b: any) => {
@@ -69,6 +70,7 @@ const emptyFilterValue = 'Show all';
 
 class ObjectsTableStore {
   root: MainPageStore;
+  eventBus: EventBus;
 
   columns: Array<{ label: string; kind: ColumnKind }> = [
     { label: 'Type', kind: 'objectType' },
@@ -82,8 +84,9 @@ class ObjectsTableStore {
   @observable
   sortOrder: SortOrder = { order: 'asc', orderBy: 'objectType' };
 
-  constructor(root: MainPageStore) {
+  constructor(root: MainPageStore, eventBus: EventBus) {
     this.root = root;
+    this.eventBus = eventBus;
   }
 
   @computed get objects() {
@@ -92,7 +95,7 @@ class ObjectsTableStore {
 
   @action.bound
   onToggleSelection(actObject: ActObject) {
-    this.root.selectionStore.toggleSelection({ kind: 'object', id: actObject.id });
+    this.eventBus.publish([{ kind: 'selectionToggle', item: { kind: 'object', id: actObject.id } }]);
   }
 
   @action.bound

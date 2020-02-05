@@ -9,7 +9,7 @@ import Typography from '@material-ui/core/Typography';
 
 import GraphQueryDialog, { IGraphQueryDialogComp } from '../../../components/GraphQueryDialog';
 import GroupByAccordionComp, { IGroupByAccordionComp } from '../../../components/GroupByAccordion';
-import ObjectTitle, { IObjectTitleComp } from '../../../components/ObjectTitle';
+import ObjectTitle, { IObjectTitleProps } from '../../../components/ObjectTitle';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -210,7 +210,7 @@ export interface IButton {
 export interface ISingleObjectComp {
   title: string;
   linkToSummaryPage: { text: string; tooltip: string; href: string; onClick: (e: any) => void };
-  objectTitle: IObjectTitleComp;
+  objectTitle: IObjectTitleProps;
   clearSelectionButton: IButton;
   actions: Array<IButton>;
 }

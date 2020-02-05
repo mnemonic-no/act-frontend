@@ -2,7 +2,7 @@ import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
 import { ActObjectSearch } from '../../backend/ActObjectBackendStore';
-import { IObjectTitleComp } from '../../components/ObjectTitle';
+import { IObjectTitleProps } from '../../components/ObjectTitle';
 import { ActFact, ActObject, IObjectTypeToSections, isDone, isPending, isRejected } from '../../core/types';
 import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
 import { getObjectLabelFromFact, isOneLegged, objectTitle, toContextAction } from '../../core/domain';
@@ -129,7 +129,10 @@ export const prepareSections = (
   });
 };
 
-export const getObjectTitle = (actObjectSearch: ActObjectSearch, objectLabelFromFactType: string): IObjectTitleComp => {
+export const getObjectTitle = (
+  actObjectSearch: ActObjectSearch,
+  objectLabelFromFactType: string
+): IObjectTitleProps => {
   if (isDone(actObjectSearch)) {
     return objectTitle(actObjectSearch.result.actObject, actObjectSearch.result.facts, objectLabelFromFactType);
   }
@@ -137,7 +140,7 @@ export const getObjectTitle = (actObjectSearch: ActObjectSearch, objectLabelFrom
     title: actObjectSearch.args.objectValue,
     subTitle: actObjectSearch.args.objectTypeName,
     color: objectTypeToColor(actObjectSearch.args.objectTypeName)
-  } as IObjectTitleComp;
+  } as IObjectTitleProps;
 };
 
 export const categories = (actObjectSearch: ActObjectSearch): Array<string> => {

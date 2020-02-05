@@ -290,15 +290,6 @@ export const factTypesDataLoader = memoizeDataLoader(
   }
 );
 
-export const objectByUuidDataLoader = (id: string) => {
-  return actWretch
-    .url(`/v1/object/uuid/${id}`)
-    .get()
-    .forbidden(handleForbiddenSearchResults)
-    .json(({ data }: any) => data)
-    .catch(handleError);
-};
-
 export const objectDataLoader = (objectTypeName: string, objectValue: string) => {
   return actWretch
     .url(`/v1/object/${encodeURIComponent(objectTypeName)}/${encodeURIComponent(objectValue)}`)
@@ -308,7 +299,7 @@ export const objectDataLoader = (objectTypeName: string, objectValue: string) =>
     .catch(handleError);
 };
 
-export const factDataLoader = (objectId: string, factTypes: Array<String>): Promise<Array<ActFact>> => {
+export const factDataLoader = (objectId: string, factTypes: Array<string>): Promise<Array<ActFact>> => {
   const requestBody = {
     ...(factTypes && factTypes.length > 0 && { factType: factTypes }),
     limit: DEFAULT_LIMIT,

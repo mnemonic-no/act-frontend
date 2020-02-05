@@ -3,6 +3,7 @@ import * as _ from 'lodash/fp';
 
 import MainPageStore from './MainPageStore';
 import {
+  ActObject,
   isDone,
   isFactSearch,
   isMultiObjectSearch,
@@ -22,6 +23,7 @@ import { notUndefined } from '../../util/util';
 import ObjectTraverseBackendStore from '../../backend/ObjectTraverseBackendStore';
 import ObjectFactsBackendStore from '../../backend/ObjectFactsBackendStore';
 import MultiObjectTraverseBackendStore from '../../backend/MultiObjectTraverseBackendStore';
+import EventBus from '../../util/eventbus';
 
 export const workingHistoryToPath = (historyItems: Array<WorkingHistoryItem>) => {
   const latest = _.last(historyItems);
@@ -77,6 +79,7 @@ const resolvedSearchResults = (
 
 class WorkingHistory {
   root: MainPageStore;
+  eventBus: EventBus;
 
   @observable historyItems: Array<WorkingHistoryItem> = [];
 
@@ -85,8 +88,9 @@ class WorkingHistory {
 
   @observable createdFacts: { [id: string]: SearchResult } = {};
 
-  constructor(root: MainPageStore) {
+  constructor(root: MainPageStore, eventBus: EventBus) {
     this.root = root;
+    this.eventBus = eventBus;
   }
 
   @computed get isEmpty(): boolean {
@@ -182,7 +186,7 @@ class WorkingHistory {
   removeAllItems() {
     // @ts-ignore
     this.historyItems.clear();
-    this.root.selectionStore.clearSelection();
+    this.eventBus.publish([{ kind: 'selectionClear' }]);
   }
 
   isInHistory(search: Search) {
@@ -192,6 +196,16 @@ class WorkingHistory {
 
   asPathname(): string {
     return workingHistoryToPath(this.historyItems);
+  }
+
+  getObjectById(id: string): ActObject | undefined {
+    const resolvedItems = this.withLoadable.filter(x => isDone(x.loadable)) as Array<{
+      item: WorkingHistoryItem;
+      loadable: TDoneLoadable<SearchResult>;
+    }>;
+
+    const found = resolvedItems.find(x => x.loadable.result.objects[id]);
+    return found ? found.loadable.result.objects[id] : undefined;
   }
 }
 

@@ -14,9 +14,10 @@ import {
   isObjectTraverseSearch,
   isMultiObjectSearch
 } from '../../../core/types';
-import MainPageStore from '../MainPageStore';
 import { notUndefined } from '../../../util/util';
 import { isOneLegged } from '../../../core/domain';
+import EventBus from '../../../util/eventbus';
+import MainPageStore from '../MainPageStore';
 
 const cytoscapeNodeToSelection = (node: any): ActSelection => {
   return {
@@ -46,14 +47,16 @@ export const selectedNodeIds = (selection: Array<ActSelection>, searchResult: Se
 
 class GraphViewStore {
   root: MainPageStore;
+  eventBus: EventBus;
 
   renderThreshold: number = 2000;
   @observable resizeEvent = 0; // Used to trigger rerendering of the cytoscape element when it changes
   @observable acceptRenderWarning = false;
   @observable showTimeline = true;
 
-  constructor(root: MainPageStore) {
+  constructor(root: MainPageStore, eventBus: EventBus) {
     this.root = root;
+    this.eventBus = eventBus;
   }
 
   @action
@@ -122,12 +125,17 @@ class GraphViewStore {
         });
       },
       onSelect: (selection: Array<any>) => {
-        this.root.selectionStore.setCurrentlySelected(
-          selection.map(cytoscapeNodeToSelection).reduce((acc: any, x: ActSelection) => ({ ...acc, [x.id]: x }), {})
-        );
+        this.eventBus.publish([
+          {
+            kind: 'selectionReset',
+            selection: selection
+              .map(cytoscapeNodeToSelection)
+              .reduce((acc: any, x: ActSelection) => ({ ...acc, [x.id]: x }), {})
+          }
+        ]);
       },
       onUnselect: (selection: Array<any>) => {
-        this.root.selectionStore.removeAllFromSelection(selection.map(cytoscapeNodeToSelection));
+        this.eventBus.publish([{ kind: 'selectionRemove', removeAll: selection.map(cytoscapeNodeToSelection) }]);
       }
     };
   }
@@ -139,17 +147,23 @@ class GraphViewStore {
         (object: ActObject) => object.type.name === search.objectType && object.value === search.objectValue
       );
       if (searchedNode) {
-        this.root.selectionStore.setCurrentSelection({ id: searchedNode.id, kind: 'object' });
+        this.eventBus.publish([
+          { kind: 'selectionReset', selection: { [searchedNode.id]: { id: searchedNode.id, kind: 'object' } } }
+        ]);
       }
     } else if (isFactSearch(search)) {
       const searchedNode = Object.values(this.root.refineryStore.refined.facts).find(
         (fact: ActFact) => fact.id === search.id
       );
       if (searchedNode) {
-        this.root.selectionStore.setCurrentSelection({ id: searchedNode.id, kind: 'fact' });
+        this.eventBus.publish([
+          { kind: 'selectionReset', selection: { [searchedNode.id]: { id: searchedNode.id, kind: 'fact' } } }
+        ]);
       }
     } else if (isMultiObjectSearch(search)) {
-      this.root.selectionStore.setCurrentSelection({ id: search.objectIds[0], kind: 'object' });
+      this.eventBus.publish([
+        { kind: 'selectionReset', selection: { [search.objectIds[0]]: { id: search.objectIds[0], kind: 'object' } } }
+      ]);
     } else {
       // eslint-disable-next-line
       const _exhaustiveCheck: never = search;
@@ -162,7 +176,7 @@ class GraphViewStore {
       acc[id] = { kind: 'fact', id: id };
       return acc;
     }, {});
-    this.root.selectionStore.setCurrentlySelected(selection);
+    this.eventBus.publish([{ kind: 'selectionReset', selection: selection }]);
   }
 
   @computed

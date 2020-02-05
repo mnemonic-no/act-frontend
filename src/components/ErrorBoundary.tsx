@@ -5,7 +5,6 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
 type ErrorBoundaryProps = {
-  className: string;
   classes: any;
 };
 
@@ -46,17 +45,14 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   render() {
     if (this.state.info) {
       return (
-        // @ts-ignore
-        <div className={this.props.className}>
-          <div className={this.props.classes.errorContainer}>
-            <ErrorIcon color="secondary" style={{ fontSize: 90 }} />
-            <Typography variant="h2">Sorry</Typography>
-            <Typography variant="h5">Something went wrong</Typography>
-            <div className={this.props.classes.actionButton}>
-              <Button variant="outlined" size="large" onClick={() => window.location.replace('/')}>
-                Go to main page
-              </Button>
-            </div>
+        <div className={this.props.classes.errorContainer}>
+          <ErrorIcon color="secondary" style={{ fontSize: 90 }} />
+          <Typography variant="h2">Sorry</Typography>
+          <Typography variant="h5">Something went wrong</Typography>
+          <div className={this.props.classes.actionButton}>
+            <Button variant="outlined" size="large" onClick={() => window.location.replace('/')}>
+              Go to main page
+            </Button>
           </div>
         </div>
       );

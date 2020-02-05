@@ -31,6 +31,7 @@ import MainPageStore from '../MainPageStore';
 import { addMessage } from '../../../util/SnackbarProvider';
 import { TDetails, TIcon } from './WorkingHistory';
 import { searchId } from '../../../core/domain';
+import EventBus from '../../../util/eventbus';
 
 const copy = (si: WorkingHistoryItem) => {
   if (isObjectTraverseSearch(si.search) || isMultiObjectSearch(si.search)) {
@@ -189,11 +190,13 @@ export const searchToSelection = (search: Search, result: SearchResult): { [id: 
 
 class WorkingHistoryStore {
   root: MainPageStore;
+  eventBus: EventBus;
 
   predefinedQueryToName: { [queryString: string]: string };
 
-  constructor(root: MainPageStore, config: any) {
+  constructor(root: MainPageStore, config: any, eventBus: EventBus) {
     this.root = root;
+    this.eventBus = eventBus;
 
     this.predefinedQueryToName = (config.predefinedObjectQueries || []).reduce((acc: any, q: PredefinedObjectQuery) => {
       acc[q.query] = q.name;
@@ -216,7 +219,7 @@ class WorkingHistoryStore {
 
       if (isDone(props.loadable)) {
         const selection = searchToSelection(props.item.search, this.root.workingHistory.result);
-        this.root.selectionStore.setCurrentlySelected(selection);
+        this.eventBus.publish([{ kind: 'selectionReset', selection: selection }]);
       }
     }
   }

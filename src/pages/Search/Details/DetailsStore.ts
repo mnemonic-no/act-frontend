@@ -2,19 +2,20 @@ import ResultsStore from '../Results/ResultsStore';
 import { action, computed, observable } from 'mobx';
 
 import { IDetailsComp } from './Details';
-import { ActFact, ActObject, isDone, PredefinedObjectQuery, Search } from '../../../core/types';
 import { accordionGroups, getObjectLabelFromFact, graphQueryDialog } from '../../../core/domain';
+import { ActFact, ActObject, isDone, PredefinedObjectQuery, Search } from '../../../core/types';
 import { link, objectTypeToColor } from '../../../util/util';
-import AppStore from '../../../AppStore';
 import { IGroup } from '../../../components/GroupByAccordion';
-import { IObjectTitleComp } from '../../../components/ObjectTitle';
+import { IObjectTitleProps } from '../../../components/ObjectTitle';
 import { urlToChartPage, urlToObjectSummaryPage } from '../../../Routing';
+import AppStore from '../../../AppStore';
+import EventBus from '../../../util/eventbus';
 
 export const objectTitle = (
   actObject: ActObject,
   objectLabelFromFactType: string,
   oneLeggedFacts: Array<ActFact>
-): IObjectTitleComp => {
+): IObjectTitleProps => {
   const labelFromFact = getObjectLabelFromFact(actObject, objectLabelFromFactType, oneLeggedFacts);
 
   return {
@@ -26,6 +27,7 @@ export const objectTitle = (
 };
 
 class DetailsStore {
+  eventBus: EventBus;
   resultsStore: ResultsStore;
   objectLabelFromFactType: string;
   appStore: AppStore;
@@ -40,6 +42,7 @@ class DetailsStore {
 
   constructor(appStore: AppStore, resultsStore: ResultsStore, objectLabelFromFactType: string, config: any) {
     this.appStore = appStore;
+    this.eventBus = appStore.eventBus;
     this.resultsStore = resultsStore;
     this.objectLabelFromFactType = objectLabelFromFactType;
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
@@ -54,12 +57,7 @@ class DetailsStore {
 
     // Clear selection and show graph
     this.resultsStore.clearSelection();
-    this.appStore.goToUrl('/chart');
-  }
-
-  @action.bound
-  onOpenObjectSummaryPage(actObject: ActObject) {
-    this.appStore.goToUrl(urlToObjectSummaryPage(actObject));
+    this.eventBus.publish([{ kind: 'navigate', url: urlToChartPage() }]);
   }
 
   @action.bound
@@ -115,7 +113,7 @@ class DetailsStore {
             text: 'Open summary',
             tooltip: 'Go to object summary page',
             href: urlToObjectSummaryPage(selectedObject),
-            navigateFn: (url: string) => this.appStore.goToUrl(url)
+            navigateFn: (url: string) => this.eventBus.publish([{ kind: 'navigate', url: url }])
           }),
           objectTitle: objectTitle(
             selectedObject,

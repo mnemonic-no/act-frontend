@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import DetailsStore from './DetailsStore';
 import FactInformation, { IFactInformationComp } from '../../../components/FactInformation/FactInformation';
-import ObjectInformation, { IObjectInformationComp } from '../../../components/ObjectInformation/ObjectInformation';
+import ObjectInformation, { IObjectInformationProps } from '../../../components/ObjectInformation/ObjectInformation';
 import MultipleObjectsInformation, { IMultiSelectInformationComp } from './MultiSelectInformation';
 
 const useStyles = makeStyles(() => ({
@@ -18,10 +18,10 @@ const useStyles = makeStyles(() => ({
 const content = (store: DetailsStore) => {
   switch (store.contentsKind) {
     case 'object':
-      return <ObjectInformation {...(store.selectedObjectDetails as IObjectInformationComp)} />;
+      return <ObjectInformation {...(store.selectedObjectDetails as IObjectInformationProps)} />;
     case 'fact':
       return <FactInformation {...(store.selectedFactDetails as IFactInformationComp)} />;
-    case 'objects':
+    case 'multi':
       return <MultipleObjectsInformation {...(store.multiSelectInfo as IMultiSelectInformationComp)} />;
     default:
       return null;

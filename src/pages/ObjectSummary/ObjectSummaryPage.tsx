@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import WarnIcon from '@material-ui/icons/Warning';
 
 import ObjectSummaryPageStore from './ObjectSummaryPageStore';
-import ObjectTitle, { IObjectTitleComp } from '../../components/ObjectTitle';
+import ObjectTitle, { IObjectTitleProps } from '../../components/ObjectTitle';
 import Page from '../Page';
 import Section from './Section';
 
@@ -69,7 +69,7 @@ const useTitleSectionStyles = makeStyles((theme: Theme) => ({
 const TitleSection = (props: {
   isLoading: boolean;
   warning?: string;
-  title: IObjectTitleComp;
+  title: IObjectTitleProps;
   addToGraphButton: { tooltip: string; onClick: () => void; text: string };
   categories: Array<string>;
 }) => {

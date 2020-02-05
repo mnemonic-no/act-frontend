@@ -14,7 +14,7 @@ import {
 } from './types';
 import { assertNever, notUndefined, objectTypeToColor, pluralize, replaceAll, replaceAllInObject } from '../util/util';
 import { ActionTemplate, ContextActionTemplate } from '../configUtil';
-import { IObjectTitleComp } from '../components/ObjectTitle';
+import { IObjectTitleProps } from '../components/ObjectTitle';
 
 export function isRetracted(fact: ActFact) {
   return fact.flags.some(x => x === 'Retracted');
@@ -57,7 +57,7 @@ export const factTypeString = (factType: FactType | undefined | null) => {
 
 export const searchId = (search: Search) => {
   if (isObjectFactsSearch(search)) {
-    return [search.objectType, search.objectValue, search.factTypes && search.factTypes.sort()]
+    return [search.objectType, search.objectValue, search.factTypes && search.factTypes.slice().sort()]
       .filter(x => x)
       .join(':');
   } else if (isFactSearch(search)) {
@@ -271,7 +271,7 @@ export const objectTitle = (
   actObject: ActObject,
   oneLeggedFacts: Array<ActFact>,
   objectLabelFromFactType: string
-): IObjectTitleComp => {
+): IObjectTitleProps => {
   const labelFromFact = getObjectLabelFromFact(actObject, objectLabelFromFactType, oneLeggedFacts);
 
   return {
@@ -350,11 +350,15 @@ export const graphQueryDialog = (props: {
             text: props.actObjects[0]?.type?.name + ' ' + props.actObjects[0]?.value,
             color: objectTypeToColor(objectType)
           },
-    predefinedObjectQueries: {
-      onClick: (q: PredefinedObjectQuery) => {
-        props.onSubmit(props.actObjects, q.query);
-      },
-      queries: predefinedObjectQueriesFor(props.actObjects[0], props.predefinedObjectQueries)
+    predefinedObjectQueryButtonList: {
+      title: 'Predefined Object Queries',
+      buttons: predefinedObjectQueriesFor(props.actObjects[0], props.predefinedObjectQueries).map(q => ({
+        text: q.name,
+        tooltip: q.description,
+        onClick: () => {
+          props.onSubmit(props.actObjects, q.query);
+        }
+      }))
     },
     onClose: props.onClose,
     onSubmit: () => {

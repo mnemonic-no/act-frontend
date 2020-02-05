@@ -19,6 +19,7 @@ import ObjectTraverseBackendStore from './ObjectTraverseBackendStore';
 import ObjectFactsBackendStore from './ObjectFactsBackendStore';
 import SimpleSearchBackendStore from './SimpleSearchBackendStore';
 import MultiObjectTraverseBackendStore from './MultiObjectTraverseBackendStore';
+import OneLeggedFactsBackendStore from './OneLeggedFactsBackendStore';
 
 const maxFetchLimit = 2000;
 
@@ -26,6 +27,7 @@ class BackendStore {
   root: AppStore;
 
   actObjectBackendStore: ActObjectBackendStore;
+  oneLeggedFactsStore: OneLeggedFactsBackendStore;
   autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
   objectTraverseBackendStore: ObjectTraverseBackendStore;
   objectFactsBackendStore: ObjectFactsBackendStore;
@@ -38,6 +40,7 @@ class BackendStore {
   constructor(root: AppStore, config: any) {
     this.root = root;
     this.actObjectBackendStore = new ActObjectBackendStore(config);
+    this.oneLeggedFactsStore = new OneLeggedFactsBackendStore(this, config);
     this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
     this.objectFactsBackendStore = new ObjectFactsBackendStore();
     this.objectTraverseBackendStore = new ObjectTraverseBackendStore();

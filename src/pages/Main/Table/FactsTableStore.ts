@@ -6,6 +6,7 @@ import MainPageStore from '../MainPageStore';
 import { ColumnKind, FactRow, SortOrder } from './FactsTable';
 import { exportToCsv, fileTimeString, renderObjectValue } from '../../../util/util';
 import { isOneLegged, isRetracted } from '../../../core/domain';
+import EventBus from '../../../util/eventbus';
 
 const sortBy = (sortOrder: SortOrder, columns: Array<{ label: string; kind: ColumnKind }>, objects: Array<FactRow>) => {
   const cellIdx = columns.findIndex(({ kind }) => kind === sortOrder.orderBy);
@@ -117,6 +118,7 @@ export const columns: Array<{ label: string; exportLabel?: string; tooltip?: str
 
 class FactsTableStore {
   root: MainPageStore;
+  eventBus: EventBus;
 
   @observable filterSelected = false;
 
@@ -125,8 +127,9 @@ class FactsTableStore {
 
   @observable factTypeFilter: Set<string> = new Set();
 
-  constructor(root: MainPageStore) {
+  constructor(root: MainPageStore, eventBus: EventBus) {
     this.root = root;
+    this.eventBus = eventBus;
   }
 
   @computed get facts() {
@@ -135,7 +138,7 @@ class FactsTableStore {
 
   @action.bound
   setSelectedFact(actFact: ActFact) {
-    this.root.selectionStore.setCurrentSelection({ kind: 'fact', id: actFact.id });
+    this.eventBus.publish([{ kind: 'selectionReset', selection: { [actFact.id]: { kind: 'fact', id: actFact.id } } }]);
   }
 
   @action.bound

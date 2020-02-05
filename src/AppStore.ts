@@ -6,10 +6,13 @@ import MainPageStore from './pages/Main/MainPageStore';
 import ObjectSummaryPageStore from './pages/ObjectSummary/ObjectSummaryPageStore';
 import SearchPageStore from './pages/Search/SearchPageStore';
 import Routing from './Routing';
+import EventBus from './util/eventbus';
+import { ActEvent } from './core/events';
 
 export type TPage = 'mainPage' | 'searchPage' | 'summaryPage';
 
 class AppStore {
+  eventBus: EventBus;
   mainPageStore: MainPageStore;
   searchPageStore: SearchPageStore;
   summaryPageStore: ObjectSummaryPageStore;
@@ -19,6 +22,9 @@ class AppStore {
   backendStore: BackendStore;
 
   constructor() {
+    this.eventBus = new EventBus();
+    this.eventBus.subscribe({ id: 'appStore', handler: this.handleEvent });
+
     this.backendStore = new BackendStore(this, config);
     this.mainPageStore = new MainPageStore(this, config);
     this.searchPageStore = new SearchPageStore(
@@ -58,6 +64,37 @@ class AppStore {
         isActive: this.currentPage === 'mainPage'
       }
     ];
+  }
+
+  @action.bound
+  handleEvent(event: ActEvent) {
+    switch (event.kind) {
+      case 'navigate':
+        this.goToUrl(event.url);
+        break;
+      case 'fetchActObjectStats':
+        this.mainPageStore.backendStore.actObjectBackendStore.execute(event.objectValue, event.objectTypeName);
+        break;
+      case 'fetchOneLeggedFacts':
+        this.mainPageStore.backendStore.oneLeggedFactsStore.execute(event.objectId);
+        break;
+      case 'selectionReset':
+        this.mainPageStore.selectionStore.setCurrentlySelected(event.selection);
+        this.mainPageStore.ui.detailsStore.selectionChanged();
+        break;
+      case 'selectionToggle':
+        this.mainPageStore.selectionStore.toggleSelection(event.item);
+        this.mainPageStore.ui.detailsStore.selectionChanged();
+        break;
+      case 'selectionRemove':
+        this.mainPageStore.selectionStore.removeAllFromSelection(event.removeAll);
+        this.mainPageStore.ui.detailsStore.selectionChanged();
+        break;
+      case 'selectionClear':
+        this.mainPageStore.selectionStore.clearSelection();
+        this.mainPageStore.ui.detailsStore.selectionChanged();
+        break;
+    }
   }
 }
 

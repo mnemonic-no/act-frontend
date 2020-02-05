@@ -43,21 +43,21 @@ class MainPageStore {
   constructor(appStore: AppStore, config: any) {
     this.appStore = appStore;
     this.backendStore = appStore.backendStore;
-    this.workingHistory = new WorkingHistory(this);
+    this.workingHistory = new WorkingHistory(this, appStore.eventBus);
     this.refineryStore = new RefineryStore(this, window.localStorage);
     this.selectionStore = new SelectionStore();
     this.ui = {
       contentStore: new ContentStore(this),
       cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
-      graphViewStore: new GraphViewStore(this),
+      graphViewStore: new GraphViewStore(this, appStore.eventBus),
 
       detailsStore: new DetailsStore(appStore, this, config),
       prunedObjectsTableStore: new PrunedObjectsTableStore(this),
       refineryOptionsStore: new RefineryOptionsStore(this),
       searchStore: new SearchByObjectTypeStore(this, config),
-      workingHistoryStore: new WorkingHistoryStore(this, config),
-      factsTableStore: new FactsTableStore(this),
-      objectsTableStore: new ObjectsTableStore(this)
+      workingHistoryStore: new WorkingHistoryStore(this, config, appStore.eventBus),
+      factsTableStore: new FactsTableStore(this, appStore.eventBus),
+      objectsTableStore: new ObjectsTableStore(this, appStore.eventBus)
     };
 
     // Make the URL reflect the last item in the working history

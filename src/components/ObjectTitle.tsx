@@ -15,30 +15,30 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ObjectTitleComp = ({ title, metaTitle, subTitle, color, onTitleClick }: IObjectTitleComp) => {
+const ObjectTitleComp = (props: IObjectTitleProps) => {
   const classes = useStyles();
 
   return (
-    <div style={{ color: color }}>
-      <div onClick={onTitleClick}>
-        <Typography variant="h6" className={cc(classes.longLabel, { [classes.link]: Boolean(onTitleClick) })}>
-          <div>{title}</div>
+    <div style={{ color: props.color }}>
+      <div onClick={props.onTitleClick}>
+        <Typography variant="h6" className={cc(classes.longLabel, { [classes.link]: Boolean(props.onTitleClick) })}>
+          <div>{props.title}</div>
         </Typography>
       </div>
 
-      {metaTitle && (
+      {props.metaTitle && (
         <Typography variant="caption">
-          <div className={classes.longLabel}>{metaTitle}</div>
+          <div className={classes.longLabel}>{props.metaTitle}</div>
         </Typography>
       )}
       <Typography variant="subtitle1" gutterBottom>
-        <span>{subTitle}</span>
+        <span>{props.subTitle}</span>
       </Typography>
     </div>
   );
 };
 
-export interface IObjectTitleComp {
+export interface IObjectTitleProps {
   title: string;
   metaTitle?: string;
   subTitle: string;

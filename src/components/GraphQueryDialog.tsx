@@ -8,9 +8,8 @@ import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
-import { PredefinedObjectQuery } from '../core/types';
 import ActIcon from './ActIcon';
-import PredefinedObjectQueries from './ObjectInformation/PredefinedObjectQueries';
+import TitledButtonListComp, { ITitledButtonListProps } from './TitledButtonList';
 
 const useStyles = makeStyles((theme: Theme) => ({
   closeButton: {
@@ -51,11 +50,11 @@ const GraphQueryDialogComp = (props: IGraphQueryDialogComp) => {
             {props.description.text}
           </Typography>
 
-          {props.predefinedObjectQueries && (
+          {props.predefinedObjectQueryButtonList && (
             <div className={classes.section}>
-              <PredefinedObjectQueries
-                predefinedObjectQueries={props.predefinedObjectQueries.queries}
-                onClick={props.predefinedObjectQueries.onClick}
+              <TitledButtonListComp
+                title={props.predefinedObjectQueryButtonList.title}
+                buttons={props.predefinedObjectQueryButtonList.buttons}
               />
             </div>
           )}
@@ -90,7 +89,7 @@ const GraphQueryDialogComp = (props: IGraphQueryDialogComp) => {
 export interface IGraphQueryDialogComp {
   isOpen: boolean;
   description: { text: string; color: string };
-  predefinedObjectQueries?: { queries: Array<PredefinedObjectQuery>; onClick: (q: PredefinedObjectQuery) => void };
+  predefinedObjectQueryButtonList?: ITitledButtonListProps;
   graphQuery: { value: string; onChange: (v: string) => void };
   onClose: () => void;
   onSubmit: () => void;

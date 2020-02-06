@@ -6,14 +6,14 @@ import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import { ActionButton } from '../../core/types';
-import CenteredCircularProgress from '../CenteredCircularProgress';
-import CreateFactForObjectDialog from '../CreateFactFor/Dialog';
-import CreateFactForDialog from '../CreateFactFor/DialogStore';
-import FactStats, { IFactStatsProps } from '../FactStats';
-import GraphQueryDialogComp, { IGraphQueryDialogComp } from '../GraphQueryDialog';
-import ObjectTitle, { IObjectTitleProps } from '../ObjectTitle';
-import TitledButtonListComp from '../TitledButtonList';
+import { ActionButton } from '../../../core/types';
+import CenteredCircularProgress from '../../../components/CenteredCircularProgress';
+import CreateFactForObjectDialog from '../../../components/CreateFactFor/Dialog';
+import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
+import FactStats, { IFactStatsProps } from '../../../components/FactStats';
+import GraphQueryDialogComp, { IGraphQueryDialogComp } from '../../../components/GraphQueryDialog';
+import ObjectTitle, { IObjectTitleProps } from '../../../components/ObjectTitle';
+import TitledButtonListComp from '../../../components/TitledButtonList';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

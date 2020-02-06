@@ -9,14 +9,14 @@ import TableBody from '@material-ui/core/TableBody';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import { ActFact, ActObject, FactComment } from '../../core/types';
-import { factColor } from '../../util/util';
+import { ActFact, ActObject, FactComment } from '../../../core/types';
+import { factColor } from '../../../util/util';
 import { FactRow } from './FactsRow';
-import { isMetaFact, isRetracted } from '../../core/domain';
+import { isMetaFact, isRetracted } from '../../../core/domain';
 import { ObjectRow } from './ObjectRow';
-import { pluralize } from '../../util/util';
-import CenteredCircularProgress from '../CenteredCircularProgress';
-import RetractFactDialog from '../RetractFact/Dialog';
+import { pluralize } from '../../../util/util';
+import CenteredCircularProgress from '../../../components/CenteredCircularProgress';
+import RetractFactDialog from '../../../components/RetractFact/Dialog';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

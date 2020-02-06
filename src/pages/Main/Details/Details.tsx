@@ -3,8 +3,8 @@ import { observer } from 'mobx-react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import DetailsStore from './DetailsStore';
-import FactInformation, { IFactInformationProps } from '../../../components/FactInformation/FactInformation';
-import ObjectInformation, { IObjectInformationProps } from '../../../components/ObjectInformation/ObjectInformation';
+import FactInformation, { IFactInformationProps } from './FactInformation';
+import ObjectInformation, { IObjectInformationProps } from './ObjectInformation';
 import MultipleObjectsInformation, { IMultiSelectInformationComp } from './MultiSelectInformation';
 
 const useStyles = makeStyles(() => ({

@@ -5,8 +5,8 @@ import TableRow from '@material-ui/core/TableRow';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import format from 'date-fns/format';
 
-import { ActFact } from '../../core/types';
-import { isRetraction } from '../../core/domain';
+import { ActFact } from '../../../core/types';
+import { isRetraction } from '../../../core/domain';
 
 const useStyles = makeStyles((theme: Theme) => ({
   cell: {

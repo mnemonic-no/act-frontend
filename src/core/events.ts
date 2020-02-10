@@ -1,4 +1,4 @@
-import { ActSelection } from './types';
+import { ActSelection, WorkingHistoryItem } from './types';
 
 export interface NavigateEvent {
   kind: 'navigate';
@@ -41,6 +41,11 @@ export interface FetchFact {
   refetch?: boolean;
 }
 
+export interface WorkingHistoryRemoveItem {
+  kind: 'workingHistoryRemoveItem';
+  item: WorkingHistoryItem;
+}
+
 export type ActEvent =
   | NavigateEvent
   | SelectionReset
@@ -49,4 +54,5 @@ export type ActEvent =
   | SelectionToggle
   | FetchActObjectStats
   | FetchFact
-  | FetchOneLeggedFacts;
+  | FetchOneLeggedFacts
+  | WorkingHistoryRemoveItem;

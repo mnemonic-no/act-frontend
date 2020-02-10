@@ -1,11 +1,18 @@
 import { observable } from 'mobx';
 
-import { isRejected, LoadingStatus, MultiObjectTraverseSearch, SearchResult, TRequestLoadable } from '../core/types';
+import {
+  isPending,
+  isRejected,
+  LoadingStatus,
+  MultiObjectTraverseSearch,
+  SearchResult,
+  TRequestLoadable
+} from '../core/types';
 import { multiObjectTraverseDataLoader } from '../core/dataLoaders';
 
 export type MultiObjectTraverseLoadable = TRequestLoadable<MultiObjectTraverseSearch, SearchResult>;
 
-export const multiObjectTraverseId = (req: { objectIds: Array<string>; query: string }) => {
+export const getId = (req: { objectIds: Array<string>; query: string }) => {
   return req.query + ' ' + req.objectIds.join(',');
 };
 
@@ -13,10 +20,12 @@ class MultiObjectTraverseBackendStore {
   @observable cache: { [id: string]: MultiObjectTraverseLoadable } = {};
 
   async execute(request: MultiObjectTraverseSearch) {
+    const abortController = new AbortController();
     const q: MultiObjectTraverseLoadable = {
-      id: multiObjectTraverseId(request),
+      id: getId(request),
       status: LoadingStatus.PENDING,
-      args: request
+      args: request,
+      abortController: abortController
     };
 
     if (this.includes(q) && !isRejected(this.cache[q.id])) {
@@ -26,7 +35,7 @@ class MultiObjectTraverseBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await multiObjectTraverseDataLoader(request);
+      const { facts, objects } = await multiObjectTraverseDataLoader(request, abortController);
 
       this.cache[q.id] = {
         ...q,
@@ -37,17 +46,31 @@ class MultiObjectTraverseBackendStore {
         }
       };
     } catch (err) {
+      // Aborts are initiated by the user, so just ignore them
+      if (err.name === 'AbortError') {
+        return;
+      }
+
       this.cache[q.id] = { ...q, status: LoadingStatus.REJECTED, error: err.message };
       throw err;
     }
   }
 
   getItemBy(s: MultiObjectTraverseSearch) {
-    return this.cache[multiObjectTraverseId(s)];
+    return this.cache[getId(s)];
   }
 
   includes(q: MultiObjectTraverseLoadable) {
     return this.cache.hasOwnProperty(q.id);
+  }
+
+  remove(search: MultiObjectTraverseSearch) {
+    const id = getId(search);
+    const s = this.cache[id];
+    if (isPending(s) && s.abortController) {
+      s.abortController.abort();
+    }
+    delete this.cache[id];
   }
 }
 

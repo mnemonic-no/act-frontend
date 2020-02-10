@@ -3,6 +3,7 @@ import { checkObjectStats, factTypesDataLoader, objectTypesDataLoader, postJson 
 
 import {
   FactType,
+  isFactSearch,
   isMultiObjectSearch,
   isObjectFactsSearch,
   isObjectTraverseSearch,
@@ -13,6 +14,7 @@ import {
   TLoadable
 } from '../core/types';
 import { addMessage } from '../util/SnackbarProvider';
+import { assertNever } from '../util/util';
 import ActObjectBackendStore from './ActObjectBackendStore';
 import AppStore from '../AppStore';
 import FactBackendStore from './FactBackendStore';
@@ -107,6 +109,21 @@ class BackendStore {
   }
 
   @action.bound
+  removeSearch(search: Search) {
+    if (isObjectTraverseSearch(search)) {
+      this.objectTraverseBackendStore.remove(search);
+    } else if (isObjectFactsSearch(search)) {
+      this.objectFactsBackendStore.remove(search);
+    } else if (isMultiObjectSearch(search)) {
+      this.multiObjectTraverseStore.remove(search);
+    } else if (isFactSearch(search)) {
+      // Ignore, fact searches are only handled client side
+    } else {
+      assertNever(search);
+    }
+  }
+
+  @action.bound
   async executeSingleSearch(search: Search): Promise<any> {
     if (!isObjectFactsSearch(search) && !isObjectTraverseSearch(search) && !isMultiObjectSearch(search)) {
       throw Error('Search of this type is not supported ' + JSON.stringify(search));
@@ -162,7 +179,9 @@ class BackendStore {
       }
 
       const results = await Promise.all(
-        searches.map(s => this.executeSingleSearch(s).catch(e => ({ error: e, search: s })))
+        searches.map(s =>
+          this.executeSingleSearch(s).catch(e => (e.name !== 'AbortError' ? { error: e, search: s } : undefined))
+        )
       );
       const errors = results.filter(Boolean);
       if (errors.length > 0) {

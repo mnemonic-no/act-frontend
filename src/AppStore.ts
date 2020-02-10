@@ -100,6 +100,9 @@ class AppStore {
         this.mainPageStore.selectionStore.clearSelection();
         this.mainPageStore.ui.detailsStore.selectionChanged();
         break;
+      case 'workingHistoryRemoveItem':
+        this.mainPageStore.workingHistory.removeItem(event.item);
+        break;
     }
   }
 }

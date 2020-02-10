@@ -72,11 +72,10 @@ export const objectTypesDataLoader = () =>
 /**
  * Fetch facts from an object specifed by type and value
  */
-export const objectFactsDataLoader = ({
-  objectType,
-  objectValue,
-  factTypes
-}: ObjectFactsSearch): Promise<SearchResult> => {
+export const objectFactsDataLoader = (
+  { objectType, objectValue, factTypes }: ObjectFactsSearch,
+  abortController?: AbortController
+): Promise<SearchResult> => {
   const requestBody = {
     ...(factTypes && factTypes.length > 0 && { factType: factTypes }),
     limit: DEFAULT_LIMIT,
@@ -85,6 +84,7 @@ export const objectFactsDataLoader = ({
 
   return actWretch
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}/facts`)
+    .signal(abortController || new AbortController())
     .json(requestBody)
     .post()
     .forbidden(handleForbiddenSearchResults)
@@ -105,18 +105,17 @@ const isFact = (maybeFact: any) => maybeFact.hasOwnProperty('bidirectionalBindin
 /**
  * Fetch facts and objects from a traversal query from a specifed object
  */
-export const objectTraverseDataLoader = ({
-  objectType,
-  objectValue,
-  query
-}: ObjectTraverseSearch): Promise<SearchResult> =>
+export const objectTraverseDataLoader = (
+  { objectType, objectValue, query }: ObjectTraverseSearch,
+  abortController?: AbortController
+): Promise<SearchResult> =>
   actWretch
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}/traverse`)
+    .signal(abortController || new AbortController())
     .json({
       query
     })
     .post()
-
     .forbidden(handleForbiddenSearchResults)
     .json(({ data }: any) => {
       const facts: { [id: string]: ActFact } = arrayToObjectWithIds(data.filter(isFact));
@@ -132,14 +131,18 @@ export const objectTraverseDataLoader = ({
 /**
  * Traverse the graph based on a query, starting with multiple objects
  */
-export const multiObjectTraverseDataLoader = (props: {
-  objectIds: Array<string>;
-  query: string;
-}): Promise<SearchResult> => {
+export const multiObjectTraverseDataLoader = (
+  props: {
+    objectIds: Array<string>;
+    query: string;
+  },
+  abortController?: AbortController
+): Promise<SearchResult> => {
   const request = { query: props.query, objectID: props.objectIds };
 
   return actWretch
     .url('/v1/object/traverse')
+    .signal(abortController || new AbortController())
     .json(request)
     .post()
     .forbidden(handleForbiddenSearchResults)

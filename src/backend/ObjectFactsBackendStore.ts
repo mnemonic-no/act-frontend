@@ -1,21 +1,24 @@
 import { observable } from 'mobx';
 
-import { isRejected, LoadingStatus, ObjectFactsSearch, SearchResult, TRequestLoadable } from '../core/types';
+import { isPending, isRejected, LoadingStatus, ObjectFactsSearch, SearchResult, TRequestLoadable } from '../core/types';
 import { autoResolveDataLoader, objectFactsDataLoader } from '../core/dataLoaders';
 
 export type ObjectFactsLoadable = TRequestLoadable<ObjectFactsSearch, SearchResult>;
 
-export const objectFactsId = ({ objectValue, objectType, factTypes }: ObjectFactsSearch) =>
+export const getId = ({ objectValue, objectType, factTypes }: ObjectFactsSearch) =>
   objectType + ':' + objectValue + ':' + JSON.stringify(factTypes);
 
 class ObjectFactsBackendStore {
   @observable cache: { [id: string]: ObjectFactsLoadable } = {};
 
   async execute(request: ObjectFactsSearch) {
+    const abortController = new AbortController();
+
     const q: ObjectFactsLoadable = {
-      id: objectFactsId(request),
+      id: getId(request),
       status: LoadingStatus.PENDING,
-      args: request
+      args: request,
+      abortController: abortController
     };
 
     if (this.includes(q) && !isRejected(this.cache[q.id])) {
@@ -25,7 +28,7 @@ class ObjectFactsBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await objectFactsDataLoader(request).then(autoResolveDataLoader);
+      const { facts, objects } = await objectFactsDataLoader(request, abortController).then(autoResolveDataLoader);
 
       this.cache[q.id] = {
         ...q,
@@ -36,17 +39,31 @@ class ObjectFactsBackendStore {
         }
       };
     } catch (err) {
+      // Aborts are initiated by the user, so just ignore them
+      if (err.name === 'AbortError') {
+        return;
+      }
+
       this.cache[q.id] = { ...q, status: LoadingStatus.REJECTED, error: err.message };
       throw err;
     }
   }
 
   getItemBy(s: ObjectFactsSearch) {
-    return this.cache[objectFactsId(s)];
+    return this.cache[getId(s)];
   }
 
   includes(q: ObjectFactsLoadable) {
     return this.cache.hasOwnProperty(q.id);
+  }
+
+  remove(search: ObjectFactsSearch) {
+    const id = getId(search);
+    const s = this.cache[id];
+    if (isPending(s) && s.abortController) {
+      s.abortController.abort();
+    }
+    delete this.cache[id];
   }
 }
 

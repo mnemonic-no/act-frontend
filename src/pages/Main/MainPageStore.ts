@@ -86,6 +86,7 @@ class MainPageStore {
 
   @action.bound
   handleError({ error, title }: { error: Error; title?: string }) {
+    console.error(error);
     if (title) {
       // @ts-ignore
       error.title = title;

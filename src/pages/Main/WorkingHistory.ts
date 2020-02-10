@@ -20,7 +20,6 @@ import {
 } from '../../core/types';
 import { urlToGraphQueryPage, urlToMultiObjectQueryPage, urlToObjectFactQueryPage } from '../../Routing';
 import { searchId } from '../../core/domain';
-import { notUndefined } from '../../util/util';
 import ObjectTraverseBackendStore from '../../backend/ObjectTraverseBackendStore';
 import ObjectFactsBackendStore from '../../backend/ObjectFactsBackendStore';
 import MultiObjectTraverseBackendStore from '../../backend/MultiObjectTraverseBackendStore';
@@ -49,33 +48,24 @@ export const workingHistoryToPath = (historyItems: Array<WorkingHistoryItem>) =>
   return '';
 };
 
-const resolvedSearchResults = (
-  historyItems: Array<WorkingHistoryItem>,
+const getLoadable = (
+  item: WorkingHistoryItem,
   objectTraverseStore: ObjectTraverseBackendStore,
   objectFactsStore: ObjectFactsBackendStore,
   multiObjectTraverseStore: MultiObjectTraverseBackendStore,
   createdFacts: { [id: string]: SearchResult }
-): Array<{ item: WorkingHistoryItem; loadable: TLoadable<SearchResult> }> => {
-  return historyItems
-    .map(x => {
-      if (isObjectTraverseSearch(x.search)) {
-        return { item: x, loadable: objectTraverseStore.getItemBy(x.search) };
-      } else if (isObjectFactsSearch(x.search)) {
-        return { item: x, loadable: objectFactsStore.getItemBy(x.search) };
-      } else if (isFactSearch(x.search) && createdFacts[x.search.id]) {
-        return {
-          item: x,
-          loadable: { status: LoadingStatus.DONE, result: createdFacts[x.search.id] } as TLoadable<SearchResult>
-        };
-      } else if (isMultiObjectSearch(x.search)) {
-        return {
-          item: x,
-          loadable: multiObjectTraverseStore.getItemBy(x.search)
-        };
-      }
-      return undefined;
-    })
-    .filter(notUndefined);
+): TLoadable<SearchResult> => {
+  if (isObjectTraverseSearch(item.search)) {
+    return objectTraverseStore.getItemBy(item.search);
+  } else if (isObjectFactsSearch(item.search)) {
+    return objectFactsStore.getItemBy(item.search);
+  } else if (isFactSearch(item.search) && createdFacts[item.search.id]) {
+    return { status: LoadingStatus.DONE, result: createdFacts[item.search.id] } as TLoadable<SearchResult>;
+  } else if (isMultiObjectSearch(item.search)) {
+    return multiObjectTraverseStore.getItemBy(item.search);
+  }
+
+  throw new Error('Failed to find item ' + item);
 };
 
 class WorkingHistory {
@@ -99,13 +89,16 @@ class WorkingHistory {
   }
 
   @computed get withLoadable() {
-    return resolvedSearchResults(
-      this.historyItems,
-      this.root.backendStore.objectTraverseBackendStore,
-      this.root.backendStore.objectFactsBackendStore,
-      this.root.backendStore.multiObjectTraverseStore,
-      this.createdFacts
-    );
+    return this.historyItems.map(item => ({
+      item: item,
+      loadable: getLoadable(
+        item,
+        this.root.backendStore.objectTraverseBackendStore,
+        this.root.backendStore.objectFactsBackendStore,
+        this.root.backendStore.multiObjectTraverseStore,
+        this.createdFacts
+      )
+    }));
   }
 
   @computed get result(): SearchResult {
@@ -171,10 +164,12 @@ class WorkingHistory {
     this.addItem({ id: search.id, search: search });
   }
 
-  @action
+  @action.bound
   removeItem(item: WorkingHistoryItem) {
     // @ts-ignore
     this.historyItems.remove(item);
+    this.root.backendStore.removeSearch(item.search);
+
     if (item.id === this.selectedItemId) {
       const newSelection = _.last(this.root.workingHistory.historyItems);
       if (newSelection) {
@@ -183,10 +178,12 @@ class WorkingHistory {
     }
   }
 
-  @action
+  @action.bound
   removeAllItems() {
     // @ts-ignore
-    this.historyItems.clear();
+    const items = [...this.historyItems];
+    items.forEach(i => this.removeItem(i));
+
     this.eventBus.publish([{ kind: 'selectionClear' }]);
   }
 

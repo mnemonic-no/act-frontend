@@ -175,6 +175,7 @@ export enum LoadingStatus {
 type TCommonLoadable<A> = {
   id: string;
   args: A;
+  abortController?: AbortController;
 };
 
 export type TPendingLoadable = {

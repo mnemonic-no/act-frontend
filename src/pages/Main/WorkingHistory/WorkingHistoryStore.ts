@@ -226,7 +226,7 @@ class WorkingHistoryStore {
 
   @action.bound
   removeItem(item: WorkingHistoryItem) {
-    this.root.workingHistory.removeItem(item);
+    this.eventBus.publish([{ kind: 'workingHistoryRemoveItem', item: item }]);
   }
 
   @action.bound

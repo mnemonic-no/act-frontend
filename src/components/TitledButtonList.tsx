@@ -20,9 +20,19 @@ const TitledButtonListComp = (props: ITitledButtonListProps) => {
             <React.Fragment key={b.text}>
               <Grid item>
                 <Tooltip title={b.tooltip}>
-                  <Button size="small" variant="outlined" onClick={b.onClick} href={b.href}>
-                    {b.text}
-                  </Button>
+                  <>
+                    {/* target and rel are missing in the Button type
+                    // @ts-ignore */}
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={b.onClick}
+                      href={b.href}
+                      target="_blank"
+                      rel="noopener noreferrer">
+                      {b.text}
+                    </Button>
+                  </>
                 </Tooltip>
               </Grid>
             </React.Fragment>

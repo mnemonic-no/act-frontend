@@ -5,8 +5,14 @@ import { ActObjectSearch } from '../../backend/ActObjectBackendStore';
 import { IObjectTitleProps } from '../../components/ObjectTitle';
 import { ActFact, ActObject, IObjectTypeToSections, isDone, isPending, isRejected } from '../../core/types';
 import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
-import { getObjectLabelFromFact, isOneLegged, objectTitle, toContextAction } from '../../core/domain';
-import { parseObjectSummary, TSectionConfig } from '../../configUtil';
+import {
+  contextActionsFor,
+  getObjectLabelFromFact,
+  isOneLegged,
+  objectTitle,
+  toContextAction
+} from '../../core/domain';
+import { ContextActionTemplate, parseObjectSummary, resolveActions, TSectionConfig } from '../../configUtil';
 import { CellKind, TActionCell, TCell, TSectionComp, TTagsCell, TTextCell } from './Section';
 import { urlToObjectFactQueryPage, urlToObjectSummaryPage } from '../../Routing';
 import AppStore from '../../AppStore';
@@ -116,7 +122,7 @@ export const prepareSections = (
                   ({
                     kind: CellKind.action,
                     actions: actions.map(a => {
-                      const x = toContextAction(a.action, o, postAndForgetFn);
+                      const x = toContextAction(o.value, o.type.name, a.action, postAndForgetFn);
                       return { tooltip: x.description, icon: a.icon, href: x.href || '' };
                     })
                   } as TActionCell)
@@ -159,6 +165,7 @@ class ObjectSummaryPageStore {
   config: { [id: string]: any };
 
   @observable currentObject: { typeName: string; value: string } | undefined;
+  contextActionTemplates: Array<ContextActionTemplate>;
 
   objectTypeToSections: IObjectTypeToSections = {};
 
@@ -167,6 +174,9 @@ class ObjectSummaryPageStore {
     this.config = config;
     this.objectTypeToSections =
       parseObjectSummary({ objectSummary: config.objectSummary, actions: config.actions }) || {};
+
+    this.contextActionTemplates =
+      resolveActions({ contextActions: config.contextActions, actions: config.actions }) || [];
   }
 
   @action.bound
@@ -249,8 +259,22 @@ class ObjectSummaryPageStore {
             ? 'Object summary is not supported for objects of this type'
             : '',
           title: getObjectTitle(actObjectSearch, this.config.objectLabelFromFactType),
-          addToGraphButton: { text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView },
-          categories: categories(actObjectSearch)
+          categories: categories(actObjectSearch),
+          objectActions: {
+            title: 'Actions',
+            buttons: contextActionsFor(
+              this.currentObject.value,
+              this.currentObject.typeName,
+              this.contextActionTemplates,
+              this.appStore.backendStore.postAndForget
+            ).map(contextAction => ({
+              text: contextAction.name,
+              onClick: contextAction.onClick,
+              href: contextAction.href,
+              tooltip: contextAction.description
+            }))
+          },
+          commonActions: [{ text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView }]
         },
         sections: prepareSections(
           this.currentObject,

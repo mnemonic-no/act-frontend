@@ -85,19 +85,9 @@ it('can get context actions for links', () => {
     }
   };
 
-  expect(sut.contextActionsFor(null, [], noopFn)).toEqual([]);
+  expect(sut.contextActionsFor('', '', [], noopFn)).toEqual([]);
 
-  expect(
-    sut.contextActionsFor(
-      {
-        id: '1',
-        type: { id: '2', name: 'content' },
-        value: 'testValue'
-      },
-      [template],
-      noopFn
-    )
-  ).toEqual([
+  expect(sut.contextActionsFor('testValue', 'content', [template], noopFn)).toEqual([
     {
       name: template.action.name,
       description: template.action.description,
@@ -105,17 +95,7 @@ it('can get context actions for links', () => {
     }
   ]);
 
-  expect(
-    sut.contextActionsFor(
-      {
-        id: '1',
-        type: { id: '2', name: 'report' },
-        value: 'testValue'
-      },
-      [template],
-      noopFn
-    )
-  ).toEqual([]);
+  expect(sut.contextActionsFor('testValue', 'report', [template], noopFn)).toEqual([]);
 });
 
 it('can get context actions for postAndForget', () => {
@@ -132,15 +112,7 @@ it('can get context actions for postAndForget', () => {
     }
   };
 
-  const actions = sut.contextActionsFor(
-    {
-      id: '1',
-      type: { id: '2', name: 'content' },
-      value: 'testValue'
-    },
-    [template],
-    noopFn
-  );
+  const actions = sut.contextActionsFor('testValue', 'content', [template], noopFn);
 
   expect(actions).toHaveLength(1);
 

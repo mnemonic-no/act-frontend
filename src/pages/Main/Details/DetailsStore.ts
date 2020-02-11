@@ -270,7 +270,8 @@ class DetailsStore {
         {
           title: 'Actions',
           buttons: contextActionsFor(
-            selected,
+            selected.value,
+            selected.type.name,
             this.contextActionTemplates,
             this.root.backendStore.postAndForget.bind(this.root.backendStore)
           ).map(contextAction => ({
@@ -291,7 +292,8 @@ class DetailsStore {
       ],
       details: {
         contextActions: contextActionsFor(
-          selected,
+          selected.value,
+          selected.type.name,
           this.contextActionTemplates,
           this.root.backendStore.postAndForget.bind(this.root.backendStore)
         ),

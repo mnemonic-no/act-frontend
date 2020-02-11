@@ -125,26 +125,26 @@ export const predefinedObjectQueriesFor = (
 };
 
 export const contextActionsFor = (
-  selected: ActObject | null,
+  objectValue: string,
+  objectTypeName: string,
   contextActionTemplates: Array<ContextActionTemplate>,
   postAndForgetFn: (url: string, jsonBody: any, successString: string) => void
 ): Array<ContextAction> => {
-  if (!selected) return [];
-
   return contextActionTemplates
-    .filter((x: any) => !x.objects || x.objects.find((objectType: string) => objectType === selected.type.name))
-    .map((x: any) => toContextAction(x.action, selected, postAndForgetFn))
+    .filter((x: any) => !x.objects || x.objects.find((objectType: string) => objectType === objectTypeName))
+    .map((x: any) => toContextAction(objectValue, objectTypeName, x.action, postAndForgetFn))
     .sort(byName);
 };
 
 export const toContextAction = (
+  objectValue: string,
+  objectTypeName: string,
   action: ActionTemplate,
-  selected: ActObject,
   postAndForgetFn: (url: string, jsonBody: any, successString: string) => void
 ): ContextAction => {
   const replacements: { [key: string]: string } = {
-    ':objectValue': selected.value,
-    ':objectType': selected.type.name
+    ':objectValue': objectValue,
+    ':objectType': objectTypeName
   };
 
   switch (action.type) {

@@ -9,10 +9,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import WarnIcon from '@material-ui/icons/Warning';
 
+import { ActionButton } from '../../core/types';
 import ObjectSummaryPageStore from './ObjectSummaryPageStore';
 import ObjectTitle, { IObjectTitleProps } from '../../components/ObjectTitle';
 import Page from '../Page';
 import Section from './Section';
+import TitledButtonListComp from '../../components/TitledButtonList';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -48,8 +50,9 @@ const useTitleSectionStyles = makeStyles((theme: Theme) => ({
     flexFlow: 'column nowrap',
     alignItems: 'stretch'
   },
-  heading: { display: 'flex', justifyContent: 'space-between' },
-  content: { flex: '1 0 auto', display: 'flex', flexFlow: 'column nowrap', paddingTop: theme.spacing(1) },
+  heading: { paddingBottom: theme.spacing(1) },
+  content: { flex: '1 0 auto', display: 'flex', flexFlow: 'column nowrap' },
+  footer: { paddingTop: theme.spacing(1), display: 'flex', justifyContent: 'space-between' },
   centered: {
     display: 'flex',
     flexFlow: 'column',
@@ -62,7 +65,8 @@ const useTitleSectionStyles = makeStyles((theme: Theme) => ({
   },
   warningContainer: {
     display: 'flex',
-    color: theme.palette.secondary.dark
+    color: theme.palette.secondary.dark,
+    paddingBottom: theme.spacing(2)
   }
 }));
 
@@ -70,8 +74,9 @@ const TitleSection = (props: {
   isLoading: boolean;
   warning?: string;
   title: IObjectTitleProps;
-  addToGraphButton: { tooltip: string; onClick: () => void; text: string };
   categories: Array<string>;
+  objectActions: { title: string; buttons: Array<ActionButton> };
+  commonActions: Array<ActionButton>;
 }) => {
   const classes = useTitleSectionStyles();
 
@@ -79,15 +84,7 @@ const TitleSection = (props: {
     <Paper className={classes.root}>
       <div className={classes.heading}>
         <Typography variant="h6">Object Summary {props.isLoading && <CircularProgress size={20} />}</Typography>
-
-        <Tooltip title={props.addToGraphButton.tooltip}>
-          <Button variant="outlined" onClick={props.addToGraphButton.onClick}>
-            {props.addToGraphButton.text}
-          </Button>
-        </Tooltip>
-      </div>
-      <ObjectTitle {...props.title} />
-      <div className={classes.content}>
+        <ObjectTitle {...props.title} />
         <div>
           {props.categories.map((category, idx) => {
             return (
@@ -97,18 +94,30 @@ const TitleSection = (props: {
             );
           })}
         </div>
+      </div>
+      <div className={classes.content}>
         {props.warning && (
           <div className={classes.warningContainer}>
             <WarnIcon color="secondary" />
             <Typography variant="subtitle1">{props.warning}</Typography>
           </div>
         )}
+        <TitledButtonListComp {...props.objectActions} />
+      </div>
+      <div className={classes.footer}>
+        {props.commonActions.map(action => (
+          <Tooltip key={action.text} title={action.tooltip}>
+            <Button variant="text" size="small" onClick={action.onClick}>
+              {action.text}
+            </Button>
+          </Tooltip>
+        ))}
       </div>
     </Paper>
   );
 };
 
-const SummaryPageComp = ({ store }: ISummaryPageComp) => {
+const ObjectSummaryPageComp = ({ store }: ISummaryPageProps) => {
   const classes = useStyles();
 
   const { content } = store.prepared;
@@ -130,8 +139,8 @@ const SummaryPageComp = ({ store }: ISummaryPageComp) => {
   );
 };
 
-export interface ISummaryPageComp {
+export interface ISummaryPageProps {
   store: ObjectSummaryPageStore;
 }
 
-export default observer(SummaryPageComp);
+export default observer(ObjectSummaryPageComp);

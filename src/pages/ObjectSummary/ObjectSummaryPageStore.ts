@@ -161,7 +161,6 @@ export const categories = (actObjectSearch: ActObjectSearch): Array<string> => {
 
 class ObjectSummaryPageStore {
   appStore: AppStore;
-  @observable error: Error | null = null;
   config: { [id: string]: any };
 
   @observable currentObject: { typeName: string; value: string } | undefined;
@@ -185,7 +184,7 @@ class ObjectSummaryPageStore {
 
     const sections = this.objectTypeToSections[objectTypeName] && this.objectTypeToSections[objectTypeName].sections;
     this.appStore.backendStore.actObjectBackendStore.execute(objectValue, objectTypeName, (error: Error) => {
-      this.handleError({ error: error, title: 'Failed' });
+      this.appStore.eventBus.publish([{ kind: 'errorEvent', title: 'Failed', error: error }]);
     });
 
     if (sections) {
@@ -214,23 +213,6 @@ class ObjectSummaryPageStore {
     );
   }
 
-  @action.bound
-  handleError({ error, title }: { error: Error; title?: string }) {
-    if (title) {
-      // @ts-ignore
-      error.title = title;
-    }
-    this.error = error;
-  }
-
-  @computed
-  get errorSnackbar() {
-    return {
-      error: this.error,
-      onClose: () => (this.error = null)
-    };
-  }
-
   @computed
   get prepared() {
     const actObjectSearch =
@@ -241,17 +223,17 @@ class ObjectSummaryPageStore {
       );
 
     if (!this.currentObject || !actObjectSearch) {
-      this.handleError({ error: new Error('No object selected') });
+      this.appStore.eventBus.publish([{ kind: 'errorEvent', error: new Error('No object selected') }]);
 
       return {
         pageMenu: this.appStore.pageMenu,
-        error: this.errorSnackbar
+        error: this.appStore.errorSnackbar
       };
     }
 
     return {
       pageMenu: this.appStore.pageMenu,
-      error: this.errorSnackbar,
+      error: this.appStore.errorSnackbar,
       content: {
         titleSection: {
           isLoading: isPending(actObjectSearch),

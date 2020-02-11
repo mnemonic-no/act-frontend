@@ -17,17 +17,19 @@ import { addMessage } from '../util/SnackbarProvider';
 import { assertNever } from '../util/util';
 import ActObjectBackendStore from './ActObjectBackendStore';
 import AppStore from '../AppStore';
+import EventBus from '../util/eventbus';
 import FactBackendStore from './FactBackendStore';
+import MultiObjectTraverseBackendStore from './MultiObjectTraverseBackendStore';
 import ObjectTraverseBackendStore from './ObjectTraverseBackendStore';
 import ObjectFactsBackendStore from './ObjectFactsBackendStore';
-import SimpleSearchBackendStore from './SimpleSearchBackendStore';
-import MultiObjectTraverseBackendStore from './MultiObjectTraverseBackendStore';
 import OneLeggedFactsBackendStore from './OneLeggedFactsBackendStore';
+import SimpleSearchBackendStore from './SimpleSearchBackendStore';
 
 const maxFetchLimit = 2000;
 
 class BackendStore {
   root: AppStore;
+  eventBus: EventBus;
 
   actObjectBackendStore: ActObjectBackendStore;
   oneLeggedFactsStore: OneLeggedFactsBackendStore;
@@ -43,6 +45,7 @@ class BackendStore {
 
   constructor(root: AppStore, config: any) {
     this.root = root;
+    this.eventBus = root.eventBus;
     this.actObjectBackendStore = new ActObjectBackendStore(config);
     this.factBackendStore = new FactBackendStore(config);
     this.oneLeggedFactsStore = new OneLeggedFactsBackendStore(this, config);
@@ -162,7 +165,7 @@ class BackendStore {
       }
     } catch (err) {
       runInAction(() => {
-        this.root.mainPageStore.handleError({ error: err });
+        this.eventBus.publish([{ kind: 'errorEvent', error: err }]);
       });
     }
   }
@@ -185,14 +188,17 @@ class BackendStore {
       );
       const errors = results.filter(Boolean);
       if (errors.length > 0) {
-        this.root.mainPageStore.handleError({
-          error: new Error('See search history for details'),
-          title: 'Bulk result: ' + errors.length + ' of  ' + searches.length + ' searches failed'
-        });
+        this.eventBus.publish([
+          {
+            kind: 'errorEvent',
+            title: 'Bulk result: ' + errors.length + ' of  ' + searches.length + ' searches failed',
+            error: new Error('See search history for details')
+          }
+        ]);
       }
     } catch (err) {
       runInAction(() => {
-        this.root.mainPageStore.handleError({ error: err, title: 'Bulk search failed' });
+        this.eventBus.publish([{ kind: 'errorEvent', error: err, title: 'Bulk search failed' }]);
       });
     }
   }
@@ -205,7 +211,7 @@ class BackendStore {
       addMessage(successMessage);
     } catch (err) {
       runInAction(() => {
-        this.root.mainPageStore.handleError({ error: err });
+        this.eventBus.publish([{ kind: 'errorEvent', error: err }]);
       });
     } finally {
       runInAction(() => {

@@ -32,7 +32,6 @@ class MainPageStore {
   };
 
   @observable isSearchDrawerOpen = true;
-  @observable error: Error | null = null;
 
   appStore: AppStore;
   backendStore: BackendStore;
@@ -84,16 +83,6 @@ class MainPageStore {
     this.refineryStore.setPrunedObjectIds(stateExport.prunedObjectIds || []);
   }
 
-  @action.bound
-  handleError({ error, title }: { error: Error; title?: string }) {
-    console.error(error);
-    if (title) {
-      // @ts-ignore
-      error.title = title;
-    }
-    this.error = error;
-  }
-
   @computed
   get hasContent() {
     return !this.workingHistory.isEmpty;
@@ -101,10 +90,7 @@ class MainPageStore {
 
   @computed
   get errorSnackbar() {
-    return {
-      error: this.error,
-      onClose: () => (this.error = null)
-    };
+    return this.appStore.errorSnackbar;
   }
 
   @computed

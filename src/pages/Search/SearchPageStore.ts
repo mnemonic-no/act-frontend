@@ -131,6 +131,7 @@ class SearchPageStore {
 
     return {
       pageMenu: this.root.pageMenu,
+      errorSnackbar: this.root.errorSnackbar,
       hasActiveSearch: hasActiveSearch,
       searchInput: autoSuggester,
       searchHistoryItems: historyItems,

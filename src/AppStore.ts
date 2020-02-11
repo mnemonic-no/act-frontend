@@ -17,9 +17,10 @@ class AppStore {
   searchPageStore: SearchPageStore;
   summaryPageStore: ObjectSummaryPageStore;
   routing: Routing;
-  @observable currentPage: TPage = 'mainPage';
-
   backendStore: BackendStore;
+
+  @observable currentPage: TPage = 'mainPage';
+  @observable errorEvent: { title?: string; error: Error } | null = null;
 
   constructor() {
     this.eventBus = new EventBus();
@@ -66,6 +67,11 @@ class AppStore {
     ];
   }
 
+  @computed
+  get errorSnackbar() {
+    return { errorEvent: this.errorEvent, onClose: () => (this.errorEvent = null) };
+  }
+
   @action.bound
   handleEvent(event: ActEvent) {
     switch (event.kind) {
@@ -102,6 +108,9 @@ class AppStore {
         break;
       case 'workingHistoryRemoveItem':
         this.mainPageStore.workingHistory.removeItem(event.item);
+        break;
+      case 'errorEvent':
+        this.errorEvent = { ...event };
         break;
     }
   }

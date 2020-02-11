@@ -195,15 +195,17 @@ const SearchWithResults = observer(({ store }: { store: SearchPageStore }) => {
   );
 });
 
-const SearchPage = ({ store }: { store: SearchPageStore }) => {
-  const error = { error: null, onClose: () => {} };
-
+const SearchPage = ({ store }: ISearchPageProps) => {
   return (
-    <Page errorSnackbar={error} isLoading={false} leftMenuItems={store.prepared.pageMenu}>
+    <Page errorSnackbar={store.prepared.errorSnackbar} isLoading={false} leftMenuItems={store.prepared.pageMenu}>
       {!store.prepared.hasActiveSearch && <SearchOnly {...store.prepared} />}
       {store.prepared.hasActiveSearch && <SearchWithResults store={store} />}
     </Page>
   );
 };
+
+interface ISearchPageProps {
+  store: SearchPageStore;
+}
 
 export default observer(SearchPage);

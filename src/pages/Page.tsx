@@ -14,7 +14,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import AboutButton from '../components/About';
 import ErrorBoundary from '../components/ErrorBoundary';
-import ErrorSnackbar, { IErrorSnackbarComp } from '../components/ErrorSnackbar';
+import ErrorSnackbar, { IErrorSnackbarProps } from '../components/ErrorSnackbar';
 
 const useStyles = makeStyles((theme: Theme) => {
   const appBarHeight = theme.spacing(8);
@@ -150,7 +150,7 @@ const PageComp = (props: IPageComp) => {
 
 export interface IPageComp {
   children: any;
-  errorSnackbar: IErrorSnackbarComp;
+  errorSnackbar: IErrorSnackbarProps;
   isLoading: boolean;
   leftMenuItems: Array<any>;
 }

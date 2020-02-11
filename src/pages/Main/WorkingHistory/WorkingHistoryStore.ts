@@ -250,7 +250,7 @@ class WorkingHistoryStore {
         const parsed = parseStateExport(content);
         this.root.initByImport(parsed);
       } catch (err) {
-        this.root.handleError({ error: err, title: 'Import failed' });
+        this.eventBus.publish([{ kind: 'errorEvent', error: err, title: 'Import failed' }]);
       }
     };
 

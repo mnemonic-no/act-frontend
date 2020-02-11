@@ -46,8 +46,15 @@ export interface WorkingHistoryRemoveItem {
   item: WorkingHistoryItem;
 }
 
+export interface ErrorEvent {
+  kind: 'errorEvent';
+  error: Error;
+  title?: string;
+}
+
 export type ActEvent =
   | NavigateEvent
+  | ErrorEvent
   | SelectionReset
   | SelectionRemove
   | SelectionClear

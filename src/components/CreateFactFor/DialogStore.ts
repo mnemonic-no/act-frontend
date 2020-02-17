@@ -1,6 +1,6 @@
 import { action, computed, observable, runInAction } from 'mobx';
 
-import { ActObject, FactType, NamedId } from '../../core/types';
+import { ActObjectRef, FactType, NamedId, SearchResult, SingleFactSearch } from '../../core/types';
 import { createFact } from '../../core/dataLoaders';
 import {
   factMapToObjectMap,
@@ -9,8 +9,6 @@ import {
   validBidirectionalFactTargetObjectTypes,
   validUnidirectionalFactTargetObjectTypes
 } from '../../core/domain';
-import { addMessage } from '../../util/SnackbarProvider';
-import WorkingHistory from '../../pages/Main/WorkingHistory';
 
 type FactTypeCategory = 'oneLegged' | 'uniDirectional' | 'biDirectional' | null;
 
@@ -20,24 +18,24 @@ type FormCommon = { type: string; accessMode: string; comment?: string };
 
 export type FormUniDirectional = {
   isSelectionSource: boolean;
-  otherObject: { type: NamedId; value: string };
+  otherObject: ActObjectRef;
   validOtherObjectTypes: Array<NamedId>;
 };
 
 export type FormBiDirectional = {
-  otherObject: { type: NamedId; value: string };
+  otherObject: ActObjectRef;
   validOtherObjectTypes: Array<NamedId>;
 };
 
 /* Can't use id property as some objects may not be exist yet */
-const identifier = (actObject: { type: NamedId; value: string }) => {
-  return `${actObject.type.name}/${actObject.value}`;
+const identifier = (actObject: ActObjectRef) => {
+  return `${actObject.typeName}/${actObject.value}`;
 };
 
 export const createBidirectionalFactRequest = (
   form: FormBiDirectional,
   common: FormCommon,
-  selectedObject: ActObject
+  selectedObject: ActObjectRef
 ) => {
   return {
     ...common,
@@ -51,7 +49,7 @@ export const createBidirectionalFactRequest = (
 export const createUnidirectionalFactRequest = (
   form: FormUniDirectional,
   common: FormCommon,
-  selectedObject: ActObject
+  selectedObject: ActObjectRef
 ) => {
   const sourceObject = form.isSelectionSource ? selectedObject : form.otherObject;
   const destinationObject = form.isSelectionSource ? form.otherObject : selectedObject;
@@ -67,18 +65,18 @@ export const createUnidirectionalFactRequest = (
 export const createOneLeggedFactRequest = (
   form: { value: 'string' },
   common: FormCommon,
-  selectedObject: ActObject
+  selectedObjectRef: ActObjectRef
 ) => {
   return {
     ...common,
     value: form.value,
-    sourceObject: identifier(selectedObject)
+    sourceObject: identifier(selectedObjectRef)
   };
 };
 
 export const createFactRequest = (
   factType: FactType,
-  selectedObject: ActObject,
+  selectedObjectRef: ActObjectRef,
   formCommon: FormCommon,
   formOneLegged: any,
   formUnidirectional: FormUniDirectional | null,
@@ -88,13 +86,13 @@ export const createFactRequest = (
 
   switch (factTypeString(factType)) {
     case 'oneLegged':
-      return createOneLeggedFactRequest(formOneLegged, formCommon, selectedObject);
+      return createOneLeggedFactRequest(formOneLegged, formCommon, selectedObjectRef);
     case 'biDirectional':
       if (!formBidirectional) throw new Error('Bidirectional form not set');
-      return createBidirectionalFactRequest(formBidirectional, formCommon, selectedObject);
+      return createBidirectionalFactRequest(formBidirectional, formCommon, selectedObjectRef);
     case 'uniDirectional':
       if (!formUnidirectional) throw new Error('Unidirectional form not set');
-      return createUnidirectionalFactRequest(formUnidirectional, formCommon, selectedObject);
+      return createUnidirectionalFactRequest(formUnidirectional, formCommon, selectedObjectRef);
     default:
       throw Error('Fact type category not supported!' + factType);
   }
@@ -116,15 +114,19 @@ class CreateFactForDialog {
   @observable formUniDirectional: FormUniDirectional | null = null;
   @observable formBidirectional: FormBiDirectional | null = null;
 
-  selectedObject: ActObject;
-  workingHistory: WorkingHistory;
+  selectedObject: ActObjectRef;
+  onSuccess: (props: { search: SingleFactSearch; result: SearchResult }) => void;
 
-  constructor(selectedObject: ActObject, workingHistory: WorkingHistory, factTypes: Array<FactType>) {
+  constructor(
+    selectedObject: ActObjectRef,
+    factTypes: Array<FactType>,
+    onSuccess: (props: { search: SingleFactSearch; result: SearchResult }) => void
+  ) {
     this.selectedObject = selectedObject;
-    this.workingHistory = workingHistory;
+    this.onSuccess = onSuccess;
 
     this.factTypes = factTypes
-      .filter(ft => isRelevantFactType(ft, selectedObject))
+      .filter(ft => isRelevantFactType(ft, selectedObject.typeName))
       .sort((a, b) => (a.name > b.name ? 1 : -1));
 
     if (this.factTypes[0]) {
@@ -138,13 +140,13 @@ class CreateFactForDialog {
 
     const newIsSource = this.formUniDirectional ? !this.formUniDirectional.isSelectionSource : true;
     const validOtherObjects = this.currentFactType
-      ? validUnidirectionalFactTargetObjectTypes(this.currentFactType, this.selectedObject, newIsSource)
+      ? validUnidirectionalFactTargetObjectTypes(this.currentFactType, this.selectedObject.typeName, newIsSource)
       : [];
 
     this.formUniDirectional = {
       isSelectionSource: newIsSource,
       validOtherObjectTypes: validOtherObjects,
-      otherObject: { type: validOtherObjects[0], value: '' }
+      otherObject: { typeName: validOtherObjects[0].name, value: '' }
     };
   }
 
@@ -160,24 +162,28 @@ class CreateFactForDialog {
         this.formOneLegged = { value: '' };
         break;
       case 'biDirectional':
-        const validOtherObjectTypes = validBidirectionalFactTargetObjectTypes(factType, this.selectedObject);
+        const validOtherObjectTypes = validBidirectionalFactTargetObjectTypes(factType, this.selectedObject.typeName);
         this.formBidirectional = {
-          validOtherObjectTypes: validBidirectionalFactTargetObjectTypes(factType, this.selectedObject),
-          otherObject: { type: validOtherObjectTypes[0], value: '' }
+          validOtherObjectTypes: validBidirectionalFactTargetObjectTypes(factType, this.selectedObject.typeName),
+          otherObject: { typeName: validOtherObjectTypes[0].name, value: '' }
         };
         break;
       case 'uniDirectional':
         const isSelectionSource =
-          validUnidirectionalFactTargetObjectTypes(factType, this.selectedObject, true).length > 0;
+          validUnidirectionalFactTargetObjectTypes(factType, this.selectedObject.typeName, true).length > 0;
 
         const validOtherObjects = this.currentFactType
-          ? validUnidirectionalFactTargetObjectTypes(this.currentFactType, this.selectedObject, isSelectionSource)
+          ? validUnidirectionalFactTargetObjectTypes(
+              this.currentFactType,
+              this.selectedObject.typeName,
+              isSelectionSource
+            )
           : [];
 
         this.formUniDirectional = {
           isSelectionSource: isSelectionSource,
           validOtherObjectTypes: validOtherObjects,
-          otherObject: { type: validOtherObjects[0], value: '' }
+          otherObject: { typeName: validOtherObjects[0].name, value: '' }
         };
         break;
       default:
@@ -196,13 +202,13 @@ class CreateFactForDialog {
   }
 
   @action.bound
-  onFormBidirectionalChange(otherObject: { type: NamedId; value: string }) {
+  onFormBidirectionalChange(otherObject: ActObjectRef) {
     if (this.formBidirectional === null) throw Error('Should not happen');
     this.formBidirectional = { ...this.formBidirectional, otherObject: otherObject };
   }
 
   @action.bound
-  onFormUniDirectionalChange(otherObject: { type: NamedId; value: string }) {
+  onFormUniDirectionalChange(otherObject: ActObjectRef) {
     if (!this.formUniDirectional) return;
     this.formUniDirectional.otherObject = otherObject;
   }
@@ -236,13 +242,14 @@ class CreateFactForDialog {
 
       this.isOpen = false;
 
-      addMessage('Fact created');
-
-      const search = { id: resultFact.id, factTypeName: resultFact.type.name, kind: 'singleFact' as 'singleFact' };
-
+      const search: SingleFactSearch = {
+        kind: 'singleFact',
+        id: resultFact.id,
+        factTypeName: resultFact.type.name
+      };
       const facts = { [resultFact.id]: resultFact };
 
-      this.workingHistory.addCreatedItem(search, { facts: facts, objects: factMapToObjectMap(facts) });
+      this.onSuccess({ search: search, result: { facts: facts, objects: factMapToObjectMap(facts) } });
     } catch (err) {
       runInAction(() => {
         this.error = err;
@@ -261,7 +268,7 @@ class CreateFactForDialog {
       this.currentFactType &&
       validUnidirectionalFactTargetObjectTypes(
         this.currentFactType,
-        this.selectedObject,
+        this.selectedObject.typeName,
         !this.formUniDirectional.isSelectionSource
       ).length > 0
     );

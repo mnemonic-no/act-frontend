@@ -159,7 +159,7 @@ class WorkingHistory {
   }
 
   @action.bound
-  addCreatedItem(search: SingleFactSearch, result: SearchResult) {
+  addCreatedFactItem(search: SingleFactSearch, result: SearchResult) {
     this.createdFacts = { [search.id]: result };
     this.addItem({ id: search.id, search: search });
   }

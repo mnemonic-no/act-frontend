@@ -1,4 +1,4 @@
-import { ActSelection, WorkingHistoryItem } from './types';
+import { ActSelection, Search, SearchResult, SingleFactSearch, WorkingHistoryItem } from './types';
 
 export interface NavigateEvent {
   kind: 'navigate';
@@ -41,6 +41,12 @@ export interface FetchFact {
   refetch?: boolean;
 }
 
+export interface WorkingHistoryAddCreatedFactItem {
+  kind: 'workingHistoryAddCreatedFactItem';
+  search: SingleFactSearch;
+  result: SearchResult;
+}
+
 export interface WorkingHistoryRemoveItem {
   kind: 'workingHistoryRemoveItem';
   item: WorkingHistoryItem;
@@ -52,8 +58,14 @@ export interface ErrorEvent {
   title?: string;
 }
 
+export interface Notification {
+  kind: 'notification';
+  text: string;
+}
+
 export type ActEvent =
   | NavigateEvent
+  | Notification
   | ErrorEvent
   | SelectionReset
   | SelectionRemove
@@ -62,4 +74,5 @@ export type ActEvent =
   | FetchActObjectStats
   | FetchFact
   | FetchOneLeggedFacts
-  | WorkingHistoryRemoveItem;
+  | WorkingHistoryRemoveItem
+  | WorkingHistoryAddCreatedFactItem;

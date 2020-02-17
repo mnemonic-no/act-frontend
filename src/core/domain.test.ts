@@ -227,7 +227,7 @@ it('test valid bidirectional fact target object types', () => {
           }
         ]
       }),
-      actObject({ type: threatActor })
+      'threatActor'
     )
   ).toEqual([threatActor]);
 });
@@ -241,7 +241,7 @@ it('test empty bidirectional fact target object types', () => {
         name: 'name',
         relevantObjectBindings: [{ sourceObjectType: report }]
       }),
-      actObject({ type: report })
+      'report'
     )
   ).toEqual([]);
 });
@@ -258,13 +258,8 @@ it('test valid unidirectional fact target object types', () => {
       }
     ]
   });
-  expect(
-    sut.validUnidirectionalFactTargetObjectTypes(attributedTo, actObject({ type: objectTypes.threatActor }), false)
-  ).toEqual([incident]);
-
-  expect(
-    sut.validUnidirectionalFactTargetObjectTypes(attributedTo, actObject({ type: objectTypes.threatActor }), true)
-  ).toEqual([]);
+  expect(sut.validUnidirectionalFactTargetObjectTypes(attributedTo, 'threatActor', false)).toEqual([incident]);
+  expect(sut.validUnidirectionalFactTargetObjectTypes(attributedTo, 'threatActor', true)).toEqual([]);
 });
 
 it('one legged facts for', () => {
@@ -422,4 +417,22 @@ it('can make graphQueryDialog', () => {
     onClose: expect.any(Function),
     onSubmit: expect.any(Function)
   });
+});
+
+it('is relevant fact type', () => {
+  expect(sut.isRelevantFactType(factType({}), 'threatActor')).toEqual(false);
+
+  const attributedTo = factType({
+    name: 'attributedTo',
+    relevantObjectBindings: [
+      {
+        sourceObjectType: { id: 'x', name: 'threatActor' },
+        destinationObjectType: { id: 'x', name: 'person' }
+      }
+    ]
+  });
+
+  expect(sut.isRelevantFactType(attributedTo, 'threatActor')).toEqual(true);
+  expect(sut.isRelevantFactType(attributedTo, 'person')).toEqual(true);
+  expect(sut.isRelevantFactType(attributedTo, 'report')).toEqual(false);
 });

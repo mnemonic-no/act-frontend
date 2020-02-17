@@ -60,6 +60,13 @@ export type FactComment = {
   timestamp: any;
 };
 
+// Used when id is not available or not important.
+// Type and value uniquely identifies an ActObject
+export type ActObjectRef = {
+  typeName: string;
+  value: string;
+};
+
 export type SearchResult = {
   facts: { [id: string]: ActFact };
   objects: { [id: string]: ActObject };

@@ -11,24 +11,24 @@ import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
-import DialogStore, { FormUniDirectional } from './DialogStore';
-import DialogLoadingOverlay from '../DialogLoadingOverlay';
-import DialogError from '../DialogError';
-import { ActObject, NamedId } from '../../core/types';
-import ObjectValueAutosuggest from '../ObjectValueAutosuggest';
+import { ActObjectRef, NamedId } from '../../core/types';
 import AccessModeSelector from '../AccessModeSelector';
+import DialogError from '../DialogError';
+import DialogLoadingOverlay from '../DialogLoadingOverlay';
+import DialogStore, { FormUniDirectional } from './DialogStore';
+import ObjectValueAutosuggest from '../ObjectValueAutosuggest';
 
 const useStyles = makeStyles((theme: Theme) => ({
   dialogContentRoot: { paddingBottom: '20px' }
 }));
 
-const ObjectComp = ({ title, actObject }: { title: string; actObject: ActObject }) => {
+const ObjectComp = (props: { title: string; actObject: ActObjectRef }) => {
   return (
-    <RoundedBox title={title} style={{ padding: '10px' }}>
+    <RoundedBox title={props.title} style={{ padding: '10px' }}>
       <div>
         <TextField
           label="Object Type"
-          defaultValue={actObject.type.name}
+          defaultValue={props.actObject.typeName}
           margin="normal"
           InputProps={{
             readOnly: true
@@ -37,7 +37,7 @@ const ObjectComp = ({ title, actObject }: { title: string; actObject: ActObject 
 
         <TextField
           label="Object Value"
-          defaultValue={actObject.value}
+          defaultValue={props.actObject.value}
           margin="normal"
           InputProps={{
             readOnly: true
@@ -57,10 +57,10 @@ const ObjectSelectionComp = observer(
   }: {
     title: string;
     validObjectTypes: Array<NamedId>;
-    selectionObject: { type: NamedId; value: string };
-    onChange: (obj: { type: NamedId; value: string }) => void;
+    selectionObject: ActObjectRef;
+    onChange: (obj: ActObjectRef) => void;
   }) => {
-    if (!selectionObject.type) {
+    if (!selectionObject.typeName) {
       return <div>Missing type for selection object</div>;
     }
 
@@ -73,11 +73,11 @@ const ObjectSelectionComp = observer(
           margin="normal"
           InputLabelProps={{ shrink: true }}
           SelectProps={{ native: true }}
-          value={selectionObject.type.name}
+          value={selectionObject.typeName}
           onChange={e => {
             const newTypeName = e.target.value;
             const newObjectType = validObjectTypes.filter(ot => ot.name === newTypeName)[0];
-            return onChange({ ...selectionObject, type: newObjectType });
+            return onChange({ ...selectionObject, typeName: newObjectType.name });
           }}>
           {validObjectTypes.map(({ id, name }: any) => (
             <option key={id} value={name}>
@@ -94,7 +94,7 @@ const ObjectSelectionComp = observer(
             label={'Object value'}
             value={selectionObject.value}
             onChange={(value: string) => onChange({ ...selectionObject, value: value })}
-            objectType={selectionObject.type.name}
+            objectType={selectionObject.typeName}
           />
         </div>
       </RoundedBox>
@@ -271,7 +271,7 @@ const UniDirectionalFact = observer(
   }: {
     store: DialogStore;
     form: FormUniDirectional;
-    onChange: (obj: { type: NamedId; value: string }) => void;
+    onChange: (obj: ActObjectRef) => void;
     onSwapClick: Function | undefined;
   }) => {
     const SourceComp = observer(() => {
@@ -359,7 +359,7 @@ const FactComp = observer(({ store }: { store: DialogStore }) => {
   }
 });
 
-const DialogComp = ({ store }: IDialogComp) => {
+const DialogComp = ({ store }: IDialogProps) => {
   const classes = useStyles();
 
   return (
@@ -420,7 +420,7 @@ const DialogComp = ({ store }: IDialogComp) => {
   );
 };
 
-interface IDialogComp {
+interface IDialogProps {
   store: DialogStore;
 }
 

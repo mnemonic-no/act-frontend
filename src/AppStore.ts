@@ -8,6 +8,7 @@ import SearchPageStore from './pages/Search/SearchPageStore';
 import Routing from './Routing';
 import EventBus from './util/eventbus';
 import { ActEvent } from './core/events';
+import { addMessage } from './util/SnackbarProvider';
 
 export type TPage = 'mainPage' | 'searchPage' | 'summaryPage';
 
@@ -106,8 +107,14 @@ class AppStore {
         this.mainPageStore.selectionStore.clearSelection();
         this.mainPageStore.ui.detailsStore.selectionChanged();
         break;
+      case 'workingHistoryAddCreatedFactItem':
+        this.mainPageStore.workingHistory.addCreatedFactItem(event.search, event.result);
+        break;
       case 'workingHistoryRemoveItem':
         this.mainPageStore.workingHistory.removeItem(event.item);
+        break;
+      case 'notification':
+        addMessage(event.text);
         break;
       case 'errorEvent':
         this.errorEvent = { ...event };

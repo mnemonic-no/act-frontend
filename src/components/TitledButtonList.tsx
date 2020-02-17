@@ -16,26 +16,15 @@ const TitledButtonListComp = (props: ITitledButtonListProps) => {
       </Typography>
       <Grid container spacing={1} justify={'flex-start'}>
         {props.buttons.map(b => {
+          const customProps = b.href ? { target: '_blank', rel: 'noopener noreferrer' } : {};
           return (
-            <React.Fragment key={b.text}>
-              <Grid item>
-                <Tooltip title={b.tooltip}>
-                  <>
-                    {/* target and rel are missing in the Button type
-                    // @ts-ignore */}
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={b.onClick}
-                      href={b.href}
-                      target="_blank"
-                      rel="noopener noreferrer">
-                      {b.text}
-                    </Button>
-                  </>
-                </Tooltip>
-              </Grid>
-            </React.Fragment>
+            <Grid key={b.text} item>
+              <Tooltip title={b.tooltip}>
+                <Button {...customProps} size="small" variant="outlined" onClick={b.onClick} href={b.href}>
+                  {b.text}
+                </Button>
+              </Tooltip>
+            </Grid>
           );
         })}
       </Grid>

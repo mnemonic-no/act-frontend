@@ -1,5 +1,5 @@
 import { createFactRequest } from './DialogStore';
-import { actObject, factType } from '../../core/testHelper';
+import { factType } from '../../core/testHelper';
 
 it('can make bi-directional fact requests', () => {
   const biDirectionalFactType = factType({
@@ -15,13 +15,13 @@ it('can make bi-directional fact requests', () => {
 
   const result = createFactRequest(
     biDirectionalFactType,
-    actObject({ value: 'BearSource', type: { id: 'x', name: 'threatActor' } }),
+    { typeName: 'threatActor', value: 'BearSource' },
     { accessMode: 'Public', type: 'alias' },
     null,
     null,
     {
       validOtherObjectTypes: [{ id: 'x', name: 'threatActor' }],
-      otherObject: { value: 'BearDestination', type: { id: 'x', name: 'threatActor' } }
+      otherObject: { value: 'BearDestination', typeName: 'threatActor' }
     }
   );
 
@@ -49,13 +49,16 @@ it('can make uni-directional fact requests', () => {
 
   const result = createFactRequest(
     uniDirectionalFactType,
-    actObject({ value: 'BearSource', type: { id: 'x', name: 'threatActor' } }),
+    { value: 'BearSource', typeName: 'threatActor' },
     { accessMode: 'Public', type: 'attributedTo' },
     null,
     {
       isSelectionSource: true,
-      validOtherObjectTypes: [{ id: 'x', name: 'person' }, { id: 'x', name: 'organization' }],
-      otherObject: { value: 'BadPerson', type: { id: 'z', name: 'person' } }
+      validOtherObjectTypes: [
+        { id: 'x', name: 'person' },
+        { id: 'x', name: 'organization' }
+      ],
+      otherObject: { value: 'BadPerson', typeName: 'person' }
     },
     null
   );
@@ -83,13 +86,13 @@ it('can make uni-directional fact requests with selection as destination', () =>
 
   const result = createFactRequest(
     uniDirectionalFactType,
-    actObject({ value: 'BearDestination', type: { id: 'x', name: 'threatActor' } }),
+    { value: 'BearDestination', typeName: 'threatActor' },
     { accessMode: 'Public', type: 'attributedTo' },
     null,
     {
       isSelectionSource: false,
       validOtherObjectTypes: [{ id: 'x', name: 'incident' }],
-      otherObject: { value: 'xyz', type: { id: 'z', name: 'incident' } }
+      otherObject: { value: 'xyz', typeName: 'incident' }
     },
     null
   );
@@ -116,7 +119,7 @@ it('can make one legged fact requests', () => {
 
   const result = createFactRequest(
     oneLeggedFactType,
-    actObject({ value: 'BearSource', type: { id: 'x', name: 'threatActor' } }),
+    { value: 'BearSource', typeName: 'threatActor' },
     { accessMode: 'Public', type: 'name' },
     { value: 'CareBear' },
     null,

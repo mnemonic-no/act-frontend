@@ -3,7 +3,15 @@ import * as _ from 'lodash/fp';
 
 import { ActObjectSearch } from '../../backend/ActObjectBackendStore';
 import { IObjectTitleProps } from '../../components/ObjectTitle';
-import { ActFact, ActObject, IObjectTypeToSections, isDone, isPending, isRejected } from '../../core/types';
+import {
+  ActFact,
+  ActObject,
+  ActObjectRef,
+  IObjectTypeToSections,
+  isDone,
+  isPending,
+  isRejected
+} from '../../core/types';
 import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
 import {
   contextActionsFor,
@@ -17,6 +25,7 @@ import { CellKind, TActionCell, TCell, TSectionComp, TTagsCell, TTextCell } from
 import { urlToObjectFactQueryPage, urlToObjectSummaryPage } from '../../Routing';
 import AppStore from '../../AppStore';
 import ObjectTraverseBackendStore from '../../backend/ObjectTraverseBackendStore';
+import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
 
 const cellsAsText = (cells: Array<TCell>) => {
   return cells
@@ -163,9 +172,10 @@ class ObjectSummaryPageStore {
   appStore: AppStore;
   config: { [id: string]: any };
 
-  @observable currentObject: { typeName: string; value: string } | undefined;
-  contextActionTemplates: Array<ContextActionTemplate>;
+  @observable currentObject: ActObjectRef | undefined;
+  @observable createFactDialog: CreateFactForDialog | null = null;
 
+  contextActionTemplates: Array<ContextActionTemplate>;
   objectTypeToSections: IObjectTypeToSections = {};
 
   constructor(root: AppStore, config: any) {
@@ -213,6 +223,16 @@ class ObjectSummaryPageStore {
     );
   }
 
+  @action.bound
+  onCreateFactClick() {
+    if (this.currentObject && this.appStore.backendStore.factTypes && isDone(this.appStore.backendStore.factTypes)) {
+      const factTypes = this.appStore.backendStore.factTypes.result.factTypes;
+      this.createFactDialog = new CreateFactForDialog(this.currentObject, factTypes, () => {
+        this.appStore.eventBus.publish([{ kind: 'notification', text: 'Fact created' }]);
+      });
+    }
+  }
+
   @computed
   get prepared() {
     const actObjectSearch =
@@ -234,6 +254,7 @@ class ObjectSummaryPageStore {
     return {
       pageMenu: this.appStore.pageMenu,
       error: this.appStore.errorSnackbar,
+      createFactDialog: this.createFactDialog,
       content: {
         titleSection: {
           isLoading: isPending(actObjectSearch),
@@ -256,7 +277,10 @@ class ObjectSummaryPageStore {
               tooltip: contextAction.description
             }))
           },
-          commonActions: [{ text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView }]
+          commonActions: [
+            { text: 'Add to graph', tooltip: 'Add to graph view', onClick: this.openInGraphView },
+            { text: 'Create fact', tooltip: 'Open create fact dialog', onClick: this.onCreateFactClick }
+          ]
         },
         sections: prepareSections(
           this.currentObject,

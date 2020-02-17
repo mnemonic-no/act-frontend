@@ -9,7 +9,9 @@ import {
   isPending,
   NamedId,
   ObjectStats,
-  PredefinedObjectQuery
+  PredefinedObjectQuery,
+  SearchResult,
+  SingleFactSearch
 } from '../../../core/types';
 import { link, pluralize } from '../../../util/util';
 import { ContextActionTemplate, resolveActions } from '../../../configUtil';
@@ -556,7 +558,16 @@ class DetailsStore {
   onCreateFactClick() {
     if (this.selectedObject && this.root.backendStore.factTypes && isDone(this.root.backendStore.factTypes)) {
       const factTypes = this.root.backendStore.factTypes.result.factTypes;
-      this.createFactDialog = new CreateFactForDialog(this.selectedObject, this.root.workingHistory, factTypes);
+      this.createFactDialog = new CreateFactForDialog(
+        { value: this.selectedObject.value, typeName: this.selectedObject.type.name },
+        factTypes,
+        (props: { search: SingleFactSearch; result: SearchResult }) => {
+          this.eventBus.publish([
+            { kind: 'notification', text: 'Fact created' },
+            { kind: 'workingHistoryAddCreatedFactItem', search: props.search, result: props.result }
+          ]);
+        }
+      );
     }
   }
 }

@@ -224,42 +224,46 @@ export const objectLabel = (obj: ActObject, objectLabelFromFactType: string | nu
   return labelFromFact || objectValueText(obj);
 };
 
-export const isRelevantFactType = (factType: FactType, object: ActObject) => {
+export const isRelevantFactType = (factType: FactType, objectTypeName: string) => {
   return (
     factType.relevantObjectBindings &&
     factType.relevantObjectBindings.some(
       y =>
-        (y.sourceObjectType && y.sourceObjectType.name === object.type.name) ||
-        (y.destinationObjectType && y.destinationObjectType.name === object.type.name)
+        (y.sourceObjectType && y.sourceObjectType.name === objectTypeName) ||
+        (y.destinationObjectType && y.destinationObjectType.name === objectTypeName)
     )
   );
 };
 
-export const validBidirectionalFactTargetObjectTypes = (factType: FactType, object: ActObject) => {
+export const validBidirectionalFactTargetObjectTypes = (factType: FactType, objectTypeName: string) => {
   if (!factType.relevantObjectBindings) return [];
 
   return factType.relevantObjectBindings
     .filter(ft => ft.bidirectionalBinding)
     .filter(
       ({ sourceObjectType, destinationObjectType }) =>
-        sourceObjectType.name === object.type.name || destinationObjectType.name === object.type.name
+        sourceObjectType.name === objectTypeName || destinationObjectType.name === objectTypeName
     )
     .map(({ sourceObjectType, destinationObjectType }) => {
-      return sourceObjectType.name === object.type.name ? destinationObjectType : sourceObjectType;
+      return sourceObjectType.name === objectTypeName ? destinationObjectType : sourceObjectType;
     });
 };
 
-export const validUnidirectionalFactTargetObjectTypes = (factType: FactType, object: ActObject, isSource: boolean) => {
+export const validUnidirectionalFactTargetObjectTypes = (
+  factType: FactType,
+  objectTypeName: string,
+  isSource: boolean
+) => {
   if (!factType.relevantObjectBindings) return [];
 
   return factType.relevantObjectBindings
     .filter(
       ({ sourceObjectType, destinationObjectType }) =>
-        (isSource && sourceObjectType && sourceObjectType.name === object.type.name) ||
-        (!isSource && destinationObjectType && destinationObjectType.name === object.type.name)
+        (isSource && sourceObjectType && sourceObjectType.name === objectTypeName) ||
+        (!isSource && destinationObjectType && destinationObjectType.name === objectTypeName)
     )
     .map(({ sourceObjectType, destinationObjectType }) => {
-      return sourceObjectType.name === object.type.name ? destinationObjectType : sourceObjectType;
+      return sourceObjectType.name === objectTypeName ? destinationObjectType : sourceObjectType;
     });
 };
 

@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import WarnIcon from '@material-ui/icons/Warning';
 
 import { ActionButton } from '../../core/types';
+import CreateFactForObjectDialog from '../../components/CreateFactFor/Dialog';
 import ObjectSummaryPageStore from './ObjectSummaryPageStore';
 import ObjectTitle, { IObjectTitleProps } from '../../components/ObjectTitle';
 import Page from '../Page';
@@ -120,7 +121,7 @@ const TitleSection = (props: {
 const ObjectSummaryPageComp = ({ store }: ISummaryPageProps) => {
   const classes = useStyles();
 
-  const { content } = store.prepared;
+  const { content, createFactDialog } = store.prepared;
 
   return (
     <Page errorSnackbar={store.prepared.error} isLoading={false} leftMenuItems={store.prepared.pageMenu}>
@@ -133,6 +134,7 @@ const ObjectSummaryPageComp = ({ store }: ISummaryPageProps) => {
               return <Section key={section.title} {...section} />;
             })}
           </div>
+          {createFactDialog && <CreateFactForObjectDialog store={createFactDialog} />}
         </div>
       )}
     </Page>

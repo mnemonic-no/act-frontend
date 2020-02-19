@@ -33,6 +33,7 @@ export type TSectionAction = {
 export type TSectionConfig = {
   title: string;
   query: string;
+  description?: string;
   actions?: Array<TSectionAction>;
 };
 

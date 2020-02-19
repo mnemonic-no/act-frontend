@@ -62,7 +62,7 @@ export const prepareSections = (
     objectTypeToSections[currentObject.typeName] && objectTypeToSections[currentObject.typeName].sections;
   if (!sections) return [];
 
-  return sections.map(({ title, query, actions }: TSectionConfig) => {
+  return sections.map(({ title, query, description, actions }: TSectionConfig) => {
     const q = graphQueryStore.getItemBy({
       kind: 'objectTraverse',
       objectValue: currentObject.value,
@@ -71,13 +71,14 @@ export const prepareSections = (
     });
 
     if (isPending(q)) {
-      return { kind: 'loading', title: title };
+      return { kind: 'loading', title: title, tooltip: description };
     }
 
     if (isRejected(q)) {
       return {
         kind: 'error',
         title: title,
+        tooltip: description,
         errorTitle: 'Query failed',
         errorMessage: q.error || '',
         color: 'error'
@@ -90,6 +91,7 @@ export const prepareSections = (
       return {
         kind: 'error',
         title: title,
+        tooltip: description,
         errorTitle: 'Large result (' + objects.length + ')',
         errorMessage: countByObjectTypeString(objects),
         color: 'warning'
@@ -97,15 +99,15 @@ export const prepareSections = (
     }
 
     if (objects.length === 0) {
-      return { kind: 'empty', title: title };
+      return { kind: 'empty', title: title, tooltip: description };
     }
 
     const oneLeggedFacts: Array<ActFact> = facts.filter(isOneLegged) || [];
 
     return {
       kind: 'table',
-      title: title,
-      titleRight: objects.length + '',
+      title: title + ' (' + objects.length + ')',
+      tooltip: description,
       table: {
         rows: objects
           .slice()

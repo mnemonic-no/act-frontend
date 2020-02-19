@@ -4,6 +4,7 @@ import BugIcon from '@material-ui/icons/BugReport';
 import CloseIcon from '@material-ui/icons/Close';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import ErrorIcon from '@material-ui/icons/Error';
+import InfoIcon from '@material-ui/icons/InfoOutlined';
 import LinkIcon from '@material-ui/icons/Link';
 
 const ActIconComponent = ({ iconId }: { iconId: string }) => {
@@ -18,6 +19,8 @@ const ActIconComponent = ({ iconId }: { iconId: string }) => {
       return <CloudDownloadIcon />;
     case 'error':
       return <ErrorIcon />;
+    case 'info':
+      return <InfoIcon />;
     case 'link':
       return <LinkIcon />;
     case 'remove':

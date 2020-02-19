@@ -49,11 +49,13 @@ const useSectionStyles = makeStyles((theme: Theme) => ({
 interface IEmptySection {
   kind: 'empty';
   title: string;
+  tooltip?: string;
 }
 
 interface IErrorSection {
   kind: 'error';
   title: string;
+  tooltip?: string;
   errorTitle: string;
   errorMessage: string;
   color: 'error' | 'warning';
@@ -62,6 +64,7 @@ interface IErrorSection {
 interface ILoadingSection {
   kind: 'loading';
   title: string;
+  tooltip?: string;
 }
 
 export enum CellKind {
@@ -93,7 +96,7 @@ export type TCell = TActionCell | TTextCell | TTagsCell;
 interface ITableSection {
   kind: 'table';
   title: string;
-  titleRight: string;
+  tooltip?: string;
   table: {
     rows: Array<{
       cells: Array<TCell>;
@@ -128,6 +131,13 @@ const ErrorSectionComp = (props: IErrorSection) => {
     <Paper className={classes.root}>
       <div className={classes.title}>
         <Typography variant="subtitle1">{props.title}</Typography>
+        {props.tooltip && (
+          <Tooltip title={props.tooltip}>
+            <span>
+              <ActIcon iconId={'info'} />
+            </span>
+          </Tooltip>
+        )}
       </div>
       <Divider />
       <div className={cc(classes.content, errorClasses.container)}>
@@ -152,6 +162,13 @@ const EmptySectionComp = (props: IEmptySection) => {
     <Paper className={classes.root}>
       <div className={classes.title}>
         <Typography variant="subtitle1">{props.title}</Typography>
+        {props.tooltip && (
+          <Tooltip title={props.tooltip}>
+            <span>
+              <ActIcon iconId={'info'} />
+            </span>
+          </Tooltip>
+        )}
       </div>
       <div className={classes.content}>
         <div className={cc(classes.centered, classes.faded)}>
@@ -169,6 +186,13 @@ const LoadingSectionComp = (props: ILoadingSection) => {
     <Paper className={classes.root}>
       <div className={classes.title}>
         <Typography variant="subtitle1">{props.title}</Typography>
+        {props.tooltip && (
+          <Tooltip title={props.tooltip}>
+            <span>
+              <ActIcon iconId={'info'} />
+            </span>
+          </Tooltip>
+        )}
       </div>
       <Divider />
       <div className={classes.content}>
@@ -256,11 +280,18 @@ const Cell = (cell: TCell) => {
 
 const TableSectionComp = (props: ITableSection) => {
   const classes = useSectionStyles();
+
   return (
     <Paper className={classes.root}>
       <div className={classes.title}>
         <Typography variant="subtitle1">{props.title}</Typography>
-        {props.titleRight && <Typography variant="subtitle1">{props.titleRight}</Typography>}
+        {props.tooltip && (
+          <Tooltip title={props.tooltip}>
+            <span>
+              <ActIcon iconId={'info'} />
+            </span>
+          </Tooltip>
+        )}
       </div>
       <Divider />
 

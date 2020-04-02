@@ -9,6 +9,7 @@ import Routing from './Routing';
 import EventBus from './util/eventbus';
 import { ActEvent } from './core/events';
 import { addMessage } from './util/SnackbarProvider';
+import { TBanner } from './core/types';
 
 export type TPage = 'mainPage' | 'searchPage' | 'summaryPage';
 
@@ -71,6 +72,11 @@ class AppStore {
   @computed
   get errorSnackbar() {
     return { errorEvent: this.errorEvent, onClose: () => (this.errorEvent = null) };
+  }
+
+  @computed
+  get banner(): TBanner {
+    return config.banner ? config.banner : {};
   }
 
   @action.bound

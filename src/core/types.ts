@@ -170,6 +170,12 @@ export interface IObjectTypeToSections {
   [objectTypeName: string]: { sections: Array<TSectionConfig> };
 }
 
+export type TBanner = {
+  text?: string;
+  textColor?: string;
+  backgroundColor?: string;
+};
+
 /**
  * Loading
  */

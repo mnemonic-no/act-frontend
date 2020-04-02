@@ -11,10 +11,12 @@ import SearchIcon from '@material-ui/icons/Search';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 
 import AboutButton from '../components/About';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ErrorSnackbar, { IErrorSnackbarProps } from '../components/ErrorSnackbar';
+import { TBanner } from '../core/types';
 
 const useStyles = makeStyles((theme: Theme) => {
   const appBarHeight = theme.spacing(8);
@@ -30,7 +32,7 @@ const useStyles = makeStyles((theme: Theme) => {
       width: '100%',
       height: '100%'
     },
-    appBar: {
+    headerArea: {
       position: 'absolute',
       height: appBarHeight,
       width: '100%',
@@ -40,9 +42,19 @@ const useStyles = makeStyles((theme: Theme) => {
       // Need to change strategy if we want other drawers to come on top
       zIndex: 1201
     },
+    appBar: {
+      backgroundColor: (props: any) => props.appBarBackgroundColor
+    },
     appBarLeft: {
       display: 'flex',
-      flexGrow: 1
+      flexGrow: 1,
+      position: 'relative'
+    },
+    banner: {
+      position: 'absolute',
+      userSelect: 'none',
+      bottom: 0,
+      marginLeft: theme.spacing(3)
     },
     appBarLogo: {
       height: 46,
@@ -107,14 +119,26 @@ const LeftMenuComp = (props: { items: Array<TMenuButton> }) => {
   );
 };
 
-const PageComp = (props: IPageComp) => {
+const Banner = (props: TBanner) => {
   const classes = useStyles();
+  return (
+    <div className={classes.banner} style={{ color: props.textColor }}>
+      <Typography variant="caption" display={'block'} noWrap>
+        {props.text}
+      </Typography>
+    </div>
+  );
+};
+
+const PageComp = (props: IPageComp) => {
+  const classes = useStyles({ appBarBackgroundColor: props.banner?.backgroundColor });
 
   return (
     <div className={classes.root}>
       <div className={classes.appFrame}>
-        <div className={classes.appBar}>
-          <AppBar position="static">
+        <div className={classes.headerArea}>
+          <AppBar position="static" className={classes.appBar}>
+            {props.banner && <Banner {...props.banner} />}
             <Toolbar>
               <div className={classes.appBarLeft}>
                 <a href="/">
@@ -126,6 +150,7 @@ const PageComp = (props: IPageComp) => {
               </Button>
               <AboutButton />
             </Toolbar>
+
             <Fade in={props.isLoading} timeout={500}>
               <LinearProgress variant="query" color="secondary" />
             </Fade>
@@ -153,6 +178,7 @@ export interface IPageComp {
   errorSnackbar: IErrorSnackbarProps;
   isLoading: boolean;
   leftMenuItems: Array<any>;
+  banner?: TBanner;
 }
 
 export default observer(PageComp);

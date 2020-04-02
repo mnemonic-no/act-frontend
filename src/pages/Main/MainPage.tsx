@@ -95,7 +95,7 @@ const MainPage = ({ store }: { store: MainPageStore }) => {
   const searchClasses = useSearchStyles();
 
   return (
-    <Page errorSnackbar={store.errorSnackbar} isLoading={store.backendStore.isLoading} leftMenuItems={store.pageMenu}>
+    <Page {...store.page}>
       <div className={classes.mainFrame}>
         {/* Search container */}
         <div

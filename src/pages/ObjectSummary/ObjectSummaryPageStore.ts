@@ -244,18 +244,23 @@ class ObjectSummaryPageStore {
         this.currentObject.typeName
       );
 
+    const page = {
+      isLoading: false,
+      errorSnackbar: this.appStore.errorSnackbar,
+      leftMenuItems: this.appStore.pageMenu,
+      banner: this.appStore.banner
+    };
+
     if (!this.currentObject || !actObjectSearch) {
       this.appStore.eventBus.publish([{ kind: 'errorEvent', error: new Error('No object selected') }]);
 
       return {
-        pageMenu: this.appStore.pageMenu,
-        error: this.appStore.errorSnackbar
+        page: page
       };
     }
 
     return {
-      pageMenu: this.appStore.pageMenu,
-      error: this.appStore.errorSnackbar,
+      page: page,
       createFactDialog: this.createFactDialog,
       content: {
         titleSection: {

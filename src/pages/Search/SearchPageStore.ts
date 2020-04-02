@@ -130,8 +130,12 @@ class SearchPageStore {
         : [];
 
     return {
-      pageMenu: this.root.pageMenu,
-      errorSnackbar: this.root.errorSnackbar,
+      page: {
+        isLoading: false,
+        errorSnackbar: this.root.errorSnackbar,
+        leftMenuItems: this.root.pageMenu,
+        banner: this.root.banner
+      },
       hasActiveSearch: hasActiveSearch,
       searchInput: autoSuggester,
       searchHistoryItems: historyItems,

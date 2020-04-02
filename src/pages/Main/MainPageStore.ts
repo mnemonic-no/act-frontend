@@ -89,13 +89,13 @@ class MainPageStore {
   }
 
   @computed
-  get errorSnackbar() {
-    return this.appStore.errorSnackbar;
-  }
-
-  @computed
-  get pageMenu() {
-    return this.appStore.pageMenu;
+  get page() {
+    return {
+      isLoading: this.backendStore.isLoading,
+      errorSnackbar: this.appStore.errorSnackbar,
+      leftMenuItems: this.appStore.pageMenu,
+      banner: this.appStore.banner
+    };
   }
 }
 

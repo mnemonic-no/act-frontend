@@ -197,7 +197,7 @@ const SearchWithResults = observer(({ store }: { store: SearchPageStore }) => {
 
 const SearchPage = ({ store }: ISearchPageProps) => {
   return (
-    <Page errorSnackbar={store.prepared.errorSnackbar} isLoading={false} leftMenuItems={store.prepared.pageMenu}>
+    <Page {...store.prepared.page}>
       {!store.prepared.hasActiveSearch && <SearchOnly {...store.prepared} />}
       {store.prepared.hasActiveSearch && <SearchWithResults store={store} />}
     </Page>

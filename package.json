@@ -58,8 +58,9 @@
     "source-map-explorer": "2.2.2"
   },
   "resolutions": {
-    "**/**/handlebars": "^4.3.0",
     "**/**/acorn": "^7.1.1",
+    "**/**/handlebars": "^4.3.0",
+    "**/**/kind-of": "^6.0.3",
     "**/**/minimist": "^1.2.2"
   },
   "scripts": {

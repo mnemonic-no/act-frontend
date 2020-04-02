@@ -1,6 +1,11 @@
 {
   "apiUrl": "http://your-act-backend",
   "actUserId": 1,
+  "banner": {
+    "text": "ENVIRONMENT NAME",
+    "textColor": "white",
+    "backgroundColor": "green"
+  },
   "actions": {
     "download-report": {
       "name": "Download",

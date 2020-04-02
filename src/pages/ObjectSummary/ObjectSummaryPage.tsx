@@ -124,7 +124,7 @@ const ObjectSummaryPageComp = ({ store }: ISummaryPageProps) => {
   const { content, createFactDialog } = store.prepared;
 
   return (
-    <Page errorSnackbar={store.prepared.error} isLoading={false} leftMenuItems={store.prepared.pageMenu}>
+    <Page {...store.prepared.page}>
       {!content && <h1>Empty page</h1>}
       {content && (
         <div className={classes.root}>

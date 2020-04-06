@@ -59,9 +59,7 @@
   },
   "resolutions": {
     "**/**/acorn": "^7.1.1",
-    "**/**/handlebars": "^4.3.0",
-    "**/**/kind-of": "^6.0.3",
-    "**/**/minimist": "^1.2.2"
+    "**/**/kind-of": "^6.0.3"
   },
   "scripts": {
     "analyze": "source-map-explorer build/static/js/main.*",

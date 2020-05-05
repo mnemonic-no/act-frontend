@@ -138,7 +138,11 @@ export const multiObjectTraverseDataLoader = (
   },
   abortController?: AbortController
 ): Promise<SearchResult> => {
-  const request = { query: props.query, objectID: props.objectIds };
+  const request = {
+    query: props.query,
+    objectID: props.objectIds,
+    limit: DEFAULT_LIMIT
+  };
 
   return actWretch
     .url('/v1/object/traverse')

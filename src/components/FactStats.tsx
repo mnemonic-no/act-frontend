@@ -105,7 +105,7 @@ const FactStatsComp = (props: IFactStatsProps) => {
 
           if (row.onClick) {
             return (
-              <Tooltip key={idx} title={row.tooltip}>
+              <Tooltip key={idx} title={row.tooltip || ''}>
                 <TableRow hover onClick={row.onClick} className={cc(classes.row, classes.rowLink)}>
                   {content}
                 </TableRow>

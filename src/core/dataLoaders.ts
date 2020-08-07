@@ -110,9 +110,10 @@ export const objectTraverseDataLoader = (
   abortController?: AbortController
 ): Promise<SearchResult> =>
   actWretch
-    .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}/traverse`)
+    .url(`/v1/traverse/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}`)
     .signal(abortController || new AbortController())
     .json({
+      limit: DEFAULT_LIMIT,
       query
     })
     .post()
@@ -140,12 +141,16 @@ export const multiObjectTraverseDataLoader = (
 ): Promise<SearchResult> => {
   const request = {
     query: props.query,
-    objectID: props.objectIds,
-    limit: DEFAULT_LIMIT
+    objects: props.objectIds,
+    limit: DEFAULT_LIMIT,
+    // Always include retracted since retraction filtering is currently done clientside.
+    // If that is to change, we need to rerun all queries in the working history when
+    // changing the "include retracted" setting in the ui
+    includeRetracted: true
   };
 
   return actWretch
-    .url('/v1/object/traverse')
+    .url('/v1/traverse/objects')
     .signal(abortController || new AbortController())
     .json(request)
     .post()

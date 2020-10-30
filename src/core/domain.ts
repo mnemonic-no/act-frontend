@@ -186,6 +186,7 @@ export const factsToObjects = (data: Array<ActFact>) => {
 };
 
 export const factMapToObjectMap = (facts: { [id: string]: ActFact }): { [id: string]: ActObject } => {
+  // @ts-ignore
   return (
     Object.values(facts)
       .map((fact: ActFact) => [fact.destinationObject, fact.sourceObject])

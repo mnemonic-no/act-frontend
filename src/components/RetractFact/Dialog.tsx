@@ -10,7 +10,12 @@ import { ActFact } from '../../core/types';
 
 const RetractFactDialog = ({ state: { open, close, fact, onSuccess } }: any) => (
   <Dialog open={open} onClose={close} disableBackdropClick disableEscapeKeyDown maxWidth="sm">
-    <RetractFactForm {...{ close, fact, onSuccess }} ContentComp={DialogContent} ActionsComp={DialogActions} />
+    <RetractFactForm
+      {...{ close, fact, onSuccess }}
+      // @ts-ignore
+      ContentComp={DialogContent}
+      ActionsComp={DialogActions}
+    />
   </Dialog>
 );
 
@@ -37,7 +42,7 @@ decorate(RetractFactStore, {
   open: observable,
   fact: observable,
   retractFact: action,
-  close: action
+  close: action,
 });
 
 const Singleton = new RetractFactStore();

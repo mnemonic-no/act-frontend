@@ -310,6 +310,7 @@ const drawHistogram = (
     .attr('data-to', (d: any) => d.x1)
     .attr('data-details', (d: any) => factTypeDetailsString(d))
     .attr('y', (d: any) => yScale(d.length))
+    // @ts-ignore
     .attr('width', (d: any) => xScale(d.x1) - xScale(d.x0));
 
   // Makes the mouse target always fill the height of the chart, regardless of actual bin height
@@ -320,6 +321,7 @@ const drawHistogram = (
     .merge(binGroup.select('.mouseCatcher'))
     .attr('x', (d: any) => xScale(d.x0))
     .attr('height', (d: any) => containerHeight)
+    // @ts-ignore
     .attr('width', (d: any) => xScale(d.x1) - xScale(d.x0));
 };
 
@@ -438,8 +440,10 @@ const d3Draw = ({ el, container, width, height, histogram, scatterPlot, timeRang
     .value((d: any) => d.value)
     // @ts-ignore
     .domain(xScale.domain())
+    // @ts-ignore
     .thresholds(xScale.ticks(binSize(timeRange)));
 
+  // @ts-ignore
   const bins = histogramFn(histogram).filter((bin: Array<{ value: Date }>) => bin.length > 0);
 
   // @ts-ignore

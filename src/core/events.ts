@@ -1,4 +1,4 @@
-import { ActSelection, Search, SearchResult, SingleFactSearch, WorkingHistoryItem } from './types';
+import { ActSelection, SearchResult, SingleFactSearch, WorkingHistoryItem } from './types';
 
 export interface NavigateEvent {
   kind: 'navigate';

@@ -1,10 +1,7 @@
 import rawConfig from './config.json';
+import { TConfig } from './core/types';
 
-type Config = {
-  [key: string]: any;
-};
-
-let config: Config = rawConfig;
+let config: TConfig = rawConfig;
 
 // Set by react scripts
 if (process.env.NODE_ENV === 'development') {

@@ -6,6 +6,7 @@ import {
   LoadingStatus,
   ObjectTraverseSearch,
   SearchResult,
+  TConfig,
   TRequestLoadable
 } from '../core/types';
 import { autoResolveDataLoader, objectTraverseDataLoader } from '../core/dataLoaders';
@@ -16,7 +17,12 @@ export const getId = ({ objectValue, objectType, query }: ObjectTraverseSearch) 
   objectType + ':' + objectValue + ':' + query;
 
 class ObjectTraverseBackendStore {
+  config: TConfig;
   @observable cache: { [id: string]: ObjectTraverseLoadable } = {};
+
+  constructor(config: TConfig) {
+    this.config = config;
+  }
 
   async execute(request: ObjectTraverseSearch) {
     const abortController = new AbortController();
@@ -35,7 +41,9 @@ class ObjectTraverseBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await objectTraverseDataLoader(request, abortController).then(autoResolveDataLoader);
+      const { facts, objects } = await objectTraverseDataLoader(request, abortController).then(value =>
+        autoResolveDataLoader(value, this.config)
+      );
 
       this.cache[q.id] = {
         ...q,

@@ -1,6 +1,14 @@
 import { observable } from 'mobx';
 
-import { isPending, isRejected, LoadingStatus, ObjectFactsSearch, SearchResult, TRequestLoadable } from '../core/types';
+import {
+  isPending,
+  isRejected,
+  LoadingStatus,
+  ObjectFactsSearch,
+  SearchResult,
+  TConfig,
+  TRequestLoadable
+} from '../core/types';
 import { autoResolveDataLoader, objectFactsDataLoader } from '../core/dataLoaders';
 
 export type ObjectFactsLoadable = TRequestLoadable<ObjectFactsSearch, SearchResult>;
@@ -9,7 +17,13 @@ export const getId = ({ objectValue, objectType, factTypes }: ObjectFactsSearch)
   objectType + ':' + objectValue + ':' + JSON.stringify(factTypes);
 
 class ObjectFactsBackendStore {
+  config: TConfig;
+
   @observable cache: { [id: string]: ObjectFactsLoadable } = {};
+
+  constructor(config: TConfig) {
+    this.config = config;
+  }
 
   async execute(request: ObjectFactsSearch) {
     const abortController = new AbortController();
@@ -28,7 +42,9 @@ class ObjectFactsBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await objectFactsDataLoader(request, abortController).then(autoResolveDataLoader);
+      const { facts, objects } = await objectFactsDataLoader(request, abortController).then(value =>
+        autoResolveDataLoader(value, this.config)
+      );
 
       this.cache[q.id] = {
         ...q,

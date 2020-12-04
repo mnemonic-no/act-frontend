@@ -1,6 +1,6 @@
 import { action, computed, observable, reaction } from 'mobx';
 
-import { StateExportv2 } from '../../core/types';
+import type { StateExportv2, TConfig } from '../../core/types';
 import AppStore from '../../AppStore';
 import BackendStore from '../../backend/BackendStore';
 import ContentStore from './Content/ContentStore';
@@ -39,7 +39,7 @@ class MainPageStore {
   refineryStore: RefineryStore;
   selectionStore: SelectionStore;
 
-  constructor(appStore: AppStore, config: any) {
+  constructor(appStore: AppStore, config: TConfig) {
     this.appStore = appStore;
     this.backendStore = appStore.backendStore;
     this.workingHistory = new WorkingHistory(this, appStore.eventBus);
@@ -48,15 +48,15 @@ class MainPageStore {
     this.ui = {
       contentStore: new ContentStore(this),
       cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
-      graphViewStore: new GraphViewStore(this, appStore.eventBus),
+      graphViewStore: new GraphViewStore(this, appStore.eventBus, config),
 
       detailsStore: new DetailsStore(appStore, this, config),
-      prunedObjectsTableStore: new PrunedObjectsTableStore(this),
-      refineryOptionsStore: new RefineryOptionsStore(this),
+      prunedObjectsTableStore: new PrunedObjectsTableStore(this, config),
+      refineryOptionsStore: new RefineryOptionsStore(this, config),
       searchStore: new SearchByObjectTypeStore(this, config),
       workingHistoryStore: new WorkingHistoryStore(this, config, appStore.eventBus),
-      factsTableStore: new FactsTableStore(this, appStore.eventBus),
-      objectsTableStore: new ObjectsTableStore(this, appStore.eventBus)
+      factsTableStore: new FactsTableStore(this, config, appStore.eventBus),
+      objectsTableStore: new ObjectsTableStore(this, config, appStore.eventBus)
     };
 
     // Make the URL reflect the last item in the working history

@@ -3,6 +3,7 @@ import { observer } from 'mobx-react';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 import AppStore from './AppStore';
+import config from './config';
 import MainPage from './pages/Main/MainPage';
 import SearchPage from './pages/Search/SearchPage';
 import SnackbarProvider from './util/SnackbarProvider';
@@ -57,7 +58,7 @@ export const actTheme = createMuiTheme({
   }
 });
 
-const store = new AppStore();
+const store = new AppStore(config);
 store.initByUrl(window.location);
 
 const App = () => (

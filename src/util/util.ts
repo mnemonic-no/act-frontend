@@ -1,10 +1,10 @@
 // @ts-ignore
 import { saveAs } from 'file-saver';
 import { ActObject } from '../core/types';
-import config from '../config';
 import * as _ from 'lodash/fp';
 
-export const objectTypeToColor = (objectType: string) => config.objectColors[objectType] || 'inherit';
+export const objectTypeToColor = (objectColors: { [objectType: string]: string }, objectType: string) =>
+  objectColors[objectType] || 'inherit';
 
 export const factColor = '#F84';
 
@@ -51,10 +51,7 @@ export const exportToJson = (filename: string, data: any) => {
 };
 
 export const fileTimeString = (dt: Date) => {
-  return dt
-    .toISOString()
-    .replace(/:/g, '-')
-    .substr(0, 19);
+  return dt.toISOString().replace(/:/g, '-').substr(0, 19);
 };
 
 export const arrayToObjectWithIds = (inputArray: Array<any>) => {

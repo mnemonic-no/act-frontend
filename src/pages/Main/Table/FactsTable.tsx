@@ -15,7 +15,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import { ActFact } from '../../../core/types';
 import { factColor } from '../../../util/util';
-import config from '../../../config';
 import MultiSelect, { IMultiSelect } from '../../../components/MultiSelect';
 
 export type ColumnKind =
@@ -41,57 +40,57 @@ export type FactRow = {
   fact: ActFact;
   isSelected: boolean;
   cells: Array<{ text: string; kind: ColumnKind; isFaded?: boolean }>;
+  objectColors: { [objectType: string]: string };
 };
 
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    display: 'flex',
-    flexFlow: 'column nowrap',
-    overflow: 'auto'
-  },
-  header: {
-    padding: '16px 10px 18px 55px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  tableContainer: {
-    overflow: 'auto',
-    flex: '1 0 auto'
-  },
-  headerCell: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(0.5)
-  },
-  cell: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(0.5)
-  },
-  fade: {
-    opacity: 0.5
-  },
-  row: {
-    cursor: 'pointer',
-    height: theme.spacing(4)
-  },
-  wordBreak: {
-    wordBreak: 'break-word'
-  },
-  factType: {
-    color: factColor
-  },
-  ...Object.keys(config.objectColors)
-    .map(name => ({
-      [name]: {
-        // @ts-ignore
-        color: config.objectColors[name]
-      }
-    }))
-    .reduce((acc, x) => Object.assign({}, acc, x), {})
-}));
+const initStyles = (objectColors: { [objectType: string]: string }) => {
+  return makeStyles((theme: Theme) => ({
+    root: {
+      display: 'flex',
+      flexFlow: 'column nowrap',
+      overflow: 'auto'
+    },
+    header: {
+      padding: '16px 10px 18px 55px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    },
+    tableContainer: {
+      overflow: 'auto',
+      flex: '1 0 auto'
+    },
+    headerCell: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(0.5)
+    },
+    cell: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(0.5)
+    },
+    fade: {
+      opacity: 0.5
+    },
+    row: {
+      cursor: 'pointer',
+      height: theme.spacing(4)
+    },
+    wordBreak: {
+      wordBreak: 'break-word'
+    },
+    factType: {
+      color: factColor
+    },
+    ...Object.keys(objectColors)
+      .map(name => ({
+        [name]: { color: objectColors[name] }
+      }))
+      .reduce((acc, x) => Object.assign({}, acc, x), {})
+  }));
+};
 
-const FactRowComp = ({ fact, cells, isSelected, onRowClick }: IFactRowComp) => {
-  const classes = useStyles();
+const FactRowComp = ({ fact, cells, isSelected, onRowClick, objectColors }: IFactRowComp) => {
+  const classes = initStyles(objectColors)();
 
   return (
     <TableRow hover selected={isSelected} classes={{ root: classes.row }} onClick={() => onRowClick(fact)}>
@@ -129,7 +128,7 @@ const FactsTableComp = ({
   onRowClick,
   onExportClick
 }: IFactsTableComp) => {
-  const classes = useStyles();
+  const classes = initStyles({})();
 
   return (
     <div className={classes.root}>

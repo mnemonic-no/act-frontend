@@ -1,15 +1,15 @@
 import { action, computed, observable } from 'mobx';
 
-import { byName, byTypeThenValue } from '../../util/util';
+import { byName, byTypeThenValue, objectTypeToColor } from '../../util/util';
 import { getObjectLabelFromFact } from '../../core/domain';
-import { isDone, isPending } from '../../core/types';
-import config from '../../config';
+import { isDone, isPending, TConfig } from '../../core/types';
 import AppStore from '../../AppStore';
 import DetailsStore from './Details/DetailsStore';
 import ResultsStore from './Results/ResultsStore';
 import SimpleSearchBackendStore, { SimpleSearchArgs } from '../../backend/SimpleSearchBackendStore';
 
 class SearchPageStore {
+  config: TConfig;
   root: AppStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
   autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore;
@@ -33,16 +33,17 @@ class SearchPageStore {
 
   constructor(
     root: AppStore,
-    config: any,
+    config: TConfig,
     simpleSearchBackendStore: SimpleSearchBackendStore,
     autoCompleteSimpleSearchBackendStore: SimpleSearchBackendStore
   ) {
     this.root = root;
+    this.config = config;
     this.simpleSearchBackendStore = simpleSearchBackendStore;
     this.autoCompleteSimpleSearchBackendStore = autoCompleteSimpleSearchBackendStore;
     this.suggestionLimit = simpleSearchBackendStore.resultLimit;
 
-    const resultsStore = new ResultsStore(root, this, simpleSearchBackendStore);
+    const resultsStore = new ResultsStore(root, this, simpleSearchBackendStore, config);
 
     this.ui = {
       resultsStore: resultsStore,
@@ -95,8 +96,9 @@ class SearchPageStore {
             .sort(byTypeThenValue)
             .map(actObject => ({
               actObject: actObject,
+              color: objectTypeToColor(this.config.objectColors || {}, actObject.type.name),
               objectLabel:
-                getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.result.facts) ||
+                getObjectLabelFromFact(actObject, this.config.objectLabelFromFactType, simpleSearch.result.facts) ||
                 actObject.value
             }))
             .slice(0, this.suggestionLimit)

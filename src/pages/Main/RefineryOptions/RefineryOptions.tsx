@@ -51,6 +51,7 @@ const RefineryOptions = ({ store }: { store: RefineryOptionsStore }) => (
 
       <FilterActObjects
         objectTypeFilters={store.filterOptions.objectTypeFilters.slice().sort(byName)}
+        objectColors={store.filterOptions.objectColors}
         onChange={(x: ObjectTypeFilter) => store.filterOptions.toggleObjectTypeFilter(x)}
       />
     </Grid>

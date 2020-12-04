@@ -1,6 +1,5 @@
 import { action, computed, observable } from 'mobx';
 
-import config from '../../../config';
 import getStyle from '../../../core/cytoscapeStyle';
 import { objectFactsToElements } from '../../../core/cytoscapeTransformers';
 import {
@@ -12,7 +11,8 @@ import {
   SearchResult,
   Search,
   isObjectTraverseSearch,
-  isMultiObjectSearch
+  isMultiObjectSearch,
+  TConfig
 } from '../../../core/types';
 import { notUndefined } from '../../../util/util';
 import { isOneLegged } from '../../../core/domain';
@@ -48,15 +48,17 @@ export const selectedNodeIds = (selection: Array<ActSelection>, searchResult: Se
 class GraphViewStore {
   root: MainPageStore;
   eventBus: EventBus;
+  config: TConfig;
 
   renderThreshold: number = 2000;
   @observable resizeEvent = 0; // Used to trigger rerendering of the cytoscape element when it changes
   @observable acceptRenderWarning = false;
   @observable showTimeline = true;
 
-  constructor(root: MainPageStore, eventBus: EventBus) {
+  constructor(root: MainPageStore, eventBus: EventBus, config: TConfig) {
     this.root = root;
     this.eventBus = eventBus;
+    this.config = config;
   }
 
   @action
@@ -74,7 +76,7 @@ class GraphViewStore {
     return objectFactsToElements({
       facts: Object.values(res.facts),
       objects: Object.values(res.objects),
-      objectLabelFromFactType: config.objectLabelFromFactType,
+      objectLabelFromFactType: this.config.objectLabelFromFactType,
       shortenObjectLabels: this.root.ui.cytoscapeLayoutStore.shortenObjectLabels
     });
   }
@@ -108,7 +110,8 @@ class GraphViewStore {
 
       style: getStyle({
         showEdgeLabels: this.root.ui.cytoscapeLayoutStore.showFactEdgeLabels,
-        fadeUnselected: selected.size > 1 && this.root.ui.detailsStore.fadeUnselected
+        fadeUnselected: selected.size > 1 && this.root.ui.detailsStore.fadeUnselected,
+        objectColors: this.config.objectColors
       }),
       onNodeClick: (node: any) => {
         node.select();

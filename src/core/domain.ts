@@ -65,13 +65,7 @@ export const searchId = (search: Search) => {
   } else if (isObjectTraverseSearch(search)) {
     return [search.objectType, search.objectValue, search.query].filter(x => x).join(':');
   } else if (isMultiObjectSearch(search)) {
-    return [
-      search.objectIds
-        .slice()
-        .sort()
-        .join(','),
-      search.query
-    ].join(':');
+    return [search.objectIds.slice().sort().join(','), search.query].join(':');
   }
   assertNever(search);
   throw new Error('Not supported' + JSON.stringify(search));
@@ -275,7 +269,8 @@ export const oneLeggedFactsFor = (object: ActObject, facts: Array<ActFact>) => {
 export const objectTitle = (
   actObject: ActObject,
   oneLeggedFacts: Array<ActFact>,
-  objectLabelFromFactType: string
+  objectLabelFromFactType: string,
+  objectColors: { [objectType: string]: string }
 ): IObjectTitleProps => {
   const labelFromFact = getObjectLabelFromFact(actObject, objectLabelFromFactType, oneLeggedFacts);
 
@@ -283,7 +278,7 @@ export const objectTitle = (
     title: labelFromFact || actObject.value,
     metaTitle: labelFromFact && actObject.value,
     subTitle: actObject.type.name,
-    color: objectTypeToColor(actObject.type.name)
+    color: objectTypeToColor(objectColors, actObject.type.name)
   };
 };
 
@@ -296,13 +291,14 @@ export const accordionGroups = (props: {
   isAccordionExpanded: { [objectTypeName: string]: boolean };
   groupActions: Array<{ text: string; onClick: (objectsOfType: Array<ActObject>) => void }>;
   itemAction: { icon: string; tooltip: string; onClick: (actObject: ActObject) => void };
+  objectColors: { [objectType: string]: string };
 }) => {
   return _.pipe(
     _.groupBy((o: ActObject) => o.type.name),
     _.entries,
     _.map(([objectTypeName, objectsOfType]: [string, Array<ActObject>]) => {
       return {
-        title: { text: objectTypeName, color: objectTypeToColor(objectTypeName) },
+        title: { text: objectTypeName, color: objectTypeToColor(props.objectColors, objectTypeName) },
         actions: props.groupActions.map(a => ({
           ...a,
           onClick: () => {
@@ -333,6 +329,7 @@ export const graphQueryDialog = (props: {
   actObjects: Array<ActObject>;
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
   query: string;
+  objectColors: { [objectType: string]: string };
   onQueryChange: (q: string) => void;
   onSubmit: (actObjects: Array<ActObject>, query: string) => void;
   onClose: () => void;
@@ -349,11 +346,11 @@ export const graphQueryDialog = (props: {
       props.actObjects.length > 1
         ? {
             text: pluralize(props.actObjects.length, props.actObjects[0]?.type.name),
-            color: objectTypeToColor(objectType)
+            color: objectTypeToColor(props.objectColors, objectType)
           }
         : {
             text: props.actObjects[0]?.type?.name + ' ' + props.actObjects[0]?.value,
-            color: objectTypeToColor(objectType)
+            color: objectTypeToColor(props.objectColors, objectType)
           },
     predefinedObjectQueryButtonList: {
       title: 'Predefined Object Queries',

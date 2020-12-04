@@ -1,6 +1,12 @@
-import config from '../config';
+interface ICytoscapeStyle {
+  showEdgeLabels?: boolean;
+  fadeUnselected?: boolean;
+  objectColors: { [color: string]: string };
+}
 
-export default ({ showEdgeLabels, fadeUnselected } = {}) => [
+const defaultArgs = { showEdgeLabels: false, fadeUnselected: false, objectColors: {} };
+
+const getStyle = ({ showEdgeLabels, fadeUnselected, objectColors }: ICytoscapeStyle = defaultArgs) => [
   {
     selector: 'node',
     style: {
@@ -86,10 +92,12 @@ export default ({ showEdgeLabels, fadeUnselected } = {}) => [
   },
 
   // Config object type colors
-  ...Object.keys(config.objectColors).map(objectType => ({
+  ...Object.keys(objectColors).map(objectType => ({
     selector: `node.${objectType}`,
     style: {
-      'background-color': config.objectColors[objectType]
+      'background-color': objectColors[objectType]
     }
   }))
 ];
+
+export default getStyle;

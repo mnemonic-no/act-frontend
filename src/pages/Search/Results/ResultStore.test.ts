@@ -44,7 +44,9 @@ it('can make result to rows', () => {
       },
       objectTypeFilter: new Set(),
       selectedObjectIds: new Set(),
-      sortOrder: ascObjectType
+      sortOrder: ascObjectType,
+      objectLabelFromFactType: null,
+      objectColors: {}
     })
   ).toEqual([]);
   expect(
@@ -59,7 +61,9 @@ it('can make result to rows', () => {
       },
       objectTypeFilter: new Set(),
       selectedObjectIds: new Set(),
-      sortOrder: ascObjectType
+      sortOrder: ascObjectType,
+      objectLabelFromFactType: null,
+      objectColors: {}
     })
   ).toEqual([]);
 
@@ -82,11 +86,13 @@ it('can make result to rows', () => {
       },
       selectedObjectIds: new Set([someReport.id]),
       objectTypeFilter: new Set(),
-      sortOrder: ascObjectType
+      sortOrder: ascObjectType,
+      objectLabelFromFactType: null,
+      objectColors: { report: 'green', threatActor: 'blue' }
     })
   ).toEqual([
-    { actObject: someReport, isSelected: true, label: '' },
-    { actObject: someThreatActor, isSelected: false, label: '' }
+    { actObject: someReport, isSelected: true, label: '', color: 'green' },
+    { actObject: someThreatActor, isSelected: false, label: '', color: 'blue' }
   ]);
 });
 
@@ -110,7 +116,9 @@ it('can filter rows by object type', () => {
       },
       selectedObjectIds: new Set(),
       objectTypeFilter: new Set([objectTypes.threatActor.name]),
-      sortOrder: ascObjectType
+      sortOrder: ascObjectType,
+      objectLabelFromFactType: null,
+      objectColors: {}
     })
-  ).toEqual([{ actObject: someThreatActor, isSelected: false, label: '' }]);
+  ).toEqual([{ actObject: someThreatActor, isSelected: false, label: '', color: 'inherit' }]);
 });

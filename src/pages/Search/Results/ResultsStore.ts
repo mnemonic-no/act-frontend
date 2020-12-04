@@ -1,12 +1,11 @@
 import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { ActObject, isDone, isPending, isRejected } from '../../../core/types';
+import { ActObject, isDone, isPending, isRejected, TConfig } from '../../../core/types';
 import { ColumnKind, IObjectRow, SortOrder } from '../../../components/ObjectTable';
 import { getObjectLabelFromFact } from '../../../core/domain';
 import { sortRowsBy } from '../../Main/Table/PrunedObjectsTableStore';
 import AppStore from '../../../AppStore';
-import config from '../../../config';
 import SearchPageStore from '../SearchPageStore';
 import SimpleSearchBackendStore, { SimpleSearch } from '../../../backend/SimpleSearchBackendStore';
 import { linkOnClickFn, objectTypeToColor, pluralize } from '../../../util/util';
@@ -19,12 +18,16 @@ export const resultToRows = ({
   simpleSearch,
   selectedObjectIds,
   objectTypeFilter,
-  sortOrder
+  objectColors,
+  sortOrder,
+  objectLabelFromFactType
 }: {
   simpleSearch: SimpleSearch;
   selectedObjectIds: Set<string>;
   objectTypeFilter: Set<string>;
+  objectColors: { [objectType: string]: string };
   sortOrder: SortOrder;
+  objectLabelFromFactType: string | null;
 }): Array<IObjectRow> => {
   if (!isDone(simpleSearch)) {
     return [];
@@ -34,7 +37,8 @@ export const resultToRows = ({
     _.filter((o: ActObject) => objectTypeFilter.size === 0 || objectTypeFilter.has(o.type.name)),
     _.map((o: ActObject) => ({
       actObject: o,
-      label: getObjectLabelFromFact(o, config.objectLabelFromFactType, simpleSearch.result.facts),
+      color: objectTypeToColor(objectColors, o.type.name),
+      label: getObjectLabelFromFact(o, objectLabelFromFactType, simpleSearch.result.facts),
       isSelected: selectedObjectIds.has(o.id)
     })),
     rows => sortRowsBy(sortOrder, rows)
@@ -78,6 +82,7 @@ export const selectedObjects = ({
 };
 
 class ResultsStore {
+  config: TConfig;
   appStore: AppStore;
   searchStore: SearchPageStore;
   simpleSearchBackendStore: SimpleSearchBackendStore;
@@ -86,7 +91,13 @@ class ResultsStore {
   @observable selectedObjectIds: Set<string> = new Set();
   @observable objectTypeFilter: Set<string> = new Set();
 
-  constructor(appStore: AppStore, searchStore: SearchPageStore, simpleSearchBackendStore: SimpleSearchBackendStore) {
+  constructor(
+    appStore: AppStore,
+    searchStore: SearchPageStore,
+    simpleSearchBackendStore: SimpleSearchBackendStore,
+    config: TConfig
+  ) {
+    this.config = config;
     this.appStore = appStore;
     this.searchStore = searchStore;
     this.simpleSearchBackendStore = simpleSearchBackendStore;
@@ -210,7 +221,9 @@ class ResultsStore {
         simpleSearch: activeSimpleSearch,
         selectedObjectIds: this.selectedObjectIds,
         objectTypeFilter: this.objectTypeFilter,
-        sortOrder: this.sortOrder
+        objectColors: this.config.objectColors || {},
+        sortOrder: this.sortOrder,
+        objectLabelFromFactType: this.config.objectLabelFromFactType
       }),
       (url: string) => this.appStore.goToUrl(url)
     );
@@ -229,7 +242,7 @@ class ResultsStore {
         subTitles: _.filter<IColorText>(Boolean)([
           isSearchFiltered && {
             text: 'Filter: ' + activeSimpleSearch.args.objectTypeFilter[0],
-            color: objectTypeToColor(activeSimpleSearch.args.objectTypeFilter[0])
+            color: objectTypeToColor(this.config.objectColors || {}, activeSimpleSearch.args.objectTypeFilter[0])
           },
           isDone(activeSimpleSearch) && { text: pluralize(activeSimpleSearch.result.objects.length, 'object') }
         ]),

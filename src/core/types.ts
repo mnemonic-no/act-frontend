@@ -1,5 +1,9 @@
 import { TSectionConfig } from '../configUtil';
 
+export type TConfig = {
+  [key: string]: any;
+};
+
 export type NamedId = {
   id: string;
   name: string;

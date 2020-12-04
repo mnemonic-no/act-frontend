@@ -1,6 +1,5 @@
 import * as _ from 'lodash/fp';
 
-import config from '../config';
 import actWretch from '../util/actWretch';
 import { factMapToObjectMap } from './domain';
 import {
@@ -12,7 +11,8 @@ import {
   ObjectFactsSearch,
   ObjectStats,
   ObjectTraverseSearch,
-  SearchResult
+  SearchResult,
+  TConfig
 } from './types';
 import memoizeDataLoader from '../util/memoizeDataLoader';
 import { arrayToObjectWithIds } from '../util/util';
@@ -216,13 +216,10 @@ export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: numb
 /**
  * Resolve preconfigured facts for objects based on list of facts (with connected objects)
  */
-export const autoResolveDataLoader = ({
-  facts,
-  objects
-}: {
-  facts: { [id: string]: ActFact };
-  objects: { [id: string]: ActObject };
-}) => {
+export const autoResolveDataLoader = (
+  { facts, objects }: { facts: { [id: string]: ActFact }; objects: { [id: string]: ActObject } },
+  config: TConfig
+) => {
   const objectsFromFacts: { [id: string]: ActObject } = factMapToObjectMap(facts);
   const allObjects = [...Object.values(objects), ...Object.values(objectsFromFacts)];
 

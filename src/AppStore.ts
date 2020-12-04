@@ -1,7 +1,6 @@
 import { action, computed, observable } from 'mobx';
 
 import BackendStore from './backend/BackendStore';
-import config from './config';
 import MainPageStore from './pages/Main/MainPageStore';
 import ObjectSummaryPageStore from './pages/ObjectSummary/ObjectSummaryPageStore';
 import SearchPageStore from './pages/Search/SearchPageStore';
@@ -9,11 +8,12 @@ import Routing from './Routing';
 import EventBus from './util/eventbus';
 import { ActEvent } from './core/events';
 import { addMessage } from './util/SnackbarProvider';
-import { TBanner } from './core/types';
+import type { TBanner, TConfig } from './core/types';
 
 export type TPage = 'mainPage' | 'searchPage' | 'summaryPage';
 
 class AppStore {
+  config: TConfig;
   eventBus: EventBus;
   mainPageStore: MainPageStore;
   searchPageStore: SearchPageStore;
@@ -24,7 +24,8 @@ class AppStore {
   @observable currentPage: TPage = 'mainPage';
   @observable errorEvent: { title?: string; error: Error } | null = null;
 
-  constructor() {
+  constructor(config: TConfig) {
+    this.config = config;
     this.eventBus = new EventBus();
     this.eventBus.subscribe({ id: 'appStore', handler: this.handleEvent });
 
@@ -76,7 +77,7 @@ class AppStore {
 
   @computed
   get banner(): TBanner {
-    return config.banner ? config.banner : {};
+    return this.config.banner ? this.config.banner : {};
   }
 
   @action.bound

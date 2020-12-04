@@ -12,7 +12,8 @@ it('can make objectRows', () => {
       currentlySelected: {},
       filterSelected: false,
       facts: [],
-      sortOrder: sortByObjectType
+      sortOrder: sortByObjectType,
+      objectColors: {}
     })
   ).toEqual([]);
 
@@ -26,10 +27,18 @@ it('can make objectRows', () => {
       currentlySelected: {},
       filterSelected: false,
       facts: [],
-      sortOrder: sortByObjectType
+      sortOrder: sortByObjectType,
+      objectColors: { threatActor: 'green', report: 'red' }
     })
   ).toEqual([
-    { id: report.id, actObject: report, isSelected: false, properties: [], title: 'report' },
-    { id: threatActor.id, actObject: threatActor, isSelected: false, properties: [], title: 'threatActor' }
+    { id: report.id, actObject: report, isSelected: false, properties: [], title: 'report', color: 'red' },
+    {
+      id: threatActor.id,
+      actObject: threatActor,
+      isSelected: false,
+      properties: [],
+      title: 'threatActor',
+      color: 'green'
+    }
   ]);
 });

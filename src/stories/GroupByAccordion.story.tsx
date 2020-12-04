@@ -4,7 +4,6 @@ import MuiThemeProvider from '@material-ui/styles/ThemeProvider';
 import GroupByAccordion, { IGroup } from '../components/GroupByAccordion';
 
 import { actTheme } from '../App';
-import { objectTypeToColor } from '../util/util';
 
 export default { title: 'GroupByAccordion' };
 
@@ -18,14 +17,23 @@ const BasicComp = () => {
     },
     groups: [
       {
-        title: { text: 'content', color: objectTypeToColor('content') },
+        title: { text: 'content', color: 'blue' },
         actions: [],
         // @ts-ignore
         isExpanded: expanded['content'],
-        items: [{ text: 'a', iconAction: { icon: 'close', tooltip: 'Remove', onClick: () => {} } }]
+        items: [
+          {
+            text: 'a',
+            iconAction: {
+              icon: 'close',
+              tooltip: 'Remove',
+              onClick: () => {}
+            }
+          }
+        ]
       },
       {
-        title: { text: 'report', color: objectTypeToColor('report') },
+        title: { text: 'report', color: 'red' },
         actions: [],
         // @ts-ignore
         isExpanded: expanded['report'],
@@ -38,19 +46,49 @@ const BasicComp = () => {
               onClick: () => {}
             }
           },
-          { text: 'c', iconAction: { icon: 'close', tooltip: 'Remove', onClick: () => {} } }
+          {
+            text: 'c',
+            iconAction: {
+              icon: 'close',
+              tooltip: 'Remove',
+              onClick: () => {}
+            }
+          }
         ]
       },
       {
-        title: { text: 'threatActor', color: objectTypeToColor('threatActor') },
+        title: { text: 'threatActor', color: 'grey' },
         isExpanded: expanded['threatActor'],
-        actions: [{ text: 'Query', onClick: () => {} }],
+        actions: [
+          {
+            text: 'Query',
+            onClick: () => {}
+          }
+        ],
         items: [
-          { text: 'Axiom', iconAction: { icon: 'close', tooltip: 'Remove', onClick: () => {} } },
-          { text: 'Sofacy', iconAction: { icon: 'close', tooltip: 'Remove', onClick: () => {} } },
+          {
+            text: 'Axiom',
+            iconAction: {
+              icon: 'close',
+              tooltip: 'Remove',
+              onClick: () => {}
+            }
+          },
+          {
+            text: 'Sofacy',
+            iconAction: {
+              icon: 'close',
+              tooltip: 'Remove',
+              onClick: () => {}
+            }
+          },
           {
             text: 'This text is too long This text is too long This text is too long This text is too long ',
-            iconAction: { icon: 'close', tooltip: 'Remove', onClick: () => {} }
+            iconAction: {
+              icon: 'close',
+              tooltip: 'Remove',
+              onClick: () => {}
+            }
           }
         ]
       }

@@ -12,7 +12,7 @@ import match from 'autosuggest-highlight/match';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 
-import { objectTypeToColor, truncateText } from '../util/util';
+import { truncateText } from '../util/util';
 import { ActObject } from '../core/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -52,7 +52,7 @@ const renderSuggestion = (
   return (
     <MenuItem selected={isHighlighted} component="div">
       <div>
-        <span style={{ color: objectTypeToColor(objectType) }}>{objectType + ' '}</span>
+        <span style={{ color: suggestion.color }}>{objectType + ' '}</span>
         {parts.map((part: any, index: number) => (
           <span key={index} style={{ fontWeight: part.highlight ? 500 : 300 }}>
             {part.text}
@@ -144,6 +144,7 @@ const ActObjectAutoSuggest = ({
 
 type Suggestion = {
   actObject: ActObject;
+  color: string;
   objectLabel: string;
   [key: string]: any;
 };

@@ -11,7 +11,8 @@ import {
   ObjectStats,
   PredefinedObjectQuery,
   SearchResult,
-  SingleFactSearch
+  SingleFactSearch,
+  TConfig
 } from '../../../core/types';
 import { link, pluralize } from '../../../util/util';
 import { ContextActionTemplate, resolveActions } from '../../../configUtil';
@@ -32,7 +33,6 @@ import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
 import MainPageStore from '../MainPageStore';
 import { IGroup } from '../../../components/GroupByAccordion';
 import EventBus from '../../../util/eventbus';
-import config from '../../../config';
 import { retractFact } from '../../../components/RetractFact/Dialog';
 import { FactStatsCellType, IFactStatRow } from '../../../components/FactStats';
 
@@ -118,11 +118,13 @@ export const toFactStatRows = (props: {
 };
 
 class DetailsStore {
+  config: TConfig;
   eventBus: EventBus;
   root: MainPageStore;
 
   contextActionTemplates: Array<ContextActionTemplate>;
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
+  objectColors: { [objectType: string]: string };
 
   @observable createFactDialog: CreateFactForDialog | null = null;
   @observable _isOpen = false;
@@ -136,12 +138,14 @@ class DetailsStore {
     query: ''
   };
 
-  constructor(appStore: AppStore, root: MainPageStore, config: any) {
+  constructor(appStore: AppStore, root: MainPageStore, config: TConfig) {
+    this.config = config;
     this.root = root;
     this.eventBus = appStore.eventBus;
     this.contextActionTemplates =
       resolveActions({ contextActions: config.contextActions, actions: config.actions }) || [];
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
+    this.objectColors = config.objectColors || [];
   }
 
   @action.bound
@@ -258,7 +262,7 @@ class DetailsStore {
     return {
       id: selected.id,
       objectTitle: {
-        ...objectTitle(selected, oneLeggedFacts, config.objectLabelFromFactType),
+        ...objectTitle(selected, oneLeggedFacts, this.config.objectLabelFromFactType, this.objectColors),
         onTitleClick: () =>
           this.root.backendStore.executeSearch({
             kind: 'objectFacts',
@@ -337,6 +341,7 @@ class DetailsStore {
         query: this.multiSelectQueryDialog.query,
         actObjects: [selected],
         predefinedObjectQueries: this.predefinedObjectQueries,
+        objectColors: this.objectColors,
         onQueryChange: (q: string) => {
           this.multiSelectQueryDialog.query = q;
         },
@@ -385,6 +390,7 @@ class DetailsStore {
       isLoadingData: isPending(factSearch),
       metaFacts: isDone(factSearch) ? factSearch.result.metaFacts : [],
       comments: isDone(factSearch) ? factSearch.result.comments : [],
+      objectColors: this.objectColors,
       endTimestamp: this.endTimestamp,
       onObjectRowClick: this.setSelectedObject,
       onFactRowClick: this.setSelectedFact,
@@ -461,6 +467,7 @@ class DetailsStore {
         query: this.multiSelectQueryDialog.query,
         actObjects: actObjects,
         predefinedObjectQueries: this.predefinedObjectQueries,
+        objectColors: this.objectColors,
         onQueryChange: (q: string) => {
           this.multiSelectQueryDialog.query = q;
         },
@@ -523,7 +530,8 @@ class DetailsStore {
             onClick: (actObject: ActObject) => {
               this.eventBus.publish([{ kind: 'selectionRemove', removeAll: [actObjectToSelection(actObject)] }]);
             }
-          }
+          },
+          objectColors: this.objectColors
         })
       },
       onClearSelectionClick: () => {

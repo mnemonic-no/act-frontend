@@ -29,13 +29,16 @@ storiesOf('ObjectTable', module)
       rows: [
         {
           actObject: { id: '1', value: 'Axiom', type: { id: 'x', name: 'threatActor' } },
+          color: 'red',
           isSelected: true
         },
         {
-          actObject: { id: '2', value: 'Sofacy', type: { id: 'x', name: 'threatActor' } }
+          actObject: { id: '2', value: 'Sofacy', type: { id: 'x', name: 'threatActor' } },
+          color: 'blue'
         },
         {
-          actObject: { id: '3', value: 'Some report', type: { id: 'y', name: 'report' } }
+          actObject: { id: '3', value: 'Some report', type: { id: 'y', name: 'report' } },
+          color: 'green'
         }
       ],
       sortOrder: { order: 'asc', orderBy: 'objectValue' },

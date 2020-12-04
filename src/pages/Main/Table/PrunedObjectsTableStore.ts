@@ -1,7 +1,8 @@
 import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
-import { ActObject } from '../../../core/types';
+import { ActObject, TConfig } from '../../../core/types';
 import { ColumnKind, IObjectRow, SortOrder } from '../../../components/ObjectTable';
+import { objectTypeToColor } from '../../../util/util';
 
 export const sortRowsBy = (sortOrder: SortOrder, rows: Array<IObjectRow>) => {
   return rows.slice().sort((a: any, b: any) => {
@@ -26,20 +27,23 @@ export const sortRowsBy = (sortOrder: SortOrder, rows: Array<IObjectRow>) => {
   });
 };
 
-const toObjectRow = (object: ActObject): IObjectRow => {
+const toObjectRow = (object: ActObject, objectColors: { [objectType: string]: string }): IObjectRow => {
   return {
-    actObject: object
+    actObject: object,
+    color: objectTypeToColor(objectColors, object.type.name)
   };
 };
 
 class PrunedObjectsTableStore {
   root: MainPageStore;
+  config: TConfig;
 
   @observable
   sortOrder: SortOrder = { order: 'asc', orderBy: 'objectType' };
 
-  constructor(root: MainPageStore) {
+  constructor(root: MainPageStore, config: TConfig) {
     this.root = root;
+    this.config = config;
   }
 
   @action.bound
@@ -52,7 +56,8 @@ class PrunedObjectsTableStore {
 
   @computed
   get prepared() {
-    const rows = Object.values(this.root.refineryStore.prunedObjects).map(o => toObjectRow(o));
+    const objectColors = this.config.objectColors || {};
+    const rows = Object.values(this.root.refineryStore.prunedObjects).map(o => toObjectRow(o, objectColors));
 
     return {
       rowCount: rows.length,

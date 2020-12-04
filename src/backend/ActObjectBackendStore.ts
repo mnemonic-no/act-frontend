@@ -2,7 +2,6 @@ import { observable } from 'mobx';
 
 import { ActFact, ActObject, isRejected, LoadingStatus, TRequestLoadable } from '../core/types';
 import { factDataLoader, objectDataLoader } from '../core/dataLoaders';
-import config from '../config';
 import { autoResolveFactsFor } from '../configUtil';
 
 export type ActObjectSearch = TRequestLoadable<
@@ -40,7 +39,7 @@ class ActObjectBackendStore {
 
       // Autoresolve facts for this object
       let facts: Array<ActFact> = [];
-      const factTypesToAutoResolve = autoResolveFactsFor(objectTypeName, config);
+      const factTypesToAutoResolve = autoResolveFactsFor(objectTypeName, this.config);
       if (factTypesToAutoResolve) {
         facts = await factDataLoader(object.id, factTypesToAutoResolve);
       }

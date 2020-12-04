@@ -66,6 +66,7 @@ const FactInformationComp = ({
   isLoadingData,
   metaFacts,
   comments,
+  objectColors,
   footerButtons,
   onFactRowClick,
   onObjectRowClick,
@@ -143,6 +144,7 @@ const FactInformationComp = ({
                   <ObjectRow
                     key={fact.sourceObject.id}
                     object={fact.sourceObject}
+                    color={objectColors[fact.sourceObject.type.name]}
                     onRowClick={object => onObjectRowClick(object)}
                   />
                 )}
@@ -150,6 +152,7 @@ const FactInformationComp = ({
                   <ObjectRow
                     key={fact.destinationObject.id}
                     object={fact.destinationObject}
+                    color={objectColors[fact.destinationObject.type.name]}
                     onRowClick={object => onObjectRowClick(object)}
                   />
                 )}
@@ -200,6 +203,7 @@ export interface IFactInformationProps {
   fact: ActFact | null;
   comments: Array<FactComment>;
   metaFacts: Array<ActFact>;
+  objectColors: { [objectType: string]: string };
   footerButtons: Array<{ text: string; onClick: () => void }>;
   onObjectRowClick: (obj: ActObject) => void;
   onFactRowClick: (fact: ActFact) => void;

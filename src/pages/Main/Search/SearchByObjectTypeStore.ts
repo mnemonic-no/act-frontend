@@ -2,10 +2,9 @@ import MainPageStore from '../MainPageStore';
 import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { byTypeThenValue } from '../../../util/util';
+import { byTypeThenValue, objectTypeToColor } from '../../../util/util';
 import { getObjectLabelFromFact } from '../../../core/domain';
-import config from '../../../config';
-import { isDone, isPending, NamedId, PredefinedObjectQuery, Search } from '../../../core/types';
+import { isDone, isPending, NamedId, PredefinedObjectQuery, Search, TConfig } from '../../../core/types';
 
 const byName = (a: { name: string }, b: { name: string }) => (a.name > b.name ? 1 : -1);
 
@@ -49,6 +48,7 @@ const toSearch = (args: { objectType: string; objectValue: string; query: string
 
 class SearchByObjectTypeStore {
   root: MainPageStore;
+  config: TConfig;
   @observable objectType: string = '';
   @observable objectValue: string = '';
   @observable query: string = '';
@@ -57,8 +57,9 @@ class SearchByObjectTypeStore {
 
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
 
-  constructor(root: MainPageStore, config: any) {
+  constructor(root: MainPageStore, config: TConfig) {
     this.root = root;
+    this.config = config;
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
   }
 
@@ -150,8 +151,9 @@ class SearchByObjectTypeStore {
             .sort(byTypeThenValue)
             .map(actObject => ({
               actObject: actObject,
+              color: objectTypeToColor(this.config.objectColors || {}, actObject.type.name),
               objectLabel:
-                getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.result.facts) ||
+                getObjectLabelFromFact(actObject, this.config.objectLabelFromFactType, simpleSearch.result.facts) ||
                 actObject.value
             }))
             .slice(0, this.suggestionLimit)

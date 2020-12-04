@@ -11,7 +11,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 
-import { objectTypeToColor, renderObjectValue, factColor } from '../../../util/util';
+import { renderObjectValue, factColor } from '../../../util/util';
 import { ActObject } from '../../../core/types';
 import MultiSelect, { IMultiSelect } from '../../../components/MultiSelect';
 
@@ -20,6 +20,7 @@ export type ColumnKind = 'objectType' | 'objectValue' | 'properties';
 export type ObjectRow = {
   id: string;
   title: string;
+  color: string;
   isSelected: boolean;
   actObject: ActObject;
   properties: Array<{ k: string; v: string }>;
@@ -56,13 +57,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ObjectRowComp = ({ actObject, title, properties, isSelected, onRowClick }: IObjectRowComp) => {
+const ObjectRowComp = ({ actObject, title, color, properties, isSelected, onRowClick }: IObjectRowComp) => {
   const classes = useStyles();
 
   return (
     <TableRow hover selected={isSelected} classes={{ root: classes.row }} onClick={() => onRowClick(actObject)}>
       <TableCell classes={{ root: classes.cell }} size="small">
-        <span style={{ color: objectTypeToColor(actObject.type.name) }}>{title}</span>
+        <span style={{ color: color }}>{title}</span>
       </TableCell>
       <TableCell classes={{ root: classes.cell }} size="small">
         {renderObjectValue(actObject, 256)}

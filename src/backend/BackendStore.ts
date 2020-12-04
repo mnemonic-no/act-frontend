@@ -11,6 +11,7 @@ import {
   LoadingStatus,
   NamedId,
   Search,
+  TConfig,
   TLoadable
 } from '../core/types';
 import { addMessage } from '../util/SnackbarProvider';
@@ -43,15 +44,15 @@ class BackendStore {
   @observable actObjectTypes: TLoadable<{ objectTypes: Array<NamedId> }> | undefined;
   @observable factTypes: TLoadable<{ factTypes: Array<FactType> }> | undefined;
 
-  constructor(root: AppStore, config: any) {
+  constructor(root: AppStore, config: TConfig) {
     this.root = root;
     this.eventBus = root.eventBus;
     this.actObjectBackendStore = new ActObjectBackendStore(config);
     this.factBackendStore = new FactBackendStore(config);
     this.oneLeggedFactsStore = new OneLeggedFactsBackendStore(this, config);
     this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
-    this.objectFactsBackendStore = new ObjectFactsBackendStore();
-    this.objectTraverseBackendStore = new ObjectTraverseBackendStore();
+    this.objectFactsBackendStore = new ObjectFactsBackendStore(config);
+    this.objectTraverseBackendStore = new ObjectTraverseBackendStore(config);
     this.multiObjectTraverseStore = new MultiObjectTraverseBackendStore();
     this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, 300);
   }

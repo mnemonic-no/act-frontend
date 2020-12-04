@@ -337,8 +337,18 @@ it('can make accordionGroups', () => {
     sut.accordionGroups({
       actObjects: [],
       isAccordionExpanded: {},
-      itemAction: { icon: 'close', tooltip: 'Close', onClick: () => {} },
-      groupActions: [{ text: 'Query', onClick: () => {} }]
+      itemAction: {
+        icon: 'close',
+        tooltip: 'Close',
+        onClick: () => {}
+      },
+      groupActions: [
+        {
+          text: 'Query',
+          onClick: () => {}
+        }
+      ],
+      objectColors: {}
     })
   ).toEqual([]);
 
@@ -350,11 +360,22 @@ it('can make accordionGroups', () => {
         actObject({ id: 'c', value: '8.8.8.8', type: objectTypes.ipv4 })
       ],
       isAccordionExpanded: { ipv4: true },
-      itemAction: { icon: 'close', tooltip: 'Unselect', onClick: () => {} },
+      itemAction: {
+        icon: 'close',
+        tooltip: 'Unselect',
+        onClick: () => {}
+      },
       groupActions: [
-        { text: 'Query', onClick: () => {} },
-        { text: 'Clear', onClick: () => {} }
-      ]
+        {
+          text: 'Query',
+          onClick: () => {}
+        },
+        {
+          text: 'Clear',
+          onClick: () => {}
+        }
+      ],
+      objectColors: { threatActor: '#606', ipv4: '#00c' }
     })
   ).toEqual([
     expect.objectContaining({
@@ -398,6 +419,7 @@ it('can make graphQueryDialog', () => {
       isOpen: true,
       actObjects: [actObject({ id: 'test', value: 'Sofacy', type: objectTypes.threatActor })],
       predefinedObjectQueries: [],
+      objectColors: { threatActor: '#606' },
       query: "g.in('resolvesTo').hasLabel('fqdn')",
       onQueryChange: () => {},
       onSubmit: () => {},

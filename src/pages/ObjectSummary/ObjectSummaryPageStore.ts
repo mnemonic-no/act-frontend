@@ -10,7 +10,8 @@ import {
   IObjectTypeToSections,
   isDone,
   isPending,
-  isRejected
+  isRejected,
+  TConfig
 } from '../../core/types';
 import { linkOnClickFn, notUndefined, objectTypeToColor } from '../../util/util';
 import {
@@ -148,15 +149,21 @@ export const prepareSections = (
 
 export const getObjectTitle = (
   actObjectSearch: ActObjectSearch,
-  objectLabelFromFactType: string
+  objectLabelFromFactType: string,
+  objectColors: { [objectType: string]: string }
 ): IObjectTitleProps => {
   if (isDone(actObjectSearch)) {
-    return objectTitle(actObjectSearch.result.actObject, actObjectSearch.result.facts, objectLabelFromFactType);
+    return objectTitle(
+      actObjectSearch.result.actObject,
+      actObjectSearch.result.facts,
+      objectLabelFromFactType,
+      objectColors
+    );
   }
   return {
     title: actObjectSearch.args.objectValue,
     subTitle: actObjectSearch.args.objectTypeName,
-    color: objectTypeToColor(actObjectSearch.args.objectTypeName)
+    color: objectTypeToColor(objectColors, actObjectSearch.args.objectTypeName)
   } as IObjectTitleProps;
 };
 
@@ -172,7 +179,7 @@ export const categories = (actObjectSearch: ActObjectSearch): Array<string> => {
 
 class ObjectSummaryPageStore {
   appStore: AppStore;
-  config: { [id: string]: any };
+  config: TConfig;
 
   @observable currentObject: ActObjectRef | undefined;
   @observable createFactDialog: CreateFactForDialog | null = null;
@@ -180,7 +187,7 @@ class ObjectSummaryPageStore {
   contextActionTemplates: Array<ContextActionTemplate>;
   objectTypeToSections: IObjectTypeToSections = {};
 
-  constructor(root: AppStore, config: any) {
+  constructor(root: AppStore, config: TConfig) {
     this.appStore = root;
     this.config = config;
     this.objectTypeToSections =
@@ -268,7 +275,7 @@ class ObjectSummaryPageStore {
           warning: Boolean(!this.objectTypeToSections[this.currentObject.typeName])
             ? 'Object summary is not supported for objects of this type'
             : '',
-          title: getObjectTitle(actObjectSearch, this.config.objectLabelFromFactType),
+          title: getObjectTitle(actObjectSearch, this.config.objectLabelFromFactType, this.config.objectColors || {}),
           categories: categories(actObjectSearch),
           objectActions: {
             title: 'Actions',

@@ -12,6 +12,7 @@ it('can count stats', () => {
   expect(
     resultCount(
       {
+        kind: 'objectFacts',
         factTypes: [],
         objectValue: 'China',
         objectType: 'Country'
@@ -23,6 +24,7 @@ it('can count stats', () => {
   expect(
     resultCount(
       {
+        kind: 'objectFacts',
         factTypes: [],
         objectValue: 'China',
         objectType: 'Country'
@@ -34,6 +36,7 @@ it('can count stats', () => {
   expect(
     resultCount(
       {
+        kind: 'objectFacts',
         factTypes: [],
         objectValue: 'China',
         objectType: 'Country'
@@ -45,6 +48,7 @@ it('can count stats', () => {
   expect(
     resultCount(
       {
+        kind: 'objectFacts',
         factTypes: [],
         objectValue: 'China',
         objectType: 'Country'
@@ -58,6 +62,7 @@ it('can count stats with factType filter', () => {
   expect(
     resultCount(
       {
+        kind: 'objectFacts',
         factTypes: ['factY'],
         objectValue: 'China',
         objectType: 'Country'
@@ -69,6 +74,7 @@ it('can count stats with factType filter', () => {
   expect(
     resultCount(
       {
+        kind: 'objectFacts',
         factTypes: ['factY'],
         objectValue: 'China',
         objectType: 'Country'

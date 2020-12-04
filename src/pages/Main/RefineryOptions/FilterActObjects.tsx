@@ -6,25 +6,25 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormLabel from '@material-ui/core/FormLabel';
 import { observer } from 'mobx-react';
 
-import config from '../../../config';
 import { ObjectTypeFilter } from '../../../core/types';
 
-const useStyles = makeStyles((theme: Theme) => ({
-  checkbox: {
-    height: '36px',
-    width: '48px',
-    padding: theme.spacing(0.5)
-  },
-  ...Object.keys(config.objectColors)
-    .map(name => ({
-      // @ts-ignore
-      [name]: { color: config.objectColors[name] }
-    }))
-    .reduce((acc, x) => Object.assign({}, acc, x), {})
-}));
+const useStyles = (objectColors: { [objectType: string]: string }) => {
+  return makeStyles((theme: Theme) => ({
+    checkbox: {
+      height: '36px',
+      width: '48px',
+      padding: theme.spacing(0.5)
+    },
+    ...Object.keys(objectColors)
+      .map(name => ({
+        [name]: { color: objectColors[name] }
+      }))
+      .reduce((acc, x) => Object.assign({}, acc, x), {})
+  }));
+};
 
-const FilterObjectsComp = ({ objectTypeFilters, onChange }: IFilterObjectsComp) => {
-  const classes = useStyles();
+const FilterObjectsComp = ({ objectTypeFilters, objectColors, onChange }: IFilterObjectsComp) => {
+  const classes = useStyles(objectColors)();
   return (
     <FormGroup>
       <FormLabel>Filter objects</FormLabel>
@@ -54,6 +54,7 @@ const FilterObjectsComp = ({ objectTypeFilters, onChange }: IFilterObjectsComp) 
 
 interface IFilterObjectsComp {
   objectTypeFilters: Array<ObjectTypeFilter>;
+  objectColors: { [objectType: string]: string };
   onChange: Function;
 }
 

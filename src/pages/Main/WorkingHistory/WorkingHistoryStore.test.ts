@@ -112,16 +112,20 @@ it('can import working history', () => {
 });
 
 it('working history item title', () => {
-  expect(sut.itemTitle({ id: 'a', factTypeName: 'alias', kind: 'singleFact' })).toEqual([
+  const objectColors = { threatActor: '#606' };
+
+  expect(sut.itemTitle({ id: 'a', factTypeName: 'alias', kind: 'singleFact' }, {})).toEqual([
     { text: 'Fact ', color: factColor },
     { text: 'alias' }
   ]);
-  expect(sut.itemTitle({ objectType: 'threatActor', objectValue: 'Sofacy', kind: 'objectFacts' })).toEqual([
-    { text: 'threatActor ', color: '#606' },
-    { text: 'Sofacy' }
-  ]);
   expect(
-    sut.itemTitle({ kind: 'multiObjectTraverse', objectType: 'threatActor', objectIds: ['a', 'b'], query: 'something' })
+    sut.itemTitle({ objectType: 'threatActor', objectValue: 'Sofacy', kind: 'objectFacts' }, objectColors)
+  ).toEqual([{ text: 'threatActor ', color: '#606' }, { text: 'Sofacy' }]);
+  expect(
+    sut.itemTitle(
+      { kind: 'multiObjectTraverse', objectType: 'threatActor', objectIds: ['a', 'b'], query: 'something' },
+      objectColors
+    )
   ).toEqual([{ text: 'threatActor ', color: '#606' }, { text: '2 objects' }]);
 });
 

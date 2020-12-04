@@ -13,7 +13,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { ActObject } from '../core/types';
-import { objectTypeToColor, renderObjectValue } from '../util/util';
+import { renderObjectValue } from '../util/util';
 
 export type ColumnKind = 'objectType' | 'objectValue';
 
@@ -26,6 +26,7 @@ export interface IObjectRow {
   actObject: ActObject;
   isSelected?: boolean;
   label?: string;
+  color: string;
   objectValueLink?: { onClick: (e: any) => void; href: string };
   onRowClick?: (object: ActObject) => void;
   onCheckboxClick?: (obj: ActObject) => void;
@@ -45,7 +46,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const ObjectRowComp = ({ actObject, label, objectValueLink, onRowClick, onCheckboxClick, isSelected }: IObjectRow) => {
+const ObjectRowComp = ({
+  actObject,
+  label,
+  color,
+  objectValueLink,
+  onRowClick,
+  onCheckboxClick,
+  isSelected
+}: IObjectRow) => {
   const classes = useStyles();
 
   const objectValueString = renderObjectValue(actObject, 256);
@@ -69,7 +78,7 @@ const ObjectRowComp = ({ actObject, label, objectValueLink, onRowClick, onCheckb
         />
       </TableCell>
       <TableCell classes={{ root: classes.cell }} size="small">
-        <span style={{ color: objectTypeToColor(actObject.type.name) }}>{actObject.type.name}</span>
+        <span style={{ color: color }}>{actObject.type.name}</span>
       </TableCell>
       <TableCell classes={{ root: cc(classes.cell, classes.wordBreakAll) }} size="small">
         <Link href={objectValueLink && objectValueLink.href} onClick={objectValueLink && objectValueLink.onClick}>

@@ -1,11 +1,11 @@
 import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { ActFact, ActObject, ActSelection } from '../../../core/types';
+import { ActFact, ActObject, ActSelection, TConfig } from '../../../core/types';
 import { ColumnKind, ObjectRow, SortOrder } from './ObjectsTable';
 import MainPageStore from '../MainPageStore';
 import { oneLeggedFactsFor } from '../../../core/domain';
-import { exportToCsv, fileTimeString } from '../../../util/util';
+import { exportToCsv, fileTimeString, objectTypeToColor } from '../../../util/util';
 import EventBus from '../../../util/eventbus';
 
 const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
@@ -37,11 +37,13 @@ const sortBy = (sortOrder: SortOrder, objects: Array<ObjectRow>) => {
 const toObjectRow = (
   object: ActObject,
   currentlySelected: { [id: string]: ActSelection },
+  objectColors: { [objectType: string]: string },
   facts: Array<ActFact>
 ): ObjectRow => {
   return {
     id: object.id,
     title: object.type.name,
+    color: objectTypeToColor(objectColors, object.type.name),
     isSelected: Boolean(currentlySelected[object.id]),
     actObject: object,
     properties: oneLeggedFactsFor(object, facts).map(f => {
@@ -54,6 +56,7 @@ export const objectRows = (input: {
   objects: Array<ActObject>;
   objectTypeFilter: Set<string>;
   currentlySelected: { [id: string]: ActSelection };
+  objectColors: { [objectType: string]: string };
   filterSelected: boolean;
   facts: Array<ActFact>;
   sortOrder: SortOrder;
@@ -61,7 +64,7 @@ export const objectRows = (input: {
   return _.pipe(
     _.filter((o: ActObject) => input.objectTypeFilter.size === 0 || input.objectTypeFilter.has(o.type.name)),
     objects => (input.filterSelected ? objects.filter(o => Boolean(input.currentlySelected[o.id])) : objects),
-    _.map((o: ActObject) => toObjectRow(o, input.currentlySelected, input.facts)),
+    _.map((o: ActObject) => toObjectRow(o, input.currentlySelected, input.objectColors, input.facts)),
     objectRows => sortBy(input.sortOrder, objectRows)
   )(input.objects);
 };
@@ -71,6 +74,7 @@ const emptyFilterValue = 'Show all';
 class ObjectsTableStore {
   root: MainPageStore;
   eventBus: EventBus;
+  config: TConfig;
 
   columns: Array<{ label: string; kind: ColumnKind }> = [
     { label: 'Type', kind: 'objectType' },
@@ -84,9 +88,10 @@ class ObjectsTableStore {
   @observable
   sortOrder: SortOrder = { order: 'asc', orderBy: 'objectType' };
 
-  constructor(root: MainPageStore, eventBus: EventBus) {
+  constructor(root: MainPageStore, config: TConfig, eventBus: EventBus) {
     this.root = root;
     this.eventBus = eventBus;
+    this.config = config;
   }
 
   @computed get objects() {
@@ -129,6 +134,7 @@ class ObjectsTableStore {
       objects: Object.values(this.root.refineryStore.refined.objects),
       facts: Object.values(this.root.refineryStore.refined.facts),
       currentlySelected: this.root.selectionStore.currentlySelected,
+      objectColors: this.config.objectColors || {},
       objectTypeFilter: this.objectTypeFilter,
       filterSelected: this.filterSelected,
       sortOrder: this.sortOrder
@@ -149,6 +155,7 @@ class ObjectsTableStore {
       objects: allObjects,
       facts: Object.values(this.root.refineryStore.refined.facts),
       currentlySelected: this.root.selectionStore.currentlySelected,
+      objectColors: this.config.objectColors || {},
       objectTypeFilter: this.objectTypeFilter,
       filterSelected: this.filterSelected,
       sortOrder: this.sortOrder

@@ -17,15 +17,16 @@ import {
   ActObject,
   StateExportv2,
   StateExport,
-  isRejected
+  isRejected,
+  TConfig
 } from '../../../core/types';
 import {
   exportToJson,
   fileTimeString,
   copyToClipBoard,
-  objectTypeToColor,
   factColor,
-  assertNever
+  assertNever,
+  objectTypeToColor
 } from '../../../util/util';
 import MainPageStore from '../MainPageStore';
 import { addMessage } from '../../../util/SnackbarProvider';
@@ -44,16 +45,22 @@ const copy = (si: WorkingHistoryItem) => {
   }
 };
 
-export const itemTitle = (s: Search) => {
+export const itemTitle = (s: Search, objectColors: { [objectType: string]: string }) => {
   if (isObjectFactsSearch(s)) {
-    return [{ text: s.objectType + ' ', color: objectTypeToColor(s.objectType) }, { text: s.objectValue }];
+    return [
+      { text: s.objectType + ' ', color: objectTypeToColor(objectColors, s.objectType) },
+      { text: s.objectValue }
+    ];
   } else if (isObjectTraverseSearch(s)) {
-    return [{ text: s.objectType + ' ', color: objectTypeToColor(s.objectType) }, { text: s.objectValue }];
+    return [
+      { text: s.objectType + ' ', color: objectTypeToColor(objectColors, s.objectType) },
+      { text: s.objectValue }
+    ];
   } else if (isFactSearch(s)) {
     return [{ text: 'Fact ', color: factColor }, { text: s.factTypeName }];
   } else if (isMultiObjectSearch(s)) {
     return [
-      { text: s.objectType + ' ', color: objectTypeToColor(s.objectType) },
+      { text: s.objectType + ' ', color: objectTypeToColor(objectColors, s.objectType) },
       { text: s.objectIds.length + ' objects' }
     ];
   }
@@ -191,12 +198,14 @@ export const searchToSelection = (search: Search, result: SearchResult): { [id: 
 class WorkingHistoryStore {
   root: MainPageStore;
   eventBus: EventBus;
+  config: TConfig;
 
   predefinedQueryToName: { [queryString: string]: string };
 
-  constructor(root: MainPageStore, config: any, eventBus: EventBus) {
+  constructor(root: MainPageStore, config: TConfig, eventBus: EventBus) {
     this.root = root;
     this.eventBus = eventBus;
+    this.config = config;
 
     this.predefinedQueryToName = (config.predefinedObjectQueries || []).reduce((acc: any, q: PredefinedObjectQuery) => {
       acc[q.query] = q.name;
@@ -272,7 +281,7 @@ class WorkingHistoryStore {
       (props: { item: WorkingHistoryItem; loadable: TLoadable<SearchResult> }) => {
         return {
           id: searchId(props.item.search),
-          title: itemTitle(props.item.search),
+          title: itemTitle(props.item.search, this.config.objectColors || {}),
           isSelected: props.item.id === this.selectedItemId,
           isLoading: isPending(props.loadable),
           error: isRejected(props.loadable) ? props.loadable.error : undefined,

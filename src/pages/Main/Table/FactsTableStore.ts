@@ -1,7 +1,7 @@
 import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { ActFact, ActSelection } from '../../../core/types';
+import { ActFact, ActSelection, TConfig } from '../../../core/types';
 import MainPageStore from '../MainPageStore';
 import { ColumnKind, FactRow, SortOrder } from './FactsTable';
 import { exportToCsv, fileTimeString, renderObjectValue } from '../../../util/util';
@@ -64,7 +64,8 @@ const toFactRow = (
   fact: ActFact,
   columns: Array<{ label: string; kind: ColumnKind }>,
   currentlySelected: { [id: string]: ActSelection },
-  isExport: boolean
+  isExport: boolean,
+  objectColors: { [objectType: string]: string }
 ): FactRow => {
   return {
     id: fact.id,
@@ -74,7 +75,8 @@ const toFactRow = (
       kind: kind,
       text: cellText(kind, fact, isExport) || '',
       isFaded: isFaded(kind, fact)
-    }))
+    })),
+    objectColors: objectColors
   };
 };
 
@@ -86,11 +88,12 @@ export const factRows = (input: {
   filterSelected: boolean;
   sortOrder: SortOrder;
   isExport: boolean;
+  objectColors: { [objectType: string]: string };
 }) => {
   return _.pipe(
     _.filter((f: ActFact) => input.factTypeFilter.size === 0 || input.factTypeFilter.has(f.type.name)),
     fs => (input.filterSelected ? fs.filter(f => input.currentlySelected[f.id]) : fs),
-    _.map((f: ActFact) => toFactRow(f, input.columns, input.currentlySelected, input.isExport)),
+    _.map((f: ActFact) => toFactRow(f, input.columns, input.currentlySelected, input.isExport, input.objectColors)),
     factRows => sortBy(input.sortOrder, input.columns, factRows)
   )(input.facts);
 };
@@ -119,6 +122,7 @@ export const columns: Array<{ label: string; exportLabel?: string; tooltip?: str
 class FactsTableStore {
   root: MainPageStore;
   eventBus: EventBus;
+  config: TConfig;
 
   @observable filterSelected = false;
 
@@ -127,9 +131,10 @@ class FactsTableStore {
 
   @observable factTypeFilter: Set<string> = new Set();
 
-  constructor(root: MainPageStore, eventBus: EventBus) {
+  constructor(root: MainPageStore, config: TConfig, eventBus: EventBus) {
     this.root = root;
     this.eventBus = eventBus;
+    this.config = config;
   }
 
   @computed get facts() {
@@ -177,7 +182,8 @@ class FactsTableStore {
       currentlySelected: this.root.selectionStore.currentlySelected,
       filterSelected: this.filterSelected,
       sortOrder: this.sortOrder,
-      columns: columns
+      columns: columns,
+      objectColors: this.config.objectColors || {}
     }).map(row => row.cells.map(({ text }) => text));
 
     const headerRow = [columns.map(c => c.exportLabel || c.label)];
@@ -196,7 +202,8 @@ class FactsTableStore {
       currentlySelected: this.root.selectionStore.currentlySelected,
       filterSelected: this.filterSelected,
       sortOrder: this.sortOrder,
-      columns: columns
+      columns: columns,
+      objectColors: this.config.objectColors || {}
     });
 
     return {

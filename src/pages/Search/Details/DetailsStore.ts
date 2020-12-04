@@ -3,7 +3,7 @@ import { action, computed, observable } from 'mobx';
 
 import { IDetailsComp } from './Details';
 import { accordionGroups, getObjectLabelFromFact, graphQueryDialog } from '../../../core/domain';
-import { ActFact, ActObject, isDone, PredefinedObjectQuery, Search } from '../../../core/types';
+import { ActFact, ActObject, isDone, PredefinedObjectQuery, Search, TConfig } from '../../../core/types';
 import { link, objectTypeToColor } from '../../../util/util';
 import { IGroup } from '../../../components/GroupByAccordion';
 import { IObjectTitleProps } from '../../../components/ObjectTitle';
@@ -14,7 +14,8 @@ import EventBus from '../../../util/eventbus';
 export const objectTitle = (
   actObject: ActObject,
   objectLabelFromFactType: string,
-  oneLeggedFacts: Array<ActFact>
+  oneLeggedFacts: Array<ActFact>,
+  objectColors: { [objectType: string]: string }
 ): IObjectTitleProps => {
   const labelFromFact = getObjectLabelFromFact(actObject, objectLabelFromFactType, oneLeggedFacts);
 
@@ -22,7 +23,7 @@ export const objectTitle = (
     title: labelFromFact || actObject.value,
     metaTitle: labelFromFact && actObject.value,
     subTitle: actObject.type.name,
-    color: objectTypeToColor(actObject.type.name)
+    color: objectTypeToColor(objectColors, actObject.type.name)
   };
 };
 
@@ -39,13 +40,15 @@ class DetailsStore {
   };
 
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
+  objectColors: { [objectType: string]: string };
 
-  constructor(appStore: AppStore, resultsStore: ResultsStore, objectLabelFromFactType: string, config: any) {
+  constructor(appStore: AppStore, resultsStore: ResultsStore, objectLabelFromFactType: string, config: TConfig) {
     this.appStore = appStore;
     this.eventBus = appStore.eventBus;
     this.resultsStore = resultsStore;
     this.objectLabelFromFactType = objectLabelFromFactType;
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
+    this.objectColors = config.objectColors || {};
   }
 
   @action.bound
@@ -118,7 +121,8 @@ class DetailsStore {
           objectTitle: objectTitle(
             selectedObject,
             this.objectLabelFromFactType,
-            isDone(activeSimpleSearch) ? activeSimpleSearch.result.facts : []
+            isDone(activeSimpleSearch) ? activeSimpleSearch.result.facts : [],
+            this.objectColors
           ),
           clearSelectionButton: {
             text: 'Clear',
@@ -176,7 +180,8 @@ class DetailsStore {
               onClick: (actObject: ActObject) => {
                 this.resultsStore.toggleSelection(actObject.id);
               }
-            }
+            },
+            objectColors: this.objectColors
           })
         },
         graphQueryDialog: graphQueryDialog({
@@ -184,6 +189,7 @@ class DetailsStore {
           query: this.multiSelectQueryDialog.query,
           actObjects: this.multiSelectQueryDialog.actObjects,
           predefinedObjectQueries: this.predefinedObjectQueries,
+          objectColors: this.objectColors,
           onQueryChange: (q: string) => {
             this.multiSelectQueryDialog.query = q;
           },

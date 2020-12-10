@@ -1,25 +1,18 @@
 import React from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { observer } from 'mobx-react';
-import AppBar from '@material-ui/core/AppBar/AppBar';
-import Button from '@material-ui/core/Button';
 import Fade from '@material-ui/core/Fade';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import SearchIcon from '@material-ui/icons/Search';
 import TimelineIcon from '@material-ui/icons/Timeline';
-import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-
-import AboutButton from '../components/About';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ErrorSnackbar, { IErrorSnackbarProps } from '../components/ErrorSnackbar';
-import { TBanner } from '../core/types';
 
 const useStyles = makeStyles((theme: Theme) => {
-  const appBarHeight = theme.spacing(8);
+  const appBarHeight = theme.spacing(7);
   return {
     root: {
       height: '100vh',
@@ -41,24 +34,6 @@ const useStyles = makeStyles((theme: Theme) => {
       // Drawer z-index is 1200
       // Need to change strategy if we want other drawers to come on top
       zIndex: 1201
-    },
-    appBar: {
-      backgroundColor: (props: any) => props.appBarBackgroundColor
-    },
-    appBarLeft: {
-      display: 'flex',
-      flexGrow: 1,
-      position: 'relative'
-    },
-    banner: {
-      position: 'absolute',
-      userSelect: 'none',
-      bottom: 0,
-      marginLeft: theme.spacing(3)
-    },
-    appBarLogo: {
-      height: 46,
-      maxWidth: 'none'
     },
     contentArea: {
       marginTop: appBarHeight,
@@ -119,42 +94,17 @@ const LeftMenuComp = (props: { items: Array<TMenuButton> }) => {
   );
 };
 
-const Banner = (props: TBanner) => {
-  const classes = useStyles();
-  return (
-    <div className={classes.banner} style={{ color: props.textColor }}>
-      <Typography variant="caption" display={'block'} noWrap>
-        {props.text}
-      </Typography>
-    </div>
-  );
-};
-
 const PageComp = (props: IPageComp) => {
-  const classes = useStyles({ appBarBackgroundColor: props.banner?.backgroundColor });
+  const classes = useStyles();
 
   return (
     <div className={classes.root}>
       <div className={classes.appFrame}>
         <div className={classes.headerArea}>
-          <AppBar position="static" className={classes.appBar}>
-            {props.banner && <Banner {...props.banner} />}
-            <Toolbar>
-              <div className={classes.appBarLeft}>
-                <a href="/">
-                  <img src="/act-logo-onDark.svg" alt="ACT" className={classes.appBarLogo} />
-                </a>
-              </div>
-              <Button color="inherit" component="a" href="/examples">
-                Examples
-              </Button>
-              <AboutButton />
-            </Toolbar>
-
-            <Fade in={props.isLoading} timeout={500}>
-              <LinearProgress variant="query" color="secondary" />
-            </Fade>
-          </AppBar>
+          {props.headerComp}
+          <Fade in={props.isLoading} timeout={500}>
+            <LinearProgress variant="query" color="secondary" />
+          </Fade>
         </div>
 
         <div className={classes.contentArea}>
@@ -178,7 +128,7 @@ export interface IPageComp {
   errorSnackbar: IErrorSnackbarProps;
   isLoading: boolean;
   leftMenuItems: Array<any>;
-  banner?: TBanner;
+  headerComp: React.ReactNode;
 }
 
 export default observer(PageComp);

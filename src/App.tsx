@@ -8,6 +8,7 @@ import MainPage from './pages/Main/MainPage';
 import SearchPage from './pages/Search/SearchPage';
 import SnackbarProvider from './util/SnackbarProvider';
 import SummaryPage from './pages/ObjectSummary/ObjectSummaryPage';
+import EnvironmentalAppBar from './components/EnvironmentalAppBar';
 
 const Black = {
   50: '#9e9e9e',
@@ -61,13 +62,21 @@ export const actTheme = createMuiTheme({
 const store = new AppStore(config);
 store.initByUrl(window.location);
 
+const banner = config.banner ? config.banner : {};
+
 const App = () => (
   <>
     <MuiThemeProvider theme={actTheme}>
       <SnackbarProvider />
-      {store.currentPage === 'mainPage' && <MainPage store={store.mainPageStore} />}
-      {store.currentPage === 'searchPage' && <SearchPage store={store.searchPageStore} />}
-      {store.currentPage === 'summaryPage' && <SummaryPage store={store.summaryPageStore} />}
+      {store.currentPage === 'mainPage' && (
+        <MainPage store={store.mainPageStore} headerComp={<EnvironmentalAppBar banner={banner} />} />
+      )}
+      {store.currentPage === 'searchPage' && (
+        <SearchPage store={store.searchPageStore} headerComp={<EnvironmentalAppBar banner={banner} />} />
+      )}
+      {store.currentPage === 'summaryPage' && (
+        <SummaryPage store={store.summaryPageStore} headerComp={<EnvironmentalAppBar banner={banner} />} />
+      )}
     </MuiThemeProvider>
   </>
 );

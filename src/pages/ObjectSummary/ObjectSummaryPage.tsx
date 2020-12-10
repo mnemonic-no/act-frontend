@@ -118,13 +118,13 @@ const TitleSection = (props: {
   );
 };
 
-const ObjectSummaryPageComp = ({ store }: ISummaryPageProps) => {
+const ObjectSummaryPageComp = ({ store, headerComp }: ISummaryPageProps) => {
   const classes = useStyles();
 
   const { content, createFactDialog } = store.prepared;
 
   return (
-    <Page {...store.prepared.page}>
+    <Page {...store.prepared.page} headerComp={headerComp}>
       {!content && <h1>Empty page</h1>}
       {content && (
         <div className={classes.root}>
@@ -143,6 +143,7 @@ const ObjectSummaryPageComp = ({ store }: ISummaryPageProps) => {
 
 export interface ISummaryPageProps {
   store: ObjectSummaryPageStore;
+  headerComp: React.ReactNode;
 }
 
 export default observer(ObjectSummaryPageComp);

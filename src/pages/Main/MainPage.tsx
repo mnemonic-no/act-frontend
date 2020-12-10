@@ -89,13 +89,18 @@ const useSearchStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const MainPage = ({ store }: { store: MainPageStore }) => {
+interface IMainPage {
+  store: MainPageStore;
+  headerComp: React.ReactNode;
+}
+
+const MainPage = ({ store, headerComp }: IMainPage) => {
   const classes = useStyles();
   const drawerClasses = useDrawerStyles();
   const searchClasses = useSearchStyles();
 
   return (
-    <Page {...store.page}>
+    <Page {...store.page} headerComp={headerComp}>
       <div className={classes.mainFrame}>
         {/* Search container */}
         <div

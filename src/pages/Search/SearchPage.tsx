@@ -195,9 +195,9 @@ const SearchWithResults = observer(({ store }: { store: SearchPageStore }) => {
   );
 });
 
-const SearchPage = ({ store }: ISearchPageProps) => {
+const SearchPage = ({ store, headerComp }: ISearchPageProps) => {
   return (
-    <Page {...store.prepared.page}>
+    <Page {...store.prepared.page} headerComp={headerComp}>
       {!store.prepared.hasActiveSearch && <SearchOnly {...store.prepared} />}
       {store.prepared.hasActiveSearch && <SearchWithResults store={store} />}
     </Page>
@@ -206,6 +206,7 @@ const SearchPage = ({ store }: ISearchPageProps) => {
 
 interface ISearchPageProps {
   store: SearchPageStore;
+  headerComp: React.ReactNode;
 }
 
 export default observer(SearchPage);

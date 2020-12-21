@@ -13,10 +13,10 @@ import Typography from '@material-ui/core/Typography';
 
 import { ActObjectRef, NamedId } from '../../core/types';
 import AccessModeSelector from '../AccessModeSelector';
+import ActObjectAutoSuggest, { IActObjectAutoSuggestComp } from '../ActObjectAutoSuggest';
 import DialogError from '../DialogError';
 import DialogLoadingOverlay from '../DialogLoadingOverlay';
-import DialogStore, { FormUniDirectional } from './DialogStore';
-import ObjectValueAutosuggest from '../ObjectValueAutosuggest';
+import DialogStore from './DialogStore';
 
 const useStyles = makeStyles((theme: Theme) => ({
   dialogContentRoot: { paddingBottom: '20px' }
@@ -48,59 +48,47 @@ const ObjectComp = (props: { title: string; actObject: ActObjectRef }) => {
   );
 };
 
-const ObjectSelectionComp = observer(
-  ({
-    title,
-    selectionObject,
-    validObjectTypes,
-    onChange
-  }: {
-    title: string;
-    validObjectTypes: Array<NamedId>;
-    selectionObject: ActObjectRef;
-    onChange: (obj: ActObjectRef) => void;
-  }) => {
-    if (!selectionObject.typeName) {
-      return <div>Missing type for selection object</div>;
-    }
+export interface IObjectSelectionComp {
+  title: string;
+  validObjectTypes: Array<NamedId>;
+  selectionObject: ActObjectRef;
+  objectValueAutosuggest?: Omit<IActObjectAutoSuggestComp, 'required' | 'fullWidth'>;
+  onChange: (obj: ActObjectRef) => void;
+}
 
-    return (
-      <RoundedBox style={{ padding: '10px', border: '2px solid black' }} title={title}>
-        <TextField
-          label="Object Type"
-          fullWidth
-          select
-          margin="normal"
-          InputLabelProps={{ shrink: true }}
-          SelectProps={{ native: true }}
-          value={selectionObject.typeName}
-          onChange={e => {
-            const newTypeName = e.target.value;
-            const newObjectType = validObjectTypes.filter(ot => ot.name === newTypeName)[0];
-            return onChange({ ...selectionObject, typeName: newObjectType.name });
-          }}>
-          {validObjectTypes.map(({ id, name }: any) => (
-            <option key={id} value={name}>
-              {name}
-            </option>
-          ))}
-        </TextField>
-
-        <div>
-          <ObjectValueAutosuggest
-            required
-            autoFocus={selectionObject.value === ''}
-            fullWidth
-            label={'Object value'}
-            value={selectionObject.value}
-            onChange={(value: string) => onChange({ ...selectionObject, value: value })}
-            objectType={selectionObject.typeName}
-          />
-        </div>
-      </RoundedBox>
-    );
+const ObjectSelectionComp = observer((props: IObjectSelectionComp) => {
+  if (!props.selectionObject.typeName) {
+    return <div>Missing type for selection object</div>;
   }
-);
+
+  return (
+    <RoundedBox style={{ padding: '10px', border: '2px solid black' }} title={props.title}>
+      <TextField
+        label="Object Type"
+        fullWidth
+        select
+        margin="normal"
+        InputLabelProps={{ shrink: true }}
+        SelectProps={{ native: true }}
+        value={props.selectionObject.typeName}
+        onChange={e => {
+          const newTypeName = e.target.value;
+          const newObjectType = props.validObjectTypes.filter(ot => ot.name === newTypeName)[0];
+          return props.onChange({ ...props.selectionObject, typeName: newObjectType.name });
+        }}>
+        {props.validObjectTypes.map(({ id, name }: any) => (
+          <option key={id} value={name}>
+            {name}
+          </option>
+        ))}
+      </TextField>
+
+      {props.objectValueAutosuggest && (
+        <ActObjectAutoSuggest {...props.objectValueAutosuggest} required fullWidth/>
+      )}
+    </RoundedBox>
+  );
+});
 
 const RoundedBox = ({ children, style, title }: any) => {
   return (
@@ -191,114 +179,110 @@ const Arrow = ({ direction, label }: { direction: string; label: string }) => {
   }
 };
 
-const OneLeggedFact = observer(({ store }: { store: DialogStore }) => {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        paddingTop: '10px'
-      }}>
-      <div style={{ flex: '1' }}>
-        <ObjectComp actObject={store.selectedObject} title="Source" />
-      </div>
-
+const OneLeggedFact = observer(
+  (props: { selectedObject: ActObjectRef; arrowLabel: string; value: string; onChange: (value: string) => void }) => {
+    return (
       <div
         style={{
-          flex: '1',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center'
+          paddingTop: '10px'
         }}>
-        <Arrow direction="right" label={store.selectedFactTypeName ? store.selectedFactTypeName : ''} />
-      </div>
+        <div style={{ flex: '1' }}>
+          <ObjectComp actObject={props.selectedObject} title="Source" />
+        </div>
 
-      <div style={{ flex: '1', alignSelf: 'center' }}>
-        <RoundedBox style={{ padding: '10px' }}>
-          <TextField
-            inputProps={{ spellCheck: false }}
-            fullWidth
-            label={'Value'}
-            value={store.formOneLegged.value}
-            onChange={e => (store.formOneLegged.value = e.target.value)}
-          />
-        </RoundedBox>
-      </div>
-    </div>
-  );
-});
+        <div
+          style={{
+            flex: '1',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
+          }}>
+          <Arrow direction="right" label={props.arrowLabel} />
+        </div>
 
-const BiDirectionalFact = observer(({ store }: { store: DialogStore }) => {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        paddingTop: '10px'
-      }}>
-      <div style={{ flex: '1' }}>
-        <ObjectComp actObject={store.selectedObject} title="Source" />
+        <div style={{ flex: '1', alignSelf: 'center' }}>
+          <RoundedBox style={{ padding: '10px' }}>
+            <TextField
+              inputProps={{ spellCheck: false }}
+              fullWidth
+              label={'Value'}
+              value={props.value}
+              onChange={e => props.onChange(e.target.value)}
+            />
+          </RoundedBox>
+        </div>
       </div>
+    );
+  }
+);
 
+const BiDirectionalFact = observer(
+  (props: { selectedObject: ActObjectRef; arrowLabel: string; objectSelection?: IObjectSelectionComp }) => {
+    return (
       <div
         style={{
-          flex: '1',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center'
+          paddingTop: '10px'
         }}>
-        <Arrow direction="both" label={store.selectedFactTypeName ? store.selectedFactTypeName : ''} />
-      </div>
+        <div style={{ flex: '1' }}>
+          <ObjectComp actObject={props.selectedObject} title="Source" />
+        </div>
 
-      <div style={{ flex: '1' }}>
-        {store.formBidirectional && (
-          <ObjectSelectionComp
-            selectionObject={store.formBidirectional.otherObject}
-            validObjectTypes={store.formBidirectional.validOtherObjectTypes}
-            title="Destination"
-            onChange={store.onFormBidirectionalChange}
-          />
-        )}
+        <div
+          style={{
+            flex: '1',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
+          }}>
+          <Arrow direction="both" label={props.arrowLabel} />
+        </div>
+
+        <div style={{ flex: '1' }}>{props.objectSelection && <ObjectSelectionComp {...props.objectSelection} />}</div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 const UniDirectionalFact = observer(
-  ({
-    store,
-    form,
-    onChange,
-    onSwapClick
-  }: {
-    store: DialogStore;
-    form: FormUniDirectional;
+  (props: {
+    selectedObject: ActObjectRef;
+    otherObject: ActObjectRef;
+    arrowLabel: string;
+    validObjectTypes: Array<NamedId>;
+    isSelectionSource: boolean;
+    objectValueAutosuggest: Omit<IActObjectAutoSuggestComp, 'required' | 'fullWidth'>;
     onChange: (obj: ActObjectRef) => void;
     onSwapClick: Function | undefined;
   }) => {
     const SourceComp = observer(() => {
-      if (form.isSelectionSource) {
-        return <ObjectComp title="Source" actObject={store.selectedObject} />;
+      if (props.isSelectionSource) {
+        return <ObjectComp title="Source" actObject={props.selectedObject} />;
       } else {
         return (
           <ObjectSelectionComp
             title="Source"
-            selectionObject={form.otherObject}
-            validObjectTypes={form.validOtherObjectTypes}
-            onChange={onChange}
+            selectionObject={props.otherObject}
+            validObjectTypes={props.validObjectTypes}
+            objectValueAutosuggest={props.objectValueAutosuggest}
+            onChange={props.onChange}
           />
         );
       }
     });
 
     const DestinationComp = observer(() => {
-      if (!form.isSelectionSource) {
-        return <ObjectComp title="Destination" actObject={store.selectedObject} />;
+      if (!props.isSelectionSource) {
+        return <ObjectComp title="Destination" actObject={props.selectedObject} />;
       } else {
         return (
           <ObjectSelectionComp
             title="Destination"
-            selectionObject={form.otherObject}
-            validObjectTypes={form.validOtherObjectTypes}
-            onChange={onChange}
+            selectionObject={props.otherObject}
+            validObjectTypes={props.validObjectTypes}
+            objectValueAutosuggest={props.objectValueAutosuggest}
+            onChange={props.onChange}
           />
         );
       }
@@ -317,15 +301,15 @@ const UniDirectionalFact = observer(
             flexDirection: 'column',
             justifyContent: 'center'
           }}>
-          {onSwapClick && (
+          {props.onSwapClick && (
             <div
               style={{ position: 'absolute', top: '1.5rem', display: 'flex', justifyContent: 'center', width: '100%' }}>
-              <Fab onClick={() => onSwapClick()} size="small" type="button" color="secondary">
+              <Fab onClick={() => props.onSwapClick && props.onSwapClick()} size="small" type="button" color="secondary">
                 <SwapHorizIcon />
               </Fab>
             </div>
           )}
-          <Arrow direction="right" label={store.selectedFactTypeName ? store.selectedFactTypeName : ''} />
+          <Arrow direction="right" label={props.arrowLabel} />
         </div>
 
         <div style={{ flex: '1' }}>
@@ -339,21 +323,11 @@ const UniDirectionalFact = observer(
 const FactComp = observer(({ store }: { store: DialogStore }) => {
   switch (store.selectedFactTypeCategory) {
     case 'oneLegged':
-      return <OneLeggedFact store={store} />;
+      return <OneLeggedFact {...store.oneLeggedFact} />;
     case 'biDirectional':
-      return <BiDirectionalFact store={store} />;
+      return <BiDirectionalFact {...store.bidirectionalFact} />;
     case 'uniDirectional':
-      if (store.formUniDirectional) {
-        return (
-          <UniDirectionalFact
-            store={store}
-            form={store.formUniDirectional}
-            onChange={store.onFormUniDirectionalChange}
-            onSwapClick={store.canSwap ? store.onSwapClick : undefined}
-          />
-        );
-      }
-      return null;
+      return store.unidirectionalFact && <UniDirectionalFact {...store.unidirectionalFact} />;
     default:
       return null;
   }

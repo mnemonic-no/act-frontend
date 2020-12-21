@@ -236,9 +236,15 @@ class ObjectSummaryPageStore {
   onCreateFactClick() {
     if (this.currentObject && this.appStore.backendStore.factTypes && isDone(this.appStore.backendStore.factTypes)) {
       const factTypes = this.appStore.backendStore.factTypes.result.factTypes;
-      this.createFactDialog = new CreateFactForDialog(this.currentObject, factTypes, () => {
-        this.appStore.eventBus.publish([{ kind: 'notification', text: 'Fact created' }]);
-      });
+      this.createFactDialog = new CreateFactForDialog(
+        this.appStore.backendStore,
+        this.config,
+        this.currentObject,
+        factTypes,
+        () => {
+          this.appStore.eventBus.publish([{ kind: 'notification', text: 'Fact created' }]);
+        }
+      );
     }
   }
 

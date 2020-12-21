@@ -567,6 +567,8 @@ class DetailsStore {
     if (this.selectedObject && this.root.backendStore.factTypes && isDone(this.root.backendStore.factTypes)) {
       const factTypes = this.root.backendStore.factTypes.result.factTypes;
       this.createFactDialog = new CreateFactForDialog(
+        this.root.backendStore,
+        this.config,
         { value: this.selectedObject.value, typeName: this.selectedObject.type.name },
         factTypes,
         (props: { search: SingleFactSearch; result: SearchResult }) => {

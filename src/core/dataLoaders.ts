@@ -14,7 +14,6 @@ import {
   SearchResult,
   TConfig
 } from './types';
-import memoizeDataLoader from '../util/memoizeDataLoader';
 import { arrayToObjectWithIds } from '../util/util';
 
 const handleError = (error: any) => {
@@ -289,8 +288,7 @@ export const matchFactTypesToObjectTypes = (factTypeToObjectTypes: { [id: string
   )(factTypeToObjectTypes);
 };
 
-export const factTypesDataLoader = memoizeDataLoader(
-  (): Promise<Array<FactType>> => {
+export const factTypesDataLoader = (): Promise<Array<FactType>> => {
     return actWretch
       .url('/v1/factType')
       .get()
@@ -298,7 +296,6 @@ export const factTypesDataLoader = memoizeDataLoader(
       .json(({ data }) => data)
       .catch(handleError);
   }
-);
 
 export const objectDataLoader = (objectTypeName: string, objectValue: string) => {
   return actWretch

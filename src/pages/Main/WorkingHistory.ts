@@ -65,7 +65,7 @@ const getLoadable = (
     return multiObjectTraverseStore.getItemBy(item.search);
   }
 
-  throw new Error('Failed to find item ' + item);
+  throw new Error('Failed to find item ' + JSON.stringify(item));
 };
 
 class WorkingHistory {
@@ -160,7 +160,10 @@ class WorkingHistory {
 
   @action.bound
   addCreatedFactItem(search: SingleFactSearch, result: SearchResult) {
-    this.createdFacts = { [search.id]: result };
+    this.createdFacts = {
+      ...this.createdFacts,
+      [search.id]: result
+    };
     this.addItem({ id: search.id, search: search });
   }
 

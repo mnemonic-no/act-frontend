@@ -1,14 +1,28 @@
 import { action, computed, observable, runInAction } from 'mobx';
 
-import { ActObjectRef, FactType, NamedId, SearchResult, SingleFactSearch } from '../../core/types';
+import {
+  ActObjectRef,
+  FactType,
+  isDone,
+  isPending,
+  NamedId,
+  SearchResult,
+  SingleFactSearch,
+  TConfig
+} from '../../core/types';
 import { createFact } from '../../core/dataLoaders';
 import {
   factMapToObjectMap,
   factTypeString,
+  getObjectLabelFromFact,
   isRelevantFactType,
   validBidirectionalFactTargetObjectTypes,
   validUnidirectionalFactTargetObjectTypes
 } from '../../core/domain';
+import { toSearchString } from '../../pages/Main/Search/SearchByObjectTypeStore';
+import BackendStore from '../../backend/BackendStore';
+import { byTypeThenValue, objectTypeToColor } from '../../util/util';
+import { SimpleSearch } from '../../backend/SimpleSearchBackendStore';
 
 type FactTypeCategory = 'oneLegged' | 'uniDirectional' | 'biDirectional' | null;
 
@@ -17,12 +31,14 @@ type AccessMode = 'Public' | 'RoleBased' | 'Explicit';
 type FormCommon = { type: string; accessMode: string; comment?: string };
 
 export type FormUniDirectional = {
+  inputValue: string;
   isSelectionSource: boolean;
   otherObject: ActObjectRef;
   validOtherObjectTypes: Array<NamedId>;
 };
 
 export type FormBiDirectional = {
+  inputValue: string;
   otherObject: ActObjectRef;
   validOtherObjectTypes: Array<NamedId>;
 };
@@ -98,6 +114,30 @@ export const createFactRequest = (
   }
 };
 
+
+export const objectValueSuggestions = (simpleSearch: SimpleSearch, config: TConfig) => {
+  if (!isDone(simpleSearch)) {
+    return [];
+  }
+
+  return simpleSearch.result.objects
+    .slice() // Don't mutate the underlying array
+    .sort(byTypeThenValue)
+    .map(actObject => ({
+      actObject: actObject,
+      color: objectTypeToColor(config.objectColors || {}, actObject.type.name),
+      objectLabel:
+        getObjectLabelFromFact(
+          actObject,
+          config.objectLabelFromFactType,
+          simpleSearch.result.facts
+        ) || actObject.value
+    }))
+    .slice(0, 5);
+}
+
+const ANY = 'Any';
+
 class CreateFactForDialog {
   @observable isOpen: boolean = true;
   @observable isSubmitting: boolean = false;
@@ -114,14 +154,20 @@ class CreateFactForDialog {
   @observable formUniDirectional: FormUniDirectional | null = null;
   @observable formBidirectional: FormBiDirectional | null = null;
 
+  backendStore: BackendStore;
+  config: TConfig;
   selectedObject: ActObjectRef;
   onSuccess: (props: { search: SingleFactSearch; result: SearchResult }) => void;
 
   constructor(
+    backendStore: BackendStore,
+    config: TConfig,
     selectedObject: ActObjectRef,
     factTypes: Array<FactType>,
     onSuccess: (props: { search: SingleFactSearch; result: SearchResult }) => void
   ) {
+    this.backendStore = backendStore;
+    this.config = config;
     this.selectedObject = selectedObject;
     this.onSuccess = onSuccess;
 
@@ -144,6 +190,7 @@ class CreateFactForDialog {
       : [];
 
     this.formUniDirectional = {
+      inputValue: '',
       isSelectionSource: newIsSource,
       validOtherObjectTypes: validOtherObjects,
       otherObject: { typeName: validOtherObjects[0].name, value: '' }
@@ -164,6 +211,7 @@ class CreateFactForDialog {
       case 'biDirectional':
         const validOtherObjectTypes = validBidirectionalFactTargetObjectTypes(factType, this.selectedObject.typeName);
         this.formBidirectional = {
+          inputValue: '',
           validOtherObjectTypes: validBidirectionalFactTargetObjectTypes(factType, this.selectedObject.typeName),
           otherObject: { typeName: validOtherObjectTypes[0].name, value: '' }
         };
@@ -181,6 +229,7 @@ class CreateFactForDialog {
           : [];
 
         this.formUniDirectional = {
+          inputValue: '',
           isSelectionSource: isSelectionSource,
           validOtherObjectTypes: validOtherObjects,
           otherObject: { typeName: validOtherObjects[0].name, value: '' }
@@ -288,6 +337,127 @@ class CreateFactForDialog {
   get selectedFactTypeCategory(): FactTypeCategory {
     if (!this.currentFactType) return null;
     return factTypeString(this.currentFactType);
+  }
+
+  @computed
+  get oneLeggedFact() {
+    return {
+      selectedObject: this.selectedObject,
+      arrowLabel: this.selectedFactTypeName ? this.selectedFactTypeName : '',
+      value: this.formOneLegged.value,
+      onChange: (value: string) => {
+        this.formOneLegged.value = value;
+      }
+    };
+  }
+
+  @action.bound
+  searchForObjectType(value: string, objectTypeName: string) {
+    const objectTypeFilter =  objectTypeName !== ANY ? [objectTypeName] : []
+
+    if (value.length >= 2) {
+      this.backendStore.autoCompleteSimpleSearchBackendStore.execute({
+        searchString: toSearchString(value),
+        objectTypeFilter: objectTypeFilter
+      });
+    }
+  }
+
+  @action.bound
+  onBidirectionalObjectInputValueChange(value: string) {
+    if (!this.formBidirectional) return;
+
+    this.formBidirectional.inputValue = value ? value : '';
+    this.formBidirectional.otherObject.value = this.formBidirectional.inputValue;
+    this.searchForObjectType(this.formBidirectional.inputValue, this.formBidirectional.otherObject.typeName)
+  }
+
+  @action.bound
+  onUnidirectionalObjectInputValueChange(value: string) {
+    if (!this.formUniDirectional) return;
+
+    this.formUniDirectional.inputValue = value ? value: '';
+    this.formUniDirectional.otherObject.value = this.formUniDirectional.inputValue;
+    this.searchForObjectType(this.formUniDirectional.inputValue, this.formUniDirectional.otherObject.typeName)
+  }
+
+  @computed
+  get bidirectionalFact() {
+    if (!this.formBidirectional) {
+      return {
+        selectedObject: this.selectedObject,
+        arrowLabel: this.selectedFactTypeName ? this.selectedFactTypeName : ''
+      };
+    }
+
+    const simpleSearch = this.backendStore.autoCompleteSimpleSearchBackendStore.getSimpleSearch(
+      toSearchString(this.formBidirectional.inputValue),
+      this.formBidirectional.otherObject.typeName !== ANY ? [this.formBidirectional.otherObject.typeName] : []
+    );
+
+    return {
+      selectedObject: this.selectedObject,
+      arrowLabel: this.selectedFactTypeName ? this.selectedFactTypeName : '',
+      objectSelection: this.formBidirectional
+        ? {
+            selectionObject: this.formBidirectional.otherObject,
+            validObjectTypes: this.formBidirectional.validOtherObjectTypes,
+            title: 'Destination',
+            onChange: this.onFormBidirectionalChange,
+            objectValueAutosuggest: {
+              label: 'Object value',
+              placeholder: 'Object value',
+              value: this.formBidirectional.inputValue,
+              objectTypes: this.backendStore.actObjectTypes,
+              isLoading: isPending(simpleSearch),
+              suggestions: objectValueSuggestions(simpleSearch, this.config),
+              onChange: this.onBidirectionalObjectInputValueChange,
+              onSuggestionSelected: (s: any) => {
+                if (!this.formBidirectional) return;
+                this.formBidirectional.otherObject.value = s.actObject.value;
+                this.formBidirectional.inputValue = s.actObject.value;
+              }
+            }
+          }
+        : undefined
+    };
+  }
+
+  @computed
+  get unidirectionalFact() {
+    if (this.formUniDirectional === null) return null;
+
+    const inputValue = this.formUniDirectional.inputValue ? this.formUniDirectional.inputValue : '';
+
+    const simpleSearch = this.backendStore.autoCompleteSimpleSearchBackendStore.getSimpleSearch(
+      toSearchString(inputValue),
+      this.formUniDirectional.otherObject.typeName !== ANY ? [this.formUniDirectional.otherObject.typeName] : []
+    );
+
+    return {
+      selectedObject: this.selectedObject,
+      arrowLabel: this.selectedFactTypeName ? this.selectedFactTypeName : '',
+      validObjectTypes: this.formUniDirectional ? this.formUniDirectional.validOtherObjectTypes : [],
+      isSelectionSource: this.formUniDirectional?.isSelectionSource,
+      otherObject: this.formUniDirectional?.otherObject,
+      onSwapClick: this.canSwap ? this.onSwapClick : undefined,
+      onChange: this.onFormUniDirectionalChange,
+
+      objectValueAutosuggest: {
+        label: 'Object value',
+        placeholder: 'Object value',
+        value: this.formUniDirectional.inputValue,
+        objectTypes: this.backendStore.actObjectTypes,
+        isLoading: isPending(simpleSearch),
+        suggestions: objectValueSuggestions(simpleSearch, this.config),
+        onChange: this.onUnidirectionalObjectInputValueChange,
+        onSuggestionSelected: (s: any) => {
+          if (!this.formUniDirectional) return;
+          this.formUniDirectional.otherObject.value = s.actObject.value;
+          this.formUniDirectional.inputValue = s.actObject.value;
+        }
+      }
+    }
   }
 }
 

@@ -1,5 +1,6 @@
-import { createFactRequest } from './DialogStore';
-import { factType } from '../../core/testHelper';
+import { createFactRequest, objectValueSuggestions } from './DialogStore';
+import { actObject, factType, objectTypes, simpleSearch } from '../../core/testHelper';
+import { LoadingStatus } from '../../core/types';
 
 it('can make bi-directional fact requests', () => {
   const biDirectionalFactType = factType({
@@ -20,6 +21,7 @@ it('can make bi-directional fact requests', () => {
     null,
     null,
     {
+      inputValue: 'BearDestination',
       validOtherObjectTypes: [{ id: 'x', name: 'threatActor' }],
       otherObject: { value: 'BearDestination', typeName: 'threatActor' }
     }
@@ -53,6 +55,7 @@ it('can make uni-directional fact requests', () => {
     { accessMode: 'Public', type: 'attributedTo' },
     null,
     {
+      inputValue: 'BadPerson',
       isSelectionSource: true,
       validOtherObjectTypes: [
         { id: 'x', name: 'person' },
@@ -90,6 +93,7 @@ it('can make uni-directional fact requests with selection as destination', () =>
     { accessMode: 'Public', type: 'attributedTo' },
     null,
     {
+      inputValue: 'xyz',
       isSelectionSource: false,
       validOtherObjectTypes: [{ id: 'x', name: 'incident' }],
       otherObject: { value: 'xyz', typeName: 'incident' }
@@ -132,4 +136,30 @@ it('can make one legged fact requests', () => {
     value: 'CareBear',
     accessMode: 'Public'
   });
+});
+
+it('can make objectValueSuggestions with empty input', () => {
+  const suggestions = objectValueSuggestions(simpleSearch({ status: LoadingStatus.PENDING }), {});
+  expect(suggestions).toEqual([]);
+});
+
+it('can make objectValueSuggestions', () => {
+  const report = actObject({ id: 'b', type: objectTypes.report, value: 'A report' });
+  const threatActor = actObject({ id: 'a', type: objectTypes.threatActor, value: 'BadPanda' });
+
+  const suggestions = objectValueSuggestions(
+    simpleSearch({ result: { objects: [threatActor, report], facts: [] } }),
+    { objectColors: { report: 'green', threatActor: 'blue' } });
+  expect(suggestions).toEqual([
+    {
+      actObject: report,
+      color: 'green',
+      objectLabel: 'A report'
+    },
+    {
+      actObject: threatActor,
+      color: 'blue',
+      objectLabel: 'BadPanda'
+    }
+  ]);
 });

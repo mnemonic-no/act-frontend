@@ -27,6 +27,7 @@ import { urlToObjectFactQueryPage, urlToObjectSummaryPage } from '../../Routing'
 import AppStore from '../../AppStore';
 import ObjectTraverseBackendStore from '../../backend/ObjectTraverseBackendStore';
 import CreateFactForDialog from '../../components/CreateFactFor/DialogStore';
+import { ActApi } from '../../backend/ActApi';
 
 const cellsAsText = (cells: Array<TCell>) => {
   return cells
@@ -180,6 +181,7 @@ export const categories = (actObjectSearch: ActObjectSearch): Array<string> => {
 class ObjectSummaryPageStore {
   appStore: AppStore;
   config: TConfig;
+  actApi: ActApi;
 
   @observable currentObject: ActObjectRef | undefined;
   @observable createFactDialog: CreateFactForDialog | null = null;
@@ -187,9 +189,10 @@ class ObjectSummaryPageStore {
   contextActionTemplates: Array<ContextActionTemplate>;
   objectTypeToSections: IObjectTypeToSections = {};
 
-  constructor(root: AppStore, config: TConfig) {
+  constructor(root: AppStore, config: TConfig, actApi: ActApi) {
     this.appStore = root;
     this.config = config;
+    this.actApi = actApi;
     this.objectTypeToSections =
       parseObjectSummary({ objectSummary: config.objectSummary, actions: config.actions }) || {};
 
@@ -239,6 +242,7 @@ class ObjectSummaryPageStore {
       this.createFactDialog = new CreateFactForDialog(
         this.appStore.backendStore,
         this.config,
+        this.actApi,
         this.currentObject,
         factTypes,
         () => {

@@ -10,7 +10,6 @@ import {
   SingleFactSearch,
   TConfig
 } from '../../core/types';
-import { createFact } from '../../core/dataLoaders';
 import {
   factMapToObjectMap,
   factTypeString,
@@ -23,6 +22,7 @@ import { toSearchString } from '../../pages/Main/Search/SearchByObjectTypeStore'
 import BackendStore from '../../backend/BackendStore';
 import { byTypeThenValue, objectTypeToColor } from '../../util/util';
 import { SimpleSearch } from '../../backend/SimpleSearchBackendStore';
+import { ActApi } from '../../backend/ActApi';
 
 type FactTypeCategory = 'oneLegged' | 'uniDirectional' | 'biDirectional' | null;
 
@@ -156,18 +156,21 @@ class CreateFactForDialog {
 
   backendStore: BackendStore;
   config: TConfig;
+  actApi: ActApi;
   selectedObject: ActObjectRef;
   onSuccess: (props: { search: SingleFactSearch; result: SearchResult }) => void;
 
   constructor(
     backendStore: BackendStore,
     config: TConfig,
+    actApi: ActApi,
     selectedObject: ActObjectRef,
     factTypes: Array<FactType>,
     onSuccess: (props: { search: SingleFactSearch; result: SearchResult }) => void
   ) {
     this.backendStore = backendStore;
     this.config = config;
+    this.actApi = actApi;
     this.selectedObject = selectedObject;
     this.onSuccess = onSuccess;
 
@@ -287,7 +290,7 @@ class CreateFactForDialog {
         this.formBidirectional
       );
 
-      const resultFact = await createFact(request);
+      const resultFact = await this.actApi.createFact(request);
 
       this.isOpen = false;
 

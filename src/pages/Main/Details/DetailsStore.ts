@@ -33,8 +33,9 @@ import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
 import MainPageStore from '../MainPageStore';
 import { IGroup } from '../../../components/GroupByAccordion';
 import EventBus from '../../../util/eventbus';
-import { retractFact } from '../../../components/RetractFact/Dialog';
 import { FactStatsCellType, IFactStatRow } from '../../../components/FactStats';
+import { ActApi } from '../../../backend/ActApi';
+import RetractFactStore from '../../../components/RetractFact/RetractFactStore';
 
 const actObjectToSelection = (actObject: ActObject): ActSelection => {
   return { id: actObject.id, kind: 'object' };
@@ -119,8 +120,10 @@ export const toFactStatRows = (props: {
 
 class DetailsStore {
   config: TConfig;
+  actApi: ActApi;
   eventBus: EventBus;
   root: MainPageStore;
+  retractFactStore: RetractFactStore;
 
   contextActionTemplates: Array<ContextActionTemplate>;
   predefinedObjectQueries: Array<PredefinedObjectQuery>;
@@ -138,14 +141,16 @@ class DetailsStore {
     query: ''
   };
 
-  constructor(appStore: AppStore, root: MainPageStore, config: TConfig) {
+  constructor(appStore: AppStore, root: MainPageStore, config: TConfig, actApi: ActApi) {
     this.config = config;
     this.root = root;
+    this.actApi = actApi;
     this.eventBus = appStore.eventBus;
     this.contextActionTemplates =
       resolveActions({ contextActions: config.contextActions, actions: config.actions }) || [];
     this.predefinedObjectQueries = config.predefinedObjectQueries || [];
     this.objectColors = config.objectColors || [];
+    this.retractFactStore = new RetractFactStore(appStore.eventBus, actApi);
   }
 
   @action.bound
@@ -392,8 +397,10 @@ class DetailsStore {
       comments: isDone(factSearch) ? factSearch.result.comments : [],
       objectColors: this.objectColors,
       endTimestamp: this.endTimestamp,
+      retractFactStore: this.retractFactStore,
       onObjectRowClick: this.setSelectedObject,
       onFactRowClick: this.setSelectedFact,
+
       onReferenceClick: (fact: ActFact) => {
         if (fact.inReferenceTo) {
           this.eventBus.publish([
@@ -409,12 +416,7 @@ class DetailsStore {
           text: 'Retract fact',
           onClick: () => {
             if (!fact) return;
-            retractFact(fact, () => {
-              // Wait 1 second before updating the data, allowing the api to reindex
-              setTimeout(() => {
-                this.eventBus.publish([{ kind: 'fetchFact', factId: fact.id, refetch: true }]);
-              }, 1000);
-            });
+            this.retractFactStore.openRetractDialog(fact);
           }
         }
       ]
@@ -569,6 +571,7 @@ class DetailsStore {
       this.createFactDialog = new CreateFactForDialog(
         this.root.backendStore,
         this.config,
+        this.actApi,
         { value: this.selectedObject.value, typeName: this.selectedObject.type.name },
         factTypes,
         (props: { search: SingleFactSearch; result: SearchResult }) => {

@@ -1,4 +1,5 @@
 import * as _ from 'lodash/fp';
+import { TConfig } from './core/types';
 
 export type TLinkActionTemplate = {
   type: 'link';
@@ -93,7 +94,7 @@ export const resolveActions = ({
   });
 };
 
-export const autoResolveFactsFor = (objectTypeName: string, config: { [k: string]: any }): Array<string> => {
+export const autoResolveFactsFor = (objectTypeName: string, config: TConfig): Array<string> => {
   const autoResolveFacts: { [objectTypeName: string]: Array<string> } | undefined = config.autoResolveFacts;
 
   if (!autoResolveFacts) return [];

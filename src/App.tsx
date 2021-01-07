@@ -9,6 +9,7 @@ import SearchPage from './pages/Search/SearchPage';
 import SnackbarProvider from './util/SnackbarProvider';
 import SummaryPage from './pages/ObjectSummary/ObjectSummaryPage';
 import EnvironmentalAppBar from './components/EnvironmentalAppBar';
+import { DefaultActApi } from './backend/DefaultActApi';
 
 const Black = {
   50: '#9e9e9e',
@@ -59,7 +60,7 @@ export const actTheme = createMuiTheme({
   }
 });
 
-const store = new AppStore(config);
+const store = new AppStore(config, new DefaultActApi(config));
 store.initByUrl(window.location);
 
 const banner = config.banner ? config.banner : {};

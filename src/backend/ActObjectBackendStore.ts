@@ -1,8 +1,8 @@
 import { observable } from 'mobx';
 
-import { ActFact, ActObject, isRejected, LoadingStatus, TRequestLoadable } from '../core/types';
-import { factDataLoader, objectDataLoader } from '../core/dataLoaders';
+import { ActFact, ActObject, isRejected, LoadingStatus, TConfig, TRequestLoadable } from '../core/types';
 import { autoResolveFactsFor } from '../configUtil';
+import { ActApi } from './ActApi';
 
 export type ActObjectSearch = TRequestLoadable<
   { objectValue: string; objectTypeName: string },
@@ -15,10 +15,12 @@ const actObjectSearchId = (props: { objectValue: string; objectTypeName: string 
 class ActObjectBackendStore {
   @observable actObjectSearches: { [id: string]: ActObjectSearch } = {};
 
-  config: { [any: string]: string };
+  config: TConfig;
+  actApi: ActApi;
 
-  constructor(config: { [any: string]: string }) {
+  constructor(config: TConfig, actApi: ActApi) {
     this.config = config;
+    this.actApi = actApi;
   }
 
   async execute(objectValue: string, objectTypeName: string, onError?: (error: Error) => void) {
@@ -35,13 +37,13 @@ class ActObjectBackendStore {
     this.actObjectSearches[s.id] = s;
 
     try {
-      const object = await objectDataLoader(objectTypeName, objectValue);
+      const object = await this.actApi.objectDataLoader(objectTypeName, objectValue);
 
       // Autoresolve facts for this object
       let facts: Array<ActFact> = [];
       const factTypesToAutoResolve = autoResolveFactsFor(objectTypeName, this.config);
       if (factTypesToAutoResolve) {
-        facts = await factDataLoader(object.id, factTypesToAutoResolve);
+        facts = await this.actApi.factDataLoader(object.id, factTypesToAutoResolve);
       }
 
       this.actObjectSearches[s.id] = { ...s, status: LoadingStatus.DONE, result: { actObject: object, facts: facts } };

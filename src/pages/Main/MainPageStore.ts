@@ -16,6 +16,7 @@ import SearchByObjectTypeStore from './Search/SearchByObjectTypeStore';
 import SelectionStore from './SelectionStore';
 import WorkingHistory from './WorkingHistory';
 import WorkingHistoryStore from './WorkingHistory/WorkingHistoryStore';
+import { ActApi } from '../../backend/ActApi';
 
 class MainPageStore {
   ui: {
@@ -39,7 +40,7 @@ class MainPageStore {
   refineryStore: RefineryStore;
   selectionStore: SelectionStore;
 
-  constructor(appStore: AppStore, config: TConfig) {
+  constructor(appStore: AppStore, config: TConfig, actApi: ActApi) {
     this.appStore = appStore;
     this.backendStore = appStore.backendStore;
     this.workingHistory = new WorkingHistory(this, appStore.eventBus);
@@ -50,7 +51,7 @@ class MainPageStore {
       cytoscapeLayoutStore: new CytoscapeLayoutStore(window.localStorage),
       graphViewStore: new GraphViewStore(this, appStore.eventBus, config),
 
-      detailsStore: new DetailsStore(appStore, this, config),
+      detailsStore: new DetailsStore(appStore, this, config, actApi),
       prunedObjectsTableStore: new PrunedObjectsTableStore(this, config),
       refineryOptionsStore: new RefineryOptionsStore(this, config),
       searchStore: new SearchByObjectTypeStore(this, config),

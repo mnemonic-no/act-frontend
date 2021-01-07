@@ -1,20 +1,20 @@
 import { observable } from 'mobx';
 
 import { ActFact, isDone, isRejected, LoadingStatus, TRequestLoadable } from '../core/types';
-import { factDataLoader } from '../core/dataLoaders';
 import { isOneLeggedFactType } from '../core/domain';
 import BackendStore from './BackendStore';
+import { ActApi } from './ActApi';
 export type OneLeggedFactsSearch = TRequestLoadable<{ objectId: string }, { facts: Array<ActFact> }>;
 
 class OneLeggedFactsBackendStore {
   backendStore: BackendStore;
+  actApi: ActApi;
+
   @observable cache: { [id: string]: OneLeggedFactsSearch } = {};
 
-  config: { [any: string]: string };
-
-  constructor(backendStore: BackendStore, config: { [any: string]: string }) {
-    this.config = config;
+  constructor(backendStore: BackendStore, actApi: ActApi) {
     this.backendStore = backendStore;
+    this.actApi = actApi;
   }
 
   async execute(objectId: string) {
@@ -31,7 +31,7 @@ class OneLeggedFactsBackendStore {
     this.cache[s.id] = s;
 
     try {
-      const oneLeggedFacts = await factDataLoader(s.id, this.oneLeggedFactTypeNames());
+      const oneLeggedFacts = await this.actApi.factDataLoader(s.id, this.oneLeggedFactTypeNames());
 
       this.cache[s.id] = { ...s, status: LoadingStatus.DONE, result: { facts: oneLeggedFacts } };
     } catch (err) {

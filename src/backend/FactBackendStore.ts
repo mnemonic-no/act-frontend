@@ -1,7 +1,7 @@
 import { observable } from 'mobx';
 
 import { ActFact, FactComment, isRejected, LoadingStatus, TRequestLoadable } from '../core/types';
-import { factByIdDataLoader, factCommentsDataLoader, metaFactsDataLoader } from '../core/dataLoaders';
+import { ActApi } from './ActApi';
 
 export type FactSearch = TRequestLoadable<
   { factId: string },
@@ -11,10 +11,10 @@ export type FactSearch = TRequestLoadable<
 class FactBackendStore {
   @observable cache: Map<string, FactSearch> = new Map();
 
-  config: { [any: string]: string };
+  actApi: ActApi;
 
-  constructor(config: { [any: string]: string }) {
-    this.config = config;
+  constructor(actApi: ActApi) {
+    this.actApi = actApi;
   }
 
   async execute(props: { factId: string; refetch: boolean }) {
@@ -32,9 +32,9 @@ class FactBackendStore {
     this.cache.set(s.id, s);
 
     try {
-      const fact: ActFact = await factByIdDataLoader({ id: s.id });
-      const comments: Array<FactComment> = await factCommentsDataLoader({ id: s.id });
-      const metaFacts: Array<ActFact> = await metaFactsDataLoader({ id: s.id });
+      const fact: ActFact = await this.actApi.factByIdDataLoader({ id: s.id });
+      const comments: Array<FactComment> = await this.actApi.factCommentsDataLoader({ id: s.id });
+      const metaFacts: Array<ActFact> = await this.actApi.metaFactsDataLoader({ id: s.id });
 
       this.cache.set(s.id, {
         ...s,

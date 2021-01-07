@@ -1,5 +1,5 @@
 import { factTypesToResolveByObjectId, matchFactTypesToObjectTypes, resultCount } from './dataLoaders';
-import { actObject } from './testHelper';
+import { actObject } from '../core/testHelper';
 
 const objectStat = (type: string, count: number) => ({
   lastAddedTimestamp: '',

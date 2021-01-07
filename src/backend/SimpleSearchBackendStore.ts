@@ -1,9 +1,9 @@
 import { action, computed, observable } from 'mobx';
 import * as _ from 'lodash/fp';
 
-import { factKeywordSearch, objectKeywordSearch } from '../core/dataLoaders';
 import { factsToObjects } from '../core/domain';
-import { ActFact, ActObject, isRejected, LoadingStatus, TRequestLoadable } from '../core/types';
+import { ActFact, ActObject, isRejected, LoadingStatus, TConfig, TRequestLoadable } from '../core/types';
+import { ActApi } from './ActApi';
 
 export type SimpleSearchArgs = { searchString: string; objectTypeFilter: Array<string> };
 
@@ -21,13 +21,16 @@ const simpleSearchId = ({ searchString, objectTypeFilter }: SimpleSearchArgs) =>
     .join(',');
 
 class SimpleSearchBackendStore {
-  config: any;
+  config: TConfig;
+  actApi: ActApi;
+
   @observable searches: { [id: string]: SimpleSearch } = {};
   resultLimit: number;
 
-  constructor(config: any, limit: number) {
+  constructor(config: TConfig, actApi: ActApi, limit: number) {
     this.config = config;
     this.resultLimit = limit;
+    this.actApi = actApi;
   }
 
   @action.bound
@@ -46,9 +49,9 @@ class SimpleSearchBackendStore {
 
     try {
       const [objectsByValue, factsByNameResult] = await Promise.all([
-        objectKeywordSearch({ keywords: searchString, objectTypes: objectTypeFilter, limit: this.resultLimit }),
+        this.actApi.objectKeywordSearch({ keywords: searchString, objectTypes: objectTypeFilter, limit: this.resultLimit }),
         this.config.objectLabelFromFactType
-          ? factKeywordSearch({
+          ? this.actApi.factKeywordSearch({
               keywords: searchString,
               factTypes: [this.config.objectLabelFromFactType],
               objectTypes: objectTypeFilter,

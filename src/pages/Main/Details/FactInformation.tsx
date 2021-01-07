@@ -17,6 +17,7 @@ import { ObjectRow } from './ObjectRow';
 import { pluralize } from '../../../util/util';
 import CenteredCircularProgress from '../../../components/CenteredCircularProgress';
 import RetractFactDialog from '../../../components/RetractFact/Dialog';
+import RetractFactStore from '../../../components/RetractFact/RetractFactStore';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -68,6 +69,7 @@ const FactInformationComp = ({
   comments,
   objectColors,
   footerButtons,
+  retractFactStore,
   onFactRowClick,
   onObjectRowClick,
   onReferenceClick
@@ -192,7 +194,7 @@ const FactInformationComp = ({
           </Button>
         ))}
       </div>
-      <RetractFactDialog />
+      <RetractFactDialog store={retractFactStore} />
     </div>
   );
 };
@@ -205,6 +207,7 @@ export interface IFactInformationProps {
   metaFacts: Array<ActFact>;
   objectColors: { [objectType: string]: string };
   footerButtons: Array<{ text: string; onClick: () => void }>;
+  retractFactStore: RetractFactStore;
   onObjectRowClick: (obj: ActObject) => void;
   onFactRowClick: (fact: ActFact) => void;
   onReferenceClick: (fact: ActFact) => void;

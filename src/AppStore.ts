@@ -9,6 +9,7 @@ import EventBus from './util/eventbus';
 import { ActEvent } from './core/events';
 import { addMessage } from './util/SnackbarProvider';
 import type { TBanner, TConfig } from './core/types';
+import { ActApi } from './backend/ActApi';
 
 export type TPage = 'mainPage' | 'searchPage' | 'summaryPage';
 
@@ -24,20 +25,20 @@ class AppStore {
   @observable currentPage: TPage = 'mainPage';
   @observable errorEvent: { title?: string; error: Error } | null = null;
 
-  constructor(config: TConfig) {
+  constructor(config: TConfig, actApi: ActApi) {
     this.config = config;
     this.eventBus = new EventBus();
     this.eventBus.subscribe({ id: 'appStore', handler: this.handleEvent });
 
-    this.backendStore = new BackendStore(this, config);
-    this.mainPageStore = new MainPageStore(this, config);
+    this.backendStore = new BackendStore(this, config, actApi);
+    this.mainPageStore = new MainPageStore(this, config, actApi);
     this.searchPageStore = new SearchPageStore(
       this,
       config,
       this.mainPageStore.backendStore.simpleSearchBackendStore,
       this.mainPageStore.backendStore.autoCompleteSimpleSearchBackendStore
     );
-    this.summaryPageStore = new ObjectSummaryPageStore(this, config);
+    this.summaryPageStore = new ObjectSummaryPageStore(this, config, actApi);
     this.routing = new Routing(this);
   }
 

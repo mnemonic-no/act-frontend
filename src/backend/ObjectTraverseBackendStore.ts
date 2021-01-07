@@ -9,7 +9,7 @@ import {
   TConfig,
   TRequestLoadable
 } from '../core/types';
-import { autoResolveDataLoader, objectTraverseDataLoader } from '../core/dataLoaders';
+import { ActApi } from './ActApi';
 
 export type ObjectTraverseLoadable = TRequestLoadable<ObjectTraverseSearch, SearchResult>;
 
@@ -18,10 +18,13 @@ export const getId = ({ objectValue, objectType, query }: ObjectTraverseSearch) 
 
 class ObjectTraverseBackendStore {
   config: TConfig;
+  actApi: ActApi;
+
   @observable cache: { [id: string]: ObjectTraverseLoadable } = {};
 
-  constructor(config: TConfig) {
+  constructor(config: TConfig, actApi: ActApi) {
     this.config = config;
+    this.actApi = actApi;
   }
 
   async execute(request: ObjectTraverseSearch) {
@@ -41,8 +44,8 @@ class ObjectTraverseBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await objectTraverseDataLoader(request, abortController).then(value =>
-        autoResolveDataLoader(value, this.config)
+      const { facts, objects } = await this.actApi.objectTraverseDataLoader(request, abortController).then(value =>
+        this.actApi.autoResolveDataLoader(value, this.config)
       );
 
       this.cache[q.id] = {

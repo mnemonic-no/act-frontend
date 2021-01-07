@@ -1,7 +1,6 @@
 import * as _ from 'lodash/fp';
 
-import actWretch from '../util/actWretch';
-import { factMapToObjectMap } from './domain';
+import { factMapToObjectMap } from '../core/domain';
 import {
   ActFact,
   ActObject,
@@ -13,8 +12,9 @@ import {
   ObjectTraverseSearch,
   SearchResult,
   TConfig
-} from './types';
+} from '../core/types';
 import { arrayToObjectWithIds } from '../util/util';
+import { Wretcher } from 'wretch';
 
 const handleError = (error: any) => {
   if (error instanceof TypeError) {
@@ -60,8 +60,8 @@ const handleForbiddenSearchResults = (error: any) => {
 
 const DEFAULT_LIMIT = 10000;
 
-export const objectTypesDataLoader = () =>
-  actWretch
+export const objectTypesDataLoader = (wretcher: Wretcher) =>
+  wretcher
     .url('/v1/objectType')
     .get()
     .forbidden(handleForbiddenSearchResults)
@@ -72,6 +72,7 @@ export const objectTypesDataLoader = () =>
  * Fetch facts from an object specifed by type and value
  */
 export const objectFactsDataLoader = (
+  wretcher: Wretcher,
   { objectType, objectValue, factTypes }: ObjectFactsSearch,
   abortController?: AbortController
 ): Promise<SearchResult> => {
@@ -81,7 +82,7 @@ export const objectFactsDataLoader = (
     includeRetracted: true
   };
 
-  return actWretch
+  return wretcher
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}/facts`)
     .signal(abortController || new AbortController())
     .json(requestBody)
@@ -105,10 +106,11 @@ const isFact = (maybeFact: any) => maybeFact.hasOwnProperty('bidirectionalBindin
  * Fetch facts and objects from a traversal query from a specifed object
  */
 export const objectTraverseDataLoader = (
+  wretcher: Wretcher,
   { objectType, objectValue, query }: ObjectTraverseSearch,
   abortController?: AbortController
 ): Promise<SearchResult> =>
-  actWretch
+  wretcher
     .url(`/v1/traverse/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}`)
     .signal(abortController || new AbortController())
     .json({
@@ -132,6 +134,7 @@ export const objectTraverseDataLoader = (
  * Traverse the graph based on a query, starting with multiple objects
  */
 export const multiObjectTraverseDataLoader = (
+  wretcher: Wretcher,
   props: {
     objectIds: Array<string>;
     query: string;
@@ -148,7 +151,7 @@ export const multiObjectTraverseDataLoader = (
     includeRetracted: true
   };
 
-  return actWretch
+  return wretcher
     .url('/v1/traverse/objects')
     .signal(abortController || new AbortController())
     .json(request)
@@ -184,7 +187,7 @@ export const resultCount = (search: ObjectFactsSearch, statistics: Array<ObjectS
   }, 0);
 };
 
-export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: number) => {
+export const checkObjectStats = async (wretcher: Wretcher, search: ObjectFactsSearch, maxCount: number) => {
   // API does not support stats when there is a query
   if (!isObjectFactsSearch(search)) {
     return true;
@@ -192,7 +195,7 @@ export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: numb
 
   const { objectType, objectValue } = search;
 
-  const totalCount = await actWretch
+  const totalCount = await wretcher
     .url(`/v1/object/${encodeURIComponent(objectType)}/${encodeURIComponent(objectValue)}`)
     .get()
     .forbidden(handleForbiddenSearchResults)
@@ -204,10 +207,10 @@ export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: numb
   if (totalCount > maxCount) {
     return window.confirm(
       'WARNING \nLarge result set. \n\n' +
-        'This query will return ' +
-        totalCount +
-        ' ' +
-        'items which may be too much for the browser to handle. \n\n Are you sure you want to continue?'
+      'This query will return ' +
+      totalCount +
+      ' ' +
+      'items which may be too much for the browser to handle. \n\n Are you sure you want to continue?'
     );
   } else return true;
 };
@@ -216,6 +219,7 @@ export const checkObjectStats = async (search: ObjectFactsSearch, maxCount: numb
  * Resolve preconfigured facts for objects based on list of facts (with connected objects)
  */
 export const autoResolveDataLoader = (
+  wretcher: Wretcher,
   { facts, objects }: { facts: { [id: string]: ActFact }; objects: { [id: string]: ActObject } },
   config: TConfig
 ) => {
@@ -232,7 +236,7 @@ export const autoResolveDataLoader = (
   }
 
   const promises = factTypesToSearchFor.map(({ objectIds, factTypes }) => {
-    return actWretch
+    return wretcher
       .url('/v1/fact/search')
       .json({ factType: factTypes, includeRetracted: true, objectID: objectIds, limit: DEFAULT_LIMIT })
       .post()
@@ -288,17 +292,17 @@ export const matchFactTypesToObjectTypes = (factTypeToObjectTypes: { [id: string
   )(factTypeToObjectTypes);
 };
 
-export const factTypesDataLoader = (): Promise<Array<FactType>> => {
-    return actWretch
-      .url('/v1/factType')
-      .get()
-      .forbidden(handleForbiddenSearchResults)
-      .json(({ data }) => data)
-      .catch(handleError);
-  }
+export const factTypesDataLoader = (wretcher: Wretcher): Promise<Array<FactType>> => {
+  return wretcher
+    .url('/v1/factType')
+    .get()
+    .forbidden(handleForbiddenSearchResults)
+    .json(({ data }) => data)
+    .catch(handleError);
+};
 
-export const objectDataLoader = (objectTypeName: string, objectValue: string) => {
-  return actWretch
+export const objectDataLoader = (wretcher: Wretcher, objectTypeName: string, objectValue: string) => {
+  return wretcher
     .url(`/v1/object/${encodeURIComponent(objectTypeName)}/${encodeURIComponent(objectValue)}`)
     .get()
     .forbidden(handleForbiddenSearchResults)
@@ -306,14 +310,14 @@ export const objectDataLoader = (objectTypeName: string, objectValue: string) =>
     .catch(handleError);
 };
 
-export const factDataLoader = (objectId: string, factTypes: Array<string>): Promise<Array<ActFact>> => {
+export const factDataLoader = (wretcher: Wretcher, objectId: string, factTypes: Array<string>): Promise<Array<ActFact>> => {
   const requestBody = {
     ...(factTypes && factTypes.length > 0 && { factType: factTypes }),
     limit: DEFAULT_LIMIT,
     includeRetracted: false
   };
 
-  return actWretch
+  return wretcher
     .url(`/v1/object/uuid/${objectId}/facts`)
     .json(requestBody)
     .post()
@@ -322,24 +326,24 @@ export const factDataLoader = (objectId: string, factTypes: Array<string>): Prom
     .catch(handleError);
 };
 
-export const factByIdDataLoader = ({ id }: { id: string }): Promise<ActFact> =>
-  actWretch
+export const factByIdDataLoader = (wretcher: Wretcher, { id }: { id: string }): Promise<ActFact> =>
+  wretcher
     .url(`/v1/fact/uuid/${id}`)
     .get()
     .forbidden(handleForbiddenSearchResults)
     .json(({ data }) => data)
     .catch(handleError);
 
-export const factCommentsDataLoader = ({ id }: { id: string }): Promise<Array<FactComment>> =>
-  actWretch
+export const factCommentsDataLoader = (wretcher: Wretcher, { id }: { id: string }): Promise<Array<FactComment>> =>
+  wretcher
     .url(`/v1/fact/uuid/${id}/comments`)
     .get()
     .forbidden(handleForbiddenSearchResults)
     .json(({ data }) => data)
     .catch(handleError);
 
-export const metaFactsDataLoader = ({ id }: { id: string }): Promise<Array<ActFact>> =>
-  actWretch
+export const metaFactsDataLoader = (wretcher: Wretcher, { id }: { id: string }): Promise<Array<ActFact>> =>
+  wretcher
     .url(`/v1/fact/uuid/${id}/meta`)
     .query({ includeRetracted: true })
     .get()
@@ -347,8 +351,8 @@ export const metaFactsDataLoader = ({ id }: { id: string }): Promise<Array<ActFa
     .json(({ data }) => data)
     .catch(handleError);
 
-export const createFact = (request: any) => {
-  return actWretch
+export const createFact = (wretcher: Wretcher, request: any) => {
+  return wretcher
     .url('/v1/fact')
     .json(request)
     .post()
@@ -357,8 +361,8 @@ export const createFact = (request: any) => {
     .catch(handleError);
 };
 
-export const postJson = (url: string, jsonRequest: any) => {
-  return actWretch
+export const postJson = (wretcher: Wretcher, url: string, jsonRequest: any) => {
+  return wretcher
     .url(url)
     .json(jsonRequest)
     .post()
@@ -366,22 +370,20 @@ export const postJson = (url: string, jsonRequest: any) => {
     .catch(handleError);
 };
 
-export const objectKeywordSearch = ({
-  keywords,
-  objectTypes,
-  limit
-}: {
-  keywords: string;
-  objectTypes: Array<string>;
-  limit: number;
-}): Promise<Array<ActObject>> => {
+export const objectKeywordSearch = (
+  wretcher: Wretcher,
+  args: {
+    keywords: string;
+    objectTypes: Array<string>;
+    limit: number;
+  }): Promise<Array<ActObject>> => {
   const requestBody = {
-    keywords: keywords,
-    objectType: objectTypes,
-    limit: limit
+    keywords: args.keywords,
+    objectType: args.objectTypes,
+    limit: args.limit
   };
 
-  return actWretch
+  return wretcher
     .url('/v1/object/search')
     .json(requestBody)
     .post()
@@ -389,28 +391,42 @@ export const objectKeywordSearch = ({
     .catch(handleError);
 };
 
-export const factKeywordSearch = ({
-  keywords,
-  factTypes,
-  objectTypes,
-  limit
-}: {
-  keywords: string;
-  factTypes: Array<string>;
-  objectTypes: Array<string>;
-  limit: number;
-}): Promise<Array<ActFact>> => {
+export const factKeywordSearch = (
+  wretcher: Wretcher,
+  args: {
+    keywords: string;
+    factTypes: Array<string>;
+    objectTypes: Array<string>;
+    limit: number;
+  }): Promise<Array<ActFact>> => {
   const requestBody = {
-    limit: limit,
-    keywords: keywords,
-    factType: factTypes,
-    objectType: objectTypes
+    limit: args.limit,
+    keywords: args.keywords,
+    factType: args.factTypes,
+    objectType: args.objectTypes
   };
 
-  return actWretch
+  return wretcher
     .url('/v1/fact/search')
     .json(requestBody)
     .post()
     .json(({ data }: any) => data)
     .catch(handleError);
+};
+
+export const retractFact = (
+  wretcher: Wretcher,
+  fact: ActFact,
+  comment: string,
+  accessMode: any
+): Promise<any> => {
+  return wretcher
+    .url(`/v1/fact/uuid/${fact.id}/retract`)
+    .json({
+      comment: comment,
+      accessMode: accessMode
+    })
+    .post()
+    .json(({data}) => data)
+    .catch(handleError)
 };

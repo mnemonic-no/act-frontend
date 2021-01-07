@@ -1,5 +1,4 @@
 import { action, computed, observable, runInAction } from 'mobx';
-import { checkObjectStats, factTypesDataLoader, objectTypesDataLoader, postJson } from '../core/dataLoaders';
 
 import {
   FactType,
@@ -14,6 +13,7 @@ import {
   TConfig,
   TLoadable
 } from '../core/types';
+import { ActApi } from './ActApi';
 import { addMessage } from '../util/SnackbarProvider';
 import { assertNever } from '../util/util';
 import ActObjectBackendStore from './ActObjectBackendStore';
@@ -31,6 +31,7 @@ const maxFetchLimit = 2000;
 class BackendStore {
   root: AppStore;
   eventBus: EventBus;
+  actApi: ActApi;
 
   actObjectBackendStore: ActObjectBackendStore;
   oneLeggedFactsStore: OneLeggedFactsBackendStore;
@@ -44,17 +45,18 @@ class BackendStore {
   @observable actObjectTypes: TLoadable<{ objectTypes: Array<NamedId> }> | undefined;
   @observable factTypes: TLoadable<{ factTypes: Array<FactType> }> | undefined;
 
-  constructor(root: AppStore, config: TConfig) {
+  constructor(root: AppStore, config: TConfig, actApi: ActApi) {
     this.root = root;
     this.eventBus = root.eventBus;
-    this.actObjectBackendStore = new ActObjectBackendStore(config);
-    this.factBackendStore = new FactBackendStore(config);
-    this.oneLeggedFactsStore = new OneLeggedFactsBackendStore(this, config);
-    this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, 20);
-    this.objectFactsBackendStore = new ObjectFactsBackendStore(config);
-    this.objectTraverseBackendStore = new ObjectTraverseBackendStore(config);
-    this.multiObjectTraverseStore = new MultiObjectTraverseBackendStore();
-    this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, 300);
+    this.actApi = actApi;
+    this.actObjectBackendStore = new ActObjectBackendStore(config, actApi);
+    this.factBackendStore = new FactBackendStore(actApi);
+    this.oneLeggedFactsStore = new OneLeggedFactsBackendStore(this, actApi);
+    this.autoCompleteSimpleSearchBackendStore = new SimpleSearchBackendStore(config, actApi, 20);
+    this.objectFactsBackendStore = new ObjectFactsBackendStore(config, actApi);
+    this.objectTraverseBackendStore = new ObjectTraverseBackendStore(config, actApi);
+    this.multiObjectTraverseStore = new MultiObjectTraverseBackendStore(actApi);
+    this.simpleSearchBackendStore = new SimpleSearchBackendStore(config, actApi, 300);
   }
 
   @observable loading: boolean = false;
@@ -77,7 +79,7 @@ class BackendStore {
     };
 
     try {
-      const result = await objectTypesDataLoader();
+      const result = await this.actApi.objectTypesDataLoader();
 
       this.actObjectTypes = {
         ...this.actObjectTypes,
@@ -99,7 +101,7 @@ class BackendStore {
     };
 
     try {
-      const result = await factTypesDataLoader();
+      const result = await this.actApi.factTypesDataLoader();
 
       this.factTypes = {
         ...this.factTypes,
@@ -135,7 +137,7 @@ class BackendStore {
 
     if (isObjectFactsSearch(search)) {
       // Checking object stats is best effort. Ignore all errors on the request itself
-      const approvedAmountOfData = await checkObjectStats(search, maxFetchLimit).catch(e => true);
+      const approvedAmountOfData = await this.actApi.checkObjectStats(search, maxFetchLimit).catch(e => true);
       if (!approvedAmountOfData) {
         return;
       }
@@ -208,7 +210,7 @@ class BackendStore {
   async postAndForget(url: string, request: { [key: string]: any }, successMessage: string) {
     try {
       this.loading = true;
-      await postJson(url, request);
+      await this.actApi.postJson(url, request);
       addMessage(successMessage);
     } catch (err) {
       runInAction(() => {

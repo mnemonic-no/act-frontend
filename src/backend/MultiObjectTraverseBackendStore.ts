@@ -8,7 +8,7 @@ import {
   SearchResult,
   TRequestLoadable
 } from '../core/types';
-import { multiObjectTraverseDataLoader } from '../core/dataLoaders';
+import { ActApi } from './ActApi';
 
 export type MultiObjectTraverseLoadable = TRequestLoadable<MultiObjectTraverseSearch, SearchResult>;
 
@@ -18,6 +18,12 @@ export const getId = (req: { objectIds: Array<string>; query: string }) => {
 
 class MultiObjectTraverseBackendStore {
   @observable cache: { [id: string]: MultiObjectTraverseLoadable } = {};
+
+  actApi: ActApi;
+
+  constructor(actApi: ActApi) {
+    this.actApi = actApi;
+  }
 
   async execute(request: MultiObjectTraverseSearch) {
     const abortController = new AbortController();
@@ -35,7 +41,7 @@ class MultiObjectTraverseBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await multiObjectTraverseDataLoader(request, abortController);
+      const { facts, objects } = await this.actApi.multiObjectTraverseDataLoader(request, abortController);
 
       this.cache[q.id] = {
         ...q,

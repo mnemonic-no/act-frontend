@@ -9,7 +9,7 @@ import {
   TConfig,
   TRequestLoadable
 } from '../core/types';
-import { autoResolveDataLoader, objectFactsDataLoader } from '../core/dataLoaders';
+import { ActApi } from './ActApi';
 
 export type ObjectFactsLoadable = TRequestLoadable<ObjectFactsSearch, SearchResult>;
 
@@ -18,11 +18,13 @@ export const getId = ({ objectValue, objectType, factTypes }: ObjectFactsSearch)
 
 class ObjectFactsBackendStore {
   config: TConfig;
+  actApi: ActApi;
 
   @observable cache: { [id: string]: ObjectFactsLoadable } = {};
 
-  constructor(config: TConfig) {
+  constructor(config: TConfig, actApi: ActApi) {
     this.config = config;
+    this.actApi = actApi;
   }
 
   async execute(request: ObjectFactsSearch) {
@@ -42,8 +44,8 @@ class ObjectFactsBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await objectFactsDataLoader(request, abortController).then(value =>
-        autoResolveDataLoader(value, this.config)
+      const { facts, objects } = await this.actApi.objectFactsDataLoader(request, abortController).then(value =>
+        this.actApi.autoResolveDataLoader(value, this.config)
       );
 
       this.cache[q.id] = {

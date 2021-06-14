@@ -54,7 +54,7 @@
     {
       "name": "context",
       "description": "Find other information related to the indicators mentioned in this report (might give large result set).",
-      "query": "g.outE('mentions').otherV().choose(label()).option('hash',outE('represents').otherV().optional(bothE().otherV())).option('ipv4',union(outE('componentOf').otherV(),where(inE('resolvesTo').count().is(lte(50L))).inE('resolvesTo').otherV(),repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()))).option('fqdn',where(outE('resolvesTo').count().is(lte(50L))).outE('resolvesTo').otherV()).option('threatActor',emit().repeat(outE('alias').outV()).until(cyclicPath())).option('tool',emit().repeat(outE('alias').outV()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('mentions').otherV().choose(label()).option('hash',outE('represents').otherV().optional(bothE().otherV())).option('ipv4',union(outE('componentOf').otherV(),where(inE('resolvesTo').count().is(lte(50L))).inE('resolvesTo').otherV(),repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()))).option('fqdn',where(outE('resolvesTo').count().is(lte(50L))).outE('resolvesTo').otherV()).option('threatActor',emit().repeat(outE('alias').outV().dedup()).until(cyclicPath())).option('tool',emit().repeat(outE('alias').outV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["report"]
     },
     {
@@ -66,7 +66,7 @@
     {
       "name": "tools",
       "description": "Find tools related to the hashes mentioned in this report.",
-      "query": "g.outE('mentions').otherV().hasLabel('hash').outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('mentions').otherV().hasLabel('hash').outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["report"]
     },
     {
@@ -78,7 +78,7 @@
     {
       "name": "tools",
       "description": "Find tools with observed network traffic to this autonomous system.",
-      "query": "g.repeat(inE('memberOf').otherV()).times(2).outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.repeat(inE('memberOf').otherV()).times(2).outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["asn"]
     },
     {
@@ -93,7 +93,7 @@
     {
       "name": "threat actors",
       "description": "Find threat actors related to this indicator.",
-      "query": "g.outE('componentOf').otherV().hasLabel('uri').optional(inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV()).outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').optional(inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV()).outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": [
         "fqdn",
         "ipv4",
@@ -103,7 +103,7 @@
     {
       "name": "tools",
       "description": "Find tools related to this indicator.",
-      "query": "g.outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": [
         "fqdn",
         "ipv4",
@@ -143,13 +143,13 @@
     {
       "name": "threat actors",
       "description": "Find threat actors related to this content.",
-      "query": "g.outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["content"]
     },
     {
       "name": "tools",
       "description": "Find tools related to this content.",
-      "query": "g.outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["content"]
     },
     {
@@ -167,13 +167,13 @@
     {
       "name": "threat actors",
       "description": "Find threat actors related to this hash.",
-      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["hash"]
     },
     {
       "name": "tools",
       "description": "Find tools related to this hash.",
-      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["hash"]
     },
     {
@@ -191,13 +191,13 @@
     {
       "name": "threat actors",
       "description": "Find threat actors that use techniques that accomplish this tactic.",
-      "query": "g.inE('accomplishes').otherV().inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.inE('accomplishes').otherV().inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["tactic"]
     },
     {
       "name": "tools",
       "description": "Find tools that implement techniques that accomplish this tactic.",
-      "query": "g.inE('accomplishes').otherV().inE('implements').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.inE('accomplishes').otherV().inE('implements').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["tactic"]
     },
     {
@@ -209,31 +209,31 @@
     {
       "name": "aliases",
       "description": "Find related tool names (potential aliases for this tool).",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["tool"]
     },
     {
       "name": "asn",
       "description": "Find the autonomous system and owner organization of network indicators related to this tool.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
       "objects": ["tool"]
     },
     {
       "name": "incidents",
       "description": "Find incidents with network indicators related to this tool.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).outE('componentOf').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).outE('componentOf').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
       "objects": ["tool"]
     },
     {
       "name": "network",
       "description": "Find network indicators related to this tool.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).path().unfold()",
       "objects": ["tool"]
     },
     {
       "name": "threat actors",
       "description": "Find threat actors known to use this tool.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["tool"]
     },
     {
@@ -245,43 +245,43 @@
     {
       "name": "asn",
       "description": "Find autonomous systems related to malware used exclusively by this threat actor.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().has('category','malware').where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).not(has('category','sinkhole')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().has('category','malware').where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).not(has('category','sinkhole')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "network",
       "description": "Find network indicators related to malware used exclusively by this threat actor.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().has('category','malware').where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).not(has('category','sinkhole')).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().has('category','malware').where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).not(has('category','sinkhole')).path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "tools",
       "description": "Find tools used by this threat actor.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "techniques",
       "description": "Find techniques used by this threat actor.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).outE('classifiedAs').otherV().path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).outE('classifiedAs').otherV().path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "threat actors",
       "description": "Find threat actors that use this technique.",
-      "query": "g.inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["technique"]
     },
     {
       "name": "tools",
       "description": "Find threat actors that use tools that implement this technique.",
-      "query": "g.inE('implements').otherV().optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).hasLabel('threatActor').optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).path().unfold()",
+      "query": "g.inE('implements').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).hasLabel('threatActor').optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
       "objects": ["technique"]
     },
     {
       "name": "targets",
       "description": "Find organizations targeted using this tool",
-      "query": "g.optional(emit().repeat(outE('alias').otherV()).until(cyclicPath())).inE('classifiedAs').otherV().hasLabel('content').outE('observedIn').otherV().hasLabel('event').outE('attributedTo').otherV().hasLabel('incident').outE('targets').otherV().path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().hasLabel('content').outE('observedIn').otherV().hasLabel('event').outE('attributedTo').otherV().hasLabel('incident').outE('targets').otherV().path().unfold()",
       "objects": ["tool"]
     },
     {
@@ -520,19 +520,19 @@
         },
         {
           "title": "Reports",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).union(inE('mentions').otherV(),inE('classifiedAs').otherV().in('represents').in('mentions')).hasLabel('report')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).union(inE('mentions').otherV(),inE('classifiedAs').otherV().in('represents').in('mentions')).hasLabel('report')"
         },
         {
           "title": "Threat actors",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('observedIn').out('attributedTo').out('attributedTo').hasLabel('threatActor')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('observedIn').out('attributedTo').out('attributedTo').hasLabel('threatActor')"
         },
         {
           "title": "Techniques",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).out('implements').hasLabel('technique')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).out('implements').hasLabel('technique')"
         },
         {
           "title": "Samples",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').hasLabel('content').not(has('value',startingWith('[placeholder')))",
           "actions": [
             {
               "id": "open-in-vt",
@@ -542,19 +542,19 @@
         },
         {
           "title": "Downloads",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('at').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('at').in('componentOf').hasLabel(within('fqdn','ipv4'))"
         },
         {
           "title": "Callback",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('connectsTo').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('connectsTo').in('componentOf').hasLabel(within('fqdn','ipv4'))"
         },
         {
           "title": "Incidents",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
         },
         {
           "title": "Signatures",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('classifiedAs').out('observedIn').in('detects').hasLabel('signature')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('observedIn').in('detects').hasLabel('signature')"
         }
       ]
     },
@@ -562,35 +562,35 @@
       "sections": [
         {
           "title": "Aliases",
-          "query": "g.as('startNode').optional(emit().repeat(out('alias')).until(cyclicPath())).where(neq('startNode'))"
+          "query": "g.as('startNode').optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).where(neq('startNode'))"
         },
         {
           "title": "Reports",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('mentions').hasLabel('report')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('mentions').hasLabel('report')"
         },
         {
           "title": "Techniques",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').in('attributedTo').out('classifiedAs').hasLabel('technique')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').in('attributedTo').out('classifiedAs').hasLabel('technique')"
         },
         {
           "title": "Tools",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').in('attributedTo').in('observedIn').hasLabel('content').out('classifiedAs').hasLabel('tool')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').in('attributedTo').in('observedIn').hasLabel('content').out('classifiedAs').hasLabel('tool')"
         },
         {
           "title": "Incidents",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
         },
         {
           "title": "Campaigns",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('attributedTo').hasLabel('campaign')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('attributedTo').hasLabel('campaign')"
         },
         {
           "title": "Target sectors",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('memberOf').hasLabel('sector')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('memberOf').hasLabel('sector')"
         },
         {
           "title": "Target countries",
-          "query": "g.optional(emit().repeat(out('alias')).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('locatedIn').hasLabel('country')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('locatedIn').hasLabel('country')"
         }
       ]
     }

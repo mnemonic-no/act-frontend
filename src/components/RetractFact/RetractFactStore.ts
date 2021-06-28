@@ -18,10 +18,12 @@ class RetractFactStore {
   }
 
   @action.bound
-  async retractFact(fields: any)  {
+  async retractFact(fields: any) {
     this.isSubmitting = true;
 
-    if (this.fact === null) { return; }
+    if (this.fact === null) {
+      return;
+    }
 
     try {
       await this.actApi.retractFact(this.fact, fields.comment, fields.accessMode);
@@ -36,7 +38,7 @@ class RetractFactStore {
   @action.bound
   onSuccess(fact: ActFact) {
     this.error = null;
-    addMessage('Fact retracted')
+    addMessage('Fact retracted');
     this.open = false;
 
     setTimeout(() => {
@@ -48,12 +50,12 @@ class RetractFactStore {
   openRetractDialog(fact: ActFact) {
     this.open = true;
     this.fact = fact;
-  };
+  }
 
   @action.bound
   close() {
     this.open = false;
-  };
+  }
 }
 
 export default RetractFactStore;

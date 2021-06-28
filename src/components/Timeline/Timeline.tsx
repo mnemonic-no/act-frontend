@@ -81,21 +81,23 @@ const formatMillisecond = d3.timeFormat('.%L'),
   formatYear = d3.timeFormat('%Y');
 
 const multiFormat = (date: Date): string => {
-  return (d3.timeSecond(date) < date
-    ? formatMillisecond
-    : d3.timeMinute(date) < date
-    ? formatSecond
-    : d3.timeHour(date) < date
-    ? formatMinute
-    : d3.timeDay(date) < date
-    ? formatHour
-    : d3.timeMonth(date) < date
-    ? d3.timeWeek(date) < date
-      ? formatDay
-      : formatWeek
-    : d3.timeYear(date) < date
-    ? formatMonth
-    : formatYear)(date);
+  return (
+    d3.timeSecond(date) < date
+      ? formatMillisecond
+      : d3.timeMinute(date) < date
+      ? formatSecond
+      : d3.timeHour(date) < date
+      ? formatMinute
+      : d3.timeDay(date) < date
+      ? formatHour
+      : d3.timeMonth(date) < date
+      ? d3.timeWeek(date) < date
+        ? formatDay
+        : formatWeek
+      : d3.timeYear(date) < date
+      ? formatMonth
+      : formatYear
+  )(date);
 };
 
 const mouseOver = (children: Array<{ selector: string; opacity: number }>, tooltipEl: any) => {
@@ -103,9 +105,7 @@ const mouseOver = (children: Array<{ selector: string; opacity: number }>, toolt
     tooltipEl.style('opacity', 0.9);
 
     for (let { selector, opacity } of children) {
-      d3.select(nodes[i])
-        .select(selector)
-        .style('opacity', opacity);
+      d3.select(nodes[i]).select(selector).style('opacity', opacity);
     }
   };
 };
@@ -115,9 +115,7 @@ const mouseLeave = (children: Array<{ selector: string; opacity: number }>, tool
     tooltipEl.style('opacity', 0);
 
     for (let { selector, opacity } of children) {
-      d3.select(nodes[i])
-        .select(selector)
-        .style('opacity', opacity);
+      d3.select(nodes[i]).select(selector).style('opacity', opacity);
     }
   };
 };
@@ -152,18 +150,11 @@ const mouseMove = (targetSelector: string, tooltipEl: any) => {
 };
 
 const xScaleFn = (domain: [Date, Date], range: [number, number]) => {
-  return d3
-    .scaleTime()
-    .domain(domain)
-    .nice()
-    .range(range);
+  return d3.scaleTime().domain(domain).nice().range(range);
 };
 
 const linearScaleFn = (domain: [number, number], range: [number, number]) => {
-  return d3
-    .scaleLinear()
-    .domain(domain)
-    .range(range);
+  return d3.scaleLinear().domain(domain).range(range);
 };
 
 const drawXAxis = (e: any, scaleFn: any, containerHeight: number) => {
@@ -201,9 +192,7 @@ const drawYAxis = (el: any, scaleFn: any) => {
     .tickFormat(d3.format('d'))
     .tickSizeOuter(0);
 
-  el.select('.yAxis')
-    .attr('transform', 'translate(0 0)')
-    .call(yAxis);
+  el.select('.yAxis').attr('transform', 'translate(0 0)').call(yAxis);
 };
 
 const drawScatterPlotAxis = (el: any, scaleFn: any, width: number) => {
@@ -213,14 +202,9 @@ const drawScatterPlotAxis = (el: any, scaleFn: any, width: number) => {
 
   const numberOfTicks = _.min([scaleFn.domain()[1], 10]);
 
-  const yAxis = d3
-    .axisRight(scaleFn)
-    .ticks(numberOfTicks)
-    .tickSizeOuter(0);
+  const yAxis = d3.axisRight(scaleFn).ticks(numberOfTicks).tickSizeOuter(0);
 
-  el.select('.yAxisScatter')
-    .attr('transform', `translate(${width} 0)`)
-    .call(yAxis);
+  el.select('.yAxisScatter').attr('transform', `translate(${width} 0)`).call(yAxis);
 };
 
 const drawGrid = (el: any, xScale: any, yScale: any, width: number) => {
@@ -332,10 +316,7 @@ const drawScatterPlot = (
   scatterPlot: Array<ScatterPoint>
 ) => {
   if (el.select('.scatterplot').empty()) {
-    const sel = el
-      .append('g')
-      .attr('pointer-events', 'none')
-      .attr('class', 'scatterplot');
+    const sel = el.append('g').attr('pointer-events', 'none').attr('class', 'scatterplot');
 
     sel.append('g').attr('class', 'non-highlighted');
     sel.append('g').attr('class', 'highlighted');
@@ -356,18 +337,9 @@ const drawScatterPlot = (
 
   const enterHighligted = highlighted.enter().append('g');
 
-  enterHighligted
-    .append('circle')
-    .attr('class', 'halo')
-    .attr('r', 4.5)
-    .attr('cx', 0)
-    .attr('cy', 0);
+  enterHighligted.append('circle').attr('class', 'halo').attr('r', 4.5).attr('cx', 0).attr('cy', 0);
 
-  enterHighligted
-    .append('circle')
-    .attr('r', 3.5)
-    .attr('cx', 0)
-    .attr('cy', 0);
+  enterHighligted.append('circle').attr('r', 3.5).attr('cx', 0).attr('cy', 0);
 
   enterHighligted
     .merge(highlighted)
@@ -453,10 +425,7 @@ const d3Draw = ({ el, container, width, height, histogram, scatterPlot, timeRang
   drawGrid(el, xScale, yScale, width);
   drawHistogram(el, container, xScale, yScale, bins, height, onBinClick);
   if (scatterPlot) {
-    const yScaleScatter = d3
-      .scaleBand()
-      .domain(scatterPlot.groups)
-      .range([height, 0]);
+    const yScaleScatter = d3.scaleBand().domain(scatterPlot.groups).range([height, 0]);
 
     drawScatterPlot(el, xScale, yScaleScatter, scatterPlot.data);
     drawScatterPlotAxis(el, yScaleScatter, width);

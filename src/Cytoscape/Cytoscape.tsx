@@ -130,9 +130,7 @@ const syncSelection = (cy: Cytoscape.Core, selectedNodeIds: Set<string>) => {
   });
 
   selectedNodeIds.forEach(id => {
-    cy.elements()
-      .getElementById(id)
-      .select();
+    cy.elements().getElementById(id).select();
   });
 };
 
@@ -263,12 +261,8 @@ const CytoscapeComp = (input: ICytoscapeComp) => {
       centerOnSelection(cy);
     }
 
-    // @ts-ignore
-    if (previousProps.style !== style) {
-      cy.style()
-        // @ts-ignore
-        .fromJson(style)
-        .update();
+    if (!_.isEqual(previousProps?.style, style)) {
+      cy.style(style);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [elements, selectedNodeIds, style, resizeEvent]);

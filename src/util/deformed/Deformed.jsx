@@ -16,22 +16,17 @@ const Deformed = Fields => Component => {
   if (!Fields) throw new Error(`Fields must be supplied, cannot be ${Fields}`);
 
   class Deformed extends React.Component {
-    constructor (props) {
+    constructor(props) {
       super(props);
 
-      this.initialFields = Object.keys(this.props.initialFields || {}).reduce(
-        (acc, x) => {
-          if (Fields.hasOwnProperty(x)) {
-            return Object.assign({}, acc, { [x]: this.props.initialFields[x] });
-          } else {
-            return acc;
-          }
-        },
-        {}
-      );
-      this.initialFields = Immutable(
-        Object.assign({}, Fields, this.initialFields)
-      );
+      this.initialFields = Object.keys(this.props.initialFields || {}).reduce((acc, x) => {
+        if (Fields.hasOwnProperty(x)) {
+          return Object.assign({}, acc, { [x]: this.props.initialFields[x] });
+        } else {
+          return acc;
+        }
+      }, {});
+      this.initialFields = Immutable(Object.assign({}, Fields, this.initialFields));
       this.state = {
         isPristine: true,
         fields: this.initialFields
@@ -93,7 +88,7 @@ const Deformed = Fields => Component => {
       this.props.onSubmit(this.state.fields);
     };
 
-    render () {
+    render() {
       return (
         <Component
           {...this.props}

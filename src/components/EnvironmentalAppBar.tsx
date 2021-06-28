@@ -36,7 +36,7 @@ export interface IEnvironmentalAppBar {
 }
 
 const Banner = (props: TBanner) => {
-  const classes = useStyles();
+  const classes = useStyles({});
   return (
     <div className={classes.banner} style={{ color: props.textColor }}>
       <Typography variant="caption" display={'block'} noWrap>

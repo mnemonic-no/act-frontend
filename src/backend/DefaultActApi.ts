@@ -28,11 +28,11 @@ import {
   factTypesDataLoader,
   factTypesToResolveByObjectId,
   postJson,
-  retractFact } from './dataLoaders';
+  retractFact
+} from './dataLoaders';
 import wretch, { Wretcher } from 'wretch';
 
 export class DefaultActApi implements ActApi {
-
   wretcher: Wretcher;
 
   constructor(config: TConfig) {
@@ -46,7 +46,10 @@ export class DefaultActApi implements ActApi {
       .errorType('json');
   }
 
-  autoResolveDataLoader(args: { facts: { [p: string]: ActFact }; objects: { [p: string]: ActObject } }, config: TConfig): Promise<{ facts: Record<string, ActFact>; objects: Record<string, ActObject> }> {
+  autoResolveDataLoader(
+    args: { facts: { [p: string]: ActFact }; objects: { [p: string]: ActObject } },
+    config: TConfig
+  ): Promise<{ facts: Record<string, ActFact>; objects: Record<string, ActObject> }> {
     return autoResolveDataLoader(this.wretcher, args, config);
   }
 
@@ -67,15 +70,20 @@ export class DefaultActApi implements ActApi {
   }
 
   factDataLoader(objectId: string, factTypes: Array<string>): Promise<Array<ActFact>> {
-    return factDataLoader(this.wretcher, objectId, factTypes)
+    return factDataLoader(this.wretcher, objectId, factTypes);
   }
 
-  factKeywordSearch(args: { keywords: string; factTypes: Array<string>; objectTypes: Array<string>; limit: number }): Promise<Array<ActFact>> {
+  factKeywordSearch(args: {
+    keywords: string;
+    factTypes: Array<string>;
+    objectTypes: Array<string>;
+    limit: number;
+  }): Promise<Array<ActFact>> {
     return factKeywordSearch(this.wretcher, args);
   }
 
   factTypesDataLoader(): Promise<Array<FactType>> {
-    return factTypesDataLoader(this.wretcher)
+    return factTypesDataLoader(this.wretcher);
   }
 
   factTypesToResolveByObjectId(
@@ -86,14 +94,14 @@ export class DefaultActApi implements ActApi {
   }
 
   metaFactsDataLoader(props: { id: string }): Promise<Array<ActFact>> {
-    return metaFactsDataLoader(this.wretcher, props)
+    return metaFactsDataLoader(this.wretcher, props);
   }
 
   multiObjectTraverseDataLoader(
     args: { objectIds: Array<string>; query: string },
     abortController?: AbortController
   ): Promise<SearchResult> {
-    return multiObjectTraverseDataLoader(this.wretcher, args, abortController)
+    return multiObjectTraverseDataLoader(this.wretcher, args, abortController);
   }
 
   objectDataLoader(objectTypeName: string, objectValue: string): Promise<any> {
@@ -104,7 +112,11 @@ export class DefaultActApi implements ActApi {
     return objectFactsDataLoader(this.wretcher, search, abortController);
   }
 
-  objectKeywordSearch(args: { keywords: string; objectTypes: Array<string>; limit: number }): Promise<Array<ActObject>> {
+  objectKeywordSearch(args: {
+    keywords: string;
+    objectTypes: Array<string>;
+    limit: number;
+  }): Promise<Array<ActObject>> {
     return objectKeywordSearch(this.wretcher, args);
   }
 
@@ -121,6 +133,6 @@ export class DefaultActApi implements ActApi {
   }
 
   retractFact(fact: ActFact, comment: string, accessMode: string): Promise<any> {
-    return retractFact(this.wretcher, fact, comment, accessMode)
+    return retractFact(this.wretcher, fact, comment, accessMode);
   }
 }

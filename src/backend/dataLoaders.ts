@@ -207,10 +207,10 @@ export const checkObjectStats = async (wretcher: Wretcher, search: ObjectFactsSe
   if (totalCount > maxCount) {
     return window.confirm(
       'WARNING \nLarge result set. \n\n' +
-      'This query will return ' +
-      totalCount +
-      ' ' +
-      'items which may be too much for the browser to handle. \n\n Are you sure you want to continue?'
+        'This query will return ' +
+        totalCount +
+        ' ' +
+        'items which may be too much for the browser to handle. \n\n Are you sure you want to continue?'
     );
   } else return true;
 };
@@ -310,7 +310,11 @@ export const objectDataLoader = (wretcher: Wretcher, objectTypeName: string, obj
     .catch(handleError);
 };
 
-export const factDataLoader = (wretcher: Wretcher, objectId: string, factTypes: Array<string>): Promise<Array<ActFact>> => {
+export const factDataLoader = (
+  wretcher: Wretcher,
+  objectId: string,
+  factTypes: Array<string>
+): Promise<Array<ActFact>> => {
   const requestBody = {
     ...(factTypes && factTypes.length > 0 && { factType: factTypes }),
     limit: DEFAULT_LIMIT,
@@ -376,7 +380,8 @@ export const objectKeywordSearch = (
     keywords: string;
     objectTypes: Array<string>;
     limit: number;
-  }): Promise<Array<ActObject>> => {
+  }
+): Promise<Array<ActObject>> => {
   const requestBody = {
     keywords: args.keywords,
     objectType: args.objectTypes,
@@ -398,7 +403,8 @@ export const factKeywordSearch = (
     factTypes: Array<string>;
     objectTypes: Array<string>;
     limit: number;
-  }): Promise<Array<ActFact>> => {
+  }
+): Promise<Array<ActFact>> => {
   const requestBody = {
     limit: args.limit,
     keywords: args.keywords,
@@ -414,12 +420,7 @@ export const factKeywordSearch = (
     .catch(handleError);
 };
 
-export const retractFact = (
-  wretcher: Wretcher,
-  fact: ActFact,
-  comment: string,
-  accessMode: any
-): Promise<any> => {
+export const retractFact = (wretcher: Wretcher, fact: ActFact, comment: string, accessMode: any): Promise<any> => {
   return wretcher
     .url(`/v1/fact/uuid/${fact.id}/retract`)
     .json({
@@ -427,6 +428,6 @@ export const retractFact = (
       accessMode: accessMode
     })
     .post()
-    .json(({data}) => data)
-    .catch(handleError)
+    .json(({ data }) => data)
+    .catch(handleError);
 };

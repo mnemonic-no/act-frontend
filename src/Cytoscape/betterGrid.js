@@ -4,7 +4,7 @@ function BetterGrid(options = {}) {
   this.options = options;
 }
 
-BetterGrid.prototype.run = function() {
+BetterGrid.prototype.run = function () {
   var self = this,
     nodes = this.options.eles,
     bb = nodes.boundingBox(),
@@ -12,7 +12,7 @@ BetterGrid.prototype.run = function() {
     x = bb.x1,
     y = bb.y1,
     linebreak = Math.round(Math.sqrt(len * (this.spaceY / this.spaceX))) * this.spaceX,
-    getPos = function(i, node) {
+    getPos = function (i, node) {
       if (x - bb.x1 > linebreak) {
         x = bb.x1;
         y += self.spaceY;

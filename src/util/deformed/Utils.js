@@ -8,9 +8,7 @@ import { Record, List } from 'immutable';
  */
 export const assertHasField = (field, record) => {
   if (!record.has(field)) {
-    throw new Error(
-      `Field: ${field} not in form record: ${record.keySeq().toString()}`
-    );
+    throw new Error(`Field: ${field} not in form record: ${record.keySeq().toString()}`);
   }
 };
 
@@ -28,10 +26,7 @@ export const assertHasField = (field, record) => {
  * @param defaultValue The default value
  */
 export const keysToKeyValue = (keys, defaultValue) =>
-  keys.reduce(
-    (obj, key) => Object.assign({}, obj, { [key]: defaultValue }),
-    {}
-  );
+  keys.reduce((obj, key) => Object.assign({}, obj, { [key]: defaultValue }), {});
 
 /**
  * errorsRecordFromFormFields creates a new Record class to hold error fields, based on the keys from a form fields record

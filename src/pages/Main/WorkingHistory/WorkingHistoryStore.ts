@@ -279,11 +279,12 @@ class WorkingHistoryStore {
   get prepared() {
     const historyItems = this.root.workingHistory.withLoadable.map(
       (props: { item: WorkingHistoryItem; loadable: TLoadable<SearchResult> }) => {
+        const isLoading = !props.loadable || isPending(props.loadable);
         return {
           id: searchId(props.item.search),
           title: itemTitle(props.item.search, this.config.objectColors || {}),
           isSelected: props.item.id === this.selectedItemId,
-          isLoading: isPending(props.loadable),
+          isLoading: isLoading,
           error: isRejected(props.loadable) ? props.loadable.error : undefined,
           details: itemDetails(props.item, this.predefinedQueryToName),
           actions: itemActions(

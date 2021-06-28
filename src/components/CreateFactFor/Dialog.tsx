@@ -83,9 +83,7 @@ const ObjectSelectionComp = observer((props: IObjectSelectionComp) => {
         ))}
       </TextField>
 
-      {props.objectValueAutosuggest && (
-        <ActObjectAutoSuggest {...props.objectValueAutosuggest} required fullWidth/>
-      )}
+      {props.objectValueAutosuggest && <ActObjectAutoSuggest {...props.objectValueAutosuggest} required fullWidth />}
     </RoundedBox>
   );
 });
@@ -304,7 +302,11 @@ const UniDirectionalFact = observer(
           {props.onSwapClick && (
             <div
               style={{ position: 'absolute', top: '1.5rem', display: 'flex', justifyContent: 'center', width: '100%' }}>
-              <Fab onClick={() => props.onSwapClick && props.onSwapClick()} size="small" type="button" color="secondary">
+              <Fab
+                onClick={() => props.onSwapClick && props.onSwapClick()}
+                size="small"
+                type="button"
+                color="secondary">
                 <SwapHorizIcon />
               </Fab>
             </div>

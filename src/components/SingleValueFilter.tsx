@@ -43,12 +43,12 @@ const SingleValueFilterComp = (props: ISingleValueFilterComp) => {
     : { caption: 'Filter by', subTitle: props.title };
 
   return (
-    <div
-      className={classes.root}
-      ref={node => {
-        setAnchorEl(node);
-      }}>
-      <ClickAwayListener onClickAway={() => setIsOpen(false)}>
+    <ClickAwayListener onClickAway={() => setIsOpen(false)}>
+      <div
+        className={classes.root}
+        ref={node => {
+          setAnchorEl(node);
+        }}>
         <div>
           <ButtonBase
             focusRipple
@@ -65,27 +65,27 @@ const SingleValueFilterComp = (props: ISingleValueFilterComp) => {
             </IconButton>
           )}
         </div>
-      </ClickAwayListener>
 
-      <Popper open={isOpen} anchorEl={anchorEl} placement="bottom-start">
-        <Paper classes={{ root: classes.popperRoot }}>
-          <Autocomplete
-            autoHighlight
-            autoSelect
-            options={props.options}
-            getOptionLabel={option => option.text}
-            classes={{ popper: classes.autoCompletePopper }}
-            onChange={(e: any, v: any) => {
-              props.onChange(v);
-              setIsOpen(false);
-            }}
-            renderInput={params => {
-              return <TextField {...params} label={props.title} variant="outlined" fullWidth autoFocus />;
-            }}
-          />
-        </Paper>
-      </Popper>
-    </div>
+        <Popper open={isOpen} anchorEl={anchorEl} placement="bottom-start">
+          <Paper classes={{ root: classes.popperRoot }}>
+            <Autocomplete
+              autoHighlight
+              autoSelect
+              options={props.options}
+              getOptionLabel={option => option.text}
+              classes={{ popper: classes.autoCompletePopper }}
+              onChange={(e: any, v: any) => {
+                props.onChange(v);
+                setIsOpen(false);
+              }}
+              renderInput={params => {
+                return <TextField {...params} label={props.title} variant="outlined" fullWidth autoFocus />;
+              }}
+            />
+          </Paper>
+        </Popper>
+      </div>
+    </ClickAwayListener>
   );
 };
 

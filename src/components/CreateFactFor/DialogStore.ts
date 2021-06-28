@@ -114,7 +114,6 @@ export const createFactRequest = (
   }
 };
 
-
 export const objectValueSuggestions = (simpleSearch: SimpleSearch, config: TConfig) => {
   if (!isDone(simpleSearch)) {
     return [];
@@ -127,14 +126,10 @@ export const objectValueSuggestions = (simpleSearch: SimpleSearch, config: TConf
       actObject: actObject,
       color: objectTypeToColor(config.objectColors || {}, actObject.type.name),
       objectLabel:
-        getObjectLabelFromFact(
-          actObject,
-          config.objectLabelFromFactType,
-          simpleSearch.result.facts
-        ) || actObject.value
+        getObjectLabelFromFact(actObject, config.objectLabelFromFactType, simpleSearch.result.facts) || actObject.value
     }))
     .slice(0, 5);
-}
+};
 
 const ANY = 'Any';
 
@@ -356,7 +351,7 @@ class CreateFactForDialog {
 
   @action.bound
   searchForObjectType(value: string, objectTypeName: string) {
-    const objectTypeFilter =  objectTypeName !== ANY ? [objectTypeName] : []
+    const objectTypeFilter = objectTypeName !== ANY ? [objectTypeName] : [];
 
     if (value.length >= 2) {
       this.backendStore.autoCompleteSimpleSearchBackendStore.execute({
@@ -372,16 +367,16 @@ class CreateFactForDialog {
 
     this.formBidirectional.inputValue = value ? value : '';
     this.formBidirectional.otherObject.value = this.formBidirectional.inputValue;
-    this.searchForObjectType(this.formBidirectional.inputValue, this.formBidirectional.otherObject.typeName)
+    this.searchForObjectType(this.formBidirectional.inputValue, this.formBidirectional.otherObject.typeName);
   }
 
   @action.bound
   onUnidirectionalObjectInputValueChange(value: string) {
     if (!this.formUniDirectional) return;
 
-    this.formUniDirectional.inputValue = value ? value: '';
+    this.formUniDirectional.inputValue = value ? value : '';
     this.formUniDirectional.otherObject.value = this.formUniDirectional.inputValue;
-    this.searchForObjectType(this.formUniDirectional.inputValue, this.formUniDirectional.otherObject.typeName)
+    this.searchForObjectType(this.formUniDirectional.inputValue, this.formUniDirectional.otherObject.typeName);
   }
 
   @computed
@@ -460,7 +455,7 @@ class CreateFactForDialog {
           this.formUniDirectional.inputValue = s.actObject.value;
         }
       }
-    }
+    };
   }
 }
 

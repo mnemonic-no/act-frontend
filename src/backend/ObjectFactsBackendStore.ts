@@ -44,9 +44,9 @@ class ObjectFactsBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await this.actApi.objectFactsDataLoader(request, abortController).then(value =>
-        this.actApi.autoResolveDataLoader(value, this.config)
-      );
+      const { facts, objects } = await this.actApi
+        .objectFactsDataLoader(request, abortController)
+        .then(value => this.actApi.autoResolveDataLoader(value, this.config));
 
       this.cache[q.id] = {
         ...q,

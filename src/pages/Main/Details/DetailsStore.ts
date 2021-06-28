@@ -80,41 +80,39 @@ export const toFactStatRows = (props: {
 }): Array<IFactStatRow> => {
   return _.pipe(
     _.sortBy((objectStats: ObjectStats) => objectStats.type.name),
-    _.map(
-      (objectStats: ObjectStats): IFactStatRow => {
-        const matchingOneLeggedFacts = props.oneLeggedFacts.filter(
-          oneFact => oneFact.type.name === objectStats.type.name
-        );
+    _.map((objectStats: ObjectStats): IFactStatRow => {
+      const matchingOneLeggedFacts = props.oneLeggedFacts.filter(
+        oneFact => oneFact.type.name === objectStats.type.name
+      );
 
-        if (matchingOneLeggedFacts.length > 0) {
-          return {
-            cells: [
-              { kind: FactStatsCellType.text, text: objectStats.type.name },
-              {
-                kind: FactStatsCellType.links,
-                links: matchingOneLeggedFacts
-                  .map(x => ({
-                    text: x.value + '',
-                    tag: objectStats.type.name === 'category',
-                    tooltip: props.factTooltip,
-                    onClick: () => props.onFactClick(x)
-                  }))
-                  .sort((a, b) => (a.text > b.text ? 1 : -1))
-              }
-            ]
-          };
-        }
-
+      if (matchingOneLeggedFacts.length > 0) {
         return {
-          onClick: () => props.onFactTypeClick(objectStats.type),
-          tooltip: props.factTypeTooltip,
           cells: [
             { kind: FactStatsCellType.text, text: objectStats.type.name },
-            { kind: FactStatsCellType.text, text: objectStats.count + '', align: 'right' as 'right' }
+            {
+              kind: FactStatsCellType.links,
+              links: matchingOneLeggedFacts
+                .map(x => ({
+                  text: x.value + '',
+                  tag: objectStats.type.name === 'category',
+                  tooltip: props.factTooltip,
+                  onClick: () => props.onFactClick(x)
+                }))
+                .sort((a, b) => (a.text > b.text ? 1 : -1))
+            }
           ]
         };
       }
-    )
+
+      return {
+        onClick: () => props.onFactTypeClick(objectStats.type),
+        tooltip: props.factTypeTooltip,
+        cells: [
+          { kind: FactStatsCellType.text, text: objectStats.type.name },
+          { kind: FactStatsCellType.text, text: objectStats.count + '', align: 'right' as 'right' }
+        ]
+      };
+    })
   )(props.actObject.statistics);
 };
 

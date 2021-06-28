@@ -13,12 +13,7 @@ export type SimpleSearch = TRequestLoadable<
 >;
 
 const simpleSearchId = ({ searchString, objectTypeFilter }: SimpleSearchArgs) =>
-  searchString +
-  ':' +
-  objectTypeFilter
-    .slice()
-    .sort()
-    .join(',');
+  searchString + ':' + objectTypeFilter.slice().sort().join(',');
 
 class SimpleSearchBackendStore {
   config: TConfig;
@@ -49,7 +44,11 @@ class SimpleSearchBackendStore {
 
     try {
       const [objectsByValue, factsByNameResult] = await Promise.all([
-        this.actApi.objectKeywordSearch({ keywords: searchString, objectTypes: objectTypeFilter, limit: this.resultLimit }),
+        this.actApi.objectKeywordSearch({
+          keywords: searchString,
+          objectTypes: objectTypeFilter,
+          limit: this.resultLimit
+        }),
         this.config.objectLabelFromFactType
           ? this.actApi.factKeywordSearch({
               keywords: searchString,

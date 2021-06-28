@@ -44,9 +44,9 @@ class ObjectTraverseBackendStore {
     this.cache[q.id] = q;
 
     try {
-      const { facts, objects } = await this.actApi.objectTraverseDataLoader(request, abortController).then(value =>
-        this.actApi.autoResolveDataLoader(value, this.config)
-      );
+      const { facts, objects } = await this.actApi
+        .objectTraverseDataLoader(request, abortController)
+        .then(value => this.actApi.autoResolveDataLoader(value, this.config));
 
       this.cache[q.id] = {
         ...q,

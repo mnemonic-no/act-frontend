@@ -147,9 +147,9 @@ it('can make objectValueSuggestions', () => {
   const report = actObject({ id: 'b', type: objectTypes.report, value: 'A report' });
   const threatActor = actObject({ id: 'a', type: objectTypes.threatActor, value: 'BadPanda' });
 
-  const suggestions = objectValueSuggestions(
-    simpleSearch({ result: { objects: [threatActor, report], facts: [] } }),
-    { objectColors: { report: 'green', threatActor: 'blue' } });
+  const suggestions = objectValueSuggestions(simpleSearch({ result: { objects: [threatActor, report], facts: [] } }), {
+    objectColors: { report: 'green', threatActor: 'blue' }
+  });
   expect(suggestions).toEqual([
     {
       actObject: report,

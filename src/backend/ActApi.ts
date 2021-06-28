@@ -1,6 +1,7 @@
 import {
   ActFact,
-  ActObject, FactComment,
+  ActObject,
+  FactComment,
   FactType,
   ObjectFactsSearch,
   ObjectTraverseSearch,
@@ -9,51 +10,53 @@ import {
 } from '../core/types';
 
 export interface ActApi {
-
   autoResolveDataLoader(
     args: { facts: { [id: string]: ActFact }; objects: { [id: string]: ActObject } },
     config: TConfig
-  ): Promise<{ facts: Record<string, ActFact>, objects: Record<string, ActObject> }>
+  ): Promise<{ facts: Record<string, ActFact>; objects: Record<string, ActObject> }>;
 
-  checkObjectStats(search: ObjectFactsSearch, maxCount: number): Promise<boolean>
+  checkObjectStats(search: ObjectFactsSearch, maxCount: number): Promise<boolean>;
 
-  createFact(request: any): Promise<any>
+  createFact(request: any): Promise<any>;
 
-  factByIdDataLoader(args: { id: string }): Promise<ActFact>
+  factByIdDataLoader(args: { id: string }): Promise<ActFact>;
 
-  factCommentsDataLoader(args: { id: string }): Promise<Array<FactComment>>
+  factCommentsDataLoader(args: { id: string }): Promise<Array<FactComment>>;
 
-  factDataLoader(objectId: string, factTypes: Array<string>): Promise<Array<ActFact>>
+  factDataLoader(objectId: string, factTypes: Array<string>): Promise<Array<ActFact>>;
 
-  factKeywordSearch(
-    args: { keywords: string; factTypes: Array<string>; objectTypes: Array<string>; limit: number; }
-  ): Promise<Array<ActFact>>
+  factKeywordSearch(args: {
+    keywords: string;
+    factTypes: Array<string>;
+    objectTypes: Array<string>;
+    limit: number;
+  }): Promise<Array<ActFact>>;
 
-  factTypesDataLoader(): Promise<Array<FactType>>
+  factTypesDataLoader(): Promise<Array<FactType>>;
 
   factTypesToResolveByObjectId(
     objectTypeToFactTypes: { [id: string]: Array<string> },
     objects: Array<ActObject>
-  ): Array<{ objectIds: Array<string>; factTypes: Array<string> }>
+  ): Array<{ objectIds: Array<string>; factTypes: Array<string> }>;
 
-  metaFactsDataLoader(props: { id: string }): Promise<Array<ActFact>>
+  metaFactsDataLoader(props: { id: string }): Promise<Array<ActFact>>;
 
   multiObjectTraverseDataLoader(
-    args: { objectIds: Array<string>; query: string; },
+    args: { objectIds: Array<string>; query: string },
     abortController?: AbortController
-  ): Promise<SearchResult>
+  ): Promise<SearchResult>;
 
-  objectDataLoader(objectTypeName: string, objectValue: string): Promise<any>
+  objectDataLoader(objectTypeName: string, objectValue: string): Promise<any>;
 
-  objectFactsDataLoader(search: ObjectFactsSearch, abortController?: AbortController): Promise<SearchResult>
+  objectFactsDataLoader(search: ObjectFactsSearch, abortController?: AbortController): Promise<SearchResult>;
 
-  objectKeywordSearch(args: { keywords: string; objectTypes: Array<string>; limit: number; }): Promise<Array<ActObject>>
+  objectKeywordSearch(args: { keywords: string; objectTypes: Array<string>; limit: number }): Promise<Array<ActObject>>;
 
-  objectTraverseDataLoader(search: ObjectTraverseSearch, abortController?: AbortController): Promise<SearchResult>
+  objectTraverseDataLoader(search: ObjectTraverseSearch, abortController?: AbortController): Promise<SearchResult>;
 
-  objectTypesDataLoader(): Promise<{ objectTypes: any }>
+  objectTypesDataLoader(): Promise<{ objectTypes: any }>;
 
-  postJson(url: string, jsonRequest: any): Promise<any>
+  postJson(url: string, jsonRequest: any): Promise<any>;
 
-  retractFact(fact: ActFact, comment: string, accessMode: string): Promise<any>
+  retractFact(fact: ActFact, comment: string, accessMode: string): Promise<any>;
 }

@@ -13,8 +13,7 @@ import ObjectTitle, { IObjectTitleProps } from '../../../components/ObjectTitle'
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    padding: '10px',
-    outline: '2px solid pink'
+    padding: '10px'
   }
 }));
 

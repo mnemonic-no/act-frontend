@@ -158,14 +158,8 @@ const SearchOnly = (props: {
 const SearchWithResults = observer(({ store }: { store: SearchPageStore }) => {
   const classes = useResultStyles();
 
-  const {
-    searchInput,
-    searchHistoryItems,
-    onSearch,
-    objectTypeFilter,
-    isAdvancedSearchEnabled,
-    advancedSearchButton
-  } = store.prepared;
+  const { searchInput, searchHistoryItems, onSearch, objectTypeFilter, isAdvancedSearchEnabled, advancedSearchButton } =
+    store.prepared;
 
   return (
     <div className={classes.root}>

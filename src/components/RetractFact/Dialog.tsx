@@ -7,9 +7,10 @@ import DialogActions from '@material-ui/core/DialogActions';
 import RetractFactForm from './FormLogic';
 import RetractFactStore from './RetractFactStore';
 
-const RetractFactDialog = ({store: {open, close, fact, retractFact}}: { store: RetractFactStore }) => (
+const RetractFactDialog = ({ store: { open, close, fact, retractFact } }: { store: RetractFactStore }) => (
   <Dialog open={open} onClose={close} disableBackdropClick disableEscapeKeyDown maxWidth="sm">
-    <RetractFactForm {...{ close, fact, onSubmit: retractFact}}
+    <RetractFactForm
+      {...{ close, fact, onSubmit: retractFact }}
       // @ts-ignore
       ContentComp={DialogContent}
       ActionsComp={DialogActions}

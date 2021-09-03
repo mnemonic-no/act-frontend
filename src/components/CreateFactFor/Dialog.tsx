@@ -339,7 +339,7 @@ const DialogComp = ({ store }: IDialogProps) => {
   const classes = useStyles();
 
   return (
-    <Dialog open={store.isOpen} onClose={() => store.onClose()} disableBackdropClick maxWidth="sm" fullWidth>
+    <Dialog open={store.isOpen} onClose={() => store.onClose()} maxWidth="sm" fullWidth>
       <form
         onSubmit={e => {
           e.preventDefault();

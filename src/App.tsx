@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { MuiThemeProvider, createTheme } from '@material-ui/core/styles';
 
 import AppStore from './AppStore';
 import config from './config';
@@ -45,7 +45,7 @@ const Orange = {
   A700: '#eb6800' // dark
 };
 
-export const actTheme = createMuiTheme({
+export const actTheme = createTheme({
   palette: {
     primary: Black,
     secondary: Orange

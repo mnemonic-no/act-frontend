@@ -14,7 +14,7 @@ const TitledButtonListComp = (props: ITitledButtonListProps) => {
       <Typography variant="body1" gutterBottom>
         {props.title}
       </Typography>
-      <Grid container spacing={1} justify={'flex-start'}>
+      <Grid container spacing={1} justifyContent={'flex-start'}>
         {props.buttons.map(b => {
           const customProps = b.href ? { target: '_blank', rel: 'noopener noreferrer' } : {};
           return (

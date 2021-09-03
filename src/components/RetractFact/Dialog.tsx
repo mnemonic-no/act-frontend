@@ -8,7 +8,7 @@ import RetractFactForm from './FormLogic';
 import RetractFactStore from './RetractFactStore';
 
 const RetractFactDialog = ({ store: { open, close, fact, retractFact } }: { store: RetractFactStore }) => (
-  <Dialog open={open} onClose={close} disableBackdropClick disableEscapeKeyDown maxWidth="sm">
+  <Dialog open={open} onClose={close} disableEscapeKeyDown maxWidth="sm">
     <RetractFactForm
       {...{ close, fact, onSubmit: retractFact }}
       // @ts-ignore

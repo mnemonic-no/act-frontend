@@ -34,7 +34,7 @@ environment.
   { "apiUrl": "http://YOUR-API-SERVER-HERE/" }
 ```
 
-Currently access control is hard coded, if necessary edit `actUserId`
+Currently, access control is hard coded, if necessary edit `actUserId`
 
 Change the `banner` property if you want to add a visual indication of the current environment. This can be useful if 
 you run multiple instances of ACT. Note that the banner and each of its parameters are optional.

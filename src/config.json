@@ -15,11 +15,8 @@
     "uri": "#0c0"
   },
   "autoResolveFacts": {
-    "*": ["category"],
-    "asn": ["name"],
-    "incident": ["name"],
+    "*": ["category", "name"],
     "path": ["basename"],
-    "report": ["name"],
     "uri": ["port", "scheme"]
   },
   "objectLabelFromFactType": "name",

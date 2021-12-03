@@ -39,7 +39,7 @@ const GraphEmptyComp = (props: { navigateFn: (url: string) => void }) => {
 
   const links = [
     '/object-fact-query/ipv4/153.148.23.118',
-    '/object-fact-query/threatActor/Sofacy',
+    '/object-fact-query/threatActor/sofacy',
     '/object-fact-query/technique/Credential%20Dumping',
     '/object-fact-query/tool/foosace',
     '/object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad'

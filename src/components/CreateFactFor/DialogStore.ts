@@ -58,7 +58,6 @@ export const createBidirectionalFactRequest = (
     bidirectionalBinding: true,
     sourceObject: identifier(selectedObject),
     destinationObject: identifier(form.otherObject),
-    value: '' // API requires a value
   };
 };
 
@@ -74,7 +73,6 @@ export const createUnidirectionalFactRequest = (
     ...common,
     sourceObject: identifier(sourceObject),
     destinationObject: identifier(destinationObject),
-    value: '' // API requires a value
   };
 };
 

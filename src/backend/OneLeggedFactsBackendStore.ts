@@ -35,7 +35,7 @@ class OneLeggedFactsBackendStore {
 
       this.cache[s.id] = { ...s, status: LoadingStatus.DONE, result: { facts: oneLeggedFacts } };
     } catch (err) {
-      this.cache[s.id] = { ...s, status: LoadingStatus.REJECTED, error: err.message };
+      this.cache[s.id] = { ...s, status: LoadingStatus.REJECTED, error: (err as Error)?.message };
     }
   }
 

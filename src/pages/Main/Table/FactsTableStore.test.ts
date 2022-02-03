@@ -13,7 +13,8 @@ it('can make facts table', () => {
       factTypeFilter: new Set(),
       filterSelected: false,
       sortOrder: sortByFactType,
-      isExport: true
+      isExport: true,
+      objectColors: {}
     })
   ).toEqual([]);
 
@@ -33,7 +34,8 @@ it('can make facts table', () => {
       factTypeFilter: new Set(),
       filterSelected: false,
       sortOrder: sortByFactType,
-      isExport: true
+      isExport: true,
+      objectColors: {}
     })
   ).toEqual([
     {
@@ -52,7 +54,8 @@ it('can make facts table', () => {
         { kind: 'isOneLegged', text: '', isFaded: false }
       ],
       fact: aliasFact,
-      isSelected: false
+      isSelected: false,
+      objectColors: {}
     },
     {
       id: mentionsFact.id,
@@ -70,7 +73,8 @@ it('can make facts table', () => {
         { kind: 'isOneLegged', text: '', isFaded: false }
       ],
       fact: mentionsFact,
-      isSelected: false
+      isSelected: false,
+      objectColors: {}
     }
   ]);
 });

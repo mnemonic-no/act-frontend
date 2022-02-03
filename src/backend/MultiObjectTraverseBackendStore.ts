@@ -53,11 +53,11 @@ class MultiObjectTraverseBackendStore {
       };
     } catch (err) {
       // Aborts are initiated by the user, so just ignore them
-      if (err.name === 'AbortError') {
+      if ((err as Error)?.name === 'AbortError') {
         return;
       }
 
-      this.cache[q.id] = { ...q, status: LoadingStatus.REJECTED, error: err.message };
+      this.cache[q.id] = { ...q, status: LoadingStatus.REJECTED, error: (err as Error)?.message };
       throw err;
     }
   }

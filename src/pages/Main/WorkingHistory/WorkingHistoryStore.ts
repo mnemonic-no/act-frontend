@@ -252,13 +252,14 @@ class WorkingHistoryStore {
   @action.bound
   onImport(fileEvent: any) {
     const fileReader = new FileReader();
-    fileReader.onloadend = e => {
+    fileReader.onloadend = _e => {
       const content = fileReader.result;
 
       try {
         const parsed = parseStateExport(content);
         this.root.initByImport(parsed);
       } catch (err) {
+        // @ts-ignore
         this.eventBus.publish([{ kind: 'errorEvent', error: err, title: 'Import failed' }]);
       }
     };

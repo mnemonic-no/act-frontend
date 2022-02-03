@@ -48,8 +48,8 @@ class ActObjectBackendStore {
 
       this.actObjectSearches[s.id] = { ...s, status: LoadingStatus.DONE, result: { actObject: object, facts: facts } };
     } catch (err) {
-      if (onError) onError(err);
-      this.actObjectSearches[s.id] = { ...s, status: LoadingStatus.REJECTED, error: err.message };
+      if (onError) onError(err as Error);
+      this.actObjectSearches[s.id] = { ...s, status: LoadingStatus.REJECTED, error: (err as Error)?.message };
     }
   }
 

@@ -42,7 +42,7 @@ class FactBackendStore {
         result: { fact: fact, comments: comments, metaFacts: metaFacts }
       });
     } catch (err) {
-      this.cache.set(s.id, { ...s, status: LoadingStatus.REJECTED, error: err.message });
+      this.cache.set(s.id, { ...s, status: LoadingStatus.REJECTED, error: (err as Error)?.message });
     }
   }
 

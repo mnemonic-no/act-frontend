@@ -87,7 +87,7 @@ class BackendStore {
         status: LoadingStatus.DONE
       };
     } catch (err) {
-      this.actObjectTypes = { ...this.actObjectTypes, status: LoadingStatus.REJECTED, error: err?.message };
+      this.actObjectTypes = { ...this.actObjectTypes, status: LoadingStatus.REJECTED, error: (err as Error)?.message };
       throw err;
     }
   }
@@ -109,7 +109,7 @@ class BackendStore {
         status: LoadingStatus.DONE
       };
     } catch (err) {
-      this.factTypes = { ...this.factTypes, status: LoadingStatus.REJECTED, error: err?.message };
+      this.factTypes = { ...this.factTypes, status: LoadingStatus.REJECTED, error: (err as Error)?.message };
       throw err;
     }
   }
@@ -137,7 +137,7 @@ class BackendStore {
 
     if (isObjectFactsSearch(search)) {
       // Checking object stats is best effort. Ignore all errors on the request itself
-      const approvedAmountOfData = await this.actApi.checkObjectStats(search, maxFetchLimit).catch(e => true);
+      const approvedAmountOfData = await this.actApi.checkObjectStats(search, maxFetchLimit).catch(_e => true);
       if (!approvedAmountOfData) {
         return;
       }
@@ -168,7 +168,7 @@ class BackendStore {
       }
     } catch (err) {
       runInAction(() => {
-        this.eventBus.publish([{ kind: 'errorEvent', error: err }]);
+        this.eventBus.publish([{ kind: 'errorEvent', error: err as Error }]);
       });
     }
   }
@@ -201,7 +201,7 @@ class BackendStore {
       }
     } catch (err) {
       runInAction(() => {
-        this.eventBus.publish([{ kind: 'errorEvent', error: err, title: 'Bulk search failed' }]);
+        this.eventBus.publish([{ kind: 'errorEvent', error: err as Error, title: 'Bulk search failed' }]);
       });
     }
   }
@@ -214,7 +214,7 @@ class BackendStore {
       addMessage(successMessage);
     } catch (err) {
       runInAction(() => {
-        this.eventBus.publish([{ kind: 'errorEvent', error: err }]);
+        this.eventBus.publish([{ kind: 'errorEvent', error: err as Error }]);
       });
     } finally {
       runInAction(() => {

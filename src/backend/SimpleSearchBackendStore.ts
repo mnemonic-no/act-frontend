@@ -72,7 +72,7 @@ class SimpleSearchBackendStore {
         }
       };
     } catch (err) {
-      this.searches[search.id] = { ...search, status: LoadingStatus.REJECTED, error: err.message };
+      this.searches[search.id] = { ...search, status: LoadingStatus.REJECTED, error: (err as Error)?.message };
     }
   }
 

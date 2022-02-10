@@ -57,13 +57,13 @@
     {
       "name": "incidents",
       "description": "Find incidents related to network indicators in this report.",
-      "query": "g.outE('mentions').otherV().hasLabel(within('ipv4','ipv6','fqdn')).outE('componentOf').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
+      "query": "g.outE('mentions').otherV().hasLabel(within('ipv4','ipv6','fqdn')).outE('componentOf').otherV().hasLabel('uri').outE('observedIn').otherV().hasLabel('incident').path().unfold()",
       "objects": ["report"]
     },
     {
       "name": "tools",
       "description": "Find tools related to the hashes mentioned in this report.",
-      "query": "g.outE('mentions').otherV().hasLabel('hash').outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('mentions').otherV().hasLabel('hash').outE('represents').otherV().outE('classifiedAs').otherV().path().unfold()",
       "objects": ["report"]
     },
     {
@@ -75,7 +75,7 @@
     {
       "name": "tools",
       "description": "Find tools with observed network traffic to this autonomous system.",
-      "query": "g.repeat(inE('memberOf').otherV()).times(2).outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.repeat(inE('memberOf').otherV()).times(2).outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().path().unfold()",
       "objects": ["asn"]
     },
     {
@@ -90,7 +90,7 @@
     {
       "name": "threat actors",
       "description": "Find threat actors related to this indicator.",
-      "query": "g.outE('componentOf').otherV().hasLabel('uri').optional(inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV()).outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').optional(inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV()).outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
       "objects": [
         "fqdn",
         "ipv4",
@@ -100,7 +100,7 @@
     {
       "name": "tools",
       "description": "Find tools related to this indicator.",
-      "query": "g.outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().outE('classifiedAs').otherV().path().unfold()",
       "objects": [
         "fqdn",
         "ipv4",
@@ -110,7 +110,7 @@
     {
       "name": "incidents",
       "description": "Find incidents related to this indicator.",
-      "query": "g.outE('componentOf').otherV().hasLabel('uri').outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
+      "query": "g.outE('componentOf').otherV().hasLabel('uri').outE('observedIn').otherV().path().unfold()",
       "objects": [
         "fqdn",
         "ipv4",
@@ -140,13 +140,13 @@
     {
       "name": "threat actors",
       "description": "Find threat actors related to this content.",
-      "query": "g.outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
       "objects": ["content"]
     },
     {
       "name": "tools",
       "description": "Find tools related to this content.",
-      "query": "g.outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('classifiedAs').otherV().path().unfold()",
       "objects": ["content"]
     },
     {
@@ -164,13 +164,13 @@
     {
       "name": "threat actors",
       "description": "Find threat actors related to this hash.",
-      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
       "objects": ["hash"]
     },
     {
       "name": "tools",
       "description": "Find tools related to this hash.",
-      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('represents').otherV().outE('classifiedAs').otherV().path().unfold()",
       "objects": ["hash"]
     },
     {
@@ -188,13 +188,13 @@
     {
       "name": "threat actors",
       "description": "Find threat actors that use techniques that accomplish this tactic.",
-      "query": "g.inE('accomplishes').otherV().inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.inE('accomplishes').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
       "objects": ["tactic"]
     },
     {
       "name": "tools",
       "description": "Find tools that implement techniques that accomplish this tactic.",
-      "query": "g.inE('accomplishes').otherV().inE('implements').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.inE('accomplishes').otherV().inE('implements').otherV().path().unfold()",
       "objects": ["tactic"]
     },
     {
@@ -206,7 +206,7 @@
     {
       "name": "aliases",
       "description": "Find related tool names (potential aliases for this tool).",
-      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('classifiedAs').otherV().path().unfold()",
       "objects": ["tool"]
     },
     {
@@ -217,8 +217,8 @@
     },
     {
       "name": "incidents",
-      "description": "Find incidents with network indicators related to this tool.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).outE('componentOf').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().path().unfold()",
+      "description": "Find incidents where this tool was observed.",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().hasLabel('content').outE('observedIn').otherV().hasLabel('incident').path().unfold()",
       "objects": ["tool"]
     },
     {
@@ -230,7 +230,7 @@
     {
       "name": "threat actors",
       "description": "Find threat actors known to use this tool.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().hasLabel('content').outE('observedIn').otherV().hasLabel('incident').outE('attributedTo').otherV().hasLabel('threatActor').path().unfold()",
       "objects": ["tool"]
     },
     {
@@ -242,43 +242,43 @@
     {
       "name": "asn",
       "description": "Find autonomous systems related to malware used exclusively by this threat actor.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().has('category','malware').where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).not(has('category','sinkhole')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('attributedTo').otherV().inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().has('category','malware').where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('ipv4','ipv6')).not(has('category','sinkhole')).repeat(outE('memberOf').otherV()).times(2).optional(inE('owns').otherV().outE().hasLabel(without('owns')).otherV()).path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "network",
       "description": "Find network indicators related to malware used exclusively by this threat actor.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().has('category','malware').where(inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).not(has('category','sinkhole')).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('attributedTo').otherV().inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().has('category','malware').where(inE('classifiedAs').otherV().outE('observedIn').otherV().outE('attributedTo').otherV().count().is(eq(1L))).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE().hasLabel(within('at','connectsTo')).otherV().inE('componentOf').otherV().hasLabel(within('fqdn','ipv4','ipv6')).not(has('category','sinkhole')).path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "tools",
       "description": "Find tools used by this threat actor.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('attributedTo').otherV().inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "techniques",
       "description": "Find techniques used by this threat actor.",
-      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).repeat(inE('attributedTo').otherV()).times(2).outE('classifiedAs').otherV().path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('attributedTo').otherV().hasLabel('incident').inE('observedIn').otherV().hasLabel('technique').path().unfold()",
       "objects": ["threatActor"]
     },
     {
       "name": "threat actors",
       "description": "Find threat actors that use this technique.",
-      "query": "g.inE('classifiedAs').otherV().repeat(outE('attributedTo').otherV()).times(2).optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "query": "g.outE('observedIn').otherV().hasLabel('incident').outE('attributedTo').otherV().hasLabel('threatActor').path().unfold()",
       "objects": ["technique"]
     },
     {
       "name": "tools",
-      "description": "Find threat actors that use tools that implement this technique.",
-      "query": "g.inE('implements').otherV().optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().outE('observedIn').otherV().repeat(outE('attributedTo').otherV()).times(2).hasLabel('threatActor').optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).path().unfold()",
+      "description": "Find tools that implement this technique.",
+      "query": "g.inE('implements').otherV().hasLabel('tool').path().unfold()",
       "objects": ["technique"]
     },
     {
       "name": "targets",
       "description": "Find organizations targeted using this tool",
-      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().hasLabel('content').outE('observedIn').otherV().hasLabel('event').outE('attributedTo').otherV().hasLabel('incident').outE('targets').otherV().path().unfold()",
+      "query": "g.optional(emit().repeat(outE('alias').otherV().dedup()).until(cyclicPath())).inE('classifiedAs').otherV().hasLabel('content').outE('observedIn').otherV().hasLabel('incident').outE('targets').otherV().hasLabel('organization').path().unfold()",
       "objects": ["tool"]
     },
     {
@@ -290,7 +290,7 @@
     {
       "name": "tools",
       "description": "Find tools related to this campaign",
-      "query": "g.inE('attributedTo').otherV().inE('attributedTo').otherV().inE('observedIn').otherV().outE('classifiedAs').otherV().path().unfold()",
+      "query": "g.inE('attributedTo').otherV().hasLabel('incident').inE('observedIn').otherV().hasLabel('content').outE('classifiedAs').otherV().hasLabel('tool').path().unfold()",
       "objects": ["campaign"]
     }
   ],
@@ -299,19 +299,23 @@
       "sections": [
         {
           "title": "Domains",
-          "query": "g.in('resolvesTo').hasLabel('fqdn')"
+          "query": "g.in('resolvesTo').hasLabel('fqdn')",
+          "description": "Domains that have resolved to this IP address"
         },
         {
           "title": "Reports",
-          "query": "g.in('mentions').hasLabel('report')"
+          "query": "g.in('mentions').hasLabel('report')",
+          "description": "Reports that mention this IP address"
         },
         {
           "title": "ASN",
-          "query": "g.repeat(out('memberOf')).times(2).hasLabel('asn')"
+          "query": "g.repeat(out('memberOf')).times(2).hasLabel('asn')",
+          "description": "The Autonomous System that this IP address belongs to"
         },
         {
           "title": "Downloads",
           "query": "g.out('componentOf').hasLabel('uri').in('at').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "description": "Samples (malware or suspected malware) downloaded from this IP address",
           "actions": [
             {
               "id": "open-in-vt",
@@ -322,6 +326,7 @@
         {
           "title": "Callback",
           "query": "g.out('componentOf').hasLabel('uri').in('connectsTo').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "description": "Samples (malware or suspected malware) that communicate with this IP address when executed",
           "actions": [
             {
               "id": "open-in-vt",
@@ -331,23 +336,23 @@
         },
         {
           "title": "Incidents",
-          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
-        },
-        {
-          "title": "Signatures",
-          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').in('detects').hasLabel('signature')"
+          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').hasLabel('incident').not(has('value',startingWith('[placeholder')))",
+          "description": "Incidents where this IP address has been observed"
         },
         {
           "title": "Tools",
-          "query": "g.out('componentOf').hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().out('classifiedAs').hasLabel('tool')"
+          "query": "g.out('componentOf').hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().out('classifiedAs').hasLabel('tool')",
+          "description": "Malware families or tools that have been downloaded from or communicated with this IP address"
         },
         {
           "title": "Paths",
-          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('path')"
+          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('path')",
+          "description": "Observed URL paths in network traffic to this IP address"
         },
         {
           "title": "Queries",
-          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('query')"
+          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('query')",
+          "description": "Observed URL queries (GET parameters) in network traffic to this IP address"
         }
       ]
     },
@@ -355,15 +360,18 @@
       "sections": [
         {
           "title": "IP addresses",
-          "query": "g.out('resolvesTo').hasLabel('ipv4')"
+          "query": "g.out('resolvesTo').hasLabel('ipv4')",
+          "description": "IP addresses that this domain has resolved to"
         },
         {
           "title": "Reports",
-          "query": "g.in('mentions').hasLabel('report')"
+          "query": "g.in('mentions').hasLabel('report')",
+          "description": "Reports that mention this domain"
         },
         {
           "title": "Downloads",
           "query": "g.out('componentOf').hasLabel('uri').in('at').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "description": "Samples (malware or suspected malware) downloaded from this domain",
           "actions": [
             {
               "id": "open-in-vt",
@@ -374,6 +382,7 @@
         {
           "title": "Callback",
           "query": "g.out('componentOf').hasLabel('uri').in('connectsTo').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "description": "Samples (malware or suspected malware) that communicate with this domain when executed",
           "actions": [
             {
               "id": "open-in-vt",
@@ -383,23 +392,23 @@
         },
         {
           "title": "Incidents",
-          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
-        },
-        {
-          "title": "Signatures",
-          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').in('detects').hasLabel('signature')"
+          "query": "g.out('componentOf').hasLabel('uri').out('observedIn').hasLabel('incident').not(has('value',startingWith('[placeholder')))",
+          "description": "Incidents where this domain has been observed"
         },
         {
           "title": "Tools",
-          "query": "g.out('componentOf').hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().out('classifiedAs').hasLabel('tool')"
+          "query": "g.out('componentOf').hasLabel('uri').inE().hasLabel(within('at','connectsTo')).otherV().out('classifiedAs').hasLabel('tool')",
+          "description": "Malware families or tools that have been downloaded from or communicated with this domain"
         },
         {
           "title": "Paths",
-          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('path')"
+          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('path')",
+          "description": "Observed URL paths in network traffic to this domain"
         },
         {
           "title": "Queries",
-          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('query')"
+          "query": "g.out('componentOf').hasLabel('uri').in('componentOf').hasLabel('query')",
+          "description": "Observed URL queries (GET parameters) in network traffic to this domain"
         }
       ]
     },
@@ -408,6 +417,7 @@
         {
           "title": "Hashes",
           "query": "g.as('startNode').out('represents').in('represents').where(neq('startNode'))",
+          "description": "Other hashes (md5, sha1, sha256) that represent the same sample as this hash",
           "actions": [
             {
               "id": "open-in-vt",
@@ -417,51 +427,128 @@
         },
         {
           "title": "Reports",
-          "query": "g.out('represents').in('represents').in('mentions').hasLabel('report')"
+          "query": "g.out('represents').in('represents').in('mentions').hasLabel('report')",
+          "description": "Reports that mention either this hash or another hash representing the same sample"
         },
         {
           "title": "Downloads",
-          "query": "g.out('represents').out('at').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+          "query": "g.out('represents').out('at').in('componentOf').hasLabel(within('fqdn','ipv4'))",
+          "description": "IP addresses and domain names that the sample represented by this hash has been downloaded from"
         },
         {
           "title": "Callback",
-          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel(within('fqdn','ipv4'))",
+          "description": "IP addresses and domain names that the sample represented by this hash has communicated with when executed"
         },
         {
           "title": "Incidents",
-          "query": "g.out('represents').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
-        },
-        {
-          "title": "Signatures",
-          "query": "g.out('represents').out('observedIn').in('detects').hasLabel('signature')"
+          "query": "g.out('represents').out('observedIn').hasLabel('incident').not(has('value',startingWith('[placeholder')))",
+          "description": "Incidents where the sample represented by this hash has been observed"
         },
         {
           "title": "Tools",
-          "query": "g.out('represents').out('classifiedAs').hasLabel('tool')"
+          "query": "g.out('represents').out('classifiedAs').hasLabel('tool')",
+          "description": "Malware families or tools that his hash has been classified as"
         },
         {
           "title": "Paths",
-          "query": "g.out('represents').outE().hasLabel(within('at','connectsTo')).otherV().in('componentOf').hasLabel('path')"
+          "query": "g.out('represents').outE().hasLabel(within('at','connectsTo')).otherV().in('componentOf').hasLabel('path')",
+          "description": "All URL paths associated with this hash"
         },
         {
           "title": "Download paths",
-          "query": "g.out('represents').out('at').in('componentOf').hasLabel('path')"
+          "query": "g.out('represents').out('at').in('componentOf').hasLabel('path')",
+          "description": "URL paths for downloads of the sample represented by this hash"
         },
         {
           "title": "Callback paths",
-          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel('path')"
+          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel('path')",
+          "description": "URL paths that the sample represented by this hash communicates with when executed"
         },
         {
           "title": "Queries",
-          "query": "g.out('represents').outE().hasLabel(within('at','connectsTo')).otherV().in('componentOf').hasLabel('query')"
+          "query": "g.out('represents').outE().hasLabel(within('at','connectsTo')).otherV().in('componentOf').hasLabel('query')",
+          "description": "All URL queries (GET parameters) associated with this hash"
         },
         {
           "title": "Download queries",
-          "query": "g.out('represents').out('at').in('componentOf').hasLabel('query')"
+          "query": "g.out('represents').out('at').in('componentOf').hasLabel('query')",
+          "description": "URL queries (GET parameters) for downloads of the sample represented by this hash"
         },
         {
           "title": "Callback queries",
-          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel('query')"
+          "query": "g.out('represents').out('connectsTo').in('componentOf').hasLabel('query')",
+          "description": "URL queries (GET parameters) that the sample represented by this hash communicates with when executed"
+        }
+      ]
+    },
+    "content": {
+      "sections": [
+        {
+          "title": "Hashes",
+          "query": "g.in('represents').hasLabel('hash')",
+          "description": "Hashes (md5, sha1, sha256) that represent this sample",
+          "actions": [
+            {
+              "id": "open-in-vt",
+              "icon": "bug"
+            }
+          ]
+        },
+        {
+          "title": "Reports",
+          "query": "g.in('represents').hasLabel('hash').in('mentions').hasLabel('report')",
+          "description": "Reports that mention a hash representing this sample"
+        },
+        {
+          "title": "Downloads",
+          "query": "g.out('at').hasLabel('uri').in('componentOf').hasLabel(within('fqdn','ipv4'))",
+          "description": "IP addresses and domain names that this sample has been downloaded from"
+        },
+        {
+          "title": "Callback",
+          "query": "g.out('connectsTo').hasLabel('uri').in('componentOf').hasLabel(within('fqdn','ipv4'))",
+          "description": "IP addresses and domain names that this sample has communicated with when executed"
+        },
+        {
+          "title": "Incidents",
+          "query": "g.out('observedIn').hasLabel('incident').not(has('value',startingWith('[placeholder')))",
+          "description": "Incidents where this sample has been observed"
+        },
+        {
+          "title": "Tools",
+          "query": "g.out('classifiedAs').hasLabel('tool')",
+          "description": "Malware families or tools that his sample has been classified as"
+        },
+        {
+          "title": "Paths",
+          "query": "g.outE().hasLabel(within('at','connectsTo')).otherV().in('componentOf').hasLabel('path')",
+          "description": "All URL paths associated with this sample"
+        },
+        {
+          "title": "Download paths",
+          "query": "g.out('at').hasLabel('uri').in('componentOf').hasLabel('path')",
+          "description": "URL paths for downloads of this sample"
+        },
+        {
+          "title": "Callback paths",
+          "query": "g.out('connectsTo').hasLabel('uri').in('componentOf').hasLabel('path')",
+          "description": "URL paths that this sample communicates with when executed"
+        },
+        {
+          "title": "Queries",
+          "query": "g.outE().hasLabel(within('at','connectsTo')).otherV().in('componentOf').hasLabel('query')",
+          "description": "All URL queries (GET parameters) associated with this sample"
+        },
+        {
+          "title": "Download queries",
+          "query": "g.out('at').in('componentOf').hasLabel('query')",
+          "description": "URL queries (GET parameters) for downloads of this sample"
+        },
+        {
+          "title": "Callback queries",
+          "query": "g.out('connectsTo').in('componentOf').hasLabel('query')",
+          "description": "URL queries (GET parameters) that this sample communicates with when executed"
         }
       ]
     },
@@ -469,43 +556,53 @@
       "sections": [
         {
           "title": "IP addresses",
-          "query": "g.out('mentions').hasLabel('ipv4')"
+          "query": "g.out('mentions').hasLabel('ipv4')",
+          "description": "IP addresses mentioned in this report"
         },
         {
           "title": "Domains",
-          "query": "g.out('mentions').hasLabel('fqdn')"
+          "query": "g.out('mentions').hasLabel('fqdn')",
+          "description": "Domains mentioned in this report"
         },
         {
           "title": "Hashes",
-          "query": "g.out('mentions').hasLabel('hash')"
+          "query": "g.out('mentions').hasLabel('hash')",
+          "description": "Hashes mentioned in this report"
         },
         {
           "title": "Tools",
-          "query": "g.out('mentions').hasLabel('tool')"
+          "query": "g.out('mentions').hasLabel('tool')",
+          "description": "Malware families or tools mentioned in this report"
         },
         {
           "title": "Technique",
-          "query": "g.out('mentions').hasLabel('technique')"
+          "query": "g.out('mentions').hasLabel('technique')",
+          "description": "MITRE ATT&CK techniques mentioned in this report"
         },
         {
           "title": "Threat actors",
-          "query": "g.out('mentions').hasLabel('threatActor')"
+          "query": "g.out('mentions').hasLabel('threatActor')",
+          "description": "Threat actors mentioned in this report"
         },
         {
           "title": "Vulnerabilities",
-          "query": "g.out('mentions').hasLabel('vulnerability')"
+          "query": "g.out('mentions').hasLabel('vulnerability')",
+          "description": "Vulnerabilities (CVE or MSID) mentioned in this report"
         },
         {
           "title": "Countries",
-          "query": "g.out('mentions').hasLabel('country')"
+          "query": "g.out('mentions').hasLabel('country')",
+          "description": "Countries mentioned in this report"
         },
         {
           "title": "Sectors",
-          "query": "g.out('mentions').hasLabel('sector')"
+          "query": "g.out('mentions').hasLabel('sector')",
+          "description": "Industries/sectors mentioned in this report"
         },
         {
           "title": "Related reports",
-          "query": "g.out('mentions').hasLabel(within('ipv4','hash')).in('mentions').hasLabel('report')"
+          "query": "g.out('mentions').hasLabel(within('ipv4','hash')).in('mentions').hasLabel('report')",
+          "description": "Other reports that mention IP addresses or hashes mentioned in this report"
         }
       ]
     },
@@ -513,23 +610,28 @@
       "sections": [
         {
           "title": "Aliases",
-          "query": "g.as('startNode').optional(emit().repeat(out('alias')).until(cyclicPath())).where(neq('startNode'))"
+          "query": "g.as('startNode').optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).where(neq('startNode'))",
+          "description": "Other well-known names for this malware family or tool"
         },
         {
           "title": "Reports",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).union(inE('mentions').otherV(),inE('classifiedAs').otherV().in('represents').in('mentions')).hasLabel('report')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).union(inE('mentions').otherV(),inE('classifiedAs').otherV().in('represents').in('mentions')).hasLabel('report')",
+          "description": "Reports that mention this malware family or tool, plus reports that mention hashes classified as this malware family or tool. Also includes aliases (other well-known names)"
         },
         {
           "title": "Threat actors",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('observedIn').out('attributedTo').out('attributedTo').hasLabel('threatActor')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').hasLabel('content').out('observedIn').hasLabel('incident').out('attributedTo').hasLabel('threatActor')",
+          "description": "Threat actors known to use this malware family or tool. Also includes aliases (other well-known names)"
         },
         {
           "title": "Techniques",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).out('implements').hasLabel('technique')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).out('implements').hasLabel('technique')",
+          "description": "MITRE ATT&CK techniques implemented by this malware family or tool. Also includes aliases (other well-known names)"
         },
         {
           "title": "Samples",
           "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').hasLabel('content').not(has('value',startingWith('[placeholder')))",
+          "description": "Samples classified as this malware family or tool. Also includes aliases (other well-known names)",
           "actions": [
             {
               "id": "open-in-vt",
@@ -539,19 +641,18 @@
         },
         {
           "title": "Downloads",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('at').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('at').in('componentOf').hasLabel(within('fqdn','ipv4'))",
+          "description": "IP addresses and domain names that this malware family or tool has been downloaded from. Also includes aliases (other well-known names)"
         },
         {
           "title": "Callback",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('connectsTo').in('componentOf').hasLabel(within('fqdn','ipv4'))"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('connectsTo').in('componentOf').hasLabel(within('fqdn','ipv4'))",
+          "description": "IP addresses and domain names that this malware family or tool communicates with when executed. Also includes aliases (other well-known names)"
         },
         {
           "title": "Incidents",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('observedIn').out('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
-        },
-        {
-          "title": "Signatures",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').out('observedIn').in('detects').hasLabel('signature')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('classifiedAs').hasLabel('content').out('observedIn').hasLabel('incident').not(has('value',startingWith('[placeholder')))",
+          "description": "Incidents where samples classified as this malware family or tool have been observed. Also includes aliases (other well-known names)"
         }
       ]
     },
@@ -559,35 +660,43 @@
       "sections": [
         {
           "title": "Aliases",
-          "query": "g.as('startNode').optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).where(neq('startNode'))"
+          "query": "g.as('startNode').optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).where(neq('startNode'))",
+          "description": "Other well-known names for this threat actor"
         },
         {
           "title": "Reports",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('mentions').hasLabel('report')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('mentions').hasLabel('report')",
+          "description": "Reports that mention this threat actor. Also includes aliases (other well-known names)"
         },
         {
           "title": "Techniques",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').in('attributedTo').out('classifiedAs').hasLabel('technique')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').in('observedIn').hasLabel('technique')",
+          "description": "MITRE ATT&CK techniques associated with this threat actor. Also includes aliases (other well-known names)"
         },
         {
           "title": "Tools",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').in('attributedTo').in('observedIn').hasLabel('content').out('classifiedAs').hasLabel('tool')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').in('observedIn').hasLabel('content').out('classifiedAs').hasLabel('tool')",
+          "description": "Malware families or tools used by this threat actor. Also includes aliases (other well-known names)"
         },
         {
           "title": "Incidents",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').not(has('value',startingWith('[placeholder')))",
+          "description": "Incidents attributed to this threat actor. Also includes aliases (other well-known names)"
         },
         {
           "title": "Campaigns",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('attributedTo').hasLabel('campaign')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('attributedTo').hasLabel('campaign')",
+          "description": "Campaigns attributed to this threat actor. Also includes aliases (other well-known names)"
         },
         {
           "title": "Target sectors",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('memberOf').hasLabel('sector')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('memberOf').hasLabel('sector')",
+          "description": "Industries/sectors targeted by this threat actor. Also includes aliases (other well-known names)"
         },
         {
           "title": "Target countries",
-          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('locatedIn').hasLabel('country')"
+          "query": "g.optional(emit().repeat(out('alias').dedup()).until(cyclicPath())).in('attributedTo').hasLabel('incident').out('targets').hasLabel('organization').out('locatedIn').hasLabel('country')",
+          "description": "Countries targeted by this threat actor. Also includes aliases (other well-known names)"
         }
       ]
     }

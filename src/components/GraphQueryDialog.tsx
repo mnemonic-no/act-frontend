@@ -68,8 +68,8 @@ const GraphQueryDialogComp = (props: IGraphQueryDialogComp) => {
             multiline
             autoFocus
             minRows="4"
+            maxRows="10"
             variant="outlined"
-            rowsMax="10"
             fullWidth
             value={props.graphQuery.value}
             onChange={e => props.graphQuery.onChange(e.target.value)}

@@ -700,5 +700,39 @@
         }
       ]
     }
+  },
+  "examples": {
+    "moreExamplesLink": {
+      "text": "Click here for more examples",
+      "tooltip": "See more examples",
+      "href": "/examples"
+    },
+    "links": [
+      {
+        "text": "153.148.23.118",
+        "href": "/object-fact-query/ipv4/153.148.23.118",
+        "tooltip": "Search for an IP"
+      },
+      {
+        "text": "Threat actor: Sofacy",
+        "href": "/object-fact-query/threatActor/sofacy",
+        "tooltip": "Search for a threat actor"
+      },
+      {
+        "text": "Technique: Credential dumping",
+        "href": "/object-fact-query/technique/Credential%20Dumping",
+        "tooltip": "Search for a technique"
+      },
+      {
+        "text": "Tool: foosauce",
+        "href": "/object-fact-query/tool/foosace",
+        "tooltip": "Search for a tool"
+      },
+      {
+        "text": "Hash: da2a657dc69d7320f2ffc87013f257ad",
+        "href": "/object-fact-query/hash/da2a657dc69d7320f2ffc87013f257ad",
+        "tooltip": "Search for a hash"
+      }
+    ]
   }
 }

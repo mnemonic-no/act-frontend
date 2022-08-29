@@ -1,6 +1,6 @@
 // @ts-ignore
 import { saveAs } from 'file-saver';
-import { ActObject } from '../core/types';
+import { ActObject, TLink } from '../core/types';
 import * as _ from 'lodash/fp';
 
 export const objectTypeToColor = (objectColors: { [objectType: string]: string }, objectType: string) =>
@@ -178,7 +178,7 @@ export const linkOnClickFn = (props: { href: string; navigateFn: (url: string) =
   };
 };
 
-export const link = (props: { text: string; tooltip: string; href: string; navigateFn: (url: string) => void }) => {
+export const link = (props: { text: string; tooltip: string; href: string; navigateFn: (url: string) => void }): TLink => {
   return {
     text: props.text,
     tooltip: props.tooltip,

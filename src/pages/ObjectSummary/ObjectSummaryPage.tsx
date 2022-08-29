@@ -9,7 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import WarnIcon from '@material-ui/icons/Warning';
 
-import { ActionButton } from '../../core/types';
+import { TActionButton } from '../../core/types';
 import CreateFactForObjectDialog from '../../components/CreateFactFor/Dialog';
 import ObjectSummaryPageStore from './ObjectSummaryPageStore';
 import ObjectTitle, { IObjectTitleProps } from '../../components/ObjectTitle';
@@ -76,8 +76,8 @@ const TitleSection = (props: {
   warning?: string;
   title: IObjectTitleProps;
   categories: Array<string>;
-  objectActions: { title: string; buttons: Array<ActionButton> };
-  commonActions: Array<ActionButton>;
+  objectActions: { title: string; buttons: Array<TActionButton> };
+  commonActions: Array<TActionButton>;
 }) => {
   const classes = useTitleSectionStyles();
 

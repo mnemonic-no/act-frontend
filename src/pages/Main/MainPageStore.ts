@@ -17,6 +17,7 @@ import SelectionStore from './SelectionStore';
 import WorkingHistory from './WorkingHistory';
 import WorkingHistoryStore from './WorkingHistory/WorkingHistoryStore';
 import { ActApi } from '../../backend/ActApi';
+import { examples } from '../../configUtil';
 
 class MainPageStore {
   ui: {
@@ -34,6 +35,7 @@ class MainPageStore {
 
   @observable isSearchDrawerOpen = true;
 
+  config: TConfig;
   appStore: AppStore;
   backendStore: BackendStore;
   workingHistory: WorkingHistory;
@@ -42,6 +44,7 @@ class MainPageStore {
 
   constructor(appStore: AppStore, config: TConfig, actApi: ActApi) {
     this.appStore = appStore;
+    this.config = config;
     this.backendStore = appStore.backendStore;
     this.workingHistory = new WorkingHistory(this, appStore.eventBus);
     this.refineryStore = new RefineryStore(this, window.localStorage);
@@ -87,6 +90,11 @@ class MainPageStore {
   @computed
   get hasContent() {
     return !this.workingHistory.isEmpty;
+  }
+
+  @computed
+  get graphEmpty() {
+    return examples(this.config, (url: string) => this.appStore.goToUrl(url))
   }
 
   @computed

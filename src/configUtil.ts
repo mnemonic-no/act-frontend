@@ -1,5 +1,6 @@
 import * as _ from 'lodash/fp';
 import { TConfig } from './core/types';
+import { link } from './util/util';
 
 export type TLinkActionTemplate = {
   type: 'link';
@@ -102,3 +103,23 @@ export const autoResolveFactsFor = (objectTypeName: string, config: TConfig): Ar
   const factTypesByWildCard: Array<string> = autoResolveFacts['*'] || [];
   return factTypesByWildCard.concat(autoResolveFacts[objectTypeName] || []);
 };
+
+
+export const examples = (config: TConfig, navigateFn: (url: string) => void) => {
+  const linkConfig = config.examples?.links || [];
+  const links = linkConfig.map((example: {text: string, href: string, tooltip: string}) =>
+    link({
+      text: example.text,
+      href: example.href,
+      tooltip: example.tooltip || 'Execute query',
+      navigateFn
+    })
+  );
+
+  const moreExamples = config.examples?.moreExamplesLink;
+  return {
+    title: config.examples?.title || "",
+    links,
+    moreButton: moreExamples && {text: moreExamples?.text, tooltip: moreExamples?.tooltip, href: moreExamples?.href }
+  }
+}

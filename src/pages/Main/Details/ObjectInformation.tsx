@@ -6,7 +6,7 @@ import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import { ActionButton } from '../../../core/types';
+import { TActionButton } from '../../../core/types';
 import CenteredCircularProgress from '../../../components/CenteredCircularProgress';
 import CreateFactForObjectDialog from '../../../components/CreateFactFor/Dialog';
 import CreateFactForDialog from '../../../components/CreateFactFor/DialogStore';
@@ -97,7 +97,7 @@ export interface IObjectInformationProps {
   id: string;
   objectTitle: IObjectTitleProps;
   isLoadingData: boolean;
-  actions: Array<{ title: string; buttons: Array<ActionButton> }>;
+  actions: Array<{ title: string; buttons: Array<TActionButton> }>;
   factTitle: string;
   factStats: IFactStatsProps;
   footerButtons: Array<{ text: string; onClick: () => void }>;

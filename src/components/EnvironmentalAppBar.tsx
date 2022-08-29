@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) => {
     banner: {
       position: 'absolute',
       userSelect: 'none',
-      bottom: 0,
+      bottom: "-0.5rem",
       marginLeft: theme.spacing(3)
     },
     appBarLeft: {

@@ -4,7 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import { ActionButton } from '../core/types';
+import { TActionButton } from '../core/types';
 
 const TitledButtonListComp = (props: ITitledButtonListProps) => {
   if (props.buttons.length === 0) return null;
@@ -34,7 +34,7 @@ const TitledButtonListComp = (props: ITitledButtonListProps) => {
 
 export interface ITitledButtonListProps {
   title: string;
-  buttons: Array<ActionButton>;
+  buttons: Array<TActionButton>;
 }
 
 export default TitledButtonListComp;

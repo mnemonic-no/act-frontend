@@ -1,4 +1,4 @@
-import { autoResolveFactsFor, parseObjectSummary, resolveActions } from './configUtil';
+import { autoResolveFactsFor, examples, parseObjectSummary, resolveActions } from './configUtil';
 
 it('can resolve context actions', () => {
   expect(resolveActions({ contextActions: [], actions: {} })).toEqual([]);
@@ -85,4 +85,24 @@ it('can auto resolve facts ', () => {
       }
     })
   ).toEqual(['category', 'mentions']);
+});
+
+
+describe('examples', () => {
+  test('can handle missing config', () => {
+    expect(examples({}, jest.fn())).toEqual({ title: '', links: [] });
+  });
+
+  test('can handle moreExamplesLink', () => {
+    const moreExamplesLink = {
+      'text': 'Click here for more examples',
+      'tooltip': 'See more examples',
+      'href': '/examples'
+    };
+    expect(examples({ examples: { moreExamplesLink } }, jest.fn())).toEqual({
+      title: '',
+      links: [],
+      moreButton: moreExamplesLink
+    });
+  });
 });

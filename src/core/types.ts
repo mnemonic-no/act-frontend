@@ -163,7 +163,7 @@ export type ContextAction = {
   onClick?: () => void;
 };
 
-export type ActionButton = {
+export type TActionButton = {
   text: string;
   tooltip: string;
   href?: string;
@@ -179,6 +179,10 @@ export type TBanner = {
   textColor?: string;
   backgroundColor?: string;
 };
+
+export type TLink = {
+ text: string; tooltip: string; href: string; onClick: (e: any) => void;
+}
 
 /**
  * Loading
